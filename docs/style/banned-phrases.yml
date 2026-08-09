@@ -1,0 +1,256 @@
+# Banned phrases, checked by scripts/checks/prose-gate.py.
+#
+# Each rule has an id, a severity, a regex, a reason, and a replacement hint.
+# Severity "error" fails the build. Severity "warn" prints and passes, and is used
+# where the pattern is a strong signal but has honest uses.
+#
+# Escape a single line with a trailing comment: docs-lint-ok <rule-id> <reason>
+#
+# Derived from ASD-STE100 Issue 9 writing rules 1 to 53, the style guidance in
+# ISO/IEC/IEEE 26514:2022, and the plain-language conventions in
+# docs/DOCUMENTATION-STANDARD.md.
+#
+# This file and ste-terms.yml are exempt from their own gates. They necessarily
+# contain the words they ban.
+
+version: 1
+
+rules:
+
+  # ---------------------------------------------------------------- mechanical
+
+  - id: DASH-01
+    severity: error
+    pattern: "[\u2014\u2013]"
+    reason: Em dash and en dash are the single most reliable AI tell.
+    replace_with: A comma, a colon, a period, or a restructured sentence.
+
+  - id: QUOTE-01
+    severity: error
+    pattern: "[\u2018\u2019\u201C\u201D]"
+    reason: Curly quotes come from an editor autocorrect, not from this repository.
+    replace_with: Straight quotes.
+
+  - id: EMOJI-01
+    severity: error
+    pattern: "[\U0001F300-\U0001FAFF\u2600-\u27BF\uFE0F]"
+    reason: Decorative emoji in technical documentation.
+    replace_with: Nothing. Delete it.
+
+  - id: ATTRIB-01
+    severity: error
+    pattern: "(?i)(co-authored-by:\\s*claude|generated with \\[?claude|\U0001F916 generated)"
+    reason: The commit history and the docs are portfolio artifacts. No AI attribution.
+    replace_with: Nothing. Delete the line.
+
+  - id: LIST-01
+    severity: error
+    pattern: "^\\s*[-*]\\s+\\*\\*[^*]{2,40}\\*\\*\\s*:"
+    reason: Bold-header vertical list. A bullet opening with a bold phrase and a colon.
+    replace_with: Prose, or a real table with real columns.
+
+  # ---------------------------------------------- significance inflation
+
+  - id: SIG-01
+    severity: error
+    pattern: "(?i)\\b(plays? an? (crucial|vital|key|pivotal|significant|important) role)\\b"
+    reason: Significance inflation. States importance instead of stating the fact.
+    replace_with: The specific thing it does.
+
+  - id: SIG-02
+    severity: error
+    pattern: "(?i)\\b(stands? as|serves? as) a (testament|reminder|symbol)\\b"
+    reason: Significance inflation.
+    replace_with: "is"
+
+  - id: SIG-03
+    severity: error
+    pattern: "(?i)\\b(marks?|represents?) a (pivotal|key|major|significant) (moment|shift|milestone|turning point)\\b"
+    reason: Significance inflation.
+    replace_with: What actually changed.
+
+  - id: SIG-04
+    severity: error
+    pattern: "(?i)\\b(underscor|highlight|emphasi[sz])\\w*\\s+(the\\s+)?(importance|significance|need|value)\\b"
+    reason: Significance inflation.
+    replace_with: State the point directly.
+
+  - id: SIG-05
+    severity: warn
+    pattern: "(?i)\\b(evolving landscape|broader (movement|trend|context)|indelible mark|deeply rooted|setting the stage)\\b"
+    reason: Significance inflation.
+    replace_with: The concrete claim.
+
+  # ---------------------------------------------------------- promotional
+
+  - id: PROMO-01
+    severity: error
+    pattern: "(?i)\\b(seamless(ly)?|robust|powerful|cutting[- ]edge|state[- ]of[- ]the[- ]art|world[- ]class|best[- ]in[- ]class|game[- ]chang\\w+|revolutionary|unparalleled)\\b"
+    reason: Promotional adjective. Says nothing measurable.
+    replace_with: The measured property, or delete.
+
+  - id: PROMO-02
+    severity: error
+    pattern: "(?i)\\b(vibrant|rich (ecosystem|history|tapestry)|tapestry|breathtaking|stunning|renowned|nestled|boasts?)\\b"
+    reason: Promotional language.
+    replace_with: Plain description.
+
+  - id: PROMO-03
+    severity: warn
+    pattern: "(?i)\\b(comprehensive|holistic|end[- ]to[- ]end solution|enterprise[- ]grade|battle[- ]tested)\\b"
+    reason: Promotional unless backed by a stated scope or a measurement.
+    replace_with: The actual scope, or the number.
+
+  # ------------------------------------------------------ AI vocabulary
+
+  - id: VOCAB-01
+    severity: error
+    pattern: "(?i)\\b(delve|leverage|utili[sz]e|facilitate|showcase|garner|intricacies|interplay)\\b"
+    reason: High-frequency AI vocabulary.
+    replace_with: dig into, use, use, help, show, get, details, relationship
+
+  - id: VOCAB-02
+    severity: warn
+    pattern: "(?i)\\b(crucial|pivotal|enduring|foster\\w*|enhance\\w*|align with)\\b"
+    reason: High-frequency AI vocabulary. Sometimes correct. Check each one.
+    replace_with: A plainer word.
+
+  # ----------------------------------------------- structural formulas
+
+  - id: STRUCT-01
+    severity: error
+    pattern: "(?i)\\b(it'?s not just|not only .{1,60}\\bbut also\\b|isn'?t just about)\\b"
+    reason: Negative parallelism.
+    replace_with: State the positive claim directly.
+
+  - id: STRUCT-02
+    severity: error
+    pattern: "(?i)^\\s*(let'?s (dive|explore|break|take a look)|here'?s what you need to know|without further ado|now let'?s)"
+    reason: Signposting. Announces the section instead of writing it.
+    replace_with: Nothing. Write the content.
+
+  - id: STRUCT-03
+    severity: error
+    pattern: "(?i)\\b(the real question is|at its core|what really matters|the heart of the matter|the deeper issue)\\b"
+    reason: Persuasive authority trope. Ceremony around an ordinary point.
+    replace_with: The ordinary point.
+
+  - id: STRUCT-04
+    severity: warn
+    pattern: "(?i)\\b(despite (its|these) challenges|challenges and (future )?(prospects|outlook|legacy))\\b"
+    reason: Formulaic challenges section.
+    replace_with: A real limitations section with real limitations.
+
+  # ------------------------------------------------ vague attribution
+
+  - id: VAGUE-01
+    severity: error
+    pattern: "(?i)\\b(experts? (say|argue|believe|agree)|industry reports?|observers have|some critics argue|it is (widely )?believed|studies (show|suggest))\\b"
+    reason: Vague attribution. Names no source.
+    replace_with: Name the source, or delete the claim.
+
+  - id: VAGUE-02
+    severity: error
+    pattern: "(?i)\\b(the (implications|results|benefits) are (significant|clear|substantial)|significantly (improv|enhanc|reduc)\\w+)\\b"
+    reason: Vague declarative. States magnitude without a number.
+    replace_with: The number, or a METRIC marker.
+
+  # ---------------------------------------------------------- filler
+
+  - id: FILLER-01
+    severity: error
+    pattern: "(?i)\\b(it is important to note that|it should be noted that|in order to|due to the fact that|at this point in time|in the event that)\\b"
+    reason: Filler.
+    replace_with: "Delete, or: to, because, now, if"
+
+  - id: FILLER-02
+    severity: error
+    pattern: "(?i)\\b(has the ability to|is able to|provides the capability to)\\b"
+    reason: Filler around a verb.
+    replace_with: "can"
+
+  - id: FILLER-03
+    severity: warn
+    pattern: "(?i)\\b(could potentially|may possibly|might potentially|somewhat|fairly|quite|very|really|actually|basically|essentially|simply)\\b"
+    reason: Hedging stack or adverb padding.
+    replace_with: Delete the qualifier.
+
+  # ------------------------------------------------- chat artifacts
+
+  - id: CHAT-01
+    severity: error
+    pattern: "(?i)\\b(i hope this helps|let me know if|would you like me to|feel free to reach out|great question|certainly!|of course!)\\b"
+    reason: Chatbot correspondence pasted into a document.
+    replace_with: Nothing. Delete.
+
+  - id: CHAT-02
+    severity: error
+    pattern: "(?i)\\b(as of my (last )?(training|knowledge) (update|cutoff)|based on available information|while specific details are (limited|scarce))\\b"
+    reason: Knowledge-cutoff disclaimer or speculative gap filling.
+    replace_with: State what is known, or delete the sentence.
+
+  # -------------------------------------------- diff-anchored prose
+
+  - id: DIFF-01
+    severity: error
+    pattern: "(?i)\\b(previously,|the old |used to (be|use|have)|was (previously|formerly)|this replaces|instead of the (old|previous))\\b"
+    reason: Diff narration. Documentation describes the system as it is.
+    replace_with: Describe the current behavior.
+    exempt_files:
+      - CHANGELOG.md
+      - docs/migrations/**
+
+  # -------------------------------------------- ASD-STE100 Issue 9
+
+  - id: STE-01
+    severity: error
+    pattern: "(?i)\\b(shall|should|ought to)\\b"
+    reason: "STE rule: use 'must' for a requirement and 'can' for a possibility."
+    replace_with: must, can
+    topic_types: [task, reference]
+
+  - id: STE-02
+    severity: error
+    pattern: "(?i)\\b(prior to|subsequent to|in the vicinity of|utili[sz]e|commence|terminate|endeavour|ascertain)\\b"
+    reason: STE non-approved word.
+    replace_with: before, after, near, use, start, stop, try, find out
+    topic_types: [task, reference]
+
+  - id: STE-03
+    severity: warn
+    pattern: "(?i)\\b(and/or|etc\\.|and so on|as appropriate|if necessary|where applicable)\\b"
+    reason: "STE rule: do not leave the reader to decide. State the condition."
+    replace_with: The explicit condition.
+    topic_types: [task, reference]
+
+  - id: STE-04
+    severity: error
+    pattern: "(?i)\\bin case of\\b"
+    reason: STE non-approved. Ambiguous between "if" and "because of".
+    replace_with: "if, or: because of"
+    topic_types: [task, reference]
+
+# ------------------------------------------------------------------ limits
+# Enforced by scripts/checks/prose-gate.py, applied per topic type.
+
+sentence_limits:
+  task:
+    instruction_max_words: 20
+    descriptive_max_words: 25
+    paragraph_max_sentences: 6
+  reference:
+    descriptive_max_words: 25
+    paragraph_max_sentences: 6
+  concept:
+    descriptive_max_words: 35
+    paragraph_max_sentences: 8
+  exempt:
+    - README.md
+    - ROADMAP.md
+    - CHANGELOG.md
+
+description_rules:
+  min_words: 10
+  max_words: 30
+  max_sentences: 1
+  must_not_restate_title: true

@@ -1,0 +1,203 @@
+# Project word list, checked by scripts/checks/prose-gate.py in task and reference topics.
+#
+# ASD-STE100 Issue 9 defines roughly 900 approved words and roughly 1200 non-approved
+# words with replacements. That dictionary is copyright ASD and is not vendored here.
+# Obtain it from https://www.asd-ste100.org/.
+#
+# This file holds two things the ASD dictionary cannot hold:
+#   1. The technical nouns and technical verbs this system defines. STE permits a
+#      technical name that is not in the dictionary when the project declares it.
+#      Issue 9 aligned these classifications to ISO 1087-1:2019.
+#   2. The subset of non-approved general words that appear often enough in this
+#      domain to be worth failing on, with the replacement to use.
+#
+# One word carries one meaning. One meaning takes one word. Do not vary vocabulary
+# for style. If two entries below mean the same thing, that is a defect in this file.
+
+version: 1
+
+# ------------------------------------------------------------ technical nouns
+# Declared names. The linter accepts these and rejects synonyms for them.
+
+technical_nouns:
+
+  simulation_and_twin:
+    - term: twin
+      definition: The synchronized model of the operation. Never "digital shadow" or "model" alone.
+      rejects: [digital shadow, sim model]
+    - term: sim clock
+      definition: The virtual clock service that all timestamps derive from.
+      rejects: [virtual time, fake clock, simulated time]
+    - term: run seed
+      definition: The single integer that governs every stochastic stream in a run.
+      rejects: [random seed, master seed]
+    - term: child seed
+      definition: A per-subsystem stream derived from the run seed.
+      rejects: [sub-seed, substream seed]
+    - term: what-if
+      definition: A twin experiment applying a config change and measuring the delta.
+      rejects: [scenario run, simulation experiment, hypothetical]
+    - term: counterfactual
+      definition: A replay of a recorded run through a modified config.
+      rejects: [replay experiment, alternate history]
+
+  telemetry:
+    - term: UNS
+      definition: The unified namespace. The ISA-95 topic hierarchy all devices publish into.
+      rejects: [namespace, topic tree, unified name space]
+    - term: historian
+      definition: The L2 time series system of record.
+      rejects: [time series database, data store, archive]
+    - term: device twin
+      definition: The desired and reported state pair held for each device.
+      rejects: [shadow, device shadow, device state]
+    - term: birth certificate
+      definition: The Sparkplug NBIRTH or DBIRTH message declaring a node or device online.
+      rejects: [birth message, online message]
+    - term: death certificate
+      definition: The Sparkplug NDEATH or DDEATH message.
+      rejects: [death message, offline message]
+    - term: store and forward
+      definition: Buffering telemetry during an outage and replaying it on reconnect.
+      rejects: [buffering, offline queue, spooling]
+
+  statistics:
+    - term: finding
+      definition: A typed judgment emitted by the LSS engine, with severity and evidence.
+      rejects: [alert, issue, insight, observation, flag]
+    - term: violation
+      definition: A control chart rule breach, identified by rule number.
+      rejects: [breach, exception, out of control point]
+    - term: special cause
+      definition: Variation from an assignable source, injected from the fault catalog.
+      rejects: [anomaly, outlier, abnormal variation]
+    - term: common cause
+      definition: The inherent variation of a stable process.
+      rejects: [normal variation, background noise, expected variation]
+    - term: VAL-GATE
+      definition: A validation gate. A statistic checked against a named published reference.
+      rejects: [validation check, reference test]
+    - term: capability report
+      definition: The generated HTML report for a time window.
+      rejects: [quality report, stats report, summary report]
+
+  operations:
+    - term: putaway
+      definition: Moving received material to its storage location. One word, no hyphen.
+      rejects: [put-away, put away, stow]
+    - term: cross-dock
+      definition: Moving inbound material to an outbound door without storing it.
+      rejects: [crossdock, cross docking, flow through]
+    - term: slotting
+      definition: Assigning a SKU to a storage location.
+      rejects: [location assignment, SKU placement]
+    - term: takt
+      definition: Available time divided by customer demand.
+      rejects: [takt time, cycle rate]
+    - term: AMR
+      definition: Autonomous mobile robot. Use AMR after first expansion.
+      rejects: [robot, mobile robot, autonomous robot]
+    - term: perfect order
+      definition: An order complete, on time, damage free, and correctly invoiced.
+      rejects: [clean order, successful order]
+
+# ------------------------------------------------------------ technical verbs
+
+technical_verbs:
+  - term: publish
+    definition: Send a message to a UNS topic.
+    rejects: [emit, push, send out, broadcast]
+  - term: replay
+    definition: Re-execute a recorded event log.
+    rejects: [rerun, playback, re-simulate]
+  - term: recalibrate
+    definition: Adjust twin parameters from observed telemetry.
+    rejects: [retune, adjust, sync up]
+  - term: inject
+    definition: Introduce a fault from the fault catalog into a run.
+    rejects: [trigger, simulate a failure, cause]
+  - term: raise
+    definition: Create a finding.
+    rejects: [fire, throw, generate an alert, surface]
+  - term: seed
+    definition: Initialize a stochastic stream from a seed value.
+    rejects: [initialize randomness, set the random state]
+
+# ------------------------------------- non-approved general words, with fixes
+# Applied in task and reference topics only. Concept topics use the relaxed profile.
+
+non_approved:
+  - {word: utilize, use: use}
+  - {word: utilise, use: use}
+  - {word: leverage, use: use}
+  - {word: facilitate, use: help}
+  - {word: implement, use: "build, or: install"}
+  - {word: perform, use: do}
+  - {word: obtain, use: get}
+  - {word: require, use: need}
+  - {word: prior to, use: before}
+  - {word: subsequent to, use: after}
+  - {word: commence, use: start}
+  - {word: terminate, use: stop}
+  - {word: ascertain, use: "find out"}
+  - {word: endeavour, use: try}
+  - {word: in the vicinity of, use: near}
+  - {word: in the event that, use: if}
+  - {word: at this time, use: now}
+  - {word: a number of, use: "some, or the count"}
+  - {word: the majority of, use: most}
+  - {word: in order to, use: to}
+  - {word: as well as, use: and}
+  - {word: additionally, use: also}
+  - {word: furthermore, use: also}
+  - {word: moreover, use: also}
+  - {word: however, use: but}
+  - {word: therefore, use: so}
+  - {word: approximately, use: about}
+  - {word: sufficient, use: enough}
+  - {word: initiate, use: start}
+  - {word: modify, use: change}
+  - {word: verify, use: check}
+  - {word: ensure, use: "make sure"}
+  - {word: enable, use: "let, or: turn on"}
+  - {word: allow, use: "let"}
+  - {word: attempt, use: try}
+  - {word: assist, use: help}
+  - {word: display, use: show}
+  - {word: indicate, use: show}
+  - {word: provide, use: give}
+  - {word: locate, use: find}
+  - {word: purchase, use: buy}
+  - {word: numerous, use: many}
+  - {word: various, use: "several, or name them"}
+
+# ----------------------------------------------------------------- exceptions
+# Words that look non-approved but are correct here because they are the exact
+# name of a thing. The linter accepts these in any topic type.
+
+protected_terms:
+  - Delta Lake
+  - Sparkplug B
+  - Isolation Forest
+  - Gage R and R
+  - Western Electric rules
+  - Nelson rules
+  - value stream map
+  - golden batch
+  - six big losses
+  - guaranteed service time
+  - newsvendor
+  - conformance checking
+  - process discovery
+  - alignment
+  - control chart
+  - process capability
+  - measurement system analysis
+  - acceptance sampling
+  - lot genealogy
+  - unified namespace
+  - Purdue Model
+  - ISA-95
+  - ISA-88
+  - IEC 62443
+  - GS1 EPCIS
