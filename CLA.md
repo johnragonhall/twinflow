@@ -9,12 +9,12 @@ audience: contributors
 
 You keep your copyright. This is a license, not an assignment. Signing moves no
 ownership of anything to anyone. You can still use, publish, sell, or relicense
-your own contribution anywhere else, on any terms you like, and you need no
-permission from this project to do it.
+your own contribution anywhere else, on any terms you like. You need no
+permission from this project to do any of that.
 
-What signing does is let Jack ship your work under both of the licenses this
-project offers. [LICENSING.md](LICENSING.md) explains why a dual-licensed
-project cannot take a contribution without an agreement like this one.
+Signing lets the maintainer ship your work under both licenses this project
+offers. [LICENSING.md](LICENSING.md) explains why a dual-licensed project
+cannot take a contribution without an agreement like this one.
 
 Sign once, in your first pull request. One signature covers everything you
 contribute after it. The mechanism is in [section 7](#7-how-to-sign).
@@ -47,20 +47,21 @@ own contribution and can exercise them wherever you like.
 
 ## 3. Patent license
 
-You grant the maintainer, and every recipient of software the maintainer
-distributes, a perpetual, worldwide, non-exclusive, royalty-free, irrevocable
+You grant a perpetual, worldwide, non-exclusive, royalty-free, irrevocable
 patent license to make, have made, use, offer to sell, sell, import, and
-otherwise transfer your contribution.
+otherwise transfer your contribution. The grant runs to the maintainer and to
+every recipient of software the maintainer distributes.
 
-That patent license covers only the patent claims you own or control that are
+That patent license covers only the patent claims you own or control that are <!-- docs-lint-ok LEN-01 verbatim Apache-2.0 section 3 scope wording, not editable prose -->
 necessarily infringed by your contribution alone, or by the combination of your
 contribution with the project.
 
-Defensive termination: if any entity files patent litigation against any entity,
-including a cross-claim or a counterclaim in a lawsuit, alleging that your
-contribution or the project infringes a patent directly or contributorily, then
-every patent license granted under this agreement to that entity for that
-contribution ends on the date the litigation is filed.
+Defensive termination works as Apache-2.0 section 3 works. It starts on patent
+litigation alleging that your contribution or the project infringes a patent,
+directly or contributorily. When an entity files such litigation, every
+patent license this agreement granted to that entity for that contribution ends
+on the date of filing. A cross-claim or a counterclaim inside another lawsuit
+counts as filing.
 
 ## 4. What you represent
 
@@ -99,8 +100,8 @@ includes any warranty of merchantability, fitness for a particular purpose,
 title, and non-infringement.
 
 The maintainer owes you nothing in return except the Apache-2.0 license every
-other user gets, and is under no obligation to use, merge, or keep your
-contribution.
+other user gets. Nothing here obliges the maintainer to use, merge, or keep
+your contribution.
 
 ## 7. How to sign
 
@@ -136,16 +137,37 @@ TEST
 Signed-off-by: Mona Lisa Octocat <mona@example.com>
 ```
 
-CI checks three things. A pull request that fails any of them does not merge.
+The `cla` job in [.github/workflows/lint.yml](.github/workflows/lint.yml) runs
+three checks on every pull request. A pull request that fails any of the three
+does not merge.
 
-| Check             | What passes                                                                                                    |
-| ----------------- | -------------------------------------------------------------------------------------------------------------- |
-| Signature present | The pull request author's handle appears in section 8, either already on `main` or added by this pull request. |
-| Line shape        | Every signatory line in section 8 matches the regular expression above.                                        |
-| Trailer present   | Every commit in the pull request carries a `Signed-off-by` trailer.                                            |
+| Step name           | What passes                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `Line shape`        | Every list line inside section 8 matches the regular expression above, case sensitive.                                          |
+| `Signature present` | A signatory line names the pull request author's handle, compared without regard to case.                                       |
+| `Trailer present`   | Every commit on your branch that is not on the base branch, and is not a merge, carries a `Signed-off-by` trailer with a value. |
 
-Add your line at the end of the list rather than in the middle, so two open pull
-requests do not collide on the same line.
+The job checks out the merge result, so a signatory line added by the pull
+request under review counts as present.
+
+Three carve-outs sit in the job, and none of them is visible from the table.
+
+The repository owner is exempt from `Signature present`. The owner already
+holds the copyright, so there is no license for the owner to grant. The step
+compares the pull request author's handle against the repository owner's
+handle, and exits early when the two match.
+
+Merge commits are exempt from `Trailer present`. A merge carries no authored
+content, and the GitHub "Update branch" button writes one that a contributor
+cannot sign afterwards. The step passes `--no-merges` to `git rev-list`.
+
+Commits merged in from the base branch are exempt from `Trailer present` too.
+You did not write them, so you cannot sign them. The step reads the two parents
+of the checked-out merge commit. It then asks only about commits reachable from
+your branch and not from the base branch tip.
+
+Add your line at the end of the list, not in the middle. Two open pull requests
+then never collide on the same line.
 
 ## 8. Signatories
 
@@ -169,7 +191,7 @@ on the date shown.
 
 ## What this is not
 
-This is not legal advice, and the author is not a lawyer. If your organization
-needs a signed paper agreement, or wants its own counsel to read this first, say
-so in a [discussion](https://github.com/johnragonhall/twinflow/discussions)
+This is not legal advice, and the author is not a lawyer. Your organization may
+need a signed paper agreement, or may want its own counsel to read this first.
+Say so in a [discussion](https://github.com/johnragonhall/twinflow/discussions)
 before you open a pull request.
