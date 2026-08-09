@@ -1,0 +1,98 @@
+version: 2
+
+updates:
+  # Python packages across the uv workspace. The glob picks up every brick's
+  # manifest wherever it lands in the monorepo.
+  - package-ecosystem: pip
+    directories:
+      - "/"
+      - "/**/*"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - python
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      python-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  # Rust device agent.
+  - package-ecosystem: cargo
+    directories:
+      - "/"
+      - "/**/*"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - rust
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      cargo-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  # GitHub Actions used by CI, release, and the docs build.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  # Base images for the broker, historian, analytics, agent, and dashboard
+  # containers in the Purdue-segmented stack.
+  - package-ecosystem: docker
+    directories:
+      - "/"
+      - "/**/*"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - docker
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      docker-base-images:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch

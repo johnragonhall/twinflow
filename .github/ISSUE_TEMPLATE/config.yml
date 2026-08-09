@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and usage help
+    url: https://github.com/johnragonhall/twinflow/blob/main/SUPPORT.md
+    about: How to ask a question, what is in scope, and what response to expect. Start here if you are not reporting a defect.
+  - name: Discussions
+    url: https://github.com/johnragonhall/twinflow/discussions
+    about: Open-ended questions about the design, the statistical choices, or modeling your own operation.
+  - name: Security vulnerabilities
+    url: https://github.com/johnragonhall/twinflow/security/policy
+    about: Report privately. Do not open a public issue for a vulnerability.
+  - name: Roadmap
+    url: https://github.com/johnragonhall/twinflow/blob/main/ROADMAP.md
+    about: The living backlog. Check whether your idea is already a sequenced milestone before filing.

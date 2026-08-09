@@ -1,0 +1,86 @@
+name: Feature request
+description: Propose a capability, a change in behavior, or an improvement to an existing module.
+title: "[feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Nothing is ever deleted from the roadmap here; items are reordered. A good feature request is easier to sequence when it states what it unlocks and what it depends on. If you are proposing a whole numbered milestone rather than a change to an existing module, use the roadmap milestone form instead.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What is hard, wrong, or missing today. Describe the situation, not the solution.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: The behavior you want in its place. Be concrete about inputs, outputs, and where it lives.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Process twin (discrete-event simulation)
+        - Device fleet, sensor catalog, or MQTT/Sparkplug B
+        - Unified Namespace, broker, or edge gateway
+        - Historian or schemas
+        - Lean Six Sigma engine (SPC, capability, MSA, hypothesis tests)
+        - Process mining or value stream map
+        - Fleet management or predictive maintenance
+        - Computer vision auditing
+        - AI agent or accuracy stack
+        - Dashboard
+        - Packaging, CI, or tooling
+        - Documentation
+        - New module or brick
+    validations:
+      required: true
+
+  - type: textarea
+    id: unlocks
+    attributes:
+      label: What it unlocks
+      description: Which existing capability gets better, or which future milestone this makes possible. Features that only add surface area are the ones that get sequenced last.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: How it would be judged
+      description: What measurement, test, or reference would show this works. If it is a statistical or forecasting change, name the reference or the baseline it must beat.
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Including doing nothing, and why that is worse.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints this respects
+      description: twinflow runs fully locally with no cloud account, all data is synthetic, and every run is reproducible from a seed.
+      options:
+        - label: This works without a cloud account and without a paid API key on the default path.
+          required: false
+        - label: This preserves determinism, or it explains why its randomness cannot be seeded.
+          required: false
+        - label: This introduces no real-world, client, or proprietary data.
+          required: true
+        - label: This keeps the five-minute quickstart intact.
+          required: false

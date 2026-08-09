@@ -1,0 +1,144 @@
+name: Bug report
+description: Something behaves differently from what the documentation or the tests say it does.
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        twinflow runs are reproducible from a seed. On one platform with one pinned dependency set, the same run seed and the same config produce a byte-identical event log: that is gate `VAL-GATE-DET-001` in ROADMAP.md. Across platforms the weaker gate `VAL-GATE-DET-002` applies, which asserts equal values inside a recorded tolerance rather than equal bytes.
+
+        So the seed, the config, and the platform are the most useful things you can give here. A report with a seed is usually reproducible in one command. A report without one usually is not.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened
+      description: One or two sentences. What did you observe.
+      placeholder: The capability report renders an empty control chart when the window contains fewer than 20 subgroups.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+      description: If a published reference, a schema, or a docs page says otherwise, name it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Exact commands, in order.
+      placeholder: |
+        1. just demo --seed 1234
+        2. Open the dashboard and wait for the first findings
+        3. Run: just capability-report --window 30m
+    validations:
+      required: true
+
+  - type: input
+    id: seed
+    attributes:
+      label: Run seed
+      description: The seed the run recorded. Every demo, eval, and test run records one.
+      placeholder: "1234"
+    validations:
+      required: false
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Config
+      description: The relevant part of facility.yaml, the sensor catalog entry, the spec limits, or the metrics layer definition. Paste the smallest fragment that still reproduces the problem.
+      render: yaml
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the system. Pick the closest one; a wrong guess is fine.
+      options:
+        - Process twin (discrete-event simulation)
+        - Device fleet, sensor catalog, or MQTT/Sparkplug B
+        - Unified Namespace, broker, or edge gateway
+        - Historian or schemas
+        - Lean Six Sigma engine (SPC, capability, MSA, hypothesis tests)
+        - Process mining or value stream map
+        - Fleet management or predictive maintenance
+        - Computer vision auditing
+        - AI agent or accuracy stack
+        - Dashboard
+        - Packaging, CI, or tooling
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: run_mode
+    attributes:
+      label: How you ran it
+      options:
+        - just demo (zero-container simulation mode)
+        - docker compose up (full Purdue-segmented stack)
+        - Installed a single package (a brick) on its own
+        - Tests only
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Release tag, or the commit SHA if you are on a branch.
+      placeholder: v0.1.0 or 9f2c1ab
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system, Python version, and container runtime if relevant.
+      placeholder: Ubuntu 24.04, Python 3.12.7, Docker 27.1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: determinism
+    attributes:
+      label: Determinism
+      description: Does re-running on the same machine, with the same seed and config, reproduce it.
+      options:
+        - Reproduces every time with the same seed
+        - Reproduces sometimes with the same seed (this is itself a determinism bug, please say so)
+        - Have not tried re-running
+        - Not applicable
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, traceback, or failing test output
+      description: Paste as text rather than a screenshot where possible.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: hygiene
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not already reported.
+          required: true
+        - label: This report contains no proprietary, employer, or client data. All data in twinflow is synthetic and reports must stay that way.
+          required: true

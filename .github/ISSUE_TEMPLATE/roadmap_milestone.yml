@@ -1,0 +1,136 @@
+name: Roadmap milestone
+description: Record or update a numbered milestone. GitHub Issues are the public face of ROADMAP.md, so every milestone lives here.
+title: "[milestone] "
+labels:
+  - roadmap
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ROADMAP.md is a living backlog. Milestones are reordered, never deleted, and every milestone carries its dependencies, what it delivers, how it will be accepted, and which validation gates it must pass. Filling this in completely is what makes the backlog readable as a plan rather than a wish list.
+
+        Milestone identifiers use four tiers. The ranges below are the ones the tier table at the top of ROADMAP.md publishes; that table is the list of record.
+
+        | Tier      | Ids                                     | Covers                                                                       |
+        | --------- | --------------------------------------- | ---------------------------------------------------------------------------- |
+        | Component | Numbered as in the spec: 1, 2b, 5, 6a10 | The core system                                                              |
+        | E         | E1 to E48                               | Bleeding edge, ranked by value per hour of work                              |
+        | C         | C1 to C13                               | Engineering craft: determinism, schemas, test tiers, releases, accessibility |
+        | A         | A1 to A6                                | Adoption and scale: modularity, deployment tiers, scaling evidence           |
+
+  - type: input
+    id: milestone_id
+    attributes:
+      label: Milestone id
+      description: One identifier. Use the id already in ROADMAP.md if this milestone exists; propose the next free id in its tier if it is new.
+      placeholder: E26, C4, A1, 6a10
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Tier
+      options:
+        - Component (core system, numbered as in the spec)
+        - E (bleeding edge)
+        - C (engineering craft)
+        - A (adoption and scale architecture)
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: Milestone title
+      description: Short noun phrase, matching the ROADMAP.md entry.
+      placeholder: Sparkplug B compliance for all device payloads
+    validations:
+      required: true
+
+  - type: input
+    id: phase
+    attributes:
+      label: Phase
+      description: >-
+        One phase id, copied from the Phase column of the phase table in ROADMAP.md.
+        That table runs from P0 to P6-W6 and is the list of record, so this field is
+        free text rather than a dropdown that would drift out of date. Write
+        "unsequenced" if the milestone is recorded but not yet placed. Phases exist
+        for sequencing and quality, never for cutting scope. Each phase must leave
+        the repository shippable and the five-minute quickstart intact.
+      placeholder: P3c
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Milestone ids that must land first, one per line, each with the reason. If nothing blocks it, write "none".
+      placeholder: |
+        C1 - determinism, because counterfactual replay is meaningless without a byte-identical baseline
+        E4 - event-sourced replay, because this milestone reruns a recorded log through a modified config
+    validations:
+      required: true
+
+  - type: textarea
+    id: delivers
+    attributes:
+      label: What it delivers
+      description: The observable result. Name the packages, commands, config keys, schemas, endpoints, or documents that exist afterwards and did not before.
+      placeholder: |
+        - Device payloads published per the Sparkplug B specification, with birth and death certificates, metric aliasing, and state management
+        - A conformance test suite asserting payload structure against the specification
+        - An ARCHITECTURE.md section documenting the payload model beside the UNS topic map
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Statements a reviewer can check as true or false, without judgment calls. Numbers that are not yet measured belong here as thresholds to hit, not as claims.
+      placeholder: |
+        - [ ] A third-party MQTT client subscribed to the UNS decodes every published payload without custom code
+        - [ ] Killing and restarting a device produces a death certificate followed by a birth certificate, in order
+        - [ ] The dashboard renders unchanged, proving the payload change is transparent to consumers
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: gates
+    attributes:
+      label: Validation gates this milestone must pass
+      description: Tick every gate that applies. A ticked gate that is not enforced in CI when the milestone lands is a blocker, not a nice-to-have.
+      options:
+        - label: Determinism - repeated-run hash check still passes, and any new stochastic stream draws from a seeded child RNG
+        - label: Schema contracts - new or changed cross-package event types are versioned in /schemas, evolve additively, and pass producer and consumer contract tests
+        - label: Property-based invariants - material conservation, ledger balance, genealogy closure, and monotone clock still hold
+        - label: Reference-validated statistics - any new statistic is tested against a named published reference value, with the source cited in the test
+        - label: Golden-file scenarios - seeded end-to-end runs still reproduce the capability report, VSM, and financial statements
+        - label: Agent eval suite - accuracy, grounding pass rate, and abstention rate do not regress
+        - label: Config validation - new config keys validate against a published schema with line-numbered errors
+        - label: Accessibility - dashboard changes meet WCAG 2.1 AA basics, with severity encoded by shape and text as well as color
+        - label: Dependency and license hygiene - new dependencies pass the audit and the Apache-2.0-compatible allowlist, and appear in the SBOM
+        - label: Quickstart intact - the five-minute path from clone to running line still works
+        - label: CI wall-time budget - the pipeline stays inside its stated budget
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and open questions
+      description: What could make this the wrong design, and what needs a research pass before it is planned. Decisions with rationale go to ARCHITECTURE.md once settled.
+    validations:
+      required: false
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Specifications, papers, standards, or published examples this milestone must conform to or be validated against.
+      placeholder: |
+        - Sparkplug B specification, current release
+        - NIST/SEMATECH e-Handbook of Statistical Methods, chapter 6
+    validations:
+      required: false
