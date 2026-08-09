@@ -1,0 +1,180 @@
+name: CI
+
+# Build, type-check, and test on every push and pull request. This is the
+# workflow behind the CI badge in the README.
+#
+# CI COST NOTE (deliberate divergence)
+# -----------------------------------
+# The owner's private monorepo carries a cost guard that blocks GitHub-hosted
+# workflows and pins CI to a self-hosted runner, because that repository is
+# private and Actions minutes are billed against the account.
+#
+# twinflow is public. GitHub Actions is free for public repositories on
+# standard runners, and a passing CI badge is an explicit requirement for this
+# project, so these jobs run GitHub-hosted on purpose. Do not "fix" this by
+# pointing them at a self-hosted runner: that would trade a public, verifiable
+# build for a private one and break the badge for anyone reading the repo.
+#
+# WALL-TIME BUDGET
+# ----------------
+# Target: under 10 minutes wall time for a full run. The Python matrix legs are
+# the long pole at roughly 4 minutes each and run in parallel; the Rust agent
+# leg is roughly 5 minutes cold and under 2 warm. Path filters keep an
+# unrelated change from paying for either. If a leg drifts past its budget,
+# move work into a nightly workflow rather than letting the badge go slow.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A newer push on the same ref supersedes the run in flight.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Path filter. Each downstream job runs only when files it actually covers
+  # changed, so a docs-only commit costs one cheap job instead of the matrix.
+  changes:
+    name: Detect changed paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      python: ${{ steps.filter.outputs.python }}
+      agent: ${{ steps.filter.outputs.agent }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            python:
+              - 'src/**'
+              - 'tests/**'
+              - 'scenarios/**'
+              - 'pyproject.toml'
+              - 'uv.lock'
+              - '.github/workflows/ci.yml'
+            agent:
+              - 'agent/**'
+              - '.github/workflows/ci.yml'
+
+  python:
+    name: Python ${{ matrix.python-version }}
+    needs: changes
+    if: needs.changes.outputs.python == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.12 is the floor and 3.13 is the primary. Both are supported for the
+        # lifetime of their upstream security window.
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Sync dependencies
+        run: uv sync --all-extras --dev --python ${{ matrix.python-version }}
+
+      # Lint and format run through uvx rather than the project environment so
+      # they cannot be broken by a dependency resolution problem in the project
+      # itself. Same tool, same config file.
+      - name: Lint (ruff)
+        run: uvx ruff check --output-format=github .
+
+      - name: Format check (ruff)
+        run: uvx ruff format --check .
+
+      # ty is the type checker of record. Swap this for `uvx mypy .` if the
+      # project moves back to mypy; the gate is what matters, not the tool.
+      - name: Type check (ty)
+        run: uvx ty check
+
+      - name: Tests (fast tier)
+        run: uv run pytest -m "not slow and not integration" -q
+
+      # Property-based invariants run on every matrix leg: a bound that holds on
+      # one interpreter and not another is exactly the kind of bug they exist
+      # to catch.
+      - name: Property-based invariants
+        run: uv run pytest -m property -q
+
+      # The expensive part of the determinism check is process startup, not the
+      # comparison, so it runs on the primary interpreter only.
+      - name: Determinism repeated-run hash check
+        if: matrix.python-version == '3.13'
+        run: sh scripts/determinism-check.sh --runs 3
+
+  agent:
+    name: Rust device agent
+    needs: changes
+    if: needs.changes.outputs.agent == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: agent
+
+      - name: Format check
+        run: cd agent && cargo fmt --check
+
+      - name: Clippy
+        run: cd agent && cargo clippy --all-targets -- -D warnings
+
+      - name: Tests
+        run: cd agent && cargo test
+
+  # Stable status check for branch protection and the README badge. It succeeds
+  # when every job that ran succeeded, and when a path filter skipped a job it
+  # treats that as success rather than failure.
+  ci:
+    name: CI
+    if: always()
+    needs: [changes, python, agent]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check results
+        run: |
+          for result in \
+            "changes=${{ needs.changes.result }}" \
+            "python=${{ needs.python.result }}" \
+            "agent=${{ needs.agent.result }}"
+          do
+            name=${result%%=*}
+            state=${result#*=}
+            echo "$name: $state"
+            case "$state" in
+              success|skipped) ;;
+              *) echo "::error::job $name reported $state"; exit 1 ;;
+            esac
+          done
+          echo "All required jobs passed or were skipped by a path filter."

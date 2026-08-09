@@ -1,0 +1,85 @@
+name: Lint
+
+# Repo-wide backstop for the pre-commit hook.
+#
+# The hook only ever sees staged files, and it warn-skips any linter that is
+# not installed on the contributor's machine. This workflow is where the same
+# rules are enforced over the whole tree with every tool guaranteed present, so
+# a partial local toolchain can never let a finding through.
+#
+# Runs GitHub-hosted on purpose: twinflow is a public repository, so standard
+# runners are free. See the cost note at the top of ci.yml.
+#
+# Wall-time budget: under 4 minutes. Everything here is a static check with no
+# build step.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Repo-wide lint and policy gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install linters
+        run: |
+          # The prose gate reads its rules from docs/style/*.yml.
+          python -m pip install --upgrade pip
+          pip install pyyaml
+          mkdir -p bin
+          bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) latest bin
+
+      # docs/DOCUMENTATION-STANDARD.md, enforced from docs/style/*.yml over the
+      # whole tree. --all because the hook only ever sees staged lines.
+      - name: Prose gate (repo-wide)
+        run: python scripts/checks/prose-gate.py --all
+
+      # Determinism policy: no direct clock, RNG, or socket calls outside the
+      # kernel adapter package. --all for the same reason.
+      - name: Nondeterminism gate (repo-wide)
+        run: sh scripts/checks/nondeterminism-gate.sh --all
+
+      # Report mode. An unfilled metric marker is normal during the build and
+      # only becomes fatal on a release tag, where --release is passed.
+      - name: Metric marker gate
+        run: sh scripts/checks/metric-marker-gate.sh
+
+      - name: Changelog sync selftest
+        run: sh scripts/changelog-sync.sh --selftest
+
+      # Same glob as scripts/ci-local.sh. Ignored trees are dropped by the
+      # gitignore setting in .markdownlint-cli2.jsonc, not by negations here.
+      - name: Markdown (markdownlint-cli2)
+        run: npx --yes markdownlint-cli2 "**/*.md"
+
+      - name: Shell (shellcheck)
+        run: |
+          files=$(git ls-files '*.sh' 'scripts/hooks/*')
+          if [ -z "$files" ]; then
+            echo "no shell scripts"
+            exit 0
+          fi
+          # Word splitting is intended: shellcheck takes a list of paths.
+          # shellcheck disable=SC2086
+          shellcheck $files
+
+      - name: GitHub Actions (actionlint)
+        run: ./bin/actionlint -color
