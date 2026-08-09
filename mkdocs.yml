@@ -1,0 +1,103 @@
+site_name: twinflow
+site_description: >-
+  A deterministic digital-twin simulation of a manufacturing and distribution
+  operation, runnable either as real containers or as one reproducible process.
+site_url: https://johnragonhall.github.io/twinflow/
+repo_url: https://github.com/johnragonhall/twinflow
+repo_name: johnragonhall/twinflow
+edit_uri: edit/main/docs/
+
+# Serve with:  uv run mkdocs serve
+# Build with:  uv run mkdocs build --strict
+#
+# --strict turns a broken link or a missing nav target into a build failure,
+# which is what keeps the nav below honest as pages land.
+#
+# mkdocs only serves files under docs_dir. The root-level README, CONTRIBUTING,
+# SECURITY, CODE_OF_CONDUCT, and CHANGELOG stay at the root because that is
+# where GitHub looks for them, so each has a thin page under docs/ that carries
+# the front matter and includes or links to the root file.
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+    - content.code.copy
+    - content.action.edit
+    - search.highlight
+    - search.suggest
+  palette:
+    # The palette toggle matters here: most of the diagrams are read on a
+    # laptop in a bright room and on a projector in a dark one.
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search
+  # mkdocstrings generates the API reference from the docstrings in the
+  # package, so the reference cannot drift from the code it describes.
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            show_signature_annotations: true
+            separate_signature: true
+            merge_init_into_class: true
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Home: index.md
+  - Concepts:
+      - Architecture: architecture.md
+      - Adoption: adoption.md
+  - Guides:
+      - Configuring: configuring.md
+      - Contributing: contributing.md
+  - Reference:
+      - Documentation standard: DOCUMENTATION-STANDARD.md
+      - API: reference/index.md
+  - Roadmap: roadmap.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/johnragonhall/twinflow
+
+# No analytics, no tracking, no third-party fonts. A documentation site that
+# phones home is a documentation site nobody can host behind a firewall.

@@ -1,0 +1,125 @@
+# --- Local development tooling. Not part of the deliverable. ----------------
+# Agent configs, session scratch, and prompt files are how a given machine was
+# driven, not what this project is. They stay local so the tree reads as the
+# engineering artifact it is. The tracked tooling under scripts/ and
+# .github/workflows/ is the opposite case: it is part of the deliverable and
+# stays public.
+.claude/
+.mcp.json
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+.cursorrules
+.aider*
+.continue/
+.windsurfrules
+.github/copilot-instructions.md
+docs/superpowers/
+# docs/design/ is tracked: it is the spec, and the spec is a deliverable.
+scratchpad/
+.scratchpad/
+# Narrower than prompt*.md, which would also swallow a legitimate page such as
+# docs/prompting.md.
+/PROMPT.md
+/PROMPTS.md
+**/*-prompt.md
+**/*_prompt.md
+prompts/
+.superpowers/
+.agents/
+_MAILBOX.md
+scripts/hooks/prepare-commit-msg
+
+# --- Python -----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+# Anchored to the repo root on purpose. An unanchored build/ or dist/ would
+# also swallow a package directory that happens to carry that name.
+/build/
+/dist/
+/sdist/
+
+# --- uv ---------------------------------------------------------------------
+.uv/
+.uv-cache/
+
+# --- Tool caches ------------------------------------------------------------
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ty_cache/
+.hypothesis/
+.tox/
+.nox/
+
+# --- Coverage ---------------------------------------------------------------
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# --- Rust -------------------------------------------------------------------
+target/
+**/*.rs.bk
+*.pdb
+# Cargo.lock is committed: the device agent ships as a binary, so the exact
+# dependency set is part of what gets released.
+
+# --- Node -------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+
+# --- DuckDB -----------------------------------------------------------------
+*.duckdb
+*.duckdb.wal
+*.ddb
+.duckdb_history
+
+# --- Delta and local lakehouse artifacts ------------------------------------
+# Scratch tables written by a local simulation run. A Delta table is a
+# directory, so the local data root is ignored wholesale. A _delta_log under a
+# tracked fixture table is deliberately NOT ignored: it is part of that table.
+data/local/
+lakehouse/local/
+data/local/**/_delta_log/
+
+# --- Docs build -------------------------------------------------------------
+/site/
+.cache/
+sbom.cdx.json
+
+# --- Secrets and local config -----------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+!tests/**/*.key
+
+# --- IDE --------------------------------------------------------------------
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# --- OS junk ----------------------------------------------------------------
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini

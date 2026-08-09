@@ -1,0 +1,29 @@
+// Markdown rules for this repo. The pre-commit hook lints staged files with
+// this config; .github/workflows/lint.yml enforces it over the whole tree.
+{
+  "default": true,
+
+  // No hard line-length limit. Prose and tables wrap where they read best.
+  "MD013": false,
+
+  // Keep a Changelog repeats "### Added" / "### Fixed" once per release
+  // section, which is correct and must not be flagged as a duplicate heading.
+  "MD024": { "siblings_only": true },
+
+  // Documents carry YAML front matter with a `title` field AND an H1, because
+  // the front matter title feeds mkdocs navigation while the H1 is what a
+  // reader sees on GitHub. Clearing this pattern stops markdownlint counting
+  // the front matter title as a first H1 and flagging the real one.
+  "MD025": { "front_matter_title": "" },
+
+  // Allow a fenced block with no language (ASCII diagrams, plain output).
+  "MD040": false,
+
+  // Allow the occasional inline HTML, mostly badges and anchors.
+  "MD033": false,
+
+  // Tables are column-aligned. markdownlint reports misalignment but does not
+  // repair it; re-align an edited table with:
+  //   npx prettier --write <file>
+  "MD060": { "style": "aligned" }
+}

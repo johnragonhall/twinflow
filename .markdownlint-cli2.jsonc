@@ -1,0 +1,18 @@
+// Runner config for markdownlint-cli2. The rules themselves live in
+// .markdownlint.jsonc; this file only says which files are out of scope.
+{
+  // Honor .gitignore. Without this, a repo-wide glob walks into ignored trees
+  // such as local scratch directories and reports findings on files that are
+  // not part of the repository at all.
+  "gitignore": true,
+
+  "ignores": ["node_modules", "site", "target", ".venv"]
+
+  // No "globs" key on purpose. markdownlint-cli2 MERGES a configured glob with
+  // the paths given on the command line rather than replacing them, so a glob
+  // here would make the pre-commit hook lint the whole repo on every commit
+  // instead of the staged files. Callers pass their own file set:
+  //   pre-commit          the staged Markdown files
+  //   ci-local.sh         "**/*.md"
+  //   lint.yml            "**/*.md"
+}

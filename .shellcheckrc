@@ -1,0 +1,9 @@
+# ShellCheck config for scripts/*.sh, scripts/checks/*.sh, and the git hooks.
+severity=warning
+
+# Follow `source` / `.` into sibling files where the path resolves.
+external-sources=true
+
+# The hooks and gate scripts are POSIX sh on purpose so they run under dash,
+# BusyBox ash, and Git Bash alike.
+shell=sh
