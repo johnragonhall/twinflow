@@ -1,0 +1,47 @@
+#!/bin/sh
+# Keep CHANGELOG.md in sync with the commit log, with no sync commits.
+#
+# A feat/fix/perf commit gets a bullet inserted into CHANGELOG.md's
+# [Unreleased] section, and the commit you just made is AMENDED to fold that
+# edit in. The changelog therefore cannot drift behind the code, and the log
+# stays free of "docs: sync changelog" noise. docs/chore/refactor/test commits
+# record nothing (see scripts/changelog-sync.sh for the mapping).
+#
+# This rewrites the local HEAD. Safe before a push, and the amend is skipped
+# during a merge or rebase.
+#
+# Opt out for one commit:  NO_CHANGELOG_SYNC=1 git commit ...
+set -u
+
+# Recursion guard: our own amend below re-fires this hook.
+[ -n "${TWINFLOW_CHANGELOG_SYNC:-}" ] && exit 0
+[ -n "${NO_CHANGELOG_SYNC:-}" ] && exit 0
+
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$root" || exit 0
+[ -f CHANGELOG.md ] || exit 0
+[ -f scripts/changelog-sync.sh ] || exit 0
+
+# Never rewrite history mid-merge or mid-rebase.
+git rev-parse -q --verify MERGE_HEAD >/dev/null 2>&1 && exit 0
+[ -d "$(git rev-parse --git-path rebase-merge 2>/dev/null)" ] && exit 0
+[ -d "$(git rev-parse --git-path rebase-apply 2>/dev/null)" ] && exit 0
+
+# Read the subject as UTF-8 explicitly. Without this, a terminal or platform
+# whose log output encoding is not UTF-8 hands back mojibake, which then lands
+# verbatim in CHANGELOG.md.
+subject=$(git -c i18n.logOutputEncoding=UTF-8 log -1 --format=%s 2>/dev/null) || exit 0
+[ -n "$subject" ] || exit 0
+
+head_before=$(git rev-parse HEAD 2>/dev/null) || exit 0
+
+sh scripts/changelog-sync.sh --subject "$subject" || exit 0
+git diff --quiet -- CHANGELOG.md && exit 0   # nothing inserted, nothing to amend
+
+# Bail if HEAD moved between the commit and now, so a concurrent session's
+# commit is never amended out from under it.
+[ "$(git rev-parse HEAD 2>/dev/null)" = "$head_before" ] || exit 0
+
+git add -- CHANGELOG.md
+TWINFLOW_CHANGELOG_SYNC=1 git commit --amend --no-edit --no-verify >/dev/null 2>&1 || exit 0
+echo "[changelog-sync] CHANGELOG.md updated and folded into this commit."

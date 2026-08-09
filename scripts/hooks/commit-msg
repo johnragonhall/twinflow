@@ -1,0 +1,118 @@
+#!/bin/sh
+# Validate the commit message. Every rule here is fatal.
+#
+#   1. Subject must be  type(scope): description
+#   2. Subject must be ASCII only
+#   3. A multi-line body must carry at least one approved ALL-CAPS heading
+#   4. Git's leftover "# Conflicts:" block is rejected
+#
+# This repo's history is a portfolio artifact that a reader may scroll through,
+# so the log has to read as deliberately as the code.
+# Bypass once: git commit --no-verify
+set -u
+
+msg_file="$1"
+[ -f "$msg_file" ] || exit 0
+
+# --- git's leftover merge-conflict block ------------------------------------
+# Concluding a conflicted merge with `git commit --no-edit` keeps git's
+# auto-generated "# Conflicts:" comment lines verbatim in the stored message,
+# where a markdown viewer renders the leading "#" as a heading. Merge commits
+# get an explicit clean message instead.
+if grep -qE '^#[[:space:]]*Conflicts:[[:space:]]*$' "$msg_file"; then
+  echo "ERROR: commit message contains git's leftover '# Conflicts:' block."
+  echo "  Cause: 'git commit --no-edit' after resolving a merge conflict keeps"
+  echo "  git's comment lines, and a markdown viewer renders them as headings."
+  echo ""
+  echo "  Fix: re-commit with an explicit clean message, e.g."
+  echo "      git commit -m 'chore(merge): merge <branch> into main'"
+  exit 1
+fi
+
+subject=$(head -n 1 "$msg_file")
+
+# --- subject shape ----------------------------------------------------------
+if ! printf '%s' "$subject" | grep -qE '^(feat|fix|refactor|test|docs|chore|perf)(\([a-z0-9_-]+\))?: [a-z0-9]'; then
+  echo "ERROR: commit subject must be  type(scope): description"
+  echo "  type:        feat | fix | refactor | test | docs | chore | perf"
+  echo "  scope:       lowercase, hyphens or underscores, optional"
+  echo "  description: starts lowercase, no trailing period"
+  echo ""
+  echo "  Current subject: $subject"
+  exit 1
+fi
+
+# No trailing period. A subject is a title, not a sentence.
+if printf '%s' "$subject" | grep -qE '\.[[:space:]]*$'; then
+  echo "ERROR: commit subject must not end with a period."
+  echo "  Current subject: $subject"
+  exit 1
+fi
+
+# --- subject must be ASCII --------------------------------------------------
+# A non-ASCII byte in the subject survives the commit but corrupts the bullet
+# that changelog-sync copies into CHANGELOG.md, so it is caught at the source.
+non_ascii=$(printf '%s' "$subject" | LC_ALL=C tr -d '\11\40-\176')
+if [ -n "$non_ascii" ]; then
+  echo "ERROR: commit subject contains non-ASCII characters."
+  echo "  They corrupt the CHANGELOG entry the post-commit hook derives from it."
+  echo "  Use plain ASCII: hyphens, straight quotes, no emoji, no typographic dashes."
+  echo ""
+  echo "  Current subject: $subject"
+  exit 1
+fi
+
+# --- body section headings --------------------------------------------------
+# Approved categories. TESTS is accepted as TEST. Detail goes in bullets under
+# a category, never in an invented heading.
+ALLOWED="UI BACKEND INFRA DOCS FIX SECURITY DEPS TEST FEAT REFACTOR PERF CHORE"
+
+line_count=$(wc -l < "$msg_file")
+if [ "$line_count" -gt 1 ]; then
+  # The body is line 3 onward (line 2 is the blank separator). Git's own
+  # comment lines are stripped before the check.
+  body=$(tail -n +3 "$msg_file" | grep -v '^#')
+  if [ -n "$(printf '%s' "$body" | tr -d '[:space:]')" ]; then
+    # A heading is a standalone ALL-CAPS line: uppercase letters, digits,
+    # spaces, and the separators _ / & - with an optional trailing colon.
+    headings=$(printf '%s\n' "$body" | grep -E '^[A-Z][A-Z0-9 _/&-]*:?[[:space:]]*$' || true)
+    if [ -z "$(printf '%s' "$headings" | tr -d '[:space:]')" ]; then
+      echo "ERROR: a commit body must include at least one ALL-CAPS section heading."
+      echo "  Shape:"
+      echo ""
+      echo "      type(scope): short subject"
+      echo ""
+      echo "      BACKEND"
+      echo "      - what changed"
+      echo "      TEST"
+      echo "      - what was verified"
+      echo ""
+      echo "  Approved categories: $ALLOWED"
+      echo "  (Single-line commits have no body and are exempt.)"
+      exit 1
+    fi
+    bad=""
+    tmp_h=$(mktemp) || exit 1
+    printf '%s\n' "$headings" > "$tmp_h"
+    while IFS= read -r h; do
+      [ -n "$(printf '%s' "$h" | tr -d '[:space:]')" ] || continue
+      norm=$(printf '%s' "$h" | sed -E 's/:[[:space:]]*$//; s/^[[:space:]]+//; s/[[:space:]]+$//')
+      [ "$norm" = "TESTS" ] && norm="TEST"
+      case " $ALLOWED " in
+        *" $norm "*) : ;;
+        *) bad="$bad $norm" ;;
+      esac
+    done < "$tmp_h"
+    rm -f "$tmp_h"
+    if [ -n "$bad" ]; then
+      echo "ERROR: commit body has non-standard section heading(s):$bad"
+      echo "  Use only the approved categories, one per standalone ALL-CAPS line:"
+      echo "    $ALLOWED"
+      echo "  (TESTS is accepted as TEST. Put specifics in bullets under a"
+      echo "   category, not in an invented heading like WIRING or WHAT CHANGED.)"
+      exit 1
+    fi
+  fi
+fi
+
+exit 0

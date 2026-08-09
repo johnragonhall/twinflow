@@ -1,0 +1,126 @@
+#!/bin/sh
+# Pre-commit gates, run against the STAGED files only.
+#
+# A real finding BLOCKS the commit. A missing tool WARNS and allows, because CI
+# is the hard backstop (.github/workflows/lint.yml runs all of this repo-wide).
+#
+# Gates, in order:
+#   1. prose          - documentation standard conformance
+#   2. nondeterminism - no direct clock, RNG, or socket calls outside the kernel
+#   3. ruff           - lint and format check on Python
+#   4. markdownlint   - Markdown
+#   5. shellcheck     - shell
+#   6. actionlint     - workflows
+#
+# Bypass:
+#   LINT_OK=1 git commit ...     skip these lint gates, keep commit-msg checks
+#   git commit --no-verify ...   skip every hook
+set -u
+
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$root" || exit 0
+
+if [ "${LINT_OK:-}" = "1" ]; then
+  echo "[pre-commit] bypassed via LINT_OK=1"
+  exit 0
+fi
+
+fail=0
+staged() { git diff --cached --name-only --diff-filter=ACM -- "$@" || true; }
+
+# Resolve a Python interpreter for the prose gate, which needs PyYAML to read
+# its rules out of docs/style/. uv comes first because --with pyyaml gets that
+# dependency without touching the project environment, and --no-project keeps
+# it from syncing the project on every commit.
+PY=""
+if command -v uv >/dev/null 2>&1; then
+  PY="uv run --quiet --no-project --with pyyaml python"
+elif command -v python >/dev/null 2>&1 && python -c "import sys" >/dev/null 2>&1; then
+  PY="python"
+elif command -v python3 >/dev/null 2>&1 && python3 -c "import sys" >/dev/null 2>&1; then
+  PY="python3"
+fi
+
+# --- 1. prose ---------------------------------------------------------------
+if [ -n "$PY" ]; then
+  $PY scripts/checks/prose-gate.py --staged || fail=1
+else
+  echo "[prose] WARN: no python interpreter, skipped (CI gates)."
+fi
+
+# --- 2. nondeterminism ------------------------------------------------------
+sh scripts/checks/nondeterminism-gate.sh --staged || fail=1
+
+# --- 3. Python --------------------------------------------------------------
+pyfiles=$(staged '*.py')
+if [ -n "$pyfiles" ]; then
+  RUFF=""
+  if command -v ruff >/dev/null 2>&1; then
+    RUFF="ruff"
+  # Only use uvx when it can actually produce ruff right now. A fetch failure
+  # while offline has to warn and skip like a missing tool, not block the
+  # commit as though ruff had found something.
+  elif command -v uvx >/dev/null 2>&1 && uvx ruff --version >/dev/null 2>&1; then
+    RUFF="uvx ruff"
+  fi
+  if [ -n "$RUFF" ]; then
+    # --force-exclude: ruff ignores its config exclusions when paths are passed
+    # explicitly, which is exactly what a hook must do.
+    # shellcheck disable=SC2086
+    $RUFF check --force-exclude $pyfiles || { echo "[ruff] BLOCKED: fix with 'ruff check --fix'"; fail=1; }
+    # shellcheck disable=SC2086
+    $RUFF format --check --force-exclude $pyfiles || { echo "[ruff-format] BLOCKED: run 'ruff format'"; fail=1; }
+  else
+    echo "[ruff] WARN: ruff not installed, skipped (CI gates). Install: uv tool install ruff"
+  fi
+fi
+
+# --- 4. Markdown ------------------------------------------------------------
+mdfiles=$(staged '*.md')
+if [ -n "$mdfiles" ]; then
+  MDL=""
+  if command -v markdownlint-cli2 >/dev/null 2>&1; then
+    MDL="markdownlint-cli2"
+  elif command -v npx >/dev/null 2>&1 && npx --no-install markdownlint-cli2 --help >/dev/null 2>&1; then
+    MDL="npx --no-install markdownlint-cli2"
+  fi
+  if [ -n "$MDL" ]; then
+    # shellcheck disable=SC2086
+    $MDL $mdfiles || { echo "[markdownlint] BLOCKED: see .markdownlint.jsonc"; fail=1; }
+  else
+    echo "[markdownlint] WARN: not available, skipped (CI gates). Install: npm i -g markdownlint-cli2"
+  fi
+fi
+
+# --- 5. Shell ---------------------------------------------------------------
+# Hooks have no .sh suffix, so they are listed explicitly.
+shfiles=$(staged '*.sh' 'scripts/hooks/*')
+if [ -n "$shfiles" ]; then
+  if command -v shellcheck >/dev/null 2>&1; then
+    # shellcheck disable=SC2086
+    shellcheck $shfiles || { echo "[shellcheck] BLOCKED: shell issues above"; fail=1; }
+  else
+    echo "[shellcheck] WARN: shellcheck not installed, skipped (CI gates)."
+  fi
+fi
+
+# --- 6. Workflows -----------------------------------------------------------
+ymlfiles=$(staged '.github/workflows/*.yml' '.github/workflows/*.yaml')
+if [ -n "$ymlfiles" ]; then
+  if command -v actionlint >/dev/null 2>&1; then
+    # shellcheck disable=SC2086
+    actionlint $ymlfiles || { echo "[actionlint] BLOCKED: workflow issues above"; fail=1; }
+  else
+    echo "[actionlint] WARN: actionlint not installed, skipped (CI gates)."
+  fi
+fi
+
+if [ "$fail" != 0 ]; then
+  echo ""
+  echo "[pre-commit] commit blocked. Fix the findings, or bypass once you have"
+  echo "reviewed them:"
+  echo "    LINT_OK=1 git commit ...     skip the lint gates"
+  echo "    git commit --no-verify ...   skip every hook"
+  exit 1
+fi
+exit 0
