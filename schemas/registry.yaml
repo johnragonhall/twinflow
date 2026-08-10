@@ -29,6 +29,22 @@ subjects:
         # so a producer cannot quietly stop publishing the superseded major.
         parallel_until: null
 
+  config/metrics:
+    description: >-
+      The governed metrics layer (E26b), envelope half. This file owns the
+      identifier space, the registry, and the validation rules. The expression
+      language and the evaluator belong to the AI layer, so every entry may
+      carry a null expression and still validate. The identifier space exists
+      from Phase 0 because spec_limits keys resolve against it long before any
+      expression computes.
+    owner: twinflow-config
+    versions:
+      - version: "1.0"
+        file: config/metrics/v1.json
+        status: current
+        since: "0.1.0"
+        parallel_until: null
+
   config/facility:
     description: >-
       The bring-your-own-facility contract (A2). One of these describes a site:

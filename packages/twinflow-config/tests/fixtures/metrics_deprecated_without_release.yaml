@@ -1,0 +1,12 @@
+# TF-C155: deprecated with no release naming when.
+schema_version: "1.0"
+metrics:
+  - id: twin.flow.old_cycle_time
+    title: Old cycle time
+    unit: second
+    grain: [facility]
+    direction: lower_is_better
+    precision: 1
+    owner: twinflow-twin
+    since: "0.1.0"
+    status: deprecated

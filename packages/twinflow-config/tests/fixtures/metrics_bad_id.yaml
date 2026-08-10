@@ -1,0 +1,11 @@
+# TF-C153: an id outside the three-part grammar.
+schema_version: "1.0"
+metrics:
+  - id: twin.throughput
+    title: Throughput
+    unit: 1/hour
+    grain: [facility]
+    direction: higher_is_better
+    precision: 2
+    owner: twinflow-twin
+    since: "0.1.0"

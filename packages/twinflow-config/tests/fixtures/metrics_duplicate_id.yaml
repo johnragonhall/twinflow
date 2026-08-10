@@ -1,0 +1,19 @@
+# TF-C150: one id, two quantities.
+schema_version: "1.0"
+metrics:
+  - id: twin.flow.cycle_time_seconds
+    title: Cycle time
+    unit: second
+    grain: [facility]
+    direction: lower_is_better
+    precision: 1
+    owner: twinflow-twin
+    since: "0.1.0"
+  - id: twin.flow.cycle_time_seconds
+    title: Cycle time again
+    unit: minute
+    grain: [facility]
+    direction: lower_is_better
+    precision: 1
+    owner: twinflow-twin
+    since: "0.1.0"

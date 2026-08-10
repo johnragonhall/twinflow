@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "twinflow:schemas/config/metrics/v1.json",
+  "title": "twinflow metric registry",
+  "description": "The governed metrics layer (E26b), envelope half. This file owns the identifier space, the registry, and the validation rules. The expression language and the evaluator belong to the AI layer, which is why every entry here may carry a null expression and still validate. The identifier space exists from Phase 0 because spec_limits keys resolve against it long before the expressions compute.",
+  "x-twinflow-pii": false,
+  "x-twinflow-since": "0.1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "metrics"],
+  "properties": {
+    "schema_version": { "type": "string", "enum": ["1.0"] },
+    "metrics": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/metric" }
+    }
+  },
+  "$defs": {
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "unit", "grain", "direction", "precision", "owner", "since"],
+      "properties": {
+        "id": {
+          "description": "<domain>.<area>.<name>. The domain names the subsystem whose events it is computed from. An id is never reused for a different quantity: a redefinition takes a new id and deprecates its predecessor, which is what keeps a spec_limits entry recorded last year meaning what it meant.",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*){2}$"
+        },
+        "title": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "unit": {
+          "description": "Parseable by pint, or \"1\" for a dimensionless ratio.",
+          "type": "string",
+          "minLength": 1,
+          "x-twinflow-unit": "any"
+        },
+        "grain": {
+          "description": "The dimensions this metric may be sliced by. Sorted at load, per doctrine D-03, so an iteration order cannot reach a hash.",
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "minItems": 1
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["higher_is_better", "lower_is_better", "target_is_best"]
+        },
+        "precision": {
+          "description": "Decimal places when serialised.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9,
+          "x-twinflow-precision": true
+        },
+        "owner": {
+          "description": "The distribution producing the inputs.",
+          "type": "string",
+          "pattern": "^twinflow-[a-z][a-z0-9-]*$"
+        },
+        "since": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "expression": {
+          "description": "Opaque here. The AI layer owns the language and the evaluator, so this stays null until that layer registers one.",
+          "type": ["string", "null"],
+          "default": null
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "deprecated"],
+          "default": "active"
+        },
+        "deprecated_in": { "type": ["string", "null"], "default": null }
+      }
+    }
+  }
+}

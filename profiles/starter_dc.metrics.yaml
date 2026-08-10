@@ -1,0 +1,46 @@
+# The governed metrics layer (E26b), envelope half.
+#
+# Every id here is resolvable from Phase 0, which is the point. A spec limit
+# authored against twin.throughput.units_per_hour has to resolve now, even
+# though the expression that computes it arrives with the AI layer. Nothing
+# about this file changes shape when that lands: `expression` stops being null.
+#
+# An id names one quantity for good. A redefinition takes a new id and
+# deprecates its predecessor, which is what keeps a spec limit recorded last
+# year meaning what it meant.
+
+schema_version: "1.0"
+
+metrics:
+  - id: twin.throughput.units_per_hour
+    title: Units per hour
+    unit: 1/hour
+    grain: [facility, station, shift]
+    direction: higher_is_better
+    precision: 2
+    owner: twinflow-twin
+    since: "0.1.0"
+    expression: null
+    status: active
+
+  - id: twin.flow.cycle_time_seconds
+    title: Cycle time
+    unit: second
+    grain: [facility, station]
+    direction: lower_is_better
+    precision: 1
+    owner: twinflow-twin
+    since: "0.1.0"
+    expression: null
+    status: active
+
+  - id: twin.flow.work_in_process
+    title: Work in process
+    unit: "1"
+    grain: [facility, zone]
+    direction: target_is_best
+    precision: 0
+    owner: twinflow-twin
+    since: "0.1.0"
+    expression: null
+    status: active

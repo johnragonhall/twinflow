@@ -20,7 +20,14 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 
 def _shipped_profiles() -> list[Path]:
-    return sorted(PROFILES_DIR.glob("*.yaml"))
+    """The facility profiles, which are not the only YAML under profiles/.
+
+    A site ships a facility profile and the catalogs it names, so the directory
+    holds more than one kind of file. `<site>.metrics.yaml` is the metric
+    registry facility.yaml points at through metrics.catalog, and it validates
+    against its own schema in test_metrics.py.
+    """
+    return sorted(p for p in PROFILES_DIR.glob("*.yaml") if not p.name.endswith(".metrics.yaml"))
 
 
 def test_there_is_at_least_one_shipped_profile():

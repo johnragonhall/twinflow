@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- open the environment seam and the metric identifier space
 - validate a facility profile and say what to fix
 - publish the schema registry and the compatibility differ
 - enforce the package boundary rules

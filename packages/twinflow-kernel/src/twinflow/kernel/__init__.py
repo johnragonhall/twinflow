@@ -10,6 +10,13 @@ what keeps it that way.
 
 from __future__ import annotations
 
+from twinflow.kernel._impl.environment import (
+    CALM,
+    EnvironmentDriver,
+    EnvironmentRegistry,
+    EnvironmentState,
+    NullEnvironmentDriver,
+)
 from twinflow.kernel._impl.paced import PacedClock
 from twinflow.kernel._impl.ports import Clock
 from twinflow.kernel._impl.time import (
@@ -27,11 +34,16 @@ from twinflow.kernel._impl.time import (
 __version__ = "0.1.0"
 
 __all__ = [
+    "CALM",
     "DEFAULT_TICK_HZ",
     "MAX_HORIZON_TICKS",
     "MAX_SIM_YEARS",
     "Clock",
     "Duration",
+    "EnvironmentDriver",
+    "EnvironmentRegistry",
+    "EnvironmentState",
+    "NullEnvironmentDriver",
     "PacedClock",
     "SimClock",
     "SimInstant",

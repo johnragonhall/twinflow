@@ -17,20 +17,32 @@ from twinflow.config._impl.loader import (
     parse,
     validate_schema,
 )
+from twinflow.config._impl.metrics import (
+    METRIC_ID,
+    METRICS_SCHEMA,
+    check_metric_rules,
+    load_metrics,
+    resolve_spec_limits,
+)
 
 #: Read by tool.hatch.version, so this is the only place the version is written.
 __version__ = "0.1.0"
 
 __all__ = [
     "FACILITY_SCHEMA",
+    "METRICS_SCHEMA",
+    "METRIC_ID",
     "ConfigError",
     "Diagnostic",
     "Severity",
     "__version__",
+    "check_metric_rules",
     "check_plausibility",
     "check_references",
     "load_facility",
+    "load_metrics",
     "nearest",
     "parse",
+    "resolve_spec_limits",
     "validate_schema",
 ]
