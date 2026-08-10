@@ -25,6 +25,11 @@ them. A port with no implementation and no consumer is a name nobody tested.
 | `MAX_SIM_YEARS`         | constant | 100, the horizon cap of T4                                             |
 | `MAX_HORIZON_TICKS`     | constant | 2\*\*53 - 1, the float64 tick limit of T5                              |
 | `duration_from_seconds` | function | Convert a written duration to exact ticks, half up away from zero      |
+| `EnvironmentRegistry`   | class    | Holds one environment driver and the sensitivity hooks declared on it  |
+| `EnvironmentDriver`     | protocol | Supplies the exogenous state for one run                               |
+| `EnvironmentState`      | class    | The exogenous state at one instant, as normalised fractions            |
+| `NullEnvironmentDriver` | class    | The P0 driver: calm at every instant, and never random                 |
+| `CALM`                  | constant | The neutral state every caller sees when no driver is installed        |
 | `__version__`           | constant | The distribution version, read by the build so the two cannot disagree |
 
 ## Private
