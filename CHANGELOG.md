@@ -26,6 +26,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- carry the bit-generator change through every section that names it
 - switch the bit generator to pcg64dxsm before the corpus freezes
 - name the vendored fonts and correct the asset count
 - skip the type check and tests until a package exists

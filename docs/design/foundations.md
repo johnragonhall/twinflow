@@ -267,7 +267,7 @@ reason 5.4 gives. `TFD017` enforces the restriction statically, and `draw_counts
 through `twinflow.kernel.numeric`, which is what makes `rng.draw_counts_sha256` a complete record
 of a run's draw order rather than a partial one.
 
-The matching Rust crate `crates/twinflow-rng` implements `derive_spawn_key` and the PCG64 stream
+The matching Rust crate `crates/twinflow-rng` implements `derive_spawn_key` and the PCG64DXSM stream
 from the same specification, which is what D-06 requires so the Rust device agent's jitter, drift,
 and fault draws come from the run seed like everything else. `RUST-1` (7.3) is the cross-language
 known-answer gate.
@@ -506,7 +506,7 @@ section can see what the manifest records. Where the two differ, that file wins.
   `key_bytes = blake2b(stream_name.encode("utf-8"), digest_size=16, person=b"twinflow-rng")`, then
   `spawn_key` is those 16 bytes read as four little-endian `uint32` words, then
   `SeedSequence(entropy=(base_seed, replication_index), spawn_key=spawn_key)`, then
-  `Generator(PCG64(seed_seq))`. Adding, removing, or reordering subsystems does not perturb any
+  `Generator(PCG64DXSM(seed_seq))`. Adding, removing, or reordering subsystems does not perturb any
   other subsystem's draws (INV-K4). This is the single most important property of the RNG design:
   without it, adding a sensor type in Phase 3 would invalidate every golden file recorded in
   Phase 2.
@@ -518,7 +518,7 @@ section can see what the manifest records. Where the two differ, that file wins.
   `twinflow-rng`. It is not Python's `hash()`, which is randomised per process, and it is not a
   truncation of a differently personalised digest. `stable_hash` (the general-purpose helper in
   5.4) is a different function with a different digest length and is never substituted for it.
-- R5. Bit generator is `numpy.random.PCG64`, with `numpy>=2.1,<3` pinned in every package that
+- R5. Bit generator is `numpy.random.PCG64DXSM`, with `numpy>=2.1,<3` pinned in every package that
   draws, and known-answer vectors committed (VAL-F6a, VAL-F6b). NEP 19, NumPy's Random Number
   Generator Policy, names the methods whose stream NumPy commits to keeping stable: "They MUST
   guarantee stream-compatibility for a specified set of methods ... Namely, `.bytes()`,
@@ -526,10 +526,13 @@ section can see what the manifest records. Where the two differ, that file wins.
   `poisson`, sits outside that commitment, and the same document allows breaking their streams on a
   feature release. `twinflow.kernel.numeric` builds every family the `Rng` port
   exposes on those three methods alone. 5.4 states the consequence and VAL-F6a and VAL-F6b state
-  the gates.
+  the gates. The generator is `PCG64DXSM` rather than numpy's default `PCG64` by the decision
+  recorded on 2026-08-09 in `docs/design/variability-and-faults.md` open question G.11. numpy
+  seeds the two through one routine, so their seeded state and increment are identical and only
+  generation differs, which is why this rule changes in name and in nothing else.
 - R6. Applying D-06, the Rust device agent derives its streams from the same specification. The
   `crates/twinflow-rng` crate implements the BLAKE2b-16 personalised digest, the little-endian
-  spawn-key packing, `SeedSequence` entropy mixing, and PCG64. `RUST-1` asserts that Python and
+  spawn-key packing, `SeedSequence` entropy mixing, and PCG64DXSM. `RUST-1` asserts that Python and
   Rust produce byte-identical first-1000 draws for each of the twelve named streams of VAL-F6a.
   Without this the agent's dropped connections, clock drift, duplicate reads, crash loops,
   degraded read rates, sensor drift, and stuck-at faults would be outside the single-seed

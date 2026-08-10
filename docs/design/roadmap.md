@@ -538,7 +538,7 @@ Plus one seam that is a Phase 0 item on a determinism argument:
   adds a hook, silently invalidating every earlier golden file, which is the retrofit the seam
   exists to prevent. Derivation is so name-addressed, as settled in
   `docs/design/variability-and-faults.md` section A.1: the spawn key is
-  `blake2b(stream_name, digest_size=16, person=b"twinflow-rng")` and the generator is `PCG64`
+  `blake2b(stream_name, digest_size=16, person=b"twinflow-rng")` and the generator is `PCG64DXSM`
   seeded from a `SeedSequence` over `(base_seed, replication_index)` and that spawn key. A P0
   test registers a synthetic hook, re-derives every existing stream, and asserts every digest is
   byte-identical, so hook order cannot become load-bearing by accident.

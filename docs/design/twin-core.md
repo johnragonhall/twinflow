@@ -2629,7 +2629,7 @@ editions the repository standardises on, since page locators differ between prin
 **Q19. The Rust device agent's stochastic streams and this section's boundary.** Doctrine D-06 gives
 the Rust agent an RNG contract derived from the run seed and its device id by the same
 name-addressed derivation the Python side uses, and section G.2 of
-`docs/design/variability-and-faults.md` records that PCG64 parity between the two languages is not
+`docs/design/variability-and-faults.md` records that PCG64DXSM parity between the two languages is not
 something to assume. This section consumes the agent's telemetry at scan points and at automation
 resources through 4.8, so a parity failure shows up here as a divergence finding rather than as a
 determinism failure, which would send an investigator to the wrong subsystem. Proposal: until the
