@@ -50,6 +50,11 @@ lint:
     sh scripts/checks/nondeterminism-gate.sh --selftest
     sh scripts/checks/nondeterminism-gate.sh --all
 
+# REL-001 for a tag about to be cut. Without a version it checks the
+# unreleased section only, which is what CI runs on every push.
+release-check version="":
+    uv run python scripts/checks/release-gate.py {{version}}
+
 # The behavioural half of TWF-RNG-002. Budget: 20 seconds.
 det-hashseed:
     sh tools/det-hashseed.sh

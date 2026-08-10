@@ -84,6 +84,14 @@ if [ "$MODE" != "--security" ]; then
   [ -f scripts/checks/metric-marker-gate.sh ] && \
     step "metric marker gate" sh scripts/checks/metric-marker-gate.sh
   step "changelog-sync selftest" sh scripts/changelog-sync.sh --selftest
+  # REL-001 over the unreleased section. The version-specific half runs when a
+  # tag is cut, where an unfilled metric marker becomes fatal.
+  if [ -n "$PY" ]; then
+    # shellcheck disable=SC2086
+    step "release gate" $PY scripts/checks/release-gate.py
+  else
+    note_skip "release gate" "no python interpreter"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
