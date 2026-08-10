@@ -22,6 +22,7 @@ members = ["packages/*"]
 # packages/ is missing from either.
 [tool.uv.sources]
 twinflow-schemas = { workspace = true }
+twinflow-rng = { workspace = true }
 
 # One lockfile for every member, so a contributor cannot resolve a different
 # numpy than CI did. The numpy pin in each member is a determinism constraint,
@@ -48,6 +49,7 @@ dev = [
     # missing install. Naming the members here makes the ordinary commands work
     # without an --all-packages flag nobody remembers.
     "twinflow-schemas",
+    "twinflow-rng",
 ]
 
 [tool.pytest.ini_options]

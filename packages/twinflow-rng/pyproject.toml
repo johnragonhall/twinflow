@@ -1,0 +1,37 @@
+[project]
+name = "twinflow-rng"
+description = "The one generator factory and the append-only registry of stream names."
+requires-python = ">=3.12"
+dependencies = [
+    # The upper bound is a determinism constraint. NumPy's published
+    # compatibility policy allows numpy.random stream changes on feature
+    # releases, so an unbounded pin would let a routine upgrade silently
+    # reshuffle every recorded run.
+    "numpy>=2.1,<3",
+    "twinflow-schemas",
+]
+
+# Read from the module, so __version__ and the distribution metadata are one
+# value and cannot disagree.
+dynamic = ["version"]
+
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+
+[build-system]
+# 1.27 is where hatchling accepts the PEP 639 license fields above.
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/twinflow/rng/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/twinflow"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "pyproject.toml"]
+exclude = ["**/__pycache__", "**/*.py[co]", "**/.pytest_cache"]
+
+[tool.uv.sources]
+twinflow-schemas = { workspace = true }
