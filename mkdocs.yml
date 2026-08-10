@@ -13,10 +13,13 @@ edit_uri: edit/main/docs/
 # --strict turns a broken link or a missing nav target into a build failure,
 # which is what keeps the nav below honest as pages land.
 #
-# mkdocs only serves files under docs_dir. The root-level README, CONTRIBUTING,
-# SECURITY, CODE_OF_CONDUCT, and CHANGELOG stay at the root because that is
-# where GitHub looks for them, so each has a thin page under docs/ that carries
-# the front matter and includes or links to the root file.
+# mkdocs only serves files under docs_dir. README, ARCHITECTURE, ROADMAP,
+# CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, and CHANGELOG stay at the repository
+# root because that is where GitHub looks for them, and they are read there.
+# They are not mirrored into the site: their links are written for the GitHub
+# tree, and re-basing them for a second layout would leave two link schemes to
+# keep correct. The site hosts the design specification, which is the part that
+# benefits from search and navigation, and links out for the rest.
 
 docs_dir: docs
 site_dir: site
@@ -50,17 +53,22 @@ theme:
 
 plugins:
   - search
-  # mkdocstrings generates the API reference from the docstrings in the
-  # package, so the reference cannot drift from the code it describes.
-  - mkdocstrings:
-      handlers:
-        python:
-          options:
-            docstring_style: google
-            show_source: true
-            show_signature_annotations: true
-            separate_signature: true
-            merge_init_into_class: true
+  # mkdocstrings generates the API reference from the docstrings in the package,
+  # so the reference cannot drift from the code it describes. It is commented
+  # out until the first package exists, because a plugin that reads docstrings
+  # from nothing fails the strict build and blocks the docs site the roadmap
+  # already depends on. Milestone C10 turns it back on with the Reference entry
+  # in the nav. Config kept verbatim so turning it on is uncommenting.
+  #
+  # - mkdocstrings:
+  #     handlers:
+  #       python:
+  #         options:
+  #           docstring_style: google
+  #           show_source: true
+  #           show_signature_annotations: true
+  #           separate_signature: true
+  #           merge_init_into_class: true
 
 markdown_extensions:
   - admonition
@@ -74,7 +82,9 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      base_path: ['.']
+      check_paths: true
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -83,16 +93,23 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Concepts:
-      - Architecture: architecture.md
-      - Adoption: adoption.md
-  - Guides:
-      - Configuring: configuring.md
-      - Contributing: contributing.md
-  - Reference:
-      - Documentation standard: DOCUMENTATION-STANDARD.md
-      - API: reference/index.md
-  - Roadmap: roadmap.md
+  - Design specification:
+      - Doctrine: design/DOCTRINE.md
+      - Foundations: design/foundations.md
+      - Variability and faults: design/variability-and-faults.md
+      - Process twin: design/twin-core.md
+      - IoT fleet: design/iot-fleet.md
+      - Sensor catalog: design/sensor-catalog.md
+      - Statistical engine: design/lss-engine.md
+      - Planning and supply: design/planning-supply.md
+      - Production and quality: design/production-quality.md
+      - Back office: design/back-office.md
+      - People and sustainability: design/human-sustain.md
+      - AI layer: design/ai-layer.md
+      - Dashboard and replay: design/dashboard-replay.md
+      - Repository craft: design/repo-craft.md
+      - Phase detail: design/roadmap.md
+  - Documentation standard: DOCUMENTATION-STANDARD.md
 
 extra:
   social:
