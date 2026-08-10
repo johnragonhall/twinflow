@@ -71,6 +71,9 @@ if [ "$MODE" != "--security" ]; then
     note_skip "workspace membership gate" "no python interpreter"
   fi
   step "nondeterminism gate (repo-wide)" sh scripts/checks/nondeterminism-gate.sh --all
+  # The gate's patterns are proved rather than reviewed, so the selftest runs
+  # beside it: a rule that silently stops matching is worse than no rule.
+  step "nondeterminism gate selftest" sh scripts/checks/nondeterminism-gate.sh --selftest
   # Report mode: an unfilled metric marker is normal during the build and only
   # becomes fatal on a release tag, where the workflow passes --release.
   [ -f scripts/checks/metric-marker-gate.sh ] && \
@@ -116,12 +119,15 @@ if [ "$MODE" != "--security" ]; then
       note_skip "type check" "install: uv tool install ty"
     fi
 
-    if have uv; then
+    # Through the recipe, so the local fast tier and `just test` cannot come to
+    # mean different things. The uv branch repeats the marker expression only
+    # as a fallback for a machine without just.
+    if have just; then
+      step "pytest (fast tier)" just test
+    elif have uv; then
       step "pytest (fast tier)" uv run pytest -m "not slow and not integration and not property" -q
-    elif have pytest; then
-      step "pytest (fast tier)" pytest -m "not slow and not integration and not property" -q
     else
-      note_skip "pytest" "install: uv sync"
+      note_skip "pytest" "install: uv tool install rust-just"
     fi
   fi
 fi
@@ -154,6 +160,11 @@ if [ "$MODE" != "--security" ]; then
   fi
 
   if have shellcheck; then
+    # The single quotes are deliberate: this text is the body of the sh -c
+    # subshell, so the expansions inside it are meant to happen there and not
+    # in this shell. shellcheck cannot see that from the outside and reports
+    # SC2016, which would fail its own step.
+    # shellcheck disable=SC2016
     step "shellcheck" sh -c '
       files=$(git ls-files "*.sh" "scripts/hooks/*")
       [ -n "$files" ] || { echo "no shell scripts"; exit 0; }

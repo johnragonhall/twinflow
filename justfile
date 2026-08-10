@@ -17,9 +17,18 @@ test:
 test-property:
     uv run pytest -m property
 
-# Repeated-run hash check. Budget: 2 minutes.
+# Prove a stream reproduces from a seed, in the four forms available before
+# there is a scenario to run end to end. Budget: 3 minutes.
+#
+# scripts/determinism-check.sh is not called here: it reports SKIP while no
+# scenario file exists, so a recipe built on it would be a recipe that proves
+# nothing. It returns as a line below when Phase 0b lands SCN-F1.
 determinism:
-    sh scripts/determinism-check.sh --runs 3
+    uv run pytest packages/twinflow-rng/tests/test_derive.py -q
+    uv run pytest packages/twinflow-rng/tests/test_rng_known_answers.py -q
+    uv run python tools/gen_rng_kat.py --check
+    just det-hashseed
+    uv run pytest -m property -q
 
 # Types over the whole workspace. ty is the type checker of record.
 typecheck:

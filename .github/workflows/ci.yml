@@ -57,10 +57,19 @@ jobs:
         id: filter
         with:
           filters: |
+            # Every line of Python this project ships lands under packages/**,
+            # and justfile is the task entry point. An earlier filter matched
+            # src/**, which no longer exists, so a pull request touching only
+            # package code skipped this job. The aggregate ci job treats a
+            # skipped job as success, so the badge stayed green over a matrix
+            # that never ran.
             python:
-              - 'src/**'
+              - 'packages/**'
+              - 'tools/**'
+              - 'scripts/**'
               - 'tests/**'
               - 'scenarios/**'
+              - 'justfile'
               - 'pyproject.toml'
               - 'uv.lock'
               - '.github/workflows/ci.yml'
@@ -95,34 +104,31 @@ jobs:
       - name: Sync dependencies
         run: uv sync --all-extras --dev --python ${{ matrix.python-version }}
 
-      # Lint and format run through uvx rather than the project environment so
-      # they cannot be broken by a dependency resolution problem in the project
-      # itself. Same tool, same config file.
-      - name: Lint (ruff)
-        run: uvx ruff check --output-format=github .
+      # Every step below is a recipe call, so local and CI cannot drift. Without
+      # this install those calls produce "just: command not found" on the first
+      # line of the first leg.
+      - name: Install just
+        run: |
+          uv tool install rust-just
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Format check (ruff)
-        run: uvx ruff format --check .
+      - name: Lint
+        run: just lint
 
-      # ty is the type checker of record. Swap this for `uvx mypy .` if the
-      # project moves back to mypy; the gate is what matters, not the tool.
-      - name: Type check (ty)
-        run: uvx ty check
+      - name: Type check
+        run: just typecheck
 
-      - name: Tests (fast tier)
-        run: uv run pytest -m "not slow and not integration" -q
+      - name: Unit tier
+        run: just test
 
       # Property-based invariants run on every matrix leg: a bound that holds on
       # one interpreter and not another is exactly the kind of bug they exist
       # to catch.
-      - name: Property-based invariants
-        run: uv run pytest -m property -q
+      - name: Property invariants
+        run: just test-property
 
-      # The expensive part of the determinism check is process startup, not the
-      # comparison, so it runs on the primary interpreter only.
-      - name: Determinism repeated-run hash check
-        if: matrix.python-version == '3.13'
-        run: sh scripts/determinism-check.sh --runs 3
+      - name: Determinism
+        run: just determinism
 
   agent:
     name: Rust device agent
