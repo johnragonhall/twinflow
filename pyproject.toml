@@ -16,6 +16,13 @@ default-groups = ["dev"]
 [tool.uv.workspace]
 members = ["packages/*"]
 
+# Resolve the members named in the dev group from this tree rather than PyPI,
+# where they do not exist yet. A new package needs a line here and a line in
+# the dev group above; gate WORKSPACE-1 fails the build when a directory under
+# packages/ is missing from either.
+[tool.uv.sources]
+twinflow-schemas = { workspace = true }
+
 # One lockfile for every member, so a contributor cannot resolve a different
 # numpy than CI did. The numpy pin in each member is a determinism constraint,
 # not a compatibility preference: NumPy's published policy allows numpy.random
@@ -32,11 +39,29 @@ dev = [
     "hypothesis>=6.100",
     "ruff>=0.6",
     "pyyaml>=6.0",
+    # Every workspace member is also a dev dependency of the root, and that is
+    # load-bearing rather than tidy. This root is a virtual project, so a plain
+    # `uv sync` installs only the root's own dependencies and prunes everything
+    # else, and `uv run` syncs the same set before it runs anything. Without
+    # these lines `uv run pytest` uninstalls the packages it is about to test
+    # and then fails to import them, which reads as a broken test rather than a
+    # missing install. Naming the members here makes the ordinary commands work
+    # without an --all-packages flag nobody remembers.
+    "twinflow-schemas",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["packages"]
-addopts = "-q --strict-markers"
+# --import-mode=importlib is load-bearing in a workspace, not a preference.
+# Under the default prepend mode pytest imports a test module by its basename,
+# so packages/twinflow-schemas/tests/test_import.py and
+# packages/twinflow-rng/tests/test_import.py both claim the module name
+# test_import. The second one raises "import file mismatch" and aborts
+# collection for the whole run, not just for that file. Adding tests/__init__.py
+# does not fix it: both then resolve to tests.test_import and collide again.
+# Every package here grows a tests/ directory, so same-basename test files are
+# the normal case rather than an accident waiting to happen.
+addopts = "-q --strict-markers --import-mode=importlib"
 markers = [
     "slow: takes more than a second",
     "integration: needs containers",

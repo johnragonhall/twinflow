@@ -1,0 +1,40 @@
+[project]
+name = "twinflow-schemas"
+description = "Event envelope and shared value types. The one workspace leaf every other package imports."
+requires-python = ">=3.12"
+# ROADMAP requirement 1 declares jsonschema, referencing, and pint alongside
+# pydantic. Those three serve the /schemas loader and the Quantity type, and
+# each one arrives with the requirement that consumes it rather than ahead of
+# it: a dependency with no consumer is a dependency nobody reviewed. The
+# envelope needs pydantic and nothing else. The requirement id is named here
+# rather than a phase number because doc-keeper audits requirement ids against
+# ROADMAP.md, so this comment cannot drift without a check noticing.
+dependencies = ["pydantic>=2.9"]
+
+# The version is read from src/twinflow/schemas/__init__.py, so __version__ and
+# the distribution metadata are one value and cannot disagree.
+dynamic = ["version"]
+
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+
+[build-system]
+# A floor, because a build backend with no floor is a build that resolves
+# differently on a machine that happens to have an older one cached. 1.27 is
+# where hatchling accepts the PEP 639 license and license-files fields used
+# above.
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/twinflow/schemas/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/twinflow"]
+
+[tool.hatch.build.targets.sdist]
+# An sdist carries exactly what builds and tests this package. LICENSE and
+# NOTICE arrive through license-files above, which puts them in
+# .dist-info/licenses rather than loose at the install root.
+include = ["src", "tests", "pyproject.toml"]
+exclude = ["**/__pycache__", "**/*.py[co]", "**/.pytest_cache"]

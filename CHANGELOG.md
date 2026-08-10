@@ -18,6 +18,8 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- add the schema leaf package
+
 ### Changed
 
 ### Deprecated
