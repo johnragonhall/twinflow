@@ -131,6 +131,10 @@ if [ "$MODE" != "--security" ]; then
     # parseable, so they sit with the toolchain steps rather than the pure
     # policy gates above.
     if have uv; then
+      # SCH-001. The published schemas are generated from their models, so a
+      # drift here means a consumer is validating against a contract the
+      # producer no longer honours.
+      step "published schemas match their models" uv run python tools/gen_schemas.py --check
       step "import contracts (import-linter)" uv run lint-imports --no-cache
     else
       note_skip "import contracts" "install: uv tool install uv"

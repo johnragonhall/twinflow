@@ -1,0 +1,149 @@
+{
+  "$id": "twinflow:schemas/envelope/v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Envelope carried by every event on every transport.\n\ntwinflowsimts and twinflowseq are decimal strings rather than integers.\nCloudEvents fixes its Integer type at 32 bits signed, and both quantities\npass that in normal use: one simulated day at the default tick rate is\n8.64e10 ticks, and a single sensor scenario produces 5.184e9 readings.",
+  "properties": {
+    "data": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "datacontenttype": {
+      "const": "application/json",
+      "type": "string"
+    },
+    "dataschema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "partitionkey": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "source": {
+      "pattern": "^/twinflow/[a-z0-9][a-z0-9_-]*(/[a-z0-9][a-z0-9_-]*)+$",
+      "type": "string"
+    },
+    "specversion": {
+      "const": "1.0",
+      "type": "string"
+    },
+    "subject": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "time": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "traceparent": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "tracestate": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "twinflowcausationid": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "twinflowcorrid": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "twinflowproducerid": {
+      "description": "Which process role published this. The sequence is dense per producer, never globally, because several containers and the Rust agent all append to one log and no global counter has an allocator.",
+      "enum": [
+        "sim",
+        "api",
+        "dashboard",
+        "agent",
+        "device-agent",
+        "cli"
+      ],
+      "type": "string"
+    },
+    "twinflowrunid": {
+      "type": "string"
+    },
+    "twinflowseq": {
+      "maxLength": 40,
+      "minLength": 1,
+      "pattern": "^(0|[1-9][0-9]*)$",
+      "type": "string"
+    },
+    "twinflowsimts": {
+      "maxLength": 40,
+      "minLength": 1,
+      "pattern": "^(0|[1-9][0-9]*)$",
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "specversion",
+    "id",
+    "source",
+    "type",
+    "time",
+    "datacontenttype",
+    "dataschema",
+    "twinflowsimts",
+    "twinflowrunid",
+    "twinflowproducerid",
+    "twinflowseq",
+    "data"
+  ],
+  "title": "twinflow event envelope",
+  "type": "object",
+  "x-twinflow-partition-key": "twinflowrunid",
+  "x-twinflow-pii": false,
+  "x-twinflow-since": "0.1.0"
+}

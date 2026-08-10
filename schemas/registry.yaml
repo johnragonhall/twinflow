@@ -1,0 +1,30 @@
+# The schema registry manifest (C3).
+#
+# Every subject twinflow publishes, the versions that exist, and the status of
+# each. A historical version is never deleted: a recorded run refers to the
+# version it was written under, and removing that file makes the run unreadable.
+#
+# The files themselves are generated from their models by tools/gen_schemas.py,
+# and `--check` fails when a published file and its model disagree. This
+# manifest is hand-maintained, because it carries decisions (status, the
+# parallel-publishing window) that no model knows about.
+
+format: 1
+dialect: https://json-schema.org/draft/2020-12/schema
+
+subjects:
+  envelope:
+    description: >-
+      The CloudEvents 1.0.2 envelope every twinflow event carries. Doctrine D-07
+      settles it in P0, before any subject schema publishes, because adding a
+      field afterwards is a major version bump on every subject.
+    owner: twinflow-schemas
+    versions:
+      - version: "1.0"
+        file: envelope/v1.json
+        status: current
+        since: "0.1.0"
+        # Set when a successor major exists. SCHEMA-9 reads it and asserts that
+        # both majors published at least one sample during the overlap window,
+        # so a producer cannot quietly stop publishing the superseded major.
+        parallel_until: null

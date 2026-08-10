@@ -9,7 +9,15 @@ requires-python = ">=3.12"
 # envelope needs pydantic and nothing else. The requirement id is named here
 # rather than a phase number because doc-keeper audits requirement ids against
 # ROADMAP.md, so this comment cannot drift without a check noticing.
-dependencies = ["pydantic>=2.9"]
+dependencies = [
+    "pydantic>=2.9",
+    # The /schemas loader and the registry validator. foundations 2.3 declares
+    # pint alongside these two; it serves the Quantity type, which arrives with
+    # the requirement that consumes it rather than ahead of it.
+    "jsonschema>=4.23",
+    "referencing>=0.35",
+    "pyyaml>=6.0",
+]
 
 # The version is read from src/twinflow/schemas/__init__.py, so __version__ and
 # the distribution metadata are one value and cannot disagree.

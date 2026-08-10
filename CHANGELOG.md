@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- publish the schema registry and the compatibility differ
 - enforce the package boundary rules
 - add the sim clock and the clock port
 - add the three rng lint rules and the two-hash-seed check
