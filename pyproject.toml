@@ -41,6 +41,9 @@ dev = [
     "hypothesis>=6.100",
     "ruff>=0.6",
     "pyyaml>=6.0",
+    # Boundary rules A1.1 to A1.3. The contracts it reads are generated from
+    # [tool.twinflow.layers] below by tools/gen_importlinter.py.
+    "import-linter>=2.0",
     # Every workspace member is also a dev dependency of the root, and that is
     # load-bearing rather than tidy. This root is a virtual project, so a plain
     # `uv sync` installs only the root's own dependencies and prunes everything
@@ -53,6 +56,38 @@ dev = [
     "twinflow-rng",
     "twinflow-kernel",
 ]
+
+# Boundary rule A1.3. The layer list and the domain-package list live here and
+# nowhere else, because the import-linter contract and the gate both read them
+# and two copies would eventually disagree (D-09). `.importlinter` is generated
+# from this table by tools/gen_importlinter.py, and its --check mode fails when
+# the two drift.
+#
+# Top of the list imports downward. An import that skips upward fails CI: the
+# whole point is that a quality manager can install twinflow-lss without
+# dragging in a dashboard.
+[tool.twinflow.layers]
+order = ["apps", "domain", "storage", "config", "kernel", "rng", "schemas"]
+apps = ["api", "dashboard", "cli"]
+domain = [
+    "twin",
+    "lss",
+    "sensors",
+    "fleet",
+    "procmine",
+    "forecast",
+    "optimize",
+    "causal",
+    "cv",
+    "agent",
+]
+storage = ["storage"]
+config = ["config"]
+kernel = ["kernel"]
+rng = ["rng"]
+schemas = ["schemas"]
+# devtools sits outside the graph because nothing imports it at runtime.
+outside = ["devtools"]
 
 [tool.pytest.ini_options]
 testpaths = ["packages"]

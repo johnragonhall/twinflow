@@ -40,6 +40,11 @@ lint:
     uv run ruff format --check .
     uv run python scripts/checks/prose-gate.py --all
     uv run python scripts/checks/workspace-members-gate.py
+    uv run python scripts/checks/import-boundary-gate.py
+    uv run python tools/gen_importlinter.py --check
+    # --no-cache is not optional. A stale .import_linter_cache reports every
+    # contract as KEPT over a tree that breaks them.
+    uv run lint-imports --no-cache
     sh scripts/checks/nondeterminism-gate.sh --selftest
     sh scripts/checks/nondeterminism-gate.sh --all
 

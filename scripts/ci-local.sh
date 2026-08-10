@@ -66,6 +66,11 @@ if [ "$MODE" != "--security" ]; then
     # WORKSPACE-1. Needs only tomllib, so it runs on the bare interpreter.
     # shellcheck disable=SC2086
     step "workspace membership gate" $PY scripts/checks/workspace-members-gate.py
+    # IMPORT-2 and IMPORT-3. Reads source with ast, so it needs no install.
+    # shellcheck disable=SC2086
+    step "import boundary gate" $PY scripts/checks/import-boundary-gate.py
+    # shellcheck disable=SC2086
+    step "importlinter config is generated" $PY tools/gen_importlinter.py --check
   else
     note_skip "prose gate" "no python interpreter"
     note_skip "workspace membership gate" "no python interpreter"
@@ -122,6 +127,15 @@ if [ "$MODE" != "--security" ]; then
     # Through the recipe, so the local fast tier and `just test` cannot come to
     # mean different things. The uv branch repeats the marker expression only
     # as a fallback for a machine without just.
+    # A1.1 to A1.3, which need the workspace importable rather than only
+    # parseable, so they sit with the toolchain steps rather than the pure
+    # policy gates above.
+    if have uv; then
+      step "import contracts (import-linter)" uv run lint-imports --no-cache
+    else
+      note_skip "import contracts" "install: uv tool install uv"
+    fi
+
     if have just; then
       step "pytest (fast tier)" just test
     elif have uv; then

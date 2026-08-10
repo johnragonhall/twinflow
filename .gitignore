@@ -115,6 +115,13 @@ sbom.cdx.json
 *.swp
 *.swo
 
+# --- Tool caches ------------------------------------------------------------
+# import-linter memoises the import graph here. A stale entry reports every
+# contract as KEPT over a tree that breaks them, which is why every recipe and
+# workflow that runs it passes --no-cache. Committing the cache would spread
+# that false green to everybody who cloned.
+.import_linter_cache/
+
 # --- OS junk ----------------------------------------------------------------
 .DS_Store
 ._*
