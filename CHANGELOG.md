@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- freeze the cross-language known-answer corpus
 - add the append-only stream registry
 - fix the name-addressed derivation byte for byte
 - add the rng leaf package
