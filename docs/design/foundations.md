@@ -505,8 +505,14 @@ section can see what the manifest records. Where the two differ, that file wins.
 - R2. A child stream is addressed by name, not by creation order. The derivation is
   `key_bytes = blake2b(stream_name.encode("utf-8"), digest_size=16, person=b"twinflow-rng")`, then
   `spawn_key` is those 16 bytes read as four little-endian `uint32` words, then
-  `SeedSequence(entropy=(base_seed, replication_index), spawn_key=spawn_key)`, then
-  `Generator(PCG64DXSM(seed_seq))`. Adding, removing, or reordering subsystems does not perturb any
+  `SeedSequence(entropy=<four uint32 words>, spawn_key=spawn_key)`, then
+  `Generator(PCG64DXSM(seed_seq))`. The entropy is a fixed-width four-word `uint32` array,
+  never a tuple of Python integers: numpy emits as many words as each integer's magnitude
+  needs, so a tuple yields two to four words depending on the seed and the mixing path
+  changes with it. `docs/design/variability-and-faults.md` section A.1 owns the byte-for-byte
+  form and this line never restates it, because a cross-language contract with two spellings
+  has no contract.
+  Adding, removing, or reordering subsystems does not perturb any
   other subsystem's draws (INV-K4). This is the single most important property of the RNG design:
   without it, adding a sensor type in Phase 3 would invalidate every golden file recorded in
   Phase 2.

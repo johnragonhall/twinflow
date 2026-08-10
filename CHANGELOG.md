@@ -26,6 +26,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- stop two sections spelling the rng derivation differently
 - carry the bit-generator change through every section that names it
 - switch the bit generator to pcg64dxsm before the corpus freezes
 - name the vendored fonts and correct the asset count
