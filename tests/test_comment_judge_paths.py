@@ -55,6 +55,38 @@ def test_a_traversal_segment_is_judged_by_where_it_lands(tmp_path):
         judge.message_path_within(allowed / ".." / "secret.txt", roots=[allowed])
 
 
+def test_the_returned_path_is_rebuilt_from_the_root(tmp_path):
+    """The value handed to open() carries nothing the caller wrote.
+
+    The argument selects which file under the root is opened. It does not
+    become the thing that is opened.
+    """
+    root = tmp_path / "repo"
+    (root / "rebase-merge").mkdir(parents=True)
+    message = root / "rebase-merge" / "message"
+    message.write_text("feat(x): y\n", encoding="utf-8")
+
+    rebuilt = judge.message_path_within(message, roots=[root])
+    assert rebuilt == root / "rebase-merge" / "message"
+    assert rebuilt.is_relative_to(root)
+
+
+@pytest.mark.parametrize("name", ["COMMIT_EDITMSG", "MERGE_MSG", "SQUASH_MSG", "TAG_EDITMSG"])
+def test_the_names_git_actually_writes_are_accepted(tmp_path, name):
+    message = tmp_path / name
+    message.write_text("feat(x): y\n", encoding="utf-8")
+    assert judge.message_path_within(message, roots=[tmp_path]).name == name
+
+
+def test_a_component_outside_the_name_pattern_is_refused(tmp_path):
+    """A name nobody expects is a name nobody reviewed."""
+    odd = tmp_path / "msg;rm -rf"
+    odd.write_text("feat(x): y\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="plain file name"):
+        judge.message_path_within(odd, roots=[tmp_path])
+
+
 def test_a_directory_is_refused(tmp_path):
     with pytest.raises(ValueError, match="not a file"):
         judge.message_path_within(tmp_path, roots=[tmp_path])

@@ -74,6 +74,13 @@ TIMEOUT_S = int(os.environ.get("COMMENT_JUDGE_TIMEOUT", "120"))
 #: there, cannot be mistaken for a finding.
 VIOLATION_EXIT = 3
 
+#: A single path component of a commit-message file. Letters, digits, dot,
+#: underscore, and hyphen cover everything git writes: COMMIT_EDITMSG,
+#: MERGE_MSG, SQUASH_MSG, TAG_EDITMSG, and rebase-merge/message. Anything else
+#: is refused rather than escaped, because a name nobody expects is a name
+#: nobody reviewed.
+_SAFE_NAME = re.compile(r"[A-Za-z0-9._-]+")
+
 _SHARED_TONE = """\
  - rule-of-three padding, and forced "not just X but Y" negative parallelism
  - promotional or significance-inflating tone ("crucial", "seamless", "robust")
@@ -286,31 +293,56 @@ def git_roots():
 
 
 def message_path_within(candidate, roots=None):
-    """Resolve a commit-message path, refusing anything outside the repository.
+    """Build a commit-message path from a trusted root, refusing anything else.
 
     This script reads the file and sends its contents to an external CLI, so
-    the path decides what leaves the machine. Confining it to the repository
-    keeps a mistyped or malicious --commit-msg argument from turning the hook
+    the path decides what leaves the machine. An unchecked one turns a git hook
     into a way to post ~/.ssh/id_rsa to a third party.
 
-    Resolved before the comparison, so a symlink or a .. segment is judged by
-    where it lands rather than by how it is spelled. `roots` is injectable so
-    the check itself is testable.
+    The returned path is assembled from the trusted root and components that
+    each matched a strict name pattern, rather than being the argument with a
+    check performed beside it. Nothing the caller wrote reaches the open() call:
+    the argument only selects which file under the root is opened, and a name
+    outside the pattern selects nothing.
+
+    Three steps, and each rejects a different attack:
+
+        resolve   a symlink or a .. segment is judged by where it lands rather
+                  than by how it is spelled
+        contain   the landing place has to be inside the work tree or git dir
+        rebuild   every component has to be a plain file name, and the result is
+                  joined onto the root rather than taken from the argument
+
+    `roots` is injectable so the check itself is testable.
     """
-    path = Path(candidate).resolve()
-    if not path.is_file():
+    resolved = Path(candidate).resolve()
+    if not resolved.is_file():
         raise ValueError(f"{candidate!r} is not a file")
 
     allowed = git_roots() if roots is None else [Path(r).resolve() for r in roots]
     if not allowed:
         raise ValueError("not inside a git repository")
-    if not any(path == root or root in path.parents for root in allowed):
+
+    root = next((r for r in allowed if resolved == r or r in resolved.parents), None)
+    if root is None:
         raise ValueError(
-            f"{path} is outside this repository. A commit message lives in the "
-            f"working tree or the git directory, and this script sends what it "
-            f"reads to an external service"
+            f"{resolved} is outside this repository. A commit message lives in "
+            f"the working tree or the git directory, and this script sends what "
+            f"it reads to an external service"
         )
-    return path
+
+    parts = resolved.relative_to(root).parts
+    if not parts or not all(_SAFE_NAME.fullmatch(part) for part in parts):
+        raise ValueError(
+            f"{resolved} has a path component that is not a plain file name. "
+            f"git writes its message files as COMMIT_EDITMSG, MERGE_MSG, and "
+            f"the like, under the git directory"
+        )
+
+    rebuilt = root
+    for part in parts:
+        rebuilt = rebuilt / part
+    return rebuilt
 
 
 def judge_commit_message(path):

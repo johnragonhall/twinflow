@@ -41,6 +41,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- build the judged message path from the repository root
 - confine the judged commit message to this repository
 - make uvx ty check pass on prose-gate.py
 - reconcile justfile, contributing guide, and ci-local.sh
