@@ -90,22 +90,35 @@ if [ "$MODE" != "--security" ]; then
 
   # ty is the type checker of record; mypy is accepted as a stand-in on a
   # machine that only has mypy installed.
-  if have ty; then
-    step "ty check" ty check
-  elif have uvx && uvx ty --version >/dev/null 2>&1; then
-    step "ty check" uvx ty check
-  elif have mypy; then
-    step "mypy" mypy .
+  #
+  # Both the type check and the test run are skipped until a package exists.
+  # Before then the only Python here is the gate scripts, and reporting a
+  # standing FAIL for a package that has not been written yet would make the
+  # whole battery permanently red. A gate nobody can turn green is a gate
+  # everybody learns to ignore, which costs more than the check is worth.
+  # Milestone C10 lands pyproject.toml, and both checks arm themselves the
+  # moment it appears, with no edit to this file.
+  if [ ! -f pyproject.toml ]; then
+    note_skip "type check" "no pyproject.toml yet; arms at milestone C10"
+    note_skip "pytest" "no pyproject.toml yet; arms at milestone C10"
   else
-    note_skip "type check" "install: uv tool install ty"
-  fi
+    if have ty; then
+      step "ty check" ty check
+    elif have uvx && uvx ty --version >/dev/null 2>&1; then
+      step "ty check" uvx ty check
+    elif have mypy; then
+      step "mypy" mypy .
+    else
+      note_skip "type check" "install: uv tool install ty"
+    fi
 
-  if have uv; then
-    step "pytest (fast tier)" uv run pytest -m "not slow and not integration" -q
-  elif have pytest; then
-    step "pytest (fast tier)" pytest -m "not slow and not integration" -q
-  else
-    note_skip "pytest" "install: uv sync"
+    if have uv; then
+      step "pytest (fast tier)" uv run pytest -m "not slow and not integration" -q
+    elif have pytest; then
+      step "pytest (fast tier)" pytest -m "not slow and not integration" -q
+    else
+      note_skip "pytest" "install: uv sync"
+    fi
   fi
 fi
 
