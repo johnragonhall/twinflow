@@ -27,6 +27,14 @@ target-version = "py312"
 # tested. The rule set is revisited in milestone C10 with the CI matrix.
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
+[lint.isort]
+# twinflow is this project, not a third-party dependency. Without this, rule I
+# sorts `import twinflow.schemas` into the third-party block, and every package
+# added later re-sorts its neighbours' imports on the first run that touches
+# them. The namespace prefix is the whole first-party surface, so one entry
+# covers every package under packages/.
+known-first-party = ["twinflow"]
+
 [format]
 # Code inside a docstring is real code and is formatted. Code inside Markdown
 # is illustration and is not, per the exclusion above.
