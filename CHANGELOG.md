@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- enforce the licence allowlist against the resolved tree
 - open the environment seam and the metric identifier space
 - validate a facility profile and say what to fix
 - publish the schema registry and the compatibility differ

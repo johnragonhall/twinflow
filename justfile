@@ -43,6 +43,7 @@ lint:
     uv run python scripts/checks/import-boundary-gate.py
     uv run python tools/gen_importlinter.py --check
     uv run python tools/gen_schemas.py --check
+    uv run python scripts/checks/license-allowlist-gate.py
     # --no-cache is not optional. A stale .import_linter_cache reports every
     # contract as KEPT over a tree that breaks them.
     uv run lint-imports --no-cache

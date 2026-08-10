@@ -293,6 +293,9 @@ on where the dependency sits, not only on its SPDX id.
 | `ISC`          | Any dependency       | Accepted | Permissive, functionally MIT.                                                                 |
 | `Apache-2.0`   | Any dependency       | Accepted | The outbound license of this project.                                                         |
 | `Python-2.0`   | Any dependency       | Accepted | Permissive, and unavoidable on the standard library path.                                     |
+| `0BSD`         | Any dependency       | Accepted | Permissive with no attribution condition at all. Reaches the tree through numpy.              |
+| `Zlib`         | Any dependency       | Accepted | Permissive, and its only condition is not misrepresenting origin. Reaches the tree via numpy. |
+| `CC0-1.0`      | Any dependency       | Accepted | A public-domain dedication, so it imposes no condition on redistribution.                     |
 | `MPL-2.0`      | Development only     | Accepted | Copyleft that stops at the file it covers, and a test dependency is never shipped. See below. |
 | `MPL-2.0`      | Shipped at run time  | Refused  | The file-level condition would travel to a user who installs a twinflow package.              |
 | `GPL-2.0`      | Any dependency       | Refused  | Incompatible with Apache-2.0, and no waiver is available.                                     |

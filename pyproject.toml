@@ -92,7 +92,10 @@ schemas = ["schemas"]
 outside = ["devtools"]
 
 [tool.pytest.ini_options]
-testpaths = ["packages"]
+# packages/ holds the distributions. tests/ holds the repository policy gates
+# under scripts/checks, which belong to no distribution and would otherwise ship
+# untested inside one that does not own them.
+testpaths = ["packages", "tests"]
 # --import-mode=importlib is load-bearing in a workspace, not a preference.
 # Under the default prepend mode pytest imports a test module by its basename,
 # so packages/twinflow-schemas/tests/test_import.py and

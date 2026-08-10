@@ -135,6 +135,9 @@ if [ "$MODE" != "--security" ]; then
       # drift here means a consumer is validating against a contract the
       # producer no longer honours.
       step "published schemas match their models" uv run python tools/gen_schemas.py --check
+      # SEC-001. Reads the resolved tree rather than the manifests, so it
+      # reports what would actually ship.
+      step "licence allowlist" uv run python scripts/checks/license-allowlist-gate.py
       step "import contracts (import-linter)" uv run lint-imports --no-cache
     else
       note_skip "import contracts" "install: uv tool install uv"
