@@ -29,7 +29,7 @@ typecheck:
 lint:
     uv run ruff check .
     uv run ruff format --check .
-    uv run --no-project --with pyyaml python scripts/checks/prose-gate.py --all
+    uv run python scripts/checks/prose-gate.py --all
     sh scripts/checks/nondeterminism-gate.sh --all
 
 # Format what can be formatted.

@@ -43,14 +43,23 @@ installs it.
 
 import contextlib
 import fnmatch
+import io
 import os
 import re
 import subprocess
 import sys
 
+# sys.stdout and sys.stderr are typed as TextIO, which has no reconfigure
+# method: only io.TextIOWrapper, the concrete class Python normally binds
+# them to, declares it. The isinstance check narrows the type for the
+# checker and mirrors the runtime case this guards: a caller that already
+# replaced either stream with something else, which has no reconfigure to
+# call. ValueError still needs a catch, since reconfigure raises it on an
+# unsupported encoding even on a real TextIOWrapper.
 for _stream in (sys.stdout, sys.stderr):
-    with contextlib.suppress(AttributeError, ValueError):
-        _stream.reconfigure(encoding="utf-8", errors="replace")
+    if isinstance(_stream, io.TextIOWrapper):
+        with contextlib.suppress(ValueError):
+            _stream.reconfigure(encoding="utf-8", errors="replace")
 
 try:
     import yaml
