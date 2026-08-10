@@ -30,7 +30,21 @@ lint:
     uv run ruff check .
     uv run ruff format --check .
     uv run python scripts/checks/prose-gate.py --all
+    uv run python scripts/checks/workspace-members-gate.py
+    sh scripts/checks/nondeterminism-gate.sh --selftest
     sh scripts/checks/nondeterminism-gate.sh --all
+
+# The behavioural half of TWF-RNG-002. Budget: 20 seconds.
+det-hashseed:
+    sh tools/det-hashseed.sh
+
+# The cross-language known-answer corpus, regenerated in memory and diffed.
+kat-check:
+    uv run python tools/gen_rng_kat.py --check
+
+# The frozen vector against every numpy in the declared pin range. Budget: 3 minutes.
+kat-invariance:
+    sh scripts/checks/kat-invariance.sh
 
 # Format what can be formatted.
 fmt:
