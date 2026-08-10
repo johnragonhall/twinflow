@@ -1,0 +1,44 @@
+[project]
+name = "twinflow-workspace"
+version = "0.0.0"
+description = "Workspace root. Declares members and shared tooling. Ships no runtime code."
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv]
+# The root is a workspace container, not a distribution. Saying so explicitly
+# keeps uv from looking for a build backend that this file has no reason to
+# declare.
+package = false
+required-version = ">=0.5"
+default-groups = ["dev"]
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+# One lockfile for every member, so a contributor cannot resolve a different
+# numpy than CI did. The numpy pin in each member is a determinism constraint,
+# not a compatibility preference: NumPy's published policy allows numpy.random
+# stream changes on feature releases.
+#
+# foundations 5.14 declares a wider group: pytest-asyncio, ty, import-linter,
+# schemathesis, griffe, and syrupy. Each arrives with the task that runs it,
+# named in the self-review at the end of this file. ty is invoked through uvx
+# by the typecheck recipe below, so it needs no entry here.
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=5.0",
+    "hypothesis>=6.100",
+    "ruff>=0.6",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["packages"]
+addopts = "-q --strict-markers"
+markers = [
+    "slow: takes more than a second",
+    "integration: needs containers",
+    "property: Hypothesis property test",
+    "brick_isolated: runs against one package installed alone",
+]
