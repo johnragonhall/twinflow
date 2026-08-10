@@ -23,6 +23,7 @@ members = ["packages/*"]
 [tool.uv.sources]
 twinflow-schemas = { workspace = true }
 twinflow-rng = { workspace = true }
+twinflow-kernel = { workspace = true }
 
 # One lockfile for every member, so a contributor cannot resolve a different
 # numpy than CI did. The numpy pin in each member is a determinism constraint,
@@ -50,6 +51,7 @@ dev = [
     # without an --all-packages flag nobody remembers.
     "twinflow-schemas",
     "twinflow-rng",
+    "twinflow-kernel",
 ]
 
 [tool.pytest.ini_options]

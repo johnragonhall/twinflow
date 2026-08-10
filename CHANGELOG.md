@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- add the sim clock and the clock port
 - add the three rng lint rules and the two-hash-seed check
 - freeze the cross-language known-answer corpus
 - add the append-only stream registry
