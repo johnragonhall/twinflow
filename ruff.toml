@@ -1,0 +1,33 @@
+# Ruff configuration.
+#
+# Markdown is excluded from both the linter and the formatter. Ruff can format
+# Python code blocks inside Markdown, and that is the wrong behaviour here: the
+# design documents under docs/design use illustrative snippets with aligned
+# trailing comments, written so a reader can scan a protocol at a glance. Ruff
+# reflows them into multi-line calls and drops the alignment, which costs
+# readability in the documents and produces a large diff in files that carry no
+# executable code. Real source is formatted normally.
+#
+# When the first package lands, its .py files are covered by the include below
+# without any change to this exclusion.
+
+extend-exclude = [
+  "*.md",
+  "site",
+  "node_modules",
+  ".venv",
+]
+
+line-length = 100
+target-version = "py312"
+
+[lint]
+# Deliberately close to ruff's defaults until there is source to tune against.
+# Widening the rule set before the code exists produces a policy nobody has
+# tested. The rule set is revisited in milestone C10 with the CI matrix.
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[format]
+# Code inside a docstring is real code and is formatted. Code inside Markdown
+# is illustration and is not, per the exclusion above.
+docstring-code-format = true

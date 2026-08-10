@@ -26,6 +26,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- stop ruff reformatting the code samples inside the design documents
 - name each source in the text instead of pointing at a ledger
 
 ### Security

@@ -41,6 +41,7 @@ pre-commit hook treats every other missing tool: CI is the hard backstop and
 installs it.
 """
 
+import contextlib
 import fnmatch
 import os
 import re
@@ -48,10 +49,8 @@ import subprocess
 import sys
 
 for _stream in (sys.stdout, sys.stderr):
-    try:
+    with contextlib.suppress(AttributeError, ValueError):
         _stream.reconfigure(encoding="utf-8", errors="replace")
-    except (AttributeError, ValueError):
-        pass
 
 try:
     import yaml
@@ -146,9 +145,7 @@ def load_yaml(path):
         )
         sys.exit(1)
     except yaml.YAMLError as exc:
-        sys.stderr.write(
-            f"\n\033[31mBLOCKED: {path} is not valid YAML.\033[0m\n{exc}\n"
-        )
+        sys.stderr.write(f"\n\033[31mBLOCKED: {path} is not valid YAML.\033[0m\n{exc}\n")
         sys.exit(1)
 
 
@@ -159,9 +156,7 @@ def compile_rules(config):
         try:
             pattern = re.compile(raw["pattern"])
         except (KeyError, re.error) as exc:
-            sys.stderr.write(
-                f"[prose] skipping malformed rule {raw.get('id')}: {exc}\n"
-            )
+            sys.stderr.write(f"[prose] skipping malformed rule {raw.get('id')}: {exc}\n")
             continue
         rules.append(
             {
@@ -202,9 +197,7 @@ def build_term_rules(terms):
         # an identifier from tripping a prose rule: --no-verify is not the word
         # "verify", and no_verify is not it either.
         try:
-            pattern = re.compile(
-                r"(?i)(?<![A-Za-z0-9_-])" + re.escape(word) + r"(?![A-Za-z0-9_-])"
-            )
+            pattern = re.compile(r"(?i)(?<![A-Za-z0-9_-])" + re.escape(word) + r"(?![A-Za-z0-9_-])")
         except re.error:
             return
         rules.append(
@@ -291,8 +284,7 @@ def select_files(argv):
                 continue
             if not within_repo(candidate, root):
                 sys.stderr.write(
-                    f"\033[31mrefused\033[0m {candidate}: resolves outside the "
-                    "working tree\n"
+                    f"\033[31mrefused\033[0m {candidate}: resolves outside the working tree\n"
                 )
                 continue
             selected.append(candidate.replace("\\", "/"))
@@ -379,8 +371,7 @@ def check_rules(doc, rules, protected, findings):
                 protected is not None
                 and rule["id"].startswith("STE-TERM")
                 and any(
-                    span.start() <= match.start() < span.end()
-                    for span in protected.finditer(line)
+                    span.start() <= match.start() < span.end() for span in protected.finditer(line)
                 )
             ):
                 continue
@@ -421,9 +412,7 @@ def check_front_matter(doc, description_rules, exempt, findings):
 
     for field in ("title", "description", "topic_type"):
         if not doc.front_matter.get(field):
-            findings.append(
-                (doc.path, 1, "FM-02", ERROR, f"front matter has no {field}")
-            )
+            findings.append((doc.path, 1, "FM-02", ERROR, f"front matter has no {field}"))
 
     description = str(doc.front_matter.get("description") or "").strip()
     if not description:
@@ -458,9 +447,7 @@ def check_front_matter(doc, description_rules, exempt, findings):
     if description_rules.get("must_not_restate_title"):
         title = str(doc.front_matter.get("title") or "").strip().lower()
         if title and description.lower().startswith(title):
-            findings.append(
-                (doc.path, 1, "FM-05", ERROR, "description restates the title")
-            )
+            findings.append((doc.path, 1, "FM-05", ERROR, "description restates the title"))
 
 
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
@@ -514,9 +501,7 @@ def check_headings(doc, findings):
         text = strip_markup(match.group(2))
         words = text.split()[1:]
         capitalized = [
-            word
-            for word in words
-            if len(word) > 1 and word[0].isupper() and word[1:].islower()
+            word for word in words if len(word) > 1 and word[0].isupper() and word[1:].islower()
         ]
         if len(capitalized) >= 2 and escaped(line, "HEAD-01") is not True:
             findings.append(
@@ -622,9 +607,7 @@ def check_sentences(doc, limits, exempt, findings):
             )
         for sentence in sentences:
             count = len(sentence.split())
-            ceiling = (
-                instruction_max if (is_list and instruction_max) else descriptive_max
-            )
+            ceiling = instruction_max if (is_list and instruction_max) else descriptive_max
             if ceiling and count > ceiling:
                 if escaped(line, "LEN-01") is True:
                     continue
@@ -634,10 +617,7 @@ def check_sentences(doc, limits, exempt, findings):
                         start,
                         "LEN-01",
                         WARN,
-                        (
-                            f"sentence is {count} words, ceiling is {ceiling}: "
-                            f"{sentence[:60]}..."
-                        ),
+                        (f"sentence is {count} words, ceiling is {ceiling}: {sentence[:60]}..."),
                     )
                 )
 
@@ -650,10 +630,8 @@ def check_sentences(doc, limits, exempt, findings):
 def main(argv):
     root = run_git("rev-parse", "--show-toplevel").strip()
     if root:
-        try:
+        with contextlib.suppress(OSError):
             os.chdir(root)
-        except OSError:
-            pass
 
     config = load_yaml(BANNED_PHRASES)
     terms = load_yaml(STE_TERMS)
@@ -684,14 +662,10 @@ def main(argv):
     warnings = [f for f in findings if f[3] == WARN and not strict]
 
     for path, number, rule_id, _severity, message in sorted(warnings):
-        sys.stdout.write(
-            f"\033[33mwarn\033[0m  {path}:{number}  [{rule_id}]  {message}\n"
-        )
+        sys.stdout.write(f"\033[33mwarn\033[0m  {path}:{number}  [{rule_id}]  {message}\n")
 
     if not errors:
-        print(
-            f"[prose] {len(files)} files checked, {len(warnings)} warnings, no errors"
-        )
+        print(f"[prose] {len(files)} files checked, {len(warnings)} warnings, no errors")
         return 0
 
     sys.stderr.write("\n\033[31mBLOCKED: documentation standard violations\033[0m\n")
