@@ -244,10 +244,15 @@ sentence_limits:
   concept:
     descriptive_max_words: 35
     paragraph_max_sentences: 8
+  # Also the front matter exemption list: prose-gate.py reads this same set in
+  # check_front_matter. The pull request template is here because GitHub copies
+  # the file verbatim into every pull request body, where front matter would
+  # show up as text. See docs/DOCUMENTATION-STANDARD.md section 5a.
   exempt:
     - README.md
     - ROADMAP.md
     - CHANGELOG.md
+    - .github/PULL_REQUEST_TEMPLATE.md
 
 description_rules:
   min_words: 10
