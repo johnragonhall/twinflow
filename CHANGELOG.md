@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- fix the name-addressed derivation byte for byte
 - add the rng leaf package
 - settle the event envelope before any schema publishes
 - add the schema leaf package

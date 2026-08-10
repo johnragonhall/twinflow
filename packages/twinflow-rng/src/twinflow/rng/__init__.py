@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from twinflow.rng.derive import derive_spawn_key, generator_for
+
 #: Read by tool.hatch.version, so this is the only place the version is written.
 __version__ = "0.1.0"
 
@@ -9,4 +11,9 @@ __version__ = "0.1.0"
 #: run carries this, so a replay can refuse a corpus it cannot reproduce.
 STREAM_CATALOG_VERSION = "0.1.0"
 
-__all__ = ["STREAM_CATALOG_VERSION", "__version__"]
+__all__ = [
+    "STREAM_CATALOG_VERSION",
+    "__version__",
+    "derive_spawn_key",
+    "generator_for",
+]
