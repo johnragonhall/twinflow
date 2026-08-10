@@ -26,4 +26,6 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- name each source in the text instead of pointing at a ledger
+
 ### Security

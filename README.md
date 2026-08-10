@@ -114,7 +114,7 @@ StRD is a numerical-accuracy benchmark. Its stated scope names no control chart 
 
 The Gage R and R F-test needs a stated convention, because the published ones disagree. The CRAN documentation for the R SixSigma package 0.11.1 puts appendix A of the AIAG MSA manual, Montgomery (2009), and Minitab on the interaction error term, and then records that "in the example provided in page 127 of the AIAG MSA Manual, the F test is performed as `$MS_factor/MS_equipment$`, i.e., repeatability". The AIAG manual is sold rather than published and was not read for this file, so the split is reported here as the SixSigma documentation states it. twinflow builds both error terms, tests each against its own published example, and names the convention in every generated report.
 
-Every claim in this README is traced in [docs/design/README-claims.md](docs/design/README-claims.md), with its source, retrieval date, and confidence grade.
+Every claim in this README was checked against the primary text of its source. Where a claim rests on a single source that could not be verified directly, the source is named in the sentence that makes it.
 
 ## Agent accuracy
 
@@ -161,16 +161,15 @@ I deploy IoT tracking fleets in industrial settings and apply Lean Six Sigma to 
 
 ## Documentation
 
-| Document                                                     | Contents                                                                                        |
-| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| [ARCHITECTURE.md](ARCHITECTURE.md)                           | Layer map, ISA-95 and Purdue assignments, real-world counterparts, and decisions with rationale |
-| [ROADMAP.md](ROADMAP.md)                                     | Living backlog: every milestone with its phase, dependencies, and validation gates              |
-| [docs/design/](docs/design/)                                 | The section specifications the roadmap is built from, plus the doctrine rulings                 |
-| [docs/design/README-claims.md](docs/design/README-claims.md) | The claim ledger behind this file: source, retrieval date, and confidence grade per claim       |
-| [CONTRIBUTING.md](CONTRIBUTING.md)                           | Development setup, test tiers, and commit and review conventions                                |
-| [LICENSING.md](LICENSING.md)                                 | The Apache-2.0 obligations, the commercial option, and the dependency license policy            |
-| [SECURITY.md](SECURITY.md)                                   | Private disclosure channel, supported versions, and the MCP and REST threat model               |
-| [CHANGELOG.md](CHANGELOG.md)                                 | Release notes and the compatibility table for recorded runs and configs                         |
+| Document                           | Contents                                                                                        |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Layer map, ISA-95 and Purdue assignments, real-world counterparts, and decisions with rationale |
+| [ROADMAP.md](ROADMAP.md)           | Living backlog: every milestone with its phase, dependencies, and validation gates              |
+| [docs/design/](docs/design/)       | The section specifications the roadmap is built from, plus the doctrine rulings                 |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Development setup, test tiers, and commit and review conventions                                |
+| [LICENSING.md](LICENSING.md)       | The Apache-2.0 obligations, the commercial option, and the dependency license policy            |
+| [SECURITY.md](SECURITY.md)         | Private disclosure channel, supported versions, and the MCP and REST threat model               |
+| [CHANGELOG.md](CHANGELOG.md)       | Release notes and the compatibility table for recorded runs and configs                         |
 
 ADOPTION.md lands with milestone A5 and CONFIGURING.md with A2.
 

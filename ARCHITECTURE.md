@@ -9,7 +9,7 @@ audience: contributors
 
 This document covers seven things: the technology decision record, the dual-mode deterministic simulation design, the stochastic model, the ISA-95 and Purdue layer map, the unified namespace, compute placement, and network segmentation. Component behaviour, roadmap sequencing, and adoption guidance live in other documents.
 
-Every external fact in this document has a row in [docs/design/ARCHITECTURE-claims.md](docs/design/ARCHITECTURE-claims.md), with the source, the retrieval date, the HTTP status, and the quoted span. A claim with no row there is a defect in this document.
+Every external fact in this document was checked against the primary text of its source, and the source is named at the point the claim is made. A claim here that names no source is a defect.
 
 ---
 

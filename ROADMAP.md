@@ -849,10 +849,10 @@ sets, carries no external reference, and never claims that an outside source cer
 number. Invariant and budget gates are gathered under their own heading below, and the statistics
 that no reference supports are gathered under the open questions heading after it.
 
-The evidence behind every reference below, with its HTTP status and retrieval date, is in
-[docs/design/ROADMAP-claims.md](docs/design/ROADMAP-claims.md). A claim read from primary text
-appears plainly here. A claim resting on a single source appears with that source named in the
-text. An unverified claim appears among the open questions and nowhere else.
+Every reference below was read from its primary text before the gate that cites it was
+written. A claim read that way appears plainly. A claim resting on a single source appears
+with that source named in the sentence making it. An unverified claim appears among the open
+questions and nowhere else.
 
 ### Standing gates
 
