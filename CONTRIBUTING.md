@@ -47,14 +47,19 @@ git commit --no-verify ...          # skip every hook
 The `just` recipes wrap the commands below. Run the underlying command if you
 do not have `just` installed.
 
-| Recipe         | Runs                                          |
-| -------------- | --------------------------------------------- |
-| `just sync`    | `uv sync --all-extras --dev`                  |
-| `just lint`    | `sh scripts/ci-local.sh` up to the test steps |
-| `just test`    | The fast tier below                           |
-| `just ci`      | `sh scripts/ci-local.sh`                      |
-| `just ci-full` | `sh scripts/ci-local.sh --full`               |
-| `just docs`    | `uv run mkdocs serve`                         |
+| Recipe               | Runs                                                                   |
+| -------------------- | ---------------------------------------------------------------------- |
+| `just`               | Lists every recipe, with its description (same as `just --list`)       |
+| `just install`       | `uv sync`                                                              |
+| `just test`          | The fast tier below                                                    |
+| `just test-property` | The property tier below                                                |
+| `just determinism`   | The determinism tier below                                             |
+| `just typecheck`     | `uvx ty check`                                                         |
+| `just lint`          | ruff check, ruff format check, the prose gate, the nondeterminism gate |
+| `just fmt`           | `uv run ruff format .` and `uv run ruff check --fix .`                 |
+| `just ci`            | `sh scripts/ci-local.sh`                                               |
+| `just ci-full`       | `sh scripts/ci-local.sh --full`                                        |
+| `just docs`          | `uv run --with mkdocs-material --with pymdown-extensions mkdocs serve` |
 
 Run the whole local CI battery before every push: <!-- docs-lint-ok STE-TERM-SYN git push, not a UNS publish -->
 
@@ -72,12 +77,12 @@ Running it locally is what keeps routine validation off the hosted runners.
 Each tier has a budget. A tier that drifts past its budget gets split, or moved
 to a nightly run. A slow gate is a gate people learn to skip.
 
-| Tier        | Command                                           | Budget       |
-| ----------- | ------------------------------------------------- | ------------ |
-| Fast        | `uv run pytest -m "not slow and not integration"` | Under 60 s   |
-| Property    | `uv run pytest -m property`                       | Under 3 min  |
-| Determinism | `sh scripts/determinism-check.sh --runs 3`        | Under 2 min  |
-| Integration | `uv run pytest -m integration`                    | Under 10 min |
+| Tier        | Command                                                            | Budget       |
+| ----------- | ------------------------------------------------------------------ | ------------ |
+| Fast        | `uv run pytest -m "not slow and not integration and not property"` | Under 60 s   |
+| Property    | `uv run pytest -m property`                                        | Under 5 min  |
+| Determinism | `sh scripts/determinism-check.sh --runs 3`                         | Under 2 min  |
+| Integration | `uv run pytest -m integration`                                     | Under 10 min |
 
 The fast tier runs on every commit. The property tier runs the invariant suite
 over generated inputs. The determinism tier runs one scenario several times and

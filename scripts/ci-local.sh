@@ -113,9 +113,9 @@ if [ "$MODE" != "--security" ]; then
     fi
 
     if have uv; then
-      step "pytest (fast tier)" uv run pytest -m "not slow and not integration" -q
+      step "pytest (fast tier)" uv run pytest -m "not slow and not integration and not property" -q
     elif have pytest; then
-      step "pytest (fast tier)" pytest -m "not slow and not integration" -q
+      step "pytest (fast tier)" pytest -m "not slow and not integration and not property" -q
     else
       note_skip "pytest" "install: uv sync"
     fi

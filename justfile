@@ -17,11 +17,15 @@ test:
 test-property:
     uv run pytest -m property
 
+# Repeated-run hash check. Budget: 2 minutes.
+determinism:
+    sh scripts/determinism-check.sh --runs 3
+
 # Types over the whole workspace. ty is the type checker of record.
 typecheck:
     uvx ty check
 
-# Every gate the pre-commit hook runs, over the whole tree.
+# The fast gates only: ruff check, ruff format, prose, nondeterminism. ci runs the rest.
 lint:
     uv run ruff check .
     uv run ruff format --check .
@@ -32,3 +36,15 @@ lint:
 fmt:
     uv run ruff format .
     uv run ruff check --fix .
+
+# The fast local CI battery: lint, format, unit tests.
+ci:
+    sh scripts/ci-local.sh
+
+# The full local CI battery: audits, secret scan, SBOM, every test tier.
+ci-full:
+    sh scripts/ci-local.sh --full
+
+# Serve the docs site, with mkdocs-material and pymdown-extensions passed in.
+docs:
+    uv run --with mkdocs-material --with pymdown-extensions mkdocs serve

@@ -22,9 +22,9 @@ members = ["packages/*"]
 # stream changes on feature releases.
 #
 # foundations 5.14 declares a wider group: pytest-asyncio, ty, import-linter,
-# schemathesis, griffe, and syrupy. Each arrives with the task that runs it,
-# named in the self-review at the end of this file. ty is invoked through uvx
-# by the typecheck recipe below, so it needs no entry here.
+# schemathesis, griffe, and syrupy. Each arrives with the task that adds the
+# code it checks, not ahead of it. ty is invoked through uvx by the typecheck
+# recipe in justfile, so it needs no entry here.
 [dependency-groups]
 dev = [
     "pytest>=8.3",
