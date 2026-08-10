@@ -40,6 +40,7 @@ import os
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 for _stream in (sys.stdout, sys.stderr):
     # Both are TextIOWrapper on a real console, but typeshed declares the
@@ -263,8 +264,65 @@ def report(violations, label):
     return VIOLATION_EXIT
 
 
+def git_roots():
+    """The working tree and the git directory, resolved.
+
+    Both, because git hands the hook a message file under the git directory
+    while a caller testing the hook points it at a file in the working tree,
+    and a worktree or a submodule puts those two in different places.
+    """
+    roots = []
+    for flag in ("--show-toplevel", "--git-dir"):
+        result = subprocess.run(
+            ["git", "rev-parse", flag],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            roots.append(Path(result.stdout.strip()).resolve())
+    return roots
+
+
+def message_path_within(candidate, roots=None):
+    """Resolve a commit-message path, refusing anything outside the repository.
+
+    This script reads the file and sends its contents to an external CLI, so
+    the path decides what leaves the machine. Confining it to the repository
+    keeps a mistyped or malicious --commit-msg argument from turning the hook
+    into a way to post ~/.ssh/id_rsa to a third party.
+
+    Resolved before the comparison, so a symlink or a .. segment is judged by
+    where it lands rather than by how it is spelled. `roots` is injectable so
+    the check itself is testable.
+    """
+    path = Path(candidate).resolve()
+    if not path.is_file():
+        raise ValueError(f"{candidate!r} is not a file")
+
+    allowed = git_roots() if roots is None else [Path(r).resolve() for r in roots]
+    if not allowed:
+        raise ValueError("not inside a git repository")
+    if not any(path == root or root in path.parents for root in allowed):
+        raise ValueError(
+            f"{path} is outside this repository. A commit message lives in the "
+            f"working tree or the git directory, and this script sends what it "
+            f"reads to an external service"
+        )
+    return path
+
+
 def judge_commit_message(path):
-    with open(path, encoding="utf-8", errors="replace") as handle:
+    try:
+        resolved = message_path_within(path)
+    except ValueError as exc:
+        # Refuse to read it, and do not block the commit. Nothing left the
+        # machine, and an author cannot act on a path their tooling chose.
+        sys.stderr.write(f"\033[33mcommit-msg: judge skipped ({exc})\033[0m\n")
+        return 0
+
+    with open(resolved, encoding="utf-8", errors="replace") as handle:
         text = handle.read()
     body = "\n".join(line for line in text.splitlines() if not line.startswith("#")).strip()
     if not body:

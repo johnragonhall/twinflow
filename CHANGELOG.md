@@ -41,6 +41,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- confine the judged commit message to this repository
 - make uvx ty check pass on prose-gate.py
 - reconcile justfile, contributing guide, and ci-local.sh
 - stop two sections spelling the rng derivation differently
