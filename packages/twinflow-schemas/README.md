@@ -1,7 +1,7 @@
 ---
 title: twinflow-schemas
 description: The event envelope and shared value types, the one workspace leaf every other twinflow package imports.
-topic_type: reference
+topic_type: concept
 audience: contributors
 ---
 
@@ -47,8 +47,8 @@ no separators: `twinflowsimts`, never `twinflow_sim_ts`.
 
 `twinflowsimts` and `twinflowseq` are decimal strings rather than integers.
 CloudEvents fixes its `Integer` type at 32 bits signed and requires event
-formats to stay inside that range, and both counters leave it in normal use:
-one simulated day at the default tick rate is 8.64e10 ticks.
+formats to stay inside that range. Both counters leave it in normal use: one
+simulated day at the default tick rate is 8.64e10 ticks.
 
 The sequence starts at 0, and it is dense per producer rather than globally.
 `Envelope.total_order_key` gives the canonical replay order.

@@ -8,9 +8,10 @@ audience: contributors
 # twinflow-kernel API
 
 Boundary rule A1.4 gives every public symbol exactly one owning package. These
-are the names this package owns today. The remaining ports of foundations
-section 2.2 arrive with the phases that need them: a port with no
-implementation and no consumer is a name nobody has tested.
+are the names this package owns today.
+
+The remaining ports of foundations section 2.2 arrive with the phases that need
+them. A port with no implementation and no consumer is a name nobody tested.
 
 | Symbol                  | Kind     | What it is                                                             |
 | ----------------------- | -------- | ---------------------------------------------------------------------- |
@@ -33,6 +34,5 @@ enforced by an import-linter contract rather than by convention.
 
 ## Re-exports
 
-None yet. When this package re-exports a value type owned by
-`twinflow-schemas`, the borrowed name is declared in `[tool.twinflow]
-reexports` so gate `IMPORT-3` can tell a re-export from a second owner.
+None yet. A borrowed name is declared in `[tool.twinflow] reexports` in this package's
+manifest. That is how gate `IMPORT-3` tells a re-export from a second owner.

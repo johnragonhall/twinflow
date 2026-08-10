@@ -15,7 +15,7 @@ package's declared ownership disagree.
 | --------------------------- | -------- | ----------------------------------------------------------------------- |
 | `Envelope`                  | class    | The CloudEvents 1.0.2 envelope every event carries                      |
 | `Envelope.total_order_key`  | method   | The canonical replay order: sim time, producer as bytes, sequence       |
-| `PRODUCER_IDS`              | constant | The closed set of process roles that may emit an event                  |
+| `PRODUCER_IDS`              | constant | The closed set of process roles that may publish an event               |
 | `MAX_ATTRIBUTE_NAME_LENGTH` | constant | 20, the attribute-name ceiling this project adopts from CloudEvents     |
 | `DecimalString`             | type     | A bounded string used for the two counters that overflow a 32-bit int   |
 | `__version__`               | constant | The distribution version, read by the build so the two cannot disagree  |

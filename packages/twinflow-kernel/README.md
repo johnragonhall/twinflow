@@ -1,7 +1,7 @@
 ---
 title: twinflow-kernel
 description: The deterministic simulation seam - the ports every other twinflow package takes as a parameter.
-topic_type: reference
+topic_type: concept
 audience: contributors
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: twinflow-rng
 description: The one place a bit generator is constructed, and the append-only registry of stream names.
-topic_type: reference
+topic_type: concept
 audience: contributors
 ---
 
