@@ -115,11 +115,30 @@ if [ -n "$ymlfiles" ]; then
   fi
 fi
 
+# The judgement half of the writing rules: whether a comment restates the code,
+# and whether prose narrates a change instead of describing what is there. The
+# prose gate above owns everything mechanical. This one fails open when the CLI
+# is unavailable, so a network blip never blocks a commit.
+if [ "${COMMENT_JUDGE:-1}" != "0" ] && [ -f scripts/hooks/comment_judge.py ]; then
+  JUDGE_PY=""
+  for candidate in python3 python; do
+    command -v "$candidate" >/dev/null 2>&1 && { JUDGE_PY="$candidate"; break; }
+  done
+  if [ -n "$JUDGE_PY" ]; then
+    "$JUDGE_PY" scripts/hooks/comment_judge.py
+    # Only 3 means the judge ran and found something. Any other non-zero is a
+    # launcher or interpreter problem, which fails open like every other
+    # infrastructure failure: an author cannot act on it.
+    [ "$?" = "3" ] && fail=1
+  fi
+fi
+
 if [ "$fail" != 0 ]; then
   echo ""
   echo "[pre-commit] commit blocked. Fix the findings, or bypass once you have"
   echo "reviewed them:"
   echo "    LINT_OK=1 git commit ...     skip the lint gates"
+  echo "    COMMENT_JUDGE=0 git commit ...  skip the judge only"
   echo "    git commit --no-verify ...   skip every hook"
   exit 1
 fi

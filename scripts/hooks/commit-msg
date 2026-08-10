@@ -115,4 +115,60 @@ if [ "$line_count" -gt 1 ]; then
   fi
 fi
 
+# --- bullets summarise, they do not narrate ---------------------------------
+#
+# A bullet says what the code DOES. The reader is somebody reading git log a
+# year from now who never saw the previous version, so the previous version is
+# not the subject. "cap the body at 1 MiB" tells them the rule; "the body used
+# to be uncapped and now is not" makes them reconstruct it.
+#
+# Only bullets outside a TEST section are checked. A TEST section reports
+# measured results, and "142 passed" is a past-tense fact about a run.
+body_bullets=$(printf '%s\n' "$body" | awk '
+  /^[A-Z][A-Z0-9 _\/&-]*:?[[:space:]]*$/ {
+    heading = $0
+    sub(/:[[:space:]]*$/, "", heading)
+    gsub(/[[:space:]]/, "", heading)
+    in_test = (heading == "TEST" || heading == "TESTS")
+    next
+  }
+  /^[[:space:]]*-/ { if (!in_test) print }
+')
+
+narration=$(printf '%s\n' "$body_bullets" | grep -inE \
+  '(^|[^a-z])(previously|used to|no longer|formerly|instead of before)([^a-z]|$)|(^|[^a-z])(was|were)[[:space:]]+(written|read|held|named|missing|absent|wrong|broken|silent|vacuous)|(^|[^a-z])now[[:space:]]+(reads|writes|uses|has|is|does|carries|returns)|(^|[^a-z])fixed[[:space:]]+a[[:space:]]+bug|(^|[^a-z])changed[[:space:]]+.*[[:space:]]+to[[:space:]]|(^|[^a-z])(added|updated|refactored)[[:space:]]+(support|handling|the[[:space:]]+handling)' \
+  || true)
+
+if [ -n "$narration" ]; then
+  echo "ERROR: a commit bullet narrates the change instead of summarising it."
+  printf '%s\n' "$narration" | sed 's/^/    /'
+  echo ""
+  echo "  A bullet states what the code DOES now, in the present tense."
+  echo "  The reader never saw the previous version, so it is not the subject."
+  echo ""
+  echo "    good: - cap the request body at 1 MiB and return 413 past it"
+  echo "    good: - the sequence starts at 0, so run_started sits at 0"
+  echo "    bad:  - the version was written twice and now reads from the module"
+  echo "    bad:  - previously the gate reported KEPT over a broken tree"
+  echo ""
+  echo "  Measured results belong under TEST, where past tense is fine."
+  exit 1
+fi
+
+# The fuzzy half of the same rule. Fails open when the CLI is unavailable, and
+# is skipped outright when the judge is turned off, so the disable switch costs
+# nothing rather than starting a process that exits immediately.
+if [ "${COMMENT_JUDGE:-1}" != "0" ] && [ -f scripts/hooks/comment_judge.py ]; then
+  JUDGE_PY=""
+  for candidate in python3 python; do
+    command -v "$candidate" >/dev/null 2>&1 && { JUDGE_PY="$candidate"; break; }
+  done
+  if [ -n "$JUDGE_PY" ]; then
+    "$JUDGE_PY" scripts/hooks/comment_judge.py --commit-msg "$msg_file"
+    # Only 3 means the judge ran and found something. Any other non-zero is a
+    # launcher or interpreter problem, which fails open.
+    [ "$?" = "3" ] && exit 1
+  fi
+fi
+
 exit 0

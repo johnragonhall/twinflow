@@ -20,6 +20,14 @@ sh scripts/hooks/install.sh    # install the git hooks
 uv sync --all-extras --dev     # create .venv and install the toolchain
 ```
 
+The `pre-commit` and `commit-msg` hooks each end with a judge. It reads the
+added comments, the added prose, and the commit message. It blocks a comment
+that restates its code and a bullet that narrates a change.
+
+The judge needs the `claude` CLI and fails open without it, so no network
+problem blocks a commit. Turn it off for one commit with
+`COMMENT_JUDGE=0 git commit ...`.
+
 `install.sh` copies the hooks into `.git/hooks`. It does not point
 `core.hooksPath` at the tracked directory, so a machine-local hook you already
 have keeps working. Run it again after a pull that touches `scripts/hooks/`.
@@ -193,6 +201,37 @@ TEST
 ```
 
 Keep the subject under 72 characters. One logical change per commit.
+
+### A bullet summarises, it does not narrate
+
+Write what the code **does**, in the present tense. The reader is somebody
+reading `git log` a year from now who never saw the previous version, so the
+previous version is not the subject.
+
+```text
+write:  - cap the request body at 1 MiB
+not:    - the body used to be uncapped and now is not     docs-lint-ok DIFF-01 quotes the narration this rule rejects
+
+write:  - the sequence starts at 0
+not:    - fixed a bug where the sequence started at 1
+
+write:  - read the version from the module
+not:    - the version was written twice and now reads from the module
+
+write:  - refuse an entity id carrying a dot
+not:    - added support for entity id validation
+```
+
+"Previously", "used to", "no longer", "now reads", "changed X to Y", and "fixed
+a bug where" describe the edit rather than the result. The `commit-msg` hook
+rejects them.
+
+A `TEST` section is exempt. It reports what a run measured, so `- 126 passed`
+is a fact about that run rather than a narration.
+
+A bullet naming a defect the change removes is fine when it says what the code
+does. `- refuse a name that is already registered` carries the fix without
+making the reader reconstruct the bug.
 
 ## Changelog automation
 
