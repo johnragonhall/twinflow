@@ -1,0 +1,19 @@
+# TF-C101: a flow naming a station nobody declared.
+version: "1"
+facility:
+  name: Dangling site
+  timezone: America/Chicago
+run:
+  seed: 1
+  horizon_seconds: 60
+layout:
+  zones:
+    - id: inbound
+  stations:
+    - id: sort-01
+      type: sortation
+      zone: inbound
+      capacity: 4
+flows:
+  - id: f1
+    station_id: sort-02

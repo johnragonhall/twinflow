@@ -1,0 +1,37 @@
+[project]
+name = "twinflow-config"
+description = "Config loading and validation, and the bring-your-own-facility contract."
+requires-python = ">=3.12"
+dependencies = [
+    # Round-trip YAML, which is what keeps line and column on every node. A
+    # plain safe_load would parse the same document and leave every diagnostic
+    # pointing at nothing.
+    "ruamel.yaml>=0.18",
+    "jsonschema>=4.23",
+    "twinflow-schemas",
+]
+
+# Read from the module, so __version__ and the distribution metadata are one
+# value and cannot disagree.
+dynamic = ["version"]
+
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+
+[build-system]
+# 1.27 is where hatchling accepts the PEP 639 license fields above.
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/twinflow/config/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/twinflow"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "pyproject.toml"]
+exclude = ["**/__pycache__", "**/*.py[co]", "**/.pytest_cache"]
+
+[tool.uv.sources]
+twinflow-schemas = { workspace = true }

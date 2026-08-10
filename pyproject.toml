@@ -24,6 +24,7 @@ members = ["packages/*"]
 twinflow-schemas = { workspace = true }
 twinflow-rng = { workspace = true }
 twinflow-kernel = { workspace = true }
+twinflow-config = { workspace = true }
 
 # One lockfile for every member, so a contributor cannot resolve a different
 # numpy than CI did. The numpy pin in each member is a determinism constraint,
@@ -55,6 +56,7 @@ dev = [
     "twinflow-schemas",
     "twinflow-rng",
     "twinflow-kernel",
+    "twinflow-config",
 ]
 
 # Boundary rule A1.3. The layer list and the domain-package list live here and

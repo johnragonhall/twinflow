@@ -4,6 +4,7 @@ requires-python = ">=3.12"
 
 [manifest]
 members = [
+    "twinflow-config",
     "twinflow-kernel",
     "twinflow-rng",
     "twinflow-schemas",
@@ -727,6 +728,15 @@ wheels = [
 ]
 
 [[package]]
+name = "ruamel-yaml"
+version = "0.19.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/3b/ebda527b56beb90cb7652cb1c7e4f91f48649fbcd8d2eb2fb6e77cd3329b/ruamel_yaml-0.19.1.tar.gz", hash = "sha256:53eb66cd27849eff968ebf8f0bf61f46cdac2da1d1f3576dd4ccee9b25c31993", size = 142709, upload-time = "2026-01-02T16:50:31.84Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b8/0c/51f6841f1d84f404f92463fc2b1ba0da357ca1e3db6b7fbda26956c3b82a/ruamel_yaml-0.19.1-py3-none-any.whl", hash = "sha256:27592957fedf6e0b62f281e96effd28043345e0e66001f97683aa9a40c667c93", size = 118102, upload-time = "2026-01-02T16:50:29.201Z" },
+]
+
+[[package]]
 name = "ruff"
 version = "0.16.2"
 source = { registry = "https://pypi.org/simple" }
@@ -758,6 +768,22 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594, upload-time = "2021-05-16T22:03:42.897Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575, upload-time = "2021-05-16T22:03:41.177Z" },
+]
+
+[[package]]
+name = "twinflow-config"
+source = { editable = "packages/twinflow-config" }
+dependencies = [
+    { name = "jsonschema" },
+    { name = "ruamel-yaml" },
+    { name = "twinflow-schemas" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "jsonschema", specifier = ">=4.23" },
+    { name = "ruamel-yaml", specifier = ">=0.18" },
+    { name = "twinflow-schemas", editable = "packages/twinflow-schemas" },
 ]
 
 [[package]]
@@ -823,6 +849,7 @@ dev = [
     { name = "pytest-cov" },
     { name = "pyyaml" },
     { name = "ruff" },
+    { name = "twinflow-config" },
     { name = "twinflow-kernel" },
     { name = "twinflow-rng" },
     { name = "twinflow-schemas" },
@@ -838,6 +865,7 @@ dev = [
     { name = "pytest-cov", specifier = ">=5.0" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", specifier = ">=0.6" },
+    { name = "twinflow-config", editable = "packages/twinflow-config" },
     { name = "twinflow-kernel", editable = "packages/twinflow-kernel" },
     { name = "twinflow-rng", editable = "packages/twinflow-rng" },
     { name = "twinflow-schemas", editable = "packages/twinflow-schemas" },

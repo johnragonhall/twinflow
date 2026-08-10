@@ -1,0 +1,19 @@
+# TF-C013: a station type outside the declared set.
+version: "1"
+facility:
+  name: Enum site
+  timezone: America/Chicago
+run:
+  seed: 1
+  horizon_seconds: 60
+layout:
+  zones:
+    - id: inbound
+  stations:
+    - id: sort-01
+      type: teleporter
+      zone: inbound
+      capacity: 4
+flows:
+  - id: f1
+    station_id: sort-01

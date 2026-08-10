@@ -28,3 +28,18 @@ subjects:
         # both majors published at least one sample during the overlap window,
         # so a producer cannot quietly stop publishing the superseded major.
         parallel_until: null
+
+  config/facility:
+    description: >-
+      The bring-your-own-facility contract (A2). One of these describes a site:
+      its calendar, its layout, and the flows that move work through it. The
+      loader validates against this published file rather than against a second
+      copy expressed in Python, so the schema an author reads and the schema the
+      loader enforces are one artefact.
+    owner: twinflow-config
+    versions:
+      - version: "1.0"
+        file: config/facility/v1.json
+        status: current
+        since: "0.1.0"
+        parallel_until: null

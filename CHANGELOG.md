@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- validate a facility profile and say what to fix
 - publish the schema registry and the compatibility differ
 - enforce the package boundary rules
 - add the sim clock and the clock port

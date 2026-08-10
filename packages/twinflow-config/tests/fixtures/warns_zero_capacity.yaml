@@ -1,0 +1,19 @@
+# TF-C301: legal, but a station nothing can pass through.
+version: "1"
+facility:
+  name: Zero capacity site
+  timezone: America/Chicago
+run:
+  seed: 1
+  horizon_seconds: 60
+layout:
+  zones:
+    - id: inbound
+  stations:
+    - id: sort-01
+      type: sortation
+      zone: inbound
+      capacity: 0
+flows:
+  - id: f1
+    station_id: sort-01

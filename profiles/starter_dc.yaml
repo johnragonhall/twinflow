@@ -1,0 +1,52 @@
+# A minimal receiving and putaway line: the smallest profile that runs.
+#
+# Copy this, change the ids, and point the runner at it. Gate CFG-001 asserts
+# that every profile shipped in this directory validates, so this file is a
+# worked example rather than an illustration.
+
+version: "1"
+
+facility:
+  name: Starter distribution centre
+  # An IANA zone rather than an offset. Shift calendars and tariff dates need a
+  # real calendar, and a run crossing a DST boundary must not record a night
+  # shift as 25 hours long.
+  timezone: America/Chicago
+
+run:
+  seed: 42
+  replication_index: 0
+  tick_hz: 1000000
+  horizon_seconds: 3600
+
+layout:
+  zones:
+    - id: inbound
+      description: Dock doors and the staging lanes behind them
+    - id: reserve
+      description: Pallet reserve storage
+
+  stations:
+    - id: dock-01
+      type: receiving
+      zone: inbound
+      capacity: 2
+    - id: sort-01
+      type: sortation
+      zone: inbound
+      capacity: 4
+    - id: putaway-01
+      type: putaway
+      zone: reserve
+      capacity: 3
+
+flows:
+  - id: inbound-pallets
+    station_id: dock-01
+    arrival_rate_per_hour: 12
+  - id: sortation
+    station_id: sort-01
+    arrival_rate_per_hour: 12
+  - id: putaway
+    station_id: putaway-01
+    arrival_rate_per_hour: 12

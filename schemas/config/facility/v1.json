@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "twinflow:schemas/config/facility/v1.json",
+  "title": "twinflow facility profile",
+  "description": "The bring-your-own-facility contract (A2). One of these describes a site: its calendar, its layout, and the flows that move work through it. This file is the published definition, and the loader validates against it rather than against a second copy in Python.",
+  "x-twinflow-pii": false,
+  "x-twinflow-since": "0.1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "facility", "run", "layout", "flows"],
+  "properties": {
+    "version": {
+      "description": "The facility schema major this profile is written against.",
+      "type": "string",
+      "enum": ["1"]
+    },
+    "facility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "timezone"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "timezone": {
+          "description": "An IANA zone. Shift calendars and tariff dates need a real calendar, and a DST transition inside a run must not record a night shift as 25 hours.",
+          "type": "string",
+          "minLength": 3
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seed", "horizon_seconds"],
+      "properties": {
+        "seed": {
+          "description": "The run seed. Two runs at this seed on one pinned platform produce byte-identical logs.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "replication_index": { "type": "integer", "minimum": 0, "default": 0 },
+        "tick_hz": {
+          "description": "Ticks per simulated second. Three values, each with declared overflow arithmetic.",
+          "type": "integer",
+          "enum": [1000, 1000000, 1000000000],
+          "default": 1000000
+        },
+        "horizon_seconds": {
+          "description": "Simulated seconds to run. The loader converts to ticks and rejects a horizon past the T4 and T5 bounds.",
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "x-twinflow-unit": "second"
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["zones", "stations"],
+      "properties": {
+        "zones": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id"],
+            "properties": {
+              "id": { "$ref": "#/$defs/identifier" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "stations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "type", "zone", "capacity"],
+            "properties": {
+              "id": { "$ref": "#/$defs/identifier" },
+              "type": {
+                "type": "string",
+                "enum": ["receiving", "sortation", "putaway", "picking", "packing", "shipping"]
+              },
+              "zone": { "$ref": "#/$defs/identifier" },
+              "capacity": {
+                "description": "Concurrent units of work. Zero is legal but implausible, and the loader warns.",
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "flows": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "station_id"],
+        "properties": {
+          "id": { "$ref": "#/$defs/identifier" },
+          "station_id": {
+            "description": "Resolved against layout.stations[].id. A dangling reference is TF-C101.",
+            "$ref": "#/$defs/identifier"
+          },
+          "arrival_rate_per_hour": {
+            "type": "number",
+            "minimum": 0,
+            "x-twinflow-unit": "1/hour"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "description": "Lower-case, digits, and hyphens. Identifiers reach stream names and event payloads, so the character set is fixed rather than left to a profile author.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+    }
+  }
+}

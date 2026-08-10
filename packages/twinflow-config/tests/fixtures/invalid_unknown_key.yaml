@@ -1,0 +1,19 @@
+# TF-C012: a misspelled key that a suggestion can rescue.
+version: "1"
+facility:
+  name: Typo site
+  timezone: America/Chicago
+run:
+  seed: 1
+  horizon_seconds: 60
+layout:
+  zones:
+    - id: inbound
+  stations:
+    - id: sort-01
+      type: sortation
+      zone: inbound
+      capacitty: 4
+flows:
+  - id: f1
+    station_id: sort-01
