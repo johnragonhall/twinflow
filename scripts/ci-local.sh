@@ -63,8 +63,12 @@ if [ "$MODE" != "--security" ]; then
   if [ -n "$PY" ]; then
     # shellcheck disable=SC2086
     step "prose gate (repo-wide)" $PY scripts/checks/prose-gate.py --all
+    # WORKSPACE-1. Needs only tomllib, so it runs on the bare interpreter.
+    # shellcheck disable=SC2086
+    step "workspace membership gate" $PY scripts/checks/workspace-members-gate.py
   else
     note_skip "prose gate" "no python interpreter"
+    note_skip "workspace membership gate" "no python interpreter"
   fi
   step "nondeterminism gate (repo-wide)" sh scripts/checks/nondeterminism-gate.sh --all
   # Report mode: an unfilled metric marker is normal during the build and only

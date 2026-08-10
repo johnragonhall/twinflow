@@ -61,6 +61,11 @@ jobs:
       - name: Nondeterminism gate (repo-wide)
         run: sh scripts/checks/nondeterminism-gate.sh --all
 
+      # WORKSPACE-1. A package under packages/ that is not also a root dev
+      # dependency is uninstalled by the same `uv run` that is about to test it.
+      - name: Workspace membership gate
+        run: python scripts/checks/workspace-members-gate.py
+
       # Report mode. An unfilled metric marker is normal during the build and
       # only becomes fatal on a release tag, where --release is passed.
       - name: Metric marker gate
