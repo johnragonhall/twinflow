@@ -26,6 +26,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- switch the bit generator to pcg64dxsm before the corpus freezes
 - name the vendored fonts and correct the asset count
 - skip the type check and tests until a package exists
 - stop ruff reformatting the code samples inside the design documents
