@@ -75,6 +75,7 @@ repository:
       redistribution of this repository.
   release:
     changelog: https://github.com/johnragonhall/twinflow/blob/main/CHANGELOG.md
+    automated-pipeline: true
     attestations:
       - name: Build provenance
         predicate-uri: https://slsa.dev/provenance/v1
@@ -91,9 +92,10 @@ repository:
       - uri: https://github.com/johnragonhall/twinflow/releases
         comment: GitHub release page
     comment: |
-      The release workflow cuts every tag from one pipeline. Work package
-      WP-P0-14, running that ritual unattended from a tag, is open at the time
-      of writing, so automated-pipeline is left unset rather than asserted.
+      The release workflow cuts every tag from one pipeline, unattended from the
+      tag, which is what work package WP-P0-14 delivers. VAL-GATE-REL-001 holds
+      the tag to a CHANGELOG section, the C9 semver policy, and the C6
+      compatibility table.
   security:
     assessments:
       self:
