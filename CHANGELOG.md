@@ -18,6 +18,36 @@ here freely: the hook only ever adds.
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.1.0] - 2026-08-13
+
+The contracts that fix what a recorded run is, and the pipeline that produces
+every tag from here. There is no product at this tag: no station, no device, no
+dashboard. What there is instead is the set of decisions that a later phase
+cannot change without invalidating the runs already recorded, which is why they
+land first.
+
+A run seed derives every stochastic stream, the event envelope carries a
+producer and a dense sequence, the schema registry publishes both, and a config
+that fails to load says which line is wrong and what to write instead. Twelve
+gates stand at this phase exit and ten of them run a command; the two that
+measure cross-platform divergence report it and assert no bound until a
+two-platform run sets one.
+
+Take one brick: `twinflow-schemas`, `twinflow-rng`, `twinflow-kernel`,
+`twinflow-config`, and `twinflow-roadmap` each install alone.
+
+### Added
+
 - let a metric marker name the release that owes its number
 - reject a double dash standing in for punctuation
 - record SCN-F1 and prove the two-run hash match
