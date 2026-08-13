@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- publish the layer map and hold every package to a row
 - give the agreement checks one home and arm their gate
 - run the regression gate over the branch
 - make a fix carry the test that catches it
