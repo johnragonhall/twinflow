@@ -71,10 +71,19 @@ IT = "it"
 ROLES = frozenset({"device", "broker", "historian", "app"})
 
 #: Settings mosquitto.conf has to carry for rule 5's static half.
-BROKER_TLS_SETTINGS = {
+#: Mosquitto applies these to the listener most recently declared above them, so
+#: each is read per listener rather than once per file. A listener that does not
+#: carry them has transport encryption and no client authentication, and rule 5
+#: is the client certificate.
+LISTENER_TLS_SETTINGS = {
     "require_certificate": "true",
-    "allow_anonymous": "false",
     "use_identity_as_username": "true",
+}
+
+#: Read once for the whole broker. `per_listener_settings false` puts
+#: authentication and access control on one setting for every listener.
+GLOBAL_BROKER_SETTINGS = {
+    "allow_anonymous": "false",
 }
 
 
@@ -308,45 +317,94 @@ def check_broker_config(compose_path: Path, where: str) -> list[Finding]:
             )
         ]
 
-    settings: dict[str, str] = {}
-    acl_file = None
-    for line in config.read_text(encoding="utf-8").splitlines():
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-        parts = stripped.split(None, 1)
-        key = parts[0]
-        value = parts[1].strip() if len(parts) > 1 else ""
-        if key in BROKER_TLS_SETTINGS:
-            settings[key] = value.lower()
-        elif key == "acl_file":
-            acl_file = value
-
-    findings: list[Finding] = []
     location = f"{where}  {_display(config)}"
+    findings = [
+        Finding("RULE-5", location, message)
+        for message in broker_findings(config.read_text(encoding="utf-8"))
+    ]
 
-    for key, expected in sorted(BROKER_TLS_SETTINGS.items()):
-        actual = settings.get(key)
-        if actual != expected:
-            findings.append(
-                Finding(
-                    "RULE-5",
-                    location,
-                    f"{key} is {actual or 'unset'}, and identity rather than location "
-                    f"needs {key} {expected}",
-                )
-            )
-
-    if not acl_file:
+    acl = acl_path(config.read_text(encoding="utf-8"))
+    if acl is not None and not (config.parent / Path(acl).name).is_file():
         findings.append(
             Finding(
                 "RULE-5",
                 location,
-                "no acl_file, so an authenticated device may publish under any prefix "
-                "including another area's",
+                f"acl_file names {acl}, and no such file sits beside this config, "
+                f"so the broker starts with a rule set nothing wrote",
             )
         )
+    return findings
 
+
+def parse_broker_config(text: str) -> tuple[dict[str, str], list[tuple[str, dict[str, str]]]]:
+    """Split a mosquitto config into its global settings and its listeners.
+
+    A listener owns every setting written below it until the next `listener`
+    line, which is how mosquitto reads the file. Anything above the first
+    listener is global.
+    """
+    globals_: dict[str, str] = {}
+    listeners: list[tuple[str, dict[str, str]]] = []
+    current: dict[str, str] | None = None
+
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split(None, 1)
+        key = parts[0]
+        value = parts[1].strip().lower() if len(parts) > 1 else ""
+        if key == "listener":
+            current = {}
+            listeners.append((value.split()[0] if value else "?", current))
+            continue
+        target = globals_ if current is None else current
+        target[key] = value
+        if key in GLOBAL_BROKER_SETTINGS:
+            globals_[key] = value
+    return globals_, listeners
+
+
+def acl_path(text: str) -> str | None:
+    """The ACL file the broker is told to read, if it is told to read one."""
+    globals_, listeners = parse_broker_config(text)
+    for source in (globals_, *(settings for _, settings in listeners)):
+        if source.get("acl_file"):
+            return source["acl_file"]
+    return None
+
+
+def broker_findings(text: str) -> list[str]:
+    """Every reason this broker config does not demand an identity.
+
+    Read per listener, because a broker with two listeners and one copy of
+    `require_certificate` demands a certificate on one of them.
+    """
+    globals_, listeners = parse_broker_config(text)
+    findings: list[str] = []
+
+    if not listeners:
+        findings.append("no listener is declared, so nothing states how a device connects")
+
+    for port, settings in listeners:
+        for key, expected in sorted(LISTENER_TLS_SETTINGS.items()):
+            actual = settings.get(key)
+            if actual != expected:
+                findings.append(
+                    f"listener {port} has {key} {actual or 'unset'}, and identity rather "
+                    f"than location needs {key} {expected} on every listener"
+                )
+
+    for key, expected in sorted(GLOBAL_BROKER_SETTINGS.items()):
+        actual = globals_.get(key)
+        if actual != expected:
+            findings.append(f"{key} is {actual or 'unset'}, and rule 5 needs {key} {expected}")
+
+    if acl_path(text) is None:
+        findings.append(
+            "no acl_file, so an authenticated device may publish under any prefix "
+            "including another area's"
+        )
     return findings
 
 
@@ -368,6 +426,81 @@ def _load(path: Path) -> Any:
 
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
+
+#: RULE-5 reads a mosquitto config rather than a compose document, so its
+#: corpus is separate. Each case is (description, config, whether a finding is
+#: due). The second case is the one the flat read of this file could not see: a
+#: broker with two listeners and one copy of the TLS settings authenticates
+#: clients on the listener those settings sit under, and on no other.
+BROKER_SELFTEST_CASES: tuple[tuple[str, str, bool], ...] = (
+    (
+        "both listeners demand a certificate",
+        """
+        per_listener_settings false
+        listener 8883
+        require_certificate true
+        use_identity_as_username true
+        listener 8884
+        require_certificate true
+        use_identity_as_username true
+        allow_anonymous false
+        acl_file /mosquitto/config/acl
+        """,
+        False,
+    ),
+    (
+        "the settings sit under the second listener only",
+        """
+        per_listener_settings false
+        listener 8883
+        listener 8884
+        require_certificate true
+        use_identity_as_username true
+        allow_anonymous false
+        acl_file /mosquitto/config/acl
+        """,
+        True,
+    ),
+    (
+        "a listener takes a certificate but not the identity binding",
+        """
+        listener 8883
+        require_certificate true
+        allow_anonymous false
+        acl_file /mosquitto/config/acl
+        """,
+        True,
+    ),
+    (
+        "anonymous clients are allowed",
+        """
+        listener 8883
+        require_certificate true
+        use_identity_as_username true
+        allow_anonymous true
+        acl_file /mosquitto/config/acl
+        """,
+        True,
+    ),
+    (
+        "no acl file is named",
+        """
+        listener 8883
+        require_certificate true
+        use_identity_as_username true
+        allow_anonymous false
+        """,
+        True,
+    ),
+    (
+        "no listener is declared at all",
+        """
+        allow_anonymous false
+        acl_file /mosquitto/config/acl
+        """,
+        True,
+    ),
+)
 
 SELFTEST_CASES: tuple[tuple[str, str, str], ...] = (
     (
@@ -445,6 +578,12 @@ def selftest() -> int:
             failures.append(
                 f"{rule} did not fire on: {description} (fired: {sorted(fired) or 'nothing'})"
             )
+
+    for description, source, should_find in BROKER_SELFTEST_CASES:
+        found = broker_findings(textwrap.dedent(source))
+        if bool(found) != should_find:
+            verb = "expected a finding" if should_find else "expected none"
+            failures.append(f"RULE-5 on: {description}: {verb}, got {found or 'nothing'}")
 
     clean = yaml.safe_load(
         textwrap.dedent(
