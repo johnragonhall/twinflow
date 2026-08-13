@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- block a shell or workflow error at the commit that writes it
 - check spelling in the tree and in the commit message
 - cut every tag from one pipeline, starting at the first
 - run the roadmap gate everywhere the other gates run

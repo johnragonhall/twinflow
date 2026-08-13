@@ -102,25 +102,54 @@ if [ -n "$mdfiles" ]; then
 fi
 
 # --- 5. Shell ---------------------------------------------------------------
-# Hooks have no .sh suffix, so they are listed explicitly.
+# The staged set narrowed to the files that are shell scripts. scripts/hooks/
+# holds the git hooks, which have no suffix, beside comment_judge.py, which is
+# Python: shellcheck reports a parse error for every docstring in it.
 shfiles=$(staged '*.sh' 'scripts/hooks/*')
 if [ -n "$shfiles" ]; then
+  known=$(sh scripts/checks/shell-files.sh)
+  kept=""
+  for candidate in $shfiles; do
+    for known_file in $known; do
+      if [ "$candidate" = "$known_file" ]; then
+        kept="$kept $candidate"
+        break
+      fi
+    done
+  done
+  shfiles=$kept
+fi
+if [ -n "$shfiles" ]; then
+  # uvx serves the binary from PyPI where the tool is not on PATH, so this gate
+  # runs on a machine with no package manager rather than reporting a skip.
+  SHELLCHECK=""
   if command -v shellcheck >/dev/null 2>&1; then
+    SHELLCHECK="shellcheck"
+  elif command -v uvx >/dev/null 2>&1; then
+    SHELLCHECK="uvx --from shellcheck-py shellcheck"
+  fi
+  if [ -n "$SHELLCHECK" ]; then
     # shellcheck disable=SC2086
-    shellcheck $shfiles || { echo "[shellcheck] BLOCKED: shell issues above"; fail=1; }
+    $SHELLCHECK $shfiles || { echo "[shellcheck] BLOCKED: shell issues above"; fail=1; }
   else
-    echo "[shellcheck] WARN: shellcheck not installed, skipped (CI gates)."
+    echo "[shellcheck] WARN: no shellcheck and no uvx, skipped (CI gates)."
   fi
 fi
 
 # --- 6. Workflows -----------------------------------------------------------
 ymlfiles=$(staged '.github/workflows/*.yml' '.github/workflows/*.yaml')
 if [ -n "$ymlfiles" ]; then
+  ACTIONLINT=""
   if command -v actionlint >/dev/null 2>&1; then
+    ACTIONLINT="actionlint"
+  elif command -v uvx >/dev/null 2>&1; then
+    ACTIONLINT="uvx --from actionlint-py actionlint"
+  fi
+  if [ -n "$ACTIONLINT" ]; then
     # shellcheck disable=SC2086
-    actionlint $ymlfiles || { echo "[actionlint] BLOCKED: workflow issues above"; fail=1; }
+    $ACTIONLINT $ymlfiles || { echo "[actionlint] BLOCKED: workflow issues above"; fail=1; }
   else
-    echo "[actionlint] WARN: actionlint not installed, skipped (CI gates)."
+    echo "[actionlint] WARN: no actionlint and no uvx, skipped (CI gates)."
   fi
 fi
 
