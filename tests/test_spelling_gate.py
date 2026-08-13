@@ -121,3 +121,52 @@ def test_the_files_that_may_hold_a_wrong_spelling_are_skipped():
     # The legal files carry verbatim text that a byte comparison depends on.
     assert "LICENSE" in _SKIP
     assert "NOTICE" in _SKIP
+
+
+def test_a_path_outside_the_repository_is_refused(tmp_path):
+    """The gate reads what it is given, so what it is given is confined.
+
+    Same treatment `comment_judge.py` gives its message file. A checker that
+    opens whatever an argument names is a checker that reads whatever the
+    caller wants read, and this one runs from a git hook where the argument
+    arrives from the tool rather than from a person.
+    """
+    outside = tmp_path / "elsewhere.txt"
+    outside.write_text("any text\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="outside this repository"):
+        _GATE.path_within(str(outside), roots=[REPO_ROOT])
+
+
+def test_a_symlink_is_judged_by_where_it_lands(tmp_path):
+    target = tmp_path / "target.txt"
+    target.write_text("any text\n", encoding="utf-8")
+    link = REPO_ROOT / "tests" / "link-under-test.txt"
+    try:
+        link.symlink_to(target)
+    except (OSError, NotImplementedError):
+        pytest.skip("this platform does not allow the test to create a symlink")
+    try:
+        with pytest.raises(ValueError, match="outside this repository"):
+            _GATE.path_within(str(link), roots=[REPO_ROOT])
+    finally:
+        link.unlink()
+
+
+def test_a_traversal_segment_is_refused(tmp_path):
+    outside = tmp_path / "elsewhere.txt"
+    outside.write_text("any text\n", encoding="utf-8")
+    spelled_through_the_root = REPO_ROOT / ".." / outside.name
+    with pytest.raises(ValueError):
+        _GATE.path_within(str(spelled_through_the_root), roots=[REPO_ROOT])
+
+
+def test_a_file_in_the_repository_is_accepted():
+    accepted = _GATE.path_within(str(REPO_ROOT / "CONTRIBUTING.md"), roots=[REPO_ROOT])
+    assert accepted == REPO_ROOT / "CONTRIBUTING.md"
+
+
+def test_a_directory_and_a_missing_file_are_refused():
+    with pytest.raises(ValueError, match="is not a file"):
+        _GATE.path_within(str(REPO_ROOT / "tests"), roots=[REPO_ROOT])
+    with pytest.raises(ValueError, match="is not a file"):
+        _GATE.path_within(str(REPO_ROOT / "no-such-file.md"), roots=[REPO_ROOT])

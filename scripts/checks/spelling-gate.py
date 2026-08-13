@@ -60,6 +60,13 @@ RESET = "\033[0m"
 #: Binary and generated files nothing gains from reading.
 SKIP_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".ico", ".woff", ".woff2", ".pdf", ".lock"}
 
+#: One path component, as a plain name, matching the pattern
+#: scripts/hooks/comment_judge.py uses for the same job. A leading dot is
+#: allowed because the git directory is one: a message file resolves to
+#: `.git/COMMIT_EDITMSG` under the work tree. A component outside the pattern
+#: is refused rather than sanitized, so nothing a caller wrote reaches open().
+SAFE_NAME = re.compile(r"[A-Za-z0-9._-]+")
+
 #: `spell-ok colour,licence a line that names the words rather than using them`
 #: One escape carries a list, because a sentence that names four spellings
 #: needs four exemptions and four tokens on one line cannot be parsed: the
@@ -126,6 +133,75 @@ def load_rules(path: Path) -> tuple[list[Rule], set[str], dict]:
         rules.append(Rule(re.compile(rf"\b{wrong}\b", re.IGNORECASE), "typo", wrong, None, right))
 
     return rules, set(data.get("skip_paths") or []), data.get("selftest") or {}
+
+
+def git_roots() -> list[Path]:
+    """The working tree and the git directory, resolved.
+
+    Both, because git hands a hook a message file under the git directory while
+    a caller testing the hook points it at a file in the working tree, and a
+    worktree or a submodule puts those two in different places.
+    """
+    roots = []
+    for flag in ("--show-toplevel", "--git-dir"):
+        result = subprocess.run(  # noqa: S603
+            ["git", "rev-parse", flag],  # noqa: S607
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            roots.append(Path(result.stdout.strip()).resolve())
+    return roots
+
+
+def path_within(candidate: str, roots: list[Path] | None = None) -> Path:
+    """Build a path from a trusted root, refusing anything else.
+
+    The same treatment `scripts/hooks/comment_judge.py` gives its message file,
+    for the same reason: a checker that opens whatever an argument names is a
+    checker that reads whatever the caller wants read, and this one runs from a
+    git hook where the argument comes from the tool rather than from a person.
+
+    The returned path is assembled from the trusted root and components that
+    each matched a strict name pattern, rather than being the argument with a
+    check performed beside it. Nothing the caller wrote reaches open(): the
+    argument only selects which file under the root is read.
+
+    Three steps, and each refuses a different thing:
+
+        resolve   a symlink or a .. segment is judged by where it lands rather
+                  than by how it is spelled
+        contain   the landing place has to be inside the work tree or git dir
+        rebuild   every component has to be a plain name, and the result is
+                  joined onto the root rather than taken from the argument
+
+    `roots` is injectable so the check itself is testable.
+    """
+    resolved = Path(candidate).resolve()
+    if not resolved.is_file():
+        raise ValueError(f"{candidate!r} is not a file")
+
+    allowed = git_roots() if roots is None else [Path(root).resolve() for root in roots]
+    if not allowed:
+        raise ValueError("not inside a git repository")
+
+    root = next((item for item in allowed if resolved == item or item in resolved.parents), None)
+    if root is None:
+        raise ValueError(
+            f"{resolved} is outside this repository. This gate reads the files it is "
+            f"given, and the files it is given live in the work tree or the git directory"
+        )
+
+    parts = resolved.relative_to(root).parts
+    if not parts or not all(SAFE_NAME.fullmatch(part) for part in parts):
+        raise ValueError(f"{resolved} has a path component that is not a plain name")
+
+    rebuilt = root
+    for part in parts:
+        rebuilt = rebuilt / part
+    return rebuilt
 
 
 def tracked_files() -> list[str]:
@@ -243,9 +319,10 @@ def main() -> int:
     findings: list[str] = []
 
     if args.commit_msg:
-        path = Path(args.commit_msg)
-        if not path.is_file():
-            sys.stderr.write(f"BLOCKED: no commit message at {path}\n")
+        try:
+            path = path_within(args.commit_msg)
+        except ValueError as error:
+            sys.stderr.write(f"BLOCKED: {error}\n")
             return 1
         # Comment lines are git's own, and the trailing diff a verbose commit
         # carries is the diff, not the message.
@@ -269,8 +346,13 @@ def main() -> int:
             relative = Path(name).as_posix()
             if relative in skip_paths or Path(name).suffix in SKIP_SUFFIXES:
                 continue
-            path = REPO_ROOT / name if not Path(name).is_absolute() else Path(name)
-            if not path.is_file():
+            # Rebuilt under the repository root rather than opened as given.
+            # git hands this list to the hook, so an entry outside the tree
+            # means the caller is not git, and reading it anyway is how a lint
+            # gate becomes a way to read whatever somebody names.
+            try:
+                path = path_within(name if Path(name).is_absolute() else str(REPO_ROOT / name))
+            except ValueError:
                 continue
             try:
                 text = path.read_text(encoding="utf-8")
