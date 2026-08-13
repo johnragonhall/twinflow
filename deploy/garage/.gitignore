@@ -1,0 +1,5 @@
+# make-certs.sh writes the internal CA and every key pair here. The repository
+# root already ignores *.pem and *.key; this ignores the certificates and the
+# serial file beside them, because a committed certificate is a certificate
+# somebody will still be trusting after the key it belongs to leaked.
+certs/

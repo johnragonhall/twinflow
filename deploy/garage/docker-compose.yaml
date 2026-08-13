@@ -1,0 +1,219 @@
+# The garage tier: the whole system on one laptop, with the Purdue boundary intact.
+#
+# RA-b says the segmentation is expressed in docker compose rather than
+# described, so this file is the artifact CI reads. ARCHITECTURE.md section 7 is
+# the normative source for the rules below, and this file implements them.
+#
+# THE TIER VARIATION
+#
+# Section 7's tier table collapses `dmz` into `it` at the garage tier and keeps
+# the `ot` and `it` split, because the boundary is the architectural claim and
+# dropping it would make the smallest tier a different system. So there are two
+# networks here and three at growth and enterprise. Everything that sits on
+# `dmz` in the reference topology, the historian above all, sits on `it` here
+# and reaches the broker through the north listener.
+#
+# Decision D3 puts Eclipse Mosquitto at the broker for this tier: the garage
+# target is a laptop running one compose file, and EMQX arrives at growth.
+#
+# THE FIVE RULES, AND WHERE EACH ONE IS ENFORCED
+#
+#   1 Single crossing point   `broker` is the only service listing `ot` plus
+#                             another network. Static, compose-segmentation-gate.
+#   2 No IT to device path    No device lists `it`. Static, same gate. The
+#                             reachability half is a runtime check in the
+#                             integration suite, under QS-001.
+#   3 DMZ mediates            Vacuous at this tier, because `dmz` is collapsed.
+#                             The gate still applies it to any compose file that
+#                             declares `dmz`, so the growth tier inherits it.
+#   4 OT does not reach out   `ot` is `internal: true`. Static, same gate.
+#   5 Identity, not location  mTLS client certificates from the internal CA, and
+#                             a broker ACL per identity. The config half is
+#                             static, over mosquitto/mosquitto.conf and
+#                             mosquitto/acl. The rejection half is a runtime
+#                             check against the broker.
+#
+# Every service carries a `com.twinflow.role` label. The gate reads the role
+# rather than the service name, so a rule cannot be evaded by renaming a
+# container.
+#
+# BEFORE THE FIRST RUN
+#
+#   sh deploy/garage/make-certs.sh
+#
+# writes the internal CA and one key pair per identity into deploy/garage/certs,
+# which stays untracked: *.pem and *.key are gitignored, and a committed private
+# key is a compromised private key.
+#
+# THREE COMMANDS ARE AHEAD OF THEIR CODE
+#
+# twinflow.sensors, twinflow.storage, twinflow.api, twinflow.dashboard, and
+# twinflow.agent are delivered by WP-P1-02, WP-P1-06, WP-P1-09, WP-P1-10, and
+# WP-P1-07. Each command below follows the one module entry point this tree
+# already has, `python -m twinflow.kernel`. Until those packages carry a
+# `__main__`, this file is asserted statically and does not start.
+
+name: twinflow-garage
+
+# --------------------------------------------------------------------------
+# Networks
+# --------------------------------------------------------------------------
+networks:
+  # Compose documents `internal` this way: "By default, Compose provides
+  # external connectivity to networks. `internal`, when set to `true`, lets you
+  # create an externally isolated network." That one line is what the OT segment
+  # rests on. Containers here get no default gateway, so nothing on the segment
+  # can open a connection to the host or to the internet.
+  ot:
+    internal: true
+
+  # The IT segment, and at this tier the mediated zone as well. A standard
+  # bridge: these containers reach the host and the internet, and they have no
+  # route to `ot`.
+  it: {}
+
+# --------------------------------------------------------------------------
+# One image, several roles
+# --------------------------------------------------------------------------
+x-twinflow-image: &twinflow-image
+  build:
+    context: ../..
+    dockerfile: deploy/garage/Dockerfile
+  image: twinflow/garage:dev
+  restart: unless-stopped
+
+services:
+  # ------------------------------------------------------------------------
+  # OT segment: the devices
+  # ------------------------------------------------------------------------
+
+  # The RFID read portal over the inbound dock. Its UNS prefix is
+  # twinflow/dc-01/receiving/inbound-line-01/portal-03, and the broker ACL
+  # refuses a publish anywhere else under that identity.
+  device-portal-03:
+    <<: *twinflow-image
+    labels:
+      com.twinflow.role: device
+      com.twinflow.uns-prefix: twinflow/dc-01/receiving/inbound-line-01/portal-03
+    command: ["python", "-m", "twinflow.sensors"]
+    environment:
+      TWINFLOW_PROFILE: /etc/twinflow/facility.yaml
+      TWINFLOW_EQUIPMENT: portal-03
+      TWINFLOW_BROKER_URL: mqtts://broker:8883
+    volumes:
+      - ../../profiles/micro_fulfillment.yaml:/etc/twinflow/facility.yaml:ro
+      - ./certs/portal-03:/etc/twinflow/certs:ro
+    networks: [ot]
+    depends_on: [broker]
+
+  # The ambient temperature sensor at the receiving station.
+  device-temp-01:
+    <<: *twinflow-image
+    labels:
+      com.twinflow.role: device
+      com.twinflow.uns-prefix: twinflow/dc-01/receiving/inbound-line-01/temp-01
+    command: ["python", "-m", "twinflow.sensors"]
+    environment:
+      TWINFLOW_PROFILE: /etc/twinflow/facility.yaml
+      TWINFLOW_EQUIPMENT: temp-01
+      TWINFLOW_BROKER_URL: mqtts://broker:8883
+    volumes:
+      - ../../profiles/micro_fulfillment.yaml:/etc/twinflow/facility.yaml:ro
+      - ./certs/temp-01:/etc/twinflow/certs:ro
+    networks: [ot]
+    depends_on: [broker]
+
+  # ------------------------------------------------------------------------
+  # The crossing point
+  # ------------------------------------------------------------------------
+
+  # The only container attached to `ot` and anything else. Every byte that
+  # leaves OT leaves through it.
+  #
+  # 8883 is the device listener on the OT side. 8884 is the north listener the
+  # IT segment reads. Both demand a client certificate the internal CA signed,
+  # and the common name on that certificate becomes the ACL identity.
+  #
+  # Pinned by digest, not by tag. A tag is a mutable pointer, and the whole
+  # claim this file makes is that the topology CI read is the topology that
+  # runs. The tag is kept beside the digest so a reader can see the version.
+  broker:
+    image: eclipse-mosquitto:2.0.22@sha256:212f89e1eaeb2c322d6441b64396e3346026674db8fa9c27beac293405c32b3c
+    restart: unless-stopped
+    labels:
+      com.twinflow.role: broker
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./mosquitto/acl:/mosquitto/config/acl:ro
+      - ./certs/broker:/mosquitto/config/certs:ro
+      - broker-data:/mosquitto/data
+    networks: [ot, it]
+
+  # ------------------------------------------------------------------------
+  # IT segment, carrying the collapsed DMZ
+  # ------------------------------------------------------------------------
+
+  # RA-c: the L2 system of record for time-series. In the reference topology it
+  # sits on `dmz` and `it`. Here the two are one network.
+  historian:
+    <<: *twinflow-image
+    labels:
+      com.twinflow.role: historian
+      com.twinflow.collapsed-from: dmz
+    command: ["python", "-m", "twinflow.storage"]
+    environment:
+      TWINFLOW_PROFILE: /etc/twinflow/facility.yaml
+      TWINFLOW_BROKER_URL: mqtts://broker:8884
+    volumes:
+      - ../../profiles/micro_fulfillment.yaml:/etc/twinflow/facility.yaml:ro
+      - ./certs/historian:/etc/twinflow/certs:ro
+      - historian-data:/var/lib/twinflow
+    networks: [it]
+    depends_on: [broker]
+
+  # The REST surface the dashboard reads through.
+  api:
+    <<: *twinflow-image
+    labels:
+      com.twinflow.role: app
+    command: ["python", "-m", "twinflow.api"]
+    environment:
+      TWINFLOW_PROFILE: /etc/twinflow/facility.yaml
+    volumes:
+      - ../../profiles/micro_fulfillment.yaml:/etc/twinflow/facility.yaml:ro
+      - historian-data:/var/lib/twinflow:ro
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks: [it]
+    depends_on: [historian]
+
+  # The dashboard stub. Published on the loopback address rather than on every
+  # interface, so running the demo on a shared network does not serve it there.
+  dashboard:
+    <<: *twinflow-image
+    labels:
+      com.twinflow.role: app
+    command: ["python", "-m", "twinflow.dashboard"]
+    environment:
+      TWINFLOW_API_URL: http://api:8000
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks: [it]
+    depends_on: [api]
+
+  # The agent service. It reaches a hosted model, which is why it is on `it` and
+  # never on `ot`: section 6 places the hosted LLM agent at tier 3, outside the
+  # OT boundary by design.
+  agent:
+    <<: *twinflow-image
+    labels:
+      com.twinflow.role: app
+    command: ["python", "-m", "twinflow.agent"]
+    environment:
+      TWINFLOW_API_URL: http://api:8000
+    networks: [it]
+    depends_on: [api]
+
+volumes:
+  broker-data: {}
+  historian-data: {}

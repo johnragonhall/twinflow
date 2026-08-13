@@ -1,0 +1,87 @@
+# A micro-fulfillment center: one receiving line and one putaway station.
+#
+# This is the profile the P1 walking skeleton runs against. Its identifiers are
+# chosen so that the namespace this file generates is the namespace the concrete
+# examples in ARCHITECTURE.md section 5 already use:
+#
+#   twinflow/dc-01/receiving/inbound-line-01/portal-03/read_rate
+#   twinflow/dc-01/receiving/inbound-line-01/temp-01/temperature_c
+#
+# The site level is the file, the area level is a zone id, and the line level is
+# a station id. Level names are generated from this file and never typed by
+# hand, so the namespace and the modeled facility cannot drift apart.
+#
+# WHAT THIS FILE CANNOT YET CARRY
+#
+# ARCHITECTURE.md section 3 rule 3 says facility.yaml carries the family and the
+# parameters of every stochastic quantity, so the model is inspectable without
+# reading code. Facility schema v1 has no key for it: schemas/config/facility/v1.json
+# sets additionalProperties false on every object and declares no distribution,
+# equipment, or sensor member. The families each quantity takes are recorded in
+# the comments below so the intent is legible, and they move into data when the
+# facility schema grows the member that holds them. A comment is not a
+# machine-readable declaration and this file does not pretend otherwise.
+#
+# Gate CFG-001 asserts that every profile in this directory validates, so this
+# file is a worked example rather than an illustration.
+
+version: "1"
+
+facility:
+  name: Micro-fulfillment center dc-01
+  # An IANA zone rather than an offset. A run that crosses a DST boundary must
+  # not record a night shift as 25 hours long.
+  timezone: America/Chicago
+
+run:
+  seed: 20260813
+  replication_index: 0
+  tick_hz: 1000000
+  horizon_seconds: 28800
+
+layout:
+  zones:
+    # The UNS area level. `receiving` and `storage` are both drawn from the
+    # area values ARCHITECTURE.md section 5 lists.
+    - id: receiving
+      description: The inbound dock, the RFID portal over it, and the staging lane behind it
+    - id: storage
+      description: Pallet reserve, where a received unit is put away
+
+  stations:
+    # The UNS line level. `inbound-line-01` is the line in the section 5
+    # examples, so the topics this profile generates are those examples.
+    - id: inbound-line-01
+      type: receiving
+      zone: receiving
+      capacity: 1
+    - id: putaway-01
+      type: putaway
+      zone: storage
+      capacity: 2
+
+flows:
+  # Truck arrivals are a count, so the arrival process is Poisson at this rate.
+  # Section 3 puts counts on Poisson or negative binomial, and an inbound dock
+  # with one lane has no evidence of overdispersion to answer for yet.
+  - id: inbound-receipts
+    station_id: inbound-line-01
+    arrival_rate_per_hour: 6
+
+  # Putaway is fed by receiving, so the two rates match. Its service time is a
+  # duration and therefore lognormal, gamma, or Weibull, never a normal with a
+  # sigma cap. No clamp and no tail clipping: a four-hour putaway is a real
+  # event in a real building and the model produces it at its real rate.
+  - id: putaway
+    station_id: putaway-01
+    arrival_rate_per_hour: 6
+
+# Equipment that publishes on the line above, recorded here until the facility
+# schema carries an equipment member:
+#
+#   portal-03  RFID read portal over the inbound dock. read_rate is a bounded
+#              ratio on [0, 1], so it is beta scaled to that range. A read rate
+#              approaches 1 without ever crossing it and without a clamp.
+#   temp-01    Ambient temperature at the receiving station. temperature_c is
+#              unbounded in both directions and is the one quantity here that a
+#              normal family fits, with no truncation at any multiple of sigma.

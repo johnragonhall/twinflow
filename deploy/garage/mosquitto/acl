@@ -1,0 +1,66 @@
+# Broker access control, keyed on the certificate common name.
+#
+# mosquitto.conf sets use_identity_as_username, so the username below is the
+# common name the internal CA signed. Nothing here is keyed on an address or on
+# a network, which is the point of rule 5: a compromised device cannot
+# impersonate another area by moving.
+#
+# Deny by default. mosquitto refuses any topic no rule below grants.
+#
+# Each device gets exactly its own UNS prefix, on both namespaces. The
+# Sparkplug side is authoritative and the plain ISA-95 JSON mirror is derived,
+# so a device that publishes one publishes both and needs both grants.
+
+# --------------------------------------------------------------------------
+# Devices on the OT segment
+# --------------------------------------------------------------------------
+
+user portal-03
+topic write twinflow/dc-01/receiving/inbound-line-01/portal-03/#
+topic write spBv1.0/twinflow:dc-01:receiving/DBIRTH/inbound-line-01/portal-03
+topic write spBv1.0/twinflow:dc-01:receiving/DDATA/inbound-line-01/portal-03
+topic write spBv1.0/twinflow:dc-01:receiving/DDEATH/inbound-line-01/portal-03
+# Commands travel the other way, so the device subscribes rather than publishes.
+topic read spBv1.0/twinflow:dc-01:receiving/DCMD/inbound-line-01/portal-03
+
+user temp-01
+topic write twinflow/dc-01/receiving/inbound-line-01/temp-01/#
+topic write spBv1.0/twinflow:dc-01:receiving/DBIRTH/inbound-line-01/temp-01
+topic write spBv1.0/twinflow:dc-01:receiving/DDATA/inbound-line-01/temp-01
+topic write spBv1.0/twinflow:dc-01:receiving/DDEATH/inbound-line-01/temp-01
+topic read spBv1.0/twinflow:dc-01:receiving/DCMD/inbound-line-01/temp-01
+
+# --------------------------------------------------------------------------
+# The edge node that carries the line
+# --------------------------------------------------------------------------
+#
+# NBIRTH and NDEATH belong to the node, not to a device, and NDEATH is
+# registered as the MQTT Last Will at connect time.
+
+user inbound-line-01
+topic write spBv1.0/twinflow:dc-01:receiving/NBIRTH/inbound-line-01
+topic write spBv1.0/twinflow:dc-01:receiving/NDATA/inbound-line-01
+topic write spBv1.0/twinflow:dc-01:receiving/NDEATH/inbound-line-01
+topic read spBv1.0/twinflow:dc-01:receiving/NCMD/inbound-line-01
+
+# --------------------------------------------------------------------------
+# North-side consumers, reached through the broker north listener
+# --------------------------------------------------------------------------
+#
+# Read only. Data crosses the boundary northbound, and a consumer that could
+# publish southbound would be a second crossing point wearing a subscriber name.
+
+user historian
+topic read twinflow/#
+topic read spBv1.0/#
+
+user twin-sync
+topic read twinflow/#
+topic read spBv1.0/#
+
+# The primary host application publishes STATE with the retain flag set, which
+# is the one northbound identity that writes anything.
+user twinflow-host
+topic read twinflow/#
+topic read spBv1.0/#
+topic write spBv1.0/STATE/twinflow-host
