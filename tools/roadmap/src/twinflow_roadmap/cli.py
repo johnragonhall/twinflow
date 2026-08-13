@@ -169,6 +169,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     mermaid.set_defaults(handler=command_render_mermaid)
 
+    # TODO(WP-P0-13): `sync --dry-run` and `sync --apply`, which reconcile
+    # GitHub milestones and issues against roadmap.yaml under the policy in
+    # .roadmap-sync.yaml.
+    # TODO(WP-P0-13): `render`, which regenerates ROADMAP.md, docs/gates.md,
+    # and docs/dependency-graph.md and fails on a diff over those three paths.
+    # TODO(WP-P0-14): `gate phase-exit <phase>`, which runs the standing gates
+    # plus the gates whose first phase is that one.
     return parser
 
 

@@ -761,6 +761,9 @@ class Roadmap:
 
     # -- ordering ----------------------------------------------------------
 
+    # TODO(WP-P0-13): `graph()` as a networkx.DiGraph and `render_markdown()`,
+    # which the renderers consume. Both arrive with networkx and jinja2, which
+    # this package declares at the same time.
     def topological_waves(self) -> list[list[WorkPackage]]:
         """Work packages grouped into layers that may run together.
 
