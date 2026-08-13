@@ -220,7 +220,7 @@ gates:
     falsified_by: "A run over 600 seconds, or one beat that asserts on a sleep."
   VAL-GATE-DET-001:
     kind: invariant
-    status: specified
+    status: implemented
     first_phase: P0
     standing: true
     owner_section: "docs/design/foundations.md 5.2"
@@ -228,9 +228,11 @@ gates:
       Two runs at the same run seed, the same config, the same platform, and the same pinned
       dependency set produce byte-identical event logs, per doctrine D-05 tier one.
     falsified_by: "One differing byte between the two event logs."
+    test_path: packages/twinflow-kernel/tests/test_scenario.py
+    command: "just determinism"
   VAL-GATE-DET-002:
     kind: invariant
-    status: specified
+    status: implemented
     first_phase: P0
     standing: true
     owner_section: "docs/design/foundations.md 5.2"
@@ -244,6 +246,8 @@ gates:
     falsified_by: >-
       A business event that differs across platforms, or a continuous field outside the recorded
       tolerance once that tolerance exists.
+    test_path: tests/test_compare_runs.py
+    command: "uv run pytest tests/test_compare_runs.py -q"
   VAL-GATE-DOC-001:
     kind: invariant
     status: specified

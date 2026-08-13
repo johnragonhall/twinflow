@@ -13,9 +13,10 @@
 #                          to stdout (default below)
 #   TWINFLOW_SIM_SCENARIO  scenario file passed to it
 #
-# Until the kernel and its CLI land, this reports SKIP and exits 0 so it can sit
-# in CI from day one. Pass --strict (as CI does once the entry point exists) to
-# turn a missing entry point into a failure.
+# The entry point exists from WP-P0-17, so CI passes --strict and a missing one
+# is a failure rather than a skip. The SKIP path stays for a checkout where the
+# workspace is not installed, which is a broken environment rather than a
+# broken build.
 set -u
 
 RUNS=2
@@ -31,7 +32,7 @@ done
 root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 cd "$root" || exit 0
 
-SIM_CMD="${TWINFLOW_SIM_CMD:-uv run python -m twinflow.cli simulate}"
+SIM_CMD="${TWINFLOW_SIM_CMD:-uv run python -m twinflow.kernel simulate}"
 SCENARIO="${TWINFLOW_SIM_SCENARIO:-scenarios/determinism-smoke.yaml}"
 
 skip_or_fail() {

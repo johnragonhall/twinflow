@@ -1,0 +1,53 @@
+# SCN-F1, the determinism smoke scenario.
+#
+# The smallest process that can fail DET-001. It has to draw randomness, read
+# the clock, iterate collections, and emit ordered events, because those are the
+# four ways a run stops being reproducible. A scenario that only counted to ten
+# would pass the gate forever without proving anything about the kernel.
+#
+# It is not a model of a warehouse and does not try to be. P1's walking skeleton
+# is the first scenario that describes real work; this one exists so that the
+# machinery underneath it is already known to be deterministic when it arrives.
+#
+# WHY THE NUMBERS ARE WHAT THEY ARE
+# ---------------------------------
+# Every number here is chosen for coverage, not measured from anything, and
+# none of them is a claim about a real operation. Three stations rather than one
+# so stream derivation cannot depend on there being a single stream. Different
+# arrival counts per station so a bug that indexed by position rather than by
+# name shows up as a divergence. A service-time spread wide enough that two
+# draws are almost never equal, so an RNG that silently returned a constant
+# would fail rather than pass.
+
+id: SCN-F1
+title: Determinism smoke
+description: >-
+  Three stations draw service times from name-addressed RNG streams and emit an
+  ordered event log. Two runs at one seed on one platform produce byte-identical
+  logs, which is doctrine D-05 tier one.
+
+# 1000 ticks per simulated second, which is the kernel default resolution.
+tick_hz: 1000
+
+# The wall-clock instant sim time zero maps to. Fixed in the file rather than
+# read from a clock: the envelope carries a `time` on every event, and a run
+# that read the real clock would produce a different log every second.
+epoch: "2026-01-01T00:00:00Z"
+
+# The default seed. `--seed` overrides it, and the determinism check passes one
+# explicitly so the recorded hash is a function of the file plus the flag.
+seed: 20260101
+
+stations:
+  - id: receiving
+    arrivals: 12
+    service_mean_s: 45.0
+    service_spread_s: 18.0
+  - id: putaway
+    arrivals: 9
+    service_mean_s: 62.5
+    service_spread_s: 25.0
+  - id: picking
+    arrivals: 15
+    service_mean_s: 31.25
+    service_spread_s: 12.5

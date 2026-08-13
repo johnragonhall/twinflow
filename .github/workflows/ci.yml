@@ -145,6 +145,68 @@ jobs:
       - name: Determinism
         run: just determinism
 
+      # DET-002 tier two. Each leg records the same scenario at the same seed,
+      # and the divergence job below compares them. Recording here rather than
+      # comparing here, because a leg cannot read another leg's filesystem.
+      - name: Record the SCN-F1 run for this leg
+        run: just record-run "run-py${{ matrix.python-version }}.jsonl" 0
+
+      - name: Upload this leg's run
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-py${{ matrix.python-version }}
+          path: run-py${{ matrix.python-version }}.jsonl
+          if-no-files-found: error
+
+      # The reference runner's image version, which ci_budget.yaml records as
+      # null until a run reports one. Printed rather than written back: a
+      # workflow that committed to the repository would need write access for a
+      # number a human should read before pinning it.
+      - name: Report the runner image version
+        if: matrix.python-version == '3.13'
+        run: |
+          echo "observed ImageVersion: ${ImageVersion:-unknown}"
+          grep image_version ci_budget.yaml
+
+  # DET-002. The two interpreter legs are the two platforms one runner image
+  # offers, so this is the weaker half of tier two: same operating system,
+  # different interpreter. It is the half that can run today, and it catches an
+  # interpreter-dependent iteration order or float repr, which is the failure
+  # mode the tier exists for.
+  #
+  # No tolerance is passed. gates.yaml records this noise floor as not yet
+  # measured, so the job publishes the divergence it observed and bounds
+  # nothing. A business event that differs still fails it.
+  divergence:
+    name: Cross-platform divergence
+    needs: [changes, python]
+    if: needs.changes.outputs.python == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Sync dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Download every leg's run
+        uses: actions/download-artifact@v4
+        with:
+          pattern: run-py*
+          merge-multiple: true
+
+      - name: Compare the legs
+        run: |
+          uv run python tools/compare_runs.py \
+            run-py3.12.jsonl run-py3.13.jsonl \
+            --label-left "python 3.12" --label-right "python 3.13"
+
   roadmap:
     name: Roadmap gate
     needs: changes
@@ -225,7 +287,7 @@ jobs:
   ci:
     name: CI
     if: always()
-    needs: [changes, python, roadmap, agent]
+    needs: [changes, python, divergence, roadmap, agent]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -234,6 +296,7 @@ jobs:
           for result in \
             "changes=${{ needs.changes.result }}" \
             "python=${{ needs.python.result }}" \
+            "divergence=${{ needs.divergence.result }}" \
             "roadmap=${{ needs.roadmap.result }}" \
             "agent=${{ needs.agent.result }}"
           do

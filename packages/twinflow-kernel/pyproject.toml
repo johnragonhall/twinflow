@@ -21,6 +21,15 @@ dynamic = ["version"]
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 
+# Reading a scenario off disk needs a YAML parser, and foundations 2.2 holds the
+# core install to pydantic and numpy. So the parser is an extra rather than a
+# dependency: `pip install twinflow-kernel` stays the small thing D-10 asks for,
+# and anybody who runs a scenario file asks for the extra. load_scenario imports
+# yaml inside the function and names the extra when it is absent, so the failure
+# is an instruction rather than an ImportError.
+[project.optional-dependencies]
+scenario = ["pyyaml>=6"]
+
 [build-system]
 # 1.27 is where hatchling accepts the PEP 639 license fields above.
 requires = ["hatchling>=1.27"]

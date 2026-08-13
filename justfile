@@ -17,18 +17,33 @@ test:
 test-property:
     uv run pytest -m property
 
-# Prove a stream reproduces from a seed, in the four forms available before
-# there is a scenario to run end to end. Budget: 3 minutes.
+# DET-001: two runs of SCN-F1 at one seed produce byte-identical logs, plus the
+# four stream-level forms that say which part of the machinery moved when they
+# do not. Budget: 3 minutes.
 #
-# scripts/determinism-check.sh is not called here: it reports SKIP while no
-# scenario file exists, so a recipe built on it would be a recipe that proves
-# nothing. It returns as a line below when Phase 0b lands SCN-F1.
+# --strict rather than the default, so a missing entry point is a failure. The
+# script reported SKIP while there was no scenario to run, and a recipe built on
+# a skip is a recipe that proves nothing.
 determinism:
     uv run pytest packages/twinflow-rng/tests/test_derive.py -q
     uv run pytest packages/twinflow-rng/tests/test_rng_known_answers.py -q
     uv run python tools/gen_rng_kat.py --check
     just det-hashseed
     uv run pytest -m property -q
+    sh scripts/determinism-check.sh --strict --runs 2
+
+# The end-to-end tier: the scenario runs, its log satisfies the envelope
+# invariants, and the comparison tool agrees with itself. Budget: 12 minutes.
+test-e2e:
+    uv run pytest packages/twinflow-kernel/tests/test_scenario.py tests/test_compare_runs.py -q
+    sh scripts/determinism-check.sh --strict --runs 3
+
+# Write one run of SCN-F1 to a file, which is what the cross-platform legs
+# upload for DET-002 to compare.
+#
+#   just record-run out.jsonl 0
+record-run out seed="0":
+    uv run python -m twinflow.kernel simulate --seed {{seed}} > {{out}}
 
 # Step 1 of the release ritual, and the thing a contributor runs before pushing:
 # every gate that does not need a container, in the order that fails fastest.

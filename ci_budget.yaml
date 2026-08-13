@@ -79,6 +79,19 @@ jobs:
       D-05 tier one is defined on; the other leg is a tier two platform and its
       divergence is measured rather than asserted away.
 
+  - id: divergence
+    workflow: ci.yml
+    runs_on: ubuntu-24.04
+    filter: python
+    budget_s: 300
+    hard_fail_ratio: 1.25
+    measured_s: null
+    note: >-
+      DET-002 tier two, over the two interpreter legs. A second operating system
+      joins it when one is added to the matrix; until then this is the half of
+      the claim that can be made, and it is stated as that rather than as the
+      whole of it.
+
   - id: roadmap
     workflow: ci.yml
     runs_on: ubuntu-24.04
