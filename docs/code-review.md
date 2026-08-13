@@ -74,7 +74,10 @@ item makes the later items moot.
    those things.
 6. Check what the change owes. A new statistic owes a gate. A new public symbol
    owes an entry in the package `API.md`. A new document owes front matter and
-   a nav entry.
+   a nav entry. A fix owes a regression test, and REG-001 checks only that one
+   exists. Ask whether it was seen failing against the unfixed code, which is
+   the half no gate can reach. `docs/testing-policy.md` section 2 is the
+   procedure.
 7. Check the blast radius. Name what breaks if this change is wrong, and say
    whether a gate would catch it.
 
