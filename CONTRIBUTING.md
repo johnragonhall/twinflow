@@ -97,36 +97,73 @@ over generated inputs. The determinism tier runs one scenario several times and
 compares the hash of the output. That is the check that catches a stray clock
 read before it reaches a reviewer.
 
-Write a regression test for every bug you fix. Put it in the tier that matches
-its runtime, not the tier that matches where the bug lived.
+Write a regression test for every bug you fix, and put it in the tier that
+matches its runtime rather than the tier that matches where the bug lived.
+
+This one is enforced. `VAL-GATE-REG-001` refuses a commit whose type is `fix`
+and which touches no test file, so a fix without a test does not reach the log.
+Write the test first and watch it fail before you fix the code: a test written
+afterwards passes on its first run, and a first run that passes proves only
+that the code and the test agree today.
+
+A fix that carries no test which could fail says so in a trailer:
+
+```text
+fix(docs): point the license link at the file it names
+
+Regression-Test: none - a dead link has no runtime behavior to assert on
+```
+
+The reason is required and runs to at least twenty characters. It is a trailer
+rather than a list of exempt scopes, because `fix(ci)` covers both a typo and a
+workflow that silently skipped a job, and the trailer puts the reason in the
+log beside the commit it excuses.
+
+[docs/testing-policy.md](docs/testing-policy.md) carries the procedure and what
+the gate cannot check. [docs/testing-strategy.md](docs/testing-strategy.md)
+covers which of the six kinds of test a change needs.
 
 ## Linting
 
 Two workflows share this work, and they do not cover the same ground. Read the
 `Enforced by` column before you assume a green tick covers your change.
 
-| Target      | Tool                                    | Config                    | Enforced by                                             |
-|-------------|-----------------------------------------|---------------------------|---------------------------------------------------------|
-| Prose       | `scripts/checks/prose-gate.py`          | `docs/style/*.yml`        | `lint.yml`, whole tree, on every commit that reaches it |
-| Spelling    | `scripts/checks/spelling-gate.py`       | `docs/style/spelling.yml` | `lint.yml`, whole tree, and the commit message          |
-| Determinism | `scripts/checks/nondeterminism-gate.sh` | none                      | `lint.yml`, whole tree                                  |
-| Metrics     | `scripts/checks/metric-marker-gate.sh`  | none                      | `lint.yml`, report mode, fatal only on a release tag    |
-| Markdown    | `markdownlint-cli2`                     | `.markdownlint.jsonc`     | `lint.yml`, whole tree                                  |
-| Shell       | `shellcheck`                            | `.shellcheckrc`           | `lint.yml`, whole tree                                  |
-| Workflows   | `actionlint`                            | none                      | `lint.yml`, whole tree                                  |
-| Agreement   | the `cla` job                           | `CLA.md` section 7        | `lint.yml`, pull requests only                          |
-| Python      | `ruff check`, `ruff format --check`     | `pyproject.toml`          | `ci.yml`, only when its `python` path filter matches    |
-| Types       | `ty check`                              | `pyproject.toml`          | `ci.yml`, only when its `python` path filter matches    |
-| Rust        | `cargo fmt`, `cargo clippy -D warnings` | `agent/`                  | `ci.yml`, only when `agent/` changed                    |
+| Target      | Tool                                     | Config                     | Enforced by                                                        |
+|-------------|------------------------------------------|----------------------------|--------------------------------------------------------------------|
+| IP hygiene  | `scripts/checks/banned-terms-gate.py`    | `.ip-denylist`             | `pre-commit`, staged files, before either bypass is read           |
+| Regression  | `scripts/checks/regression-test-gate.py` | none                       | `commit-msg`, the commit being written, and `just gate regression` |
+| Commit log  | `scripts/checks/commit-message-gate.py`  | `scripts/hooks/commit-msg` | `lint.yml`, the range since the previous tag                       |
+| Prose       | `scripts/checks/prose-gate.py`           | `docs/style/*.yml`         | `lint.yml`, whole tree, on every commit that reaches it            |
+| Spelling    | `scripts/checks/spelling-gate.py`        | `docs/style/spelling.yml`  | `lint.yml`, whole tree, and the commit message                     |
+| Determinism | `scripts/checks/nondeterminism-gate.sh`  | none                       | `lint.yml`, whole tree                                             |
+| Metrics     | `scripts/checks/metric-marker-gate.sh`   | none                       | `lint.yml`, report mode, fatal only on a release tag               |
+| Markdown    | `markdownlint-cli2`                      | `.markdownlint.jsonc`      | `lint.yml`, whole tree                                             |
+| Shell       | `shellcheck`                             | `.shellcheckrc`            | `lint.yml`, whole tree                                             |
+| Workflows   | `actionlint`                             | none                       | `lint.yml`, whole tree                                             |
+| Agreement   | the `cla` job                            | `CLA.md` section 7         | `lint.yml`, pull requests only                                     |
+| Python      | `ruff check`, `ruff format --check`      | `pyproject.toml`           | `ci.yml`, only when its `python` path filter matches               |
+| Types       | `ty check`                               | `pyproject.toml`           | `ci.yml`, only when its `python` path filter matches               |
+| Rust        | `cargo fmt`, `cargo clippy -D warnings`  | `agent/`                   | `ci.yml`, only when `agent/` changed                               |
 
 The `python` filter in `ci.yml` covers `src/`, `tests/`, `scenarios/`,
 `pyproject.toml`, `uv.lock`, and `ci.yml` itself. A Python file outside those
 paths is linted by the pre-commit hook and by `scripts/ci-local.sh`, and not by
 a hosted job.
 
-The pre-commit hook runs the prose, determinism, Python, Markdown, shell, and
-workflow gates over the staged files. It does not run `ty`, `cargo`, or the
-metric marker gate.
+The pre-commit hook runs the IP hygiene, prose, determinism, Python, Markdown,
+shell, and workflow gates over the staged files. It does not run `ty`, `cargo`,
+or the metric marker gate.
+
+IP hygiene runs first and is the one gate that neither `LINT_OK=1` nor
+`--no-verify` skips. The others guard style, and a style finding costs a
+follow-up commit. That one guards a client name or an internal document marker
+reaching a public history, which costs a history rewrite, so it runs before the
+bypass is read.
+
+The commit-msg hook runs the spelling gate, the narration judge, and the
+regression gate against the message and the staged files together. It runs
+there rather than in pre-commit because two of those rules read the commit
+type. That type does not exist until the message does.
 
 Markdown tables are column-aligned. markdownlint reports a misaligned table as
 `MD060` and does not repair it. Re-align an edited table with
@@ -135,6 +172,12 @@ Markdown tables are column-aligned. markdownlint reports a misaligned table as
 The prose gate needs PyYAML, because it reads its rules from
 `docs/style/banned-phrases.yml` and `docs/style/ste-terms.yml`. Without PyYAML
 it prints a skip line and passes, and CI catches what it missed.
+
+Both hooks pick their interpreter through `scripts/hooks/resolve-python.sh`,
+which prefers the project virtualenv and falls back to `uv` and then to a bare
+interpreter. The virtualenv carries PyYAML and starts in roughly a fifth of the
+time `uv run` takes, which is most of what a commit waits for. Its header
+carries the measurement.
 
 Install the tools you are missing so the hook stops skipping them:
 
@@ -164,7 +207,9 @@ started = time.time()  # nondeterminism-ok: build timing, not simulated state
 
 ## Commit messages
 
-The `commit-msg` hook checks every rule below.
+The `commit-msg` hook checks every rule below. It also runs two covered
+elsewhere on this page: the spelling gate reads the message, and
+`VAL-GATE-REG-001` refuses a `fix` that touches no test.
 
 The subject is `type(scope): description`, in ASCII, lowercase after the colon,
 with no trailing period.
