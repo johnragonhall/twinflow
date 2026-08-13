@@ -38,6 +38,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- refuse a topic type that takes a page out of the linter
 - close three checks that cannot fail
 - create the labels the issues carry and refuse a tracker it could not read
 - tell an unprojected tracker apart from one that disagrees

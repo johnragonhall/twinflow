@@ -473,6 +473,12 @@ def check_prose_double_dash(doc, findings):
         )
 
 
+#: The topic types docs/DOCUMENTATION-STANDARD.md declares, from DITA 1.3
+#: part 2. The sentence-limit profiles are keyed by these, so a page naming
+#: anything else is a page nothing measures.
+TOPIC_TYPES = frozenset({"concept", "reference", "task"})
+
+
 def check_front_matter(doc, description_rules, exempt, findings):
     if not doc.is_markdown or doc.path in exempt:
         return
@@ -491,6 +497,23 @@ def check_front_matter(doc, description_rules, exempt, findings):
     for field in ("title", "description", "topic_type"):
         if not doc.front_matter.get(field):
             findings.append((doc.path, 1, "FM-02", ERROR, f"front matter has no {field}"))
+
+    # A type outside the declared set is worse than a missing one. The sentence
+    # limits are looked up by topic type and a miss returns no profile, so an
+    # invented type takes the page out of LEN-01, LEN-02, and every rule scoped
+    # to a type, and the run still reports no error.
+    topic_type = doc.front_matter.get("topic_type")
+    if topic_type and topic_type not in TOPIC_TYPES:
+        findings.append(
+            (
+                doc.path,
+                1,
+                "FM-06",
+                ERROR,
+                f"topic_type {topic_type!r} is not one of {', '.join(sorted(TOPIC_TYPES))}. "
+                f"A type outside the set has no sentence limits, so the page is not checked",
+            )
+        )
 
     description = str(doc.front_matter.get("description") or "").strip()
     if not description:
