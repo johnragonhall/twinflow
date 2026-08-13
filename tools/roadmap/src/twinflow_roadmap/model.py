@@ -256,12 +256,25 @@ class Gate(Frozen):
     assertion: str | None = None
     #: The observation that fails this gate, in one sentence.
     falsified_by: str | None = None
-    test_path: str | None = None
+    #: The test or tests that prove this gate can fail. A string where one file
+    #: carries the whole assertion, a list where several do. Several is the
+    #: common case once a gate's command runs more than one thing: naming one
+    #: file then reads as the whole proof, and the rest go unchecked when they
+    #: move.
+    test_path: str | list[str] | None = None
     #: How the phase-exit runner runs this gate, as a shell command from the
     #: repository root. Required at status implemented, beside test_path: the
     #: test proves the gate can fail, and this is what makes it run at a tag.
     #: A gate with a test and no command is a gate nobody executes.
     command: str | None = None
+
+    def test_paths(self) -> tuple[str, ...]:
+        """Every test this gate names, however the registry spells it."""
+        if not self.test_path:
+            return ()
+        if isinstance(self.test_path, str):
+            return (self.test_path,)
+        return tuple(self.test_path)
 
     def required_fields(self) -> tuple[str, ...]:
         """What this gate owes at its declared status."""

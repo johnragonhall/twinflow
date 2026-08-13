@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- let a gate name every test that proves it
 - read the body category the commit convention already requires
 - give the IP hygiene gate a job that always runs
 - let a fix name the test that already covers it

@@ -475,17 +475,20 @@ class Roadmap:
                             (gate_id,),
                         )
                     )
-                elif not (self.root / gate.test_path).exists():
-                    findings.append(
-                        Finding(
-                            "GATE-TEST",
-                            f"{gate_id} names test_path {gate.test_path}, which is not on "
-                            f"disk. Either the test moved or the status is ahead of the work",
-                            GATES_FILE,
-                            line,
-                            (gate_id,),
-                        )
-                    )
+                else:
+                    for path in gate.test_paths():
+                        if not (self.root / path).exists():
+                            findings.append(
+                                Finding(
+                                    "GATE-TEST",
+                                    f"{gate_id} names test_path {path}, which is not on "
+                                    f"disk. Either the test moved or the status is ahead "
+                                    f"of the work",
+                                    GATES_FILE,
+                                    line,
+                                    (gate_id,),
+                                )
+                            )
                 if not gate.command:
                     findings.append(
                         Finding(

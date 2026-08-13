@@ -299,3 +299,38 @@ def test_the_backstop_job_carries_no_path_filter():
         assert "paths" not in (triggers.get(event) or {}), (
             f"lint.yml filters {event} by path, so its gates are not a backstop"
         )
+
+
+# --- the dependency audit and the bill of materials (SEC-001) ---------------
+
+
+def test_the_release_audits_its_dependencies():
+    """SEC-001 clause 1. A known vulnerable dependency ships unless something looks.
+
+    Asserted against the workflow rather than a run. A missing step produces no
+    output to notice, so the absence is visible only by reading the file, and
+    only before the tag rather than after it.
+    """
+    text = RELEASE.read_text(encoding="utf-8")
+    assert "pip-audit" in text, "the release ships without auditing its Python dependencies"
+
+
+def test_the_release_builds_an_sbom_and_attaches_it():
+    """SEC-001 clause 3. An SBOM nobody can download is an SBOM nobody reads."""
+    text = RELEASE.read_text(encoding="utf-8")
+    assert "cyclonedx" in text, "no bill of materials is generated"
+    document = load(RELEASE)
+    attached = False
+    for job in document["jobs"].values():
+        for step in job.get("steps", []):
+            body = str(step.get("with", "")) + str(step.get("run", ""))
+            if "sbom" in body.lower() and ("files" in body or "upload" in str(step).lower()):
+                attached = True
+    assert attached, "the SBOM is generated and never attached to anything"
+
+
+def test_the_license_allowlist_runs_in_the_same_step():
+    # SEC-001 clause 2. The allowlist decision logic is tested in
+    # tests/test_license_allowlist_gate.py; this is what makes it run at a tag.
+    text = RELEASE.read_text(encoding="utf-8")
+    assert "license-allowlist-gate.py" in text or "license-allowlist" in text

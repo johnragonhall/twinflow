@@ -801,7 +801,7 @@ work_packages:
       - { id: "C13", partial: false }
     depends_on: []
     deliverables:
-      - ".github/workflows/cla.yml"
+      - ".github/workflows/lint.yml"
       - "CLA.md"
     gates:
       - VAL-GATE-CLA-001

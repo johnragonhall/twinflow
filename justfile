@@ -74,7 +74,9 @@ check:
 typecheck:
     uvx ty check
 
-# The fast gates only: ruff check, ruff format, prose, nondeterminism. ci runs the rest.
+# Every static gate that needs no build: ruff, the prose and spelling gates, the
+# policy gates, shellcheck, actionlint, and the workflow audit. `just ci` adds
+# the tiers that build or run the simulation.
 lint:
     uv run ruff check .
     uv run ruff format --check .

@@ -135,7 +135,8 @@ def render_gates(roadmap: Roadmap) -> str:
         if gate.noise_floor:
             lines += [f"**Noise floor.** {gate.noise_floor.strip()}", ""]
         if gate.status == "implemented":
-            lines += [f"**Runs.** `{gate.command}`, tested by `{gate.test_path}`.", ""]
+            tested = ", ".join(f"`{path}`" for path in gate.test_paths())
+            lines += [f"**Runs.** `{gate.command}`, tested by {tested}.", ""]
 
     lines += [
         "## Exit sets by phase",
