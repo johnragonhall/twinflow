@@ -1,0 +1,59 @@
+[project]
+name = "twinflow-api"
+description = "The REST surface the dashboard reads through."
+requires-python = ">=3.12"
+dependencies = [
+    # FastAPI carries the OpenAPI 3.1 document that foundations section 5.13
+    # requires and gate SEMVER-2 diffs, so the spec is generated from the
+    # routes rather than written beside them and left to drift.
+    #
+    # The resolved runtime tree carries no certifi. That is load-bearing rather
+    # than incidental: certifi is MPL-2.0, the CONTRIBUTING.md allowlist refuses
+    # copyleft in the shipped tree, and the owner's ruling extends the refusal to
+    # the development closure unless it is unavoidable. httpx pulls certifi, so
+    # httpx appears in neither list. FastAPI ships a test client built on httpx
+    # and this package does not use it: the tests drive the ASGI application
+    # directly, which costs about forty lines and no dependency at all.
+    "fastapi>=0.115,<1",
+    # The ASGI server. Kept out of the import path: nothing in this package
+    # imports uvicorn, so a reader embedding the app in their own server pays
+    # for it once at install and never at import.
+    "uvicorn>=0.30,<1",
+    # E5's autonomy tier, which POST /api/v1/config is subject to. The tier type
+    # and the rules that hold it are owned there, and boundary rule A1.4 gives
+    # one public name one owning package: this layer imports AutonomyTier rather
+    # than declaring a second enum. apps sits above domain, so the A1.3 layering
+    # contract allows the direction.
+    "twinflow-agent",
+    "twinflow-kernel",
+    "twinflow-schemas",
+    "twinflow-storage",
+]
+
+# Read from the module, so __version__ and the distribution metadata are one
+# value and cannot disagree.
+dynamic = ["version"]
+
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+
+[build-system]
+# 1.27 is where hatchling accepts the PEP 639 license fields above.
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/twinflow/api/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/twinflow"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "pyproject.toml"]
+exclude = ["**/__pycache__", "**/*.py[co]", "**/.pytest_cache"]
+
+[tool.uv.sources]
+twinflow-agent = { workspace = true }
+twinflow-kernel = { workspace = true }
+twinflow-schemas = { workspace = true }
+twinflow-storage = { workspace = true }
