@@ -4,7 +4,7 @@
 # The frozen vectors in packages/twinflow-rng/tests/test_derive.py are the only
 # values in this project read from an implementation rather than quoted from a
 # publisher. That is acceptable only because they are fixed by composing three
-# published algorithms -- BLAKE2b, numpy's SeedSequence mixing, and PCG64DXSM --
+# published algorithms, BLAKE2b, numpy's SeedSequence mixing, and PCG64DXSM,
 # rather than by a numpy release. This is the check that keeps that true.
 #
 # A divergence between versions means numpy broke the stream stability its own

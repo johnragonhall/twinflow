@@ -84,6 +84,14 @@ CONFIG_FILES = (BANNED_PHRASES, STE_TERMS)
 # emoji) still apply, because no document has a reason to contain those.
 RULE_STATING_FILES = ("docs/DOCUMENTATION-STANDARD.md",)
 
+#: This file states the double-dash pattern in order to match it.
+SELF_PATH = "scripts/checks/prose-gate.py"
+
+#: Files carrying the double-dash pattern in order to match it: this gate
+#: states the rule, and its test supplies the cases the rule is judged on.
+#: The exemption the documentation standard gets, for the same reason.
+DASH_FIXTURE_FILES = (SELF_PATH, "tests/test_prose_double_dash.py")
+
 TEXT_EXT = (
     ".md",
     ".markdown",
@@ -404,6 +412,67 @@ def check_rules(doc, rules, protected, findings):
             findings.append((doc.path, number, rule["id"], rule["severity"], detail))
 
 
+#: A double dash standing in for a dash in prose. It reads as an em dash somebody
+#: transliterated, which is the tell DASH-01 catches in its typographic form.
+PROSE_DOUBLE_DASH = re.compile(r"(?<!-) -- (?!-)")
+
+#: The same three characters, doing a job. A command separator, a section banner
+#: in a comment, and an option cluster are all legitimate, and a rule that cannot
+#: tell them apart is a rule contributors learn to escape.
+DOUBLE_DASH_SAFE = re.compile(
+    r"""
+      (?: ^\s*[#/]*\s*-{2,}\s*[\w ]* -{2,} )   # a banner: # -- name ------
+    | (?: \b(?:git|cargo|npm|npx|uv|uvx|pytest|ruff|just|sh|bash|sed|awk|
+          grep|xargs|shellcheck|actionlint|pip|python)\b )  # names a command
+    | (?: --\w )                                  # an option cluster: --all
+    """,
+    re.VERBOSE,
+)
+
+
+def check_prose_double_dash(doc, findings):
+    """DASH-02, the transliterated em dash.
+
+    Kept in code rather than in banned-phrases.yml because the pattern needs
+    context that a regex rule cannot carry: `git diff -- path` and
+    `clippy -- -D warnings` are the same three characters doing a job, and a
+    rule that flagged them would be escaped everywhere and then trusted
+    nowhere. A line naming a command, a comment banner, and an option cluster
+    are each left alone; what remains is a dash between two words.
+    """
+    if doc.path in RULE_STATING_FILES or doc.path in DASH_FIXTURE_FILES:
+        return
+    for number, line in enumerate(doc.lines, start=1):
+        if not PROSE_DOUBLE_DASH.search(line):
+            continue
+        if DOUBLE_DASH_SAFE.search(line):
+            continue
+        state = escaped(line, "DASH-02")
+        if state is True:
+            continue
+        if state == "no-reason":
+            findings.append(
+                (
+                    doc.path,
+                    number,
+                    "DASH-02",
+                    ERROR,
+                    f"{ESCAPE_TOKEN} with no reason. State why the rule does not apply.",
+                )
+            )
+            continue
+        findings.append(
+            (
+                doc.path,
+                number,
+                "DASH-02",
+                ERROR,
+                "A double dash reads as an em dash somebody transliterated. "
+                "Use: a comma, a colon, a period, or a restructured sentence.",
+            )
+        )
+
+
 def check_front_matter(doc, description_rules, exempt, findings):
     if not doc.is_markdown or doc.path in exempt:
         return
@@ -663,6 +732,7 @@ def main(argv):
             continue
         doc = Document(path, text)
         check_rules(doc, rules, protected, findings)
+        check_prose_double_dash(doc, findings)
         check_front_matter(doc, description_rules, exempt, findings)
         check_headings(doc, findings)
         check_sentences(doc, limits, exempt, findings)

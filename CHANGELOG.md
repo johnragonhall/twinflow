@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- reject a double dash standing in for punctuation
 - record SCN-F1 and prove the two-run hash match
 - assert the five source constraints and run a phase's exit set
 - pin the reference runner and give every job a budget
