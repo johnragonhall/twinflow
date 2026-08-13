@@ -45,6 +45,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- pass the roadmap subcommand through to the tool
 - resolve the comment judge through uv where uv is present
 - build the judged message path from the repository root
 - confine the judged commit message to this repository

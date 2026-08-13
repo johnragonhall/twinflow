@@ -68,12 +68,15 @@ lint:
 roadmap *args:
     #!/usr/bin/env sh
     set -eu
-    if [ $# -eq 0 ]; then
+    # {{args}} rather than "$@": just does not pass a recipe's arguments to the
+    # shebang script it writes, so $# is always zero here and every invocation
+    # would take the no-argument branch.
+    if [ -z '{{args}}' ]; then
         uv run twinflow-roadmap validate
         uv run twinflow-roadmap coverage
         uv run twinflow-roadmap graph-lint
     else
-        uv run twinflow-roadmap "$@"
+        uv run twinflow-roadmap {{args}}
     fi
 
 # RMAP-001. The three offline commands plus the offline half of drift, which is
