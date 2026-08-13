@@ -91,8 +91,8 @@ jobs:
       - name: Shell (shellcheck)
         run: |
           # The list comes from one place, so this job and scripts/ci-local.sh
-          # cannot check different files. A glob over scripts/hooks/ hands
-          # shellcheck comment_judge.py, which is Python.
+          # cannot check different files. A glob over scripts/hooks/ would
+          # reach comment_judge.py, and that file is Python.
           files=$(sh scripts/checks/shell-files.sh)
           if [ -z "$files" ]; then
             echo "no shell scripts"

@@ -241,7 +241,7 @@ if [ "$MODE" != "--security" ]; then
   if have actionlint; then
     step "actionlint" actionlint -color
   elif have uvx; then
-    step "actionlint" uvx --from actionlint-py actionlint
+    step "actionlint" uvx --with shellcheck-py --from actionlint-py actionlint
   else
     note_skip "actionlint" "install uv, or actionlint from your package manager"
   fi

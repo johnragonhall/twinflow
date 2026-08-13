@@ -63,7 +63,7 @@ lint:
     # PyPI, so uvx reaches them with no package manager, and a workflow that
     # does not parse fails here rather than on push.
     uvx --from shellcheck-py shellcheck $(sh scripts/checks/shell-files.sh)
-    uvx --from actionlint-py actionlint
+    uvx --with shellcheck-py --from actionlint-py actionlint
 
 # The roadmap, as data. Without a subcommand it validates, proves coverage, and
 # lints the phase diagram, which is the RMAP-001 set minus the tracker half.
