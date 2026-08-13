@@ -26,152 +26,153 @@ Three statuses, and the required field set widens with each:
 that set which is not `implemented` fails the run rather than being skipped,
 because the registry already promised it at the phase it starts at.
 
-## The registry (142 gates)
+## The registry (143 gates)
 
-| Gate                       | First phase | Kind         | Standing | Status      | Owner                             |
-|----------------------------|-------------|--------------|----------|-------------|-----------------------------------|
-| `VAL-GATE-A11Y-001`        | P1          | validation   | yes      | specified   | docs/design/ui-direction.md       |
-| `VAL-GATE-ABC-001`         | 6a17        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-ABSENT-SEAM-001` | 6a14        | invariant    | no       | declared    | docs/design/human-sustain.md      |
-| `VAL-GATE-ACT-001`         | P1          | policy       | yes      | implemented | docs/design/repo-craft.md         |
-| `VAL-GATE-ADOPT-001`       | P5          | invariant    | no       | declared    | docs/design/repo-craft.md         |
-| `VAL-GATE-AGT-001`         | P2          | invariant    | yes      | specified   | docs/design/ai-layer.md           |
-| `VAL-GATE-ATP-001`         | 6a12        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-AUTON-001`       | P6-W4       | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-BATCH-001`       | P3i         | invariant    | no       | declared    | docs/design/production-quality.md |
-| `VAL-GATE-CAPA-001`        | 6a11        | invariant    | no       | declared    | docs/design/production-quality.md |
-| `VAL-GATE-CART-001`        | P3g         | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-CAU-001`         | CAUSAL      | ground_truth | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-CAU-002`         | CAUSAL      | ground_truth | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-CBAM-001`        | ECON        | validation   | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-CC-001`          | P0          | validation   | yes      | implemented | CONTRIBUTING.md                   |
-| `VAL-GATE-CFG-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.6    |
-| `VAL-GATE-CI-001`          | P0          | policy       | yes      | implemented | docs/design/repo-craft.md         |
-| `VAL-GATE-CLA-001`         | P1          | invariant    | yes      | implemented | CLA.md section 7                  |
-| `VAL-GATE-COLD-001`        | P3h         | invariant    | no       | declared    | docs/design/sensor-catalog.md     |
-| `VAL-GATE-CONF-001`        | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-CONFTUT-001`     | P3          | budget       | no       | declared    | docs/design/repo-craft.md         |
-| `VAL-GATE-COVER-001`       | P6-W6       | invariant    | no       | declared    | docs/design/roadmap.md            |
-| `VAL-GATE-CV-001`          | P4          | invariant    | no       | declared    | docs/design/twin-core.md          |
-| `VAL-GATE-DATA-001`        | P6-W6       | invariant    | no       | declared    | docs/design/foundations.md        |
-| `VAL-GATE-DEMO-001`        | P1          | budget       | yes      | specified   | docs/design/repo-craft.md         |
-| `VAL-GATE-DET-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.2    |
-| `VAL-GATE-DET-002`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.2    |
-| `VAL-GATE-DOC-001`         | P1          | invariant    | yes      | specified   | docs/DOCUMENTATION-STANDARD.md    |
-| `VAL-GATE-DOCSITE-001`     | P3          | policy       | no       | declared    | docs/design/repo-craft.md         |
-| `VAL-GATE-DORA-001`        | 6a15        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-DRIFT-001`       | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-E1-001`          | P2          | invariant    | yes      | specified   | docs/design/dashboard-replay.md   |
-| `VAL-GATE-ECO-001`         | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-EDGE-001`        | P6-W1       | invariant    | no       | declared    | docs/design/iot-fleet.md          |
-| `VAL-GATE-EHB-001`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-EHB-002`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-EHB-003`         | P3          | validation   | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-EHB-004`         | 6a11        | validation   | no       | declared    | docs/design/production-quality.md |
-| `VAL-GATE-EHB-005`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-ENG-001`         | P3b         | invariant    | no       | declared    | docs/design/twin-core.md          |
-| `VAL-GATE-ENV-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.5    |
-| `VAL-GATE-EPCIS-001`       | P3          | validation   | no       | declared    | docs/design/iot-fleet.md          |
-| `VAL-GATE-ERG-SEAM-001`    | 6a10        | invariant    | no       | declared    | docs/design/human-sustain.md      |
-| `VAL-GATE-ESG-001`         | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-FCST-001`        | P3d         | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-FCST-002`        | P3d         | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-FED-001`         | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-FIN-001`         | ECON        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-FINOPS-001`      | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-FVA-001`         | 6a16        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-GL-001`          | 6a17        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-GLEC-001`        | P3h         | validation   | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-GNN-001`         | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-GOV-001`         | ECON        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-HEIN-001`        | 6a10        | invariant    | no       | declared    | docs/design/human-sustain.md      |
-| `VAL-GATE-HIL-001`         | P6-W1       | invariant    | no       | declared    | docs/design/iot-fleet.md          |
-| `VAL-GATE-HR-001`          | 6a14        | invariant    | no       | declared    | docs/design/human-sustain.md      |
-| `VAL-GATE-INJ-001`         | P3          | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-INJ-002`         | 6a11        | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-INS-001`         | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-INV-001`         | P3d         | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-IPH-001`         | P0          | policy       | yes      | implemented | docs/design/repo-craft.md         |
-| `VAL-GATE-LEDGER-001`      | P6-W4       | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-LIC-001`         | P0          | policy       | yes      | implemented | docs/design/repo-craft.md         |
-| `VAL-GATE-MAS-001`         | P6-W4       | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-MEIO-001`        | P3h         | ground_truth | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-MEIO-002`        | P3h         | validation   | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-MSA-001`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-MSA-002`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-MTB-001`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-MTB-002`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-MTB-003`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-MTLS-001`        | P5          | invariant    | no       | declared    | docs/design/repo-craft.md         |
-| `VAL-GATE-MULTI-001`       | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-NETDES-001`      | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-NIOSH-001`       | 6a10        | validation   | no       | declared    | docs/design/human-sustain.md      |
-| `VAL-GATE-NIST-001`        | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-NIST-002`        | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-NIST-003`        | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-NIST-004`        | P3          | validation   | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-NPV-001`         | 6a17        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-NTIER-001`       | RISK        | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-OEE-001`         | P3i         | invariant    | no       | declared    | docs/design/production-quality.md |
-| `VAL-GATE-OPCUA-001`       | P5          | validation   | no       | declared    | docs/design/iot-fleet.md          |
-| `VAL-GATE-OPT-001`         | P3b         | invariant    | no       | declared    | docs/design/twin-core.md          |
-| `VAL-GATE-ORDER-001`       | 6a12        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-OTA-001`         | P6-W1       | invariant    | no       | declared    | docs/design/iot-fleet.md          |
-| `VAL-GATE-OTIF-001`        | P3e         | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-OTSEC-001`       | OTDRILL     | invariant    | no       | declared    | docs/design/iot-fleet.md          |
-| `VAL-GATE-P2P-001`         | 6a13        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-PDM-001`         | P3          | invariant    | no       | declared    | docs/design/iot-fleet.md          |
-| `VAL-GATE-PERF-001`        | P3          | budget       | yes      | declared    | docs/design/repo-craft.md         |
-| `VAL-GATE-PERFORD-001`     | 6a12        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-PM-001`          | P3c         | ground_truth | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-PM-002`          | P3c         | ground_truth | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-PM-003`          | P3c         | validation   | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-PROMO-001`       | 6a16        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-PROV-001`        | P1          | validation   | yes      | implemented | docs/design/repo-craft.md         |
-| `VAL-GATE-QS-001`          | P1          | budget       | yes      | specified   | docs/design/repo-craft.md         |
-| `VAL-GATE-RECALL-001`      | 6a11        | budget       | no       | declared    | docs/design/production-quality.md |
-| `VAL-GATE-RECALL-002`      | P6-W3       | budget       | no       | declared    | docs/design/production-quality.md |
-| `VAL-GATE-REG-001`         | P0          | invariant    | yes      | implemented | docs/testing-policy.md            |
-| `VAL-GATE-REL-001`         | P0          | validation   | yes      | implemented | docs/design/foundations.md 5.8    |
-| `VAL-GATE-RELBUD-001`      | P1          | budget       | yes      | specified   | docs/design/roadmap.md 7.5        |
-| `VAL-GATE-RET-001`         | P3f         | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-RF-001`          | P3          | validation   | no       | declared    | docs/design/sensor-catalog.md     |
-| `VAL-GATE-RF-002`          | P3          | validation   | no       | declared    | docs/design/sensor-catalog.md     |
-| `VAL-GATE-RL-001`          | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-RMAP-001`        | P0          | invariant    | yes      | implemented | docs/design/roadmap.md 7.4        |
-| `VAL-GATE-ROST-001`        | ROST        | invariant    | no       | declared    | docs/design/human-sustain.md      |
-| `VAL-GATE-RPO-001`         | 6a15        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-RST-001`         | RISK        | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-RULA-001`        | 6a10        | validation   | no       | declared    | docs/design/human-sustain.md      |
-| `VAL-GATE-RUNBOOK-001`     | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-SAST-001`        | P1          | policy       | yes      | implemented | docs/design/repo-craft.md         |
-| `VAL-GATE-SCH-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.5    |
-| `VAL-GATE-SEC-001`         | P0          | validation   | yes      | implemented | CONTRIBUTING.md                   |
-| `VAL-GATE-SIM-001`         | P2          | ground_truth | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-SLM-001`         | P6-W1       | invariant    | no       | declared    | docs/design/iot-fleet.md          |
-| `VAL-GATE-SMED-001`        | P3i         | invariant    | no       | declared    | docs/design/production-quality.md |
-| `VAL-GATE-SNF-001`         | P4          | invariant    | no       | declared    | docs/design/twin-core.md          |
-| `VAL-GATE-SOE-001`         | SOE         | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-SOP-001`         | 6a16        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-SOPGEN-001`      | P6-W4       | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-SPARK-001`       | P1          | validation   | no       | specified   | docs/design/iot-fleet.md          |
-| `VAL-GATE-SPARK-002`       | P3          | validation   | no       | declared    | docs/design/iot-fleet.md          |
-| `VAL-GATE-SPEND-001`       | 6a13        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-SUP-001`         | P3e         | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-SURR-001`        | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-TAR-001`         | ECON        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-TIER-001`        | P1          | invariant    | yes      | implemented | docs/design/foundations.md        |
-| `VAL-GATE-VAR-001`         | 6a17        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-VLM-001`         | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-VMI-001`         | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-VSM-001`         | P3c         | invariant    | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-WE-001`          | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
-| `VAL-GATE-WEBHOOK-001`     | P3          | invariant    | no       | declared    | docs/design/iot-fleet.md          |
-| `VAL-GATE-WX-001`          | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-XDOCK-001`       | P3g         | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-YARD-001`        | P3d         | invariant    | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-Z14-001`         | 6a11        | validation   | no       | declared    | docs/design/production-quality.md |
-| `VAL-GATE-ZONE-001`        | 6a15        | invariant    | no       | declared    | docs/design/back-office.md        |
+| Gate                       | First phase | Kind         | Standing | Status      | Owner                                     |
+|----------------------------|-------------|--------------|----------|-------------|-------------------------------------------|
+| `VAL-GATE-A11Y-001`        | P1          | validation   | yes      | specified   | docs/design/ui-direction.md               |
+| `VAL-GATE-ABC-001`         | 6a17        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-ABSENT-SEAM-001` | 6a14        | invariant    | no       | declared    | docs/design/human-sustain.md              |
+| `VAL-GATE-ACT-001`         | P1          | policy       | yes      | implemented | docs/design/repo-craft.md                 |
+| `VAL-GATE-ADOPT-001`       | P5          | invariant    | no       | declared    | docs/design/repo-craft.md                 |
+| `VAL-GATE-AGT-001`         | P2          | invariant    | yes      | specified   | docs/design/ai-layer.md                   |
+| `VAL-GATE-ATP-001`         | 6a12        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-AUTON-001`       | P6-W4       | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-BATCH-001`       | P3i         | invariant    | no       | declared    | docs/design/production-quality.md         |
+| `VAL-GATE-CAPA-001`        | 6a11        | invariant    | no       | declared    | docs/design/production-quality.md         |
+| `VAL-GATE-CART-001`        | P3g         | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-CAU-001`         | CAUSAL      | ground_truth | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-CAU-002`         | CAUSAL      | ground_truth | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-CBAM-001`        | ECON        | validation   | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-CC-001`          | P0          | validation   | yes      | implemented | CONTRIBUTING.md                           |
+| `VAL-GATE-CFG-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.6            |
+| `VAL-GATE-CI-001`          | P0          | policy       | yes      | implemented | docs/design/repo-craft.md                 |
+| `VAL-GATE-CLA-001`         | P1          | invariant    | yes      | implemented | CLA.md section 7                          |
+| `VAL-GATE-COLD-001`        | P3h         | invariant    | no       | declared    | docs/design/sensor-catalog.md             |
+| `VAL-GATE-CONF-001`        | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-CONFTUT-001`     | P3          | budget       | no       | declared    | docs/design/repo-craft.md                 |
+| `VAL-GATE-COVER-001`       | P6-W6       | invariant    | no       | declared    | docs/design/roadmap.md                    |
+| `VAL-GATE-CV-001`          | P4          | invariant    | no       | declared    | docs/design/twin-core.md                  |
+| `VAL-GATE-DATA-001`        | P6-W6       | invariant    | no       | declared    | docs/design/foundations.md                |
+| `VAL-GATE-DEMO-001`        | P1          | budget       | yes      | specified   | docs/design/repo-craft.md                 |
+| `VAL-GATE-DET-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.2            |
+| `VAL-GATE-DET-002`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.2            |
+| `VAL-GATE-DOC-001`         | P1          | invariant    | yes      | specified   | docs/DOCUMENTATION-STANDARD.md            |
+| `VAL-GATE-DOCSITE-001`     | P3          | policy       | no       | declared    | docs/design/repo-craft.md                 |
+| `VAL-GATE-DORA-001`        | 6a15        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-DRIFT-001`       | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-E1-001`          | P2          | invariant    | yes      | specified   | docs/design/dashboard-replay.md           |
+| `VAL-GATE-ECO-001`         | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-EDGE-001`        | P6-W1       | invariant    | no       | declared    | docs/design/iot-fleet.md                  |
+| `VAL-GATE-EHB-001`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-EHB-002`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-EHB-003`         | P3          | validation   | no       | declared    | docs/design/lss-engine.md                 |
+| `VAL-GATE-EHB-004`         | 6a11        | validation   | no       | declared    | docs/design/production-quality.md         |
+| `VAL-GATE-EHB-005`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-ENG-001`         | P3b         | invariant    | no       | declared    | docs/design/twin-core.md                  |
+| `VAL-GATE-ENV-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.5            |
+| `VAL-GATE-EPCIS-001`       | P3          | validation   | no       | declared    | docs/design/iot-fleet.md                  |
+| `VAL-GATE-ERG-SEAM-001`    | 6a10        | invariant    | no       | declared    | docs/design/human-sustain.md              |
+| `VAL-GATE-ESG-001`         | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-FCST-001`        | P3d         | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-FCST-002`        | P3d         | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-FED-001`         | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-FIN-001`         | ECON        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-FINOPS-001`      | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-FVA-001`         | 6a16        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-GL-001`          | 6a17        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-GLEC-001`        | P3h         | validation   | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-GNN-001`         | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-GOV-001`         | ECON        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-HEIN-001`        | 6a10        | invariant    | no       | declared    | docs/design/human-sustain.md              |
+| `VAL-GATE-HIL-001`         | P6-W1       | invariant    | no       | declared    | docs/design/iot-fleet.md                  |
+| `VAL-GATE-HR-001`          | 6a14        | invariant    | no       | declared    | docs/design/human-sustain.md              |
+| `VAL-GATE-INJ-001`         | P3          | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-INJ-002`         | 6a11        | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-INS-001`         | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-INV-001`         | P3d         | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-IPH-001`         | P0          | policy       | yes      | implemented | docs/design/repo-craft.md                 |
+| `VAL-GATE-LEDGER-001`      | P6-W4       | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-LIC-001`         | P0          | policy       | yes      | implemented | docs/design/repo-craft.md                 |
+| `VAL-GATE-MAS-001`         | P6-W4       | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-MEIO-001`        | P3h         | ground_truth | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-MEIO-002`        | P3h         | validation   | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-MSA-001`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-MSA-002`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-MTB-001`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-MTB-002`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-MTB-003`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-MTLS-001`        | P5          | invariant    | no       | declared    | docs/design/repo-craft.md                 |
+| `VAL-GATE-MULTI-001`       | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-NETDES-001`      | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-NIOSH-001`       | 6a10        | validation   | no       | declared    | docs/design/human-sustain.md              |
+| `VAL-GATE-NIST-001`        | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-NIST-002`        | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-NIST-003`        | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-NIST-004`        | P3          | validation   | no       | declared    | docs/design/lss-engine.md                 |
+| `VAL-GATE-NPV-001`         | 6a17        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-NTIER-001`       | RISK        | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-OEE-001`         | P3i         | invariant    | no       | declared    | docs/design/production-quality.md         |
+| `VAL-GATE-OPCUA-001`       | P5          | validation   | no       | declared    | docs/design/iot-fleet.md                  |
+| `VAL-GATE-OPT-001`         | P3b         | invariant    | no       | declared    | docs/design/twin-core.md                  |
+| `VAL-GATE-ORDER-001`       | 6a12        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-OTA-001`         | P6-W1       | invariant    | no       | declared    | docs/design/iot-fleet.md                  |
+| `VAL-GATE-OTIF-001`        | P3e         | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-OTSEC-001`       | OTDRILL     | invariant    | no       | declared    | docs/design/iot-fleet.md                  |
+| `VAL-GATE-P2P-001`         | 6a13        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-PDM-001`         | P3          | invariant    | no       | declared    | docs/design/iot-fleet.md                  |
+| `VAL-GATE-PERF-001`        | P3          | budget       | yes      | declared    | docs/design/repo-craft.md                 |
+| `VAL-GATE-PERFORD-001`     | 6a12        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-PM-001`          | P3c         | ground_truth | no       | declared    | docs/design/lss-engine.md                 |
+| `VAL-GATE-PM-002`          | P3c         | ground_truth | no       | declared    | docs/design/lss-engine.md                 |
+| `VAL-GATE-PM-003`          | P3c         | validation   | no       | declared    | docs/design/lss-engine.md                 |
+| `VAL-GATE-PROMO-001`       | 6a16        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-PROV-001`        | P1          | validation   | yes      | implemented | docs/design/repo-craft.md                 |
+| `VAL-GATE-QS-001`          | P1          | budget       | yes      | specified   | docs/design/repo-craft.md                 |
+| `VAL-GATE-RECALL-001`      | 6a11        | budget       | no       | declared    | docs/design/production-quality.md         |
+| `VAL-GATE-RECALL-002`      | P6-W3       | budget       | no       | declared    | docs/design/production-quality.md         |
+| `VAL-GATE-REG-001`         | P0          | invariant    | yes      | implemented | docs/testing-policy.md                    |
+| `VAL-GATE-REL-001`         | P0          | validation   | yes      | implemented | docs/design/foundations.md 5.8            |
+| `VAL-GATE-RELBUD-001`      | P1          | budget       | yes      | specified   | docs/design/roadmap.md 7.5                |
+| `VAL-GATE-RET-001`         | P3f         | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-RF-001`          | P3          | validation   | no       | declared    | docs/design/sensor-catalog.md             |
+| `VAL-GATE-RF-002`          | P3          | validation   | no       | declared    | docs/design/sensor-catalog.md             |
+| `VAL-GATE-RL-001`          | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-RMAP-001`        | P0          | invariant    | yes      | implemented | docs/design/roadmap.md 7.4                |
+| `VAL-GATE-RNG-001`         | P0          | invariant    | yes      | implemented | docs/design/variability-and-faults.md A.7 |
+| `VAL-GATE-ROST-001`        | ROST        | invariant    | no       | declared    | docs/design/human-sustain.md              |
+| `VAL-GATE-RPO-001`         | 6a15        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-RST-001`         | RISK        | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-RULA-001`        | 6a10        | validation   | no       | declared    | docs/design/human-sustain.md              |
+| `VAL-GATE-RUNBOOK-001`     | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-SAST-001`        | P1          | policy       | yes      | implemented | docs/design/repo-craft.md                 |
+| `VAL-GATE-SCH-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.5            |
+| `VAL-GATE-SEC-001`         | P0          | validation   | yes      | implemented | CONTRIBUTING.md                           |
+| `VAL-GATE-SIM-001`         | P2          | ground_truth | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-SLM-001`         | P6-W1       | invariant    | no       | declared    | docs/design/iot-fleet.md                  |
+| `VAL-GATE-SMED-001`        | P3i         | invariant    | no       | declared    | docs/design/production-quality.md         |
+| `VAL-GATE-SNF-001`         | P4          | invariant    | no       | declared    | docs/design/twin-core.md                  |
+| `VAL-GATE-SOE-001`         | SOE         | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-SOP-001`         | 6a16        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-SOPGEN-001`      | P6-W4       | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-SPARK-001`       | P1          | validation   | no       | specified   | docs/design/iot-fleet.md                  |
+| `VAL-GATE-SPARK-002`       | P3          | validation   | no       | declared    | docs/design/iot-fleet.md                  |
+| `VAL-GATE-SPEND-001`       | 6a13        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-SUP-001`         | P3e         | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-SURR-001`        | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-TAR-001`         | ECON        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-TIER-001`        | P1          | invariant    | yes      | implemented | docs/design/foundations.md                |
+| `VAL-GATE-VAR-001`         | 6a17        | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-VLM-001`         | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md                   |
+| `VAL-GATE-VMI-001`         | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-VSM-001`         | P3c         | invariant    | no       | declared    | docs/design/lss-engine.md                 |
+| `VAL-GATE-WE-001`          | P2          | validation   | no       | specified   | docs/design/lss-engine.md                 |
+| `VAL-GATE-WEBHOOK-001`     | P3          | invariant    | no       | declared    | docs/design/iot-fleet.md                  |
+| `VAL-GATE-WX-001`          | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md                |
+| `VAL-GATE-XDOCK-001`       | P3g         | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-YARD-001`        | P3d         | invariant    | no       | declared    | docs/design/planning-supply.md            |
+| `VAL-GATE-Z14-001`         | 6a11        | validation   | no       | declared    | docs/design/production-quality.md         |
+| `VAL-GATE-ZONE-001`        | 6a15        | invariant    | no       | declared    | docs/design/back-office.md                |
 
 ## What each gate asserts
 
@@ -253,7 +254,7 @@ Declared at ECON, owned by docs/design/back-office.md. Its assertion is specifie
 
 ### `VAL-GATE-CFG-001`
 
-**Asserts.** Every shipped config validates, every invalid fixture produces a line-numbered error carrying a suggestion, and each schema validates against the meta-schema its own $schema keyword names.
+**Asserts.** Every shipped config validates and every invalid fixture produces a line-numbered error carrying a suggestion. Meta-schema conformance belongs to VAL-GATE-SCH-001, whose tests call check_schema against the $schema each registry schema names, and is not restated here: two gates claiming one check means neither is read when it moves.
 
 **Falsified by.** A shipped config that fails to load, or an invalid fixture whose error carries no line number or no suggestion.
 
@@ -261,7 +262,7 @@ Declared at ECON, owned by docs/design/back-office.md. Its assertion is specifie
 
 ### `VAL-GATE-CI-001`
 
-**Asserts.** A GitHub Actions workflow runs lint, the type check, and the test tiers on every pull request, across the declared interpreter matrix, and the aggregate status check is required for merge.
+**Asserts.** A GitHub Actions workflow runs lint, the type check, and the test tiers on every pull request, across the declared interpreter matrix, and one aggregate job depends on every leg so a skipped leg cannot read as a pass. Whether that aggregate job is required for merge is branch protection state, which no checkout can read; the Scorecard Branch-Protection check is what reports it.
 
 **Falsified by.** A pull request that merges with no CI run, or a matrix leg named in the workflow that never executes.
 
@@ -313,7 +314,7 @@ Declared at P6-W6, owned by docs/design/foundations.md. Its assertion is specifi
 
 **Falsified by.** One differing byte between the two event logs.
 
-**Runs.** `just determinism`, tested by `packages/twinflow-kernel/tests/test_scenario.py`.
+**Runs.** `just determinism`, tested by `packages/twinflow-kernel/tests/test_scenario.py`, `packages/twinflow-rng/tests/test_derive.py`, `packages/twinflow-rng/tests/test_rng_known_answers.py`.
 
 ### `VAL-GATE-DET-002`
 
@@ -743,7 +744,17 @@ Declared at P6-W2, owned by docs/design/ai-layer.md. Its assertion is specified 
 
 **Falsified by.** An unplaced requirement id, a cycle in the work-package graph, a banned label, or a tracker state that disagrees with roadmap.yaml.
 
-**Runs.** `just roadmap-gate`, tested by `tools/roadmap/tests/test_roadmap.py`.
+**Runs.** `just roadmap-gate`, tested by `tools/roadmap/tests/test_roadmap.py`, `tools/roadmap/tests/test_completeness.py`, `tools/roadmap/tests/test_drift.py`, `tools/roadmap/tests/test_sync.py`.
+
+### `VAL-GATE-RNG-001`
+
+**Asserts.** Every draw in the 64-name known-answer corpus matches numpy exactly, and the corpus on disk is the corpus the generator produces, so a second language implementing A.7 has one frozen answer to meet rather than a negotiation with whatever Python does today.
+
+**Falsified by.** One draw differing from the corpus, or a corpus that the generator no longer reproduces.
+
+**Reference.** numpy's SeedSequence entropy mixing and the PCG64DXSM bit generator, which docs/design/variability-and-faults.md A.7 specifies the derivation against byte for byte. The registry carries this as VG-VAR-07 and foundations 7.3 states the same claim as RUST-1. <https://numpy.org/doc/stable/reference/random/bit_generators/pcg64dxsm.html>
+
+**Runs.** `uv run pytest packages/twinflow-rng/tests/test_rng_known_answers.py -q && uv run python tools/gen_rng_kat.py --check`, tested by `packages/twinflow-rng/tests/test_rng_known_answers.py`, `packages/twinflow-rng/tests/test_derive.py`.
 
 ### `VAL-GATE-ROST-001`
 
@@ -789,7 +800,7 @@ Declared at P6-W5, owned by docs/design/back-office.md. Its assertion is specifi
 
 **Reference.** The advisory database each tool names: the PyPI advisory database for pip-audit and the RustSec advisory database for cargo-audit, plus the SPDX license allowlist in CONTRIBUTING.md. <https://github.com/pypa/advisory-database>
 
-**Runs.** `uv run python scripts/checks/license-allowlist-gate.py`, tested by `tests/test_license_allowlist_gate.py`.
+**Runs.** `uv run python scripts/checks/license-allowlist-gate.py`, tested by `tests/test_license_allowlist_gate.py`, `tests/test_workflow_supply_chain.py`.
 
 ### `VAL-GATE-SIM-001`
 
@@ -919,37 +930,37 @@ registry cannot disagree.
 
 | Phase     | Gates in force |
 |-----------|----------------|
-| `P0`      | 13             |
-| `P1`      | 24             |
-| `P2`      | 38             |
-| `P3`      | 37             |
-| `P3b`     | 28             |
-| `P3c`     | 30             |
-| `P3d`     | 30             |
-| `P3e`     | 28             |
-| `P3f`     | 27             |
-| `P3g`     | 28             |
-| `P3h`     | 30             |
-| `P3i`     | 29             |
-| `ECON`    | 30             |
-| `6a10`    | 30             |
-| `6a11`    | 31             |
-| `ROST`    | 27             |
-| `6a12`    | 29             |
-| `RISK`    | 28             |
-| `6a13`    | 28             |
-| `6a14`    | 28             |
-| `OTDRILL` | 27             |
-| `6a15`    | 29             |
-| `CAUSAL`  | 28             |
-| `6a16`    | 29             |
-| `SOE`     | 27             |
-| `6a17`    | 30             |
-| `P4`      | 28             |
-| `P5`      | 29             |
-| `P6-W1`   | 30             |
-| `P6-W2`   | 32             |
-| `P6-W3`   | 32             |
-| `P6-W4`   | 30             |
-| `P6-W5`   | 31             |
-| `P6-W6`   | 28             |
+| `P0`      | 14             |
+| `P1`      | 25             |
+| `P2`      | 39             |
+| `P3`      | 38             |
+| `P3b`     | 29             |
+| `P3c`     | 31             |
+| `P3d`     | 31             |
+| `P3e`     | 29             |
+| `P3f`     | 28             |
+| `P3g`     | 29             |
+| `P3h`     | 31             |
+| `P3i`     | 30             |
+| `ECON`    | 31             |
+| `6a10`    | 31             |
+| `6a11`    | 32             |
+| `ROST`    | 28             |
+| `6a12`    | 30             |
+| `RISK`    | 29             |
+| `6a13`    | 29             |
+| `6a14`    | 29             |
+| `OTDRILL` | 28             |
+| `6a15`    | 30             |
+| `CAUSAL`  | 29             |
+| `6a16`    | 30             |
+| `SOE`     | 28             |
+| `6a17`    | 31             |
+| `P4`      | 29             |
+| `P5`      | 30             |
+| `P6-W1`   | 31             |
+| `P6-W2`   | 33             |
+| `P6-W3`   | 33             |
+| `P6-W4`   | 31             |
+| `P6-W5`   | 32             |
+| `P6-W6`   | 29             |
