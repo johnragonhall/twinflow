@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- give the agreement checks one home and arm their gate
 - run the regression gate over the branch
 - make a fix carry the test that catches it
 - hold the workflows to pinned inputs, attested output, and a scan

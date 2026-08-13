@@ -141,6 +141,17 @@ The `cla` job in [.github/workflows/lint.yml](.github/workflows/lint.yml) runs
 three checks on every pull request. A pull request that fails any of the three
 does not merge.
 
+The job holds none of the rules itself. All three live in
+`scripts/checks/cla-gate.py`. It reads the expression above out of this file,
+so what you read here and what refuses your pull request cannot disagree.
+Run them yourself first:
+
+```bash
+python scripts/checks/cla-gate.py line-shape
+python scripts/checks/cla-gate.py signature --author YOUR-HANDLE
+python scripts/checks/cla-gate.py trailers --range main..HEAD
+```
+
 | Step name           | What passes                                                                                                                     |
 |---------------------|---------------------------------------------------------------------------------------------------------------------------------|
 | `Line shape`        | Every list line inside section 8 matches the regular expression above, case sensitive.                                          |
