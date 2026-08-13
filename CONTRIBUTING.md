@@ -33,7 +33,7 @@ problem blocks a commit. Turn it off for one commit with
 have keeps working. Run it again after a pull that touches `scripts/hooks/`.
 
 | Hook          | What it does                                                                                          |
-| ------------- | ----------------------------------------------------------------------------------------------------- |
+|---------------|-------------------------------------------------------------------------------------------------------|
 | `pre-commit`  | Runs the prose, determinism, and language linters over the staged files. A finding blocks the commit. |
 | `commit-msg`  | Checks the subject shape, rejects a non-ASCII subject, and checks the body headings.                  |
 | `post-commit` | Writes the changelog entry and folds it into the commit you just made.                                |
@@ -56,7 +56,7 @@ The `just` recipes wrap the commands below. Run the underlying command if you
 do not have `just` installed.
 
 | Recipe               | Runs                                                                   |
-| -------------------- | ---------------------------------------------------------------------- |
+|----------------------|------------------------------------------------------------------------|
 | `just`               | Lists every recipe, with its description (same as `just --list`)       |
 | `just install`       | `uv sync`                                                              |
 | `just test`          | The fast tier below                                                    |
@@ -86,7 +86,7 @@ Each tier has a budget. A tier that drifts past its budget gets split, or moved
 to a nightly run. A slow gate is a gate people learn to skip.
 
 | Tier        | Command                                                            | Budget       |
-| ----------- | ------------------------------------------------------------------ | ------------ |
+|-------------|--------------------------------------------------------------------|--------------|
 | Fast        | `uv run pytest -m "not slow and not integration and not property"` | Under 60 s   |
 | Property    | `uv run pytest -m property`                                        | Under 5 min  |
 | Determinism | `sh scripts/determinism-check.sh --runs 3`                         | Under 2 min  |
@@ -105,18 +105,19 @@ its runtime, not the tier that matches where the bug lived.
 Two workflows share this work, and they do not cover the same ground. Read the
 `Enforced by` column before you assume a green tick covers your change.
 
-| Target      | Tool                                    | Config                | Enforced by                                              |
-| ----------- | --------------------------------------- | --------------------- | -------------------------------------------------------- |
-| Prose       | `scripts/checks/prose-gate.py`          | `docs/style/*.yml`    | `lint.yml`, whole tree, on every commit that reaches it  |
-| Determinism | `scripts/checks/nondeterminism-gate.sh` | none                  | `lint.yml`, whole tree                                   |
-| Metrics     | `scripts/checks/metric-marker-gate.sh`  | none                  | `lint.yml`, report mode, fatal only on a release tag     |
-| Markdown    | `markdownlint-cli2`                     | `.markdownlint.jsonc` | `lint.yml`, whole tree                                   |
-| Shell       | `shellcheck`                            | `.shellcheckrc`       | `lint.yml`, whole tree                                   |
-| Workflows   | `actionlint`                            | none                  | `lint.yml`, whole tree                                   |
-| Agreement   | the `cla` job                           | `CLA.md` section 7    | `lint.yml`, pull requests only                           |
-| Python      | `ruff check`, `ruff format --check`     | `pyproject.toml`      | `ci.yml`, only when its `python` path filter matches     |
-| Types       | `ty check`                              | `pyproject.toml`      | `ci.yml`, only when its `python` path filter matches     |
-| Rust        | `cargo fmt`, `cargo clippy -D warnings` | `agent/`              | `ci.yml`, only when `agent/` changed                     |
+| Target      | Tool                                    | Config                    | Enforced by                                             |
+|-------------|-----------------------------------------|---------------------------|---------------------------------------------------------|
+| Prose       | `scripts/checks/prose-gate.py`          | `docs/style/*.yml`        | `lint.yml`, whole tree, on every commit that reaches it |
+| Spelling    | `scripts/checks/spelling-gate.py`       | `docs/style/spelling.yml` | `lint.yml`, whole tree, and the commit message          |
+| Determinism | `scripts/checks/nondeterminism-gate.sh` | none                      | `lint.yml`, whole tree                                  |
+| Metrics     | `scripts/checks/metric-marker-gate.sh`  | none                      | `lint.yml`, report mode, fatal only on a release tag    |
+| Markdown    | `markdownlint-cli2`                     | `.markdownlint.jsonc`     | `lint.yml`, whole tree                                  |
+| Shell       | `shellcheck`                            | `.shellcheckrc`           | `lint.yml`, whole tree                                  |
+| Workflows   | `actionlint`                            | none                      | `lint.yml`, whole tree                                  |
+| Agreement   | the `cla` job                           | `CLA.md` section 7        | `lint.yml`, pull requests only                          |
+| Python      | `ruff check`, `ruff format --check`     | `pyproject.toml`          | `ci.yml`, only when its `python` path filter matches    |
+| Types       | `ty check`                              | `pyproject.toml`          | `ci.yml`, only when its `python` path filter matches    |
+| Rust        | `cargo fmt`, `cargo clippy -D warnings` | `agent/`                  | `ci.yml`, only when `agent/` changed                    |
 
 The `python` filter in `ci.yml` covers `src/`, `tests/`, `scenarios/`,
 `pyproject.toml`, `uv.lock`, and `ci.yml` itself. A Python file outside those
@@ -169,7 +170,7 @@ The subject is `type(scope): description`, in ASCII, lowercase after the colon,
 with no trailing period.
 
 | Type       | Use for                               |
-| ---------- | ------------------------------------- |
+|------------|---------------------------------------|
 | `feat`     | A new capability                      |
 | `fix`      | A bug fix                             |
 | `refactor` | A restructure with no behavior change |
@@ -202,7 +203,7 @@ TEST
 
 Keep the subject under 72 characters. One logical change per commit.
 
-### A bullet summarises, it does not narrate
+### A bullet summarizes, it does not narrate
 
 Write what the code **does**, in the present tense. The reader is somebody
 reading `git log` a year from now who never saw the previous version, so the
@@ -240,7 +241,7 @@ writes the bullet into the `[Unreleased]` section. It then amends your commit,
 so the edit lands inside it. No separate sync commit appears in the log.
 
 | Commit type                         | Changelog heading |
-| ----------------------------------- | ----------------- |
+|-------------------------------------|-------------------|
 | `feat`                              | Added             |
 | `fix`                               | Fixed             |
 | `perf`                              | Changed           |
@@ -285,22 +286,22 @@ Every dependency carries a license compatible with Apache-2.0 redistribution.
 The table below is the allowlist. Read the `Applies to` column: two rows turn
 on where the dependency sits, not only on its SPDX id.
 
-| SPDX id        | Applies to           | Decision | Reason                                                                                        |
-| -------------- | -------------------- | -------- | --------------------------------------------------------------------------------------------- |
-| `MIT`          | Any dependency       | Accepted | Permissive, with no condition Apache-2.0 redistribution breaks.                               |
-| `BSD-2-Clause` | Any dependency       | Accepted | Permissive, same reasoning as MIT.                                                            |
-| `BSD-3-Clause` | Any dependency       | Accepted | Permissive, plus a no-endorsement clause that costs nothing here.                             |
-| `ISC`          | Any dependency       | Accepted | Permissive, functionally MIT.                                                                 |
-| `Apache-2.0`   | Any dependency       | Accepted | The outbound license of this project.                                                         |
-| `Python-2.0`   | Any dependency       | Accepted | Permissive, and unavoidable on the standard library path.                                     |
-| `0BSD`         | Any dependency       | Accepted | Permissive with no attribution condition at all. Reaches the tree through numpy.              |
-| `Zlib`         | Any dependency       | Accepted | Permissive, and its only condition is not misrepresenting origin. Reaches the tree via numpy. |
-| `CC0-1.0`      | Any dependency       | Accepted | A public-domain dedication, so it imposes no condition on redistribution.                     |
-| `MPL-2.0`      | Development only     | Accepted | Copyleft that stops at the file it covers, and a test dependency is never shipped. See below. |
-| `MPL-2.0`      | Shipped at run time  | Refused  | The file-level condition would travel to a user who installs a twinflow package.              |
-| `GPL-2.0`      | Any dependency       | Refused  | Incompatible with Apache-2.0, and no waiver is available.                                     |
-| `GPL-3.0`      | Any dependency       | Refused  | Pulls the whole work under GPL and breaks both licensing options.                             |
-| `AGPL-3.0`     | Any dependency       | Refused  | Section 13 covers network interaction, and this project serves an API. See below.             |
+| SPDX id        | Applies to          | Decision | Reason                                                                                        |
+|----------------|---------------------|----------|-----------------------------------------------------------------------------------------------|
+| `MIT`          | Any dependency      | Accepted | Permissive, with no condition Apache-2.0 redistribution breaks.                               |
+| `BSD-2-Clause` | Any dependency      | Accepted | Permissive, same reasoning as MIT.                                                            |
+| `BSD-3-Clause` | Any dependency      | Accepted | Permissive, plus a no-endorsement clause that costs nothing here.                             |
+| `ISC`          | Any dependency      | Accepted | Permissive, functionally MIT.                                                                 |
+| `Apache-2.0`   | Any dependency      | Accepted | The outbound license of this project.                                                         |
+| `Python-2.0`   | Any dependency      | Accepted | Permissive, and unavoidable on the standard library path.                                     |
+| `0BSD`         | Any dependency      | Accepted | Permissive with no attribution condition at all. Reaches the tree through numpy.              |
+| `Zlib`         | Any dependency      | Accepted | Permissive, and its only condition is not misrepresenting origin. Reaches the tree via numpy. |
+| `CC0-1.0`      | Any dependency      | Accepted | A public-domain dedication, so it imposes no condition on redistribution.                     |
+| `MPL-2.0`      | Development only    | Accepted | Copyleft that stops at the file it covers, and a test dependency is never shipped. See below. |
+| `MPL-2.0`      | Shipped at run time | Refused  | The file-level condition would travel to a user who installs a twinflow package.              |
+| `GPL-2.0`      | Any dependency      | Refused  | Incompatible with Apache-2.0, and no waiver is available.                                     |
+| `GPL-3.0`      | Any dependency      | Refused  | Pulls the whole work under GPL and breaks both licensing options.                             |
+| `AGPL-3.0`     | Any dependency      | Refused  | Section 13 covers network interaction, and this project serves an API. See below.             |
 
 ### Why MPL-2.0 is accepted for development dependencies
 

@@ -46,6 +46,8 @@ lint:
     uv run ruff check .
     uv run ruff format --check .
     uv run python scripts/checks/prose-gate.py --all
+    uv run python scripts/checks/spelling-gate.py --selftest
+    uv run python scripts/checks/spelling-gate.py --all
     uv run python scripts/checks/workspace-members-gate.py
     uv run python scripts/checks/import-boundary-gate.py
     uv run python tools/gen_importlinter.py --check

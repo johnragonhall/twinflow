@@ -48,6 +48,15 @@ else
   echo "[prose] WARN: no python interpreter, skipped (CI gates)."
 fi
 
+# --- 1b. spelling -----------------------------------------------------------
+# British variants and common misspellings, over the staged files. The rules
+# live in docs/style/spelling.yml and this hook owns none of them.
+if [ -n "$PY" ]; then
+  $PY scripts/checks/spelling-gate.py || fail=1
+else
+  echo "[spelling] WARN: no python interpreter, skipped (CI gates)."
+fi
+
 # --- 2. nondeterminism ------------------------------------------------------
 sh scripts/checks/nondeterminism-gate.sh --staged || fail=1
 

@@ -115,7 +115,7 @@ if [ "$line_count" -gt 1 ]; then
   fi
 fi
 
-# --- bullets summarise, they do not narrate ---------------------------------
+# --- bullets summarize, they do not narrate ---------------------------------
 #
 # A bullet says what the code DOES. The reader is somebody reading git log a
 # year from now who never saw the previous version, so the previous version is
@@ -140,7 +140,7 @@ narration=$(printf '%s\n' "$body_bullets" | grep -inE \
   || true)
 
 if [ -n "$narration" ]; then
-  echo "ERROR: a commit bullet narrates the change instead of summarising it."
+  echo "ERROR: a commit bullet narrates the change instead of summarizing it."
   printf '%s\n' "$narration" | sed 's/^/    /'
   echo ""
   echo "  A bullet states what the code DOES now, in the present tense."
@@ -153,6 +153,24 @@ if [ -n "$narration" ]; then
   echo ""
   echo "  Measured results belong under TEST, where past tense is fine."
   exit 1
+fi
+
+# --- spelling ---------------------------------------------------------------
+# The same rules the pre-commit hook applies to the staged files, applied to the
+# message. A commit subject is read far more often than the line it describes,
+# and it cannot be corrected later without rewriting history.
+SPELL_PY=""
+if command -v uv >/dev/null 2>&1; then
+  SPELL_PY="uv run --quiet --no-project --with pyyaml python"
+else
+  for candidate in python3 python; do
+    command -v "$candidate" >/dev/null 2>&1 && { SPELL_PY="$candidate"; break; }
+  done
+fi
+if [ -n "$SPELL_PY" ] && [ -f scripts/checks/spelling-gate.py ]; then
+  # Word splitting is the point: SPELL_PY is a command with arguments.
+  # shellcheck disable=SC2086
+  $SPELL_PY scripts/checks/spelling-gate.py --commit-msg "$msg_file" || exit 1
 fi
 
 # The fuzzy half of the same rule. Fails open when the CLI is unavailable, and

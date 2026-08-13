@@ -63,6 +63,12 @@ if [ "$MODE" != "--security" ]; then
   if [ -n "$PY" ]; then
     # shellcheck disable=SC2086
     step "prose gate (repo-wide)" $PY scripts/checks/prose-gate.py --all
+    # The rules are regexes over a word list, so the selftest runs beside the
+    # gate: a rule that silently stops matching is worse than no rule.
+    # shellcheck disable=SC2086
+    step "spelling gate selftest" $PY scripts/checks/spelling-gate.py --selftest
+    # shellcheck disable=SC2086
+    step "spelling gate (repo-wide)" $PY scripts/checks/spelling-gate.py --all
     # WORKSPACE-1. Needs only tomllib, so it runs on the bare interpreter.
     # shellcheck disable=SC2086
     step "workspace membership gate" $PY scripts/checks/workspace-members-gate.py
@@ -156,11 +162,11 @@ if [ "$MODE" != "--security" ]; then
     if have uv; then
       # SCH-001. The published schemas are generated from their models, so a
       # drift here means a consumer is validating against a contract the
-      # producer no longer honours.
+      # producer no longer honors.
       step "published schemas match their models" uv run python tools/gen_schemas.py --check
       # SEC-001. Reads the resolved tree rather than the manifests, so it
       # reports what would actually ship.
-      step "licence allowlist" uv run python scripts/checks/license-allowlist-gate.py
+      step "license allowlist" uv run python scripts/checks/license-allowlist-gate.py
       step "import contracts (import-linter)" uv run lint-imports --no-cache
     else
       note_skip "import contracts" "install: uv tool install uv"

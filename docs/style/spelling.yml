@@ -1,0 +1,493 @@
+# The spelling rules, in one place.
+#
+# scripts/checks/spelling-gate.py applies these and owns none of them, which is
+# the same arrangement the prose gate has with banned-phrases.yml: a rule lives
+# in exactly one file, so a fix to a rule is a diff a reviewer can read.
+#
+# Two kinds of rule. `british` converts a spelling variant. `typos` corrects a
+# misspelling. Both are errors, because a word that is wrong is wrong wherever
+# it appears, and a warning that never fails anything is a warning nobody reads.
+#
+# ESCAPE
+#
+#   spell-ok <word> <reason>
+#
+# on the same line, and the reason is not optional. A gate that is easy to
+# silence is not a gate. Use it where the word is somebody else's: a third-party
+# API named `serialise`, a quoted title, a URL.
+#
+# WHY THE -ISE RULES CARRY SUFFIXES
+#
+# A bare stem is what turns hypothesis into hypothesiz, specialist into
+# specializt, and totally into totaly. Every -ise verb below converts only in
+# front of a suffix that follows the verb, and the doubled-l words list their
+# inflections rather than matching a stem. The selftest asserts both halves:
+# that the rules fire on the British form, and that they leave cancellation,
+# hypothesis, analysis, specialist, and totally alone.
+
+version: 1
+
+# Paths the gate never reads. LICENSE and NOTICE carry verbatim legal text that
+# a byte comparison in the workspace gate depends on, and this file holds the
+# words the rules reject.
+skip_paths:
+  - LICENSE
+  - NOTICE
+  - sbom.cdx.json
+  - uv.lock
+  - docs/style/spelling.yml
+  - docs/style/ste-terms.yml
+  - docs/style/banned-phrases.yml
+
+# The suffixes an -ise verb takes. A stem below converts in front of one of
+# these and nowhere else.
+ise_suffixes: [e, ed, es, ing, er, ers, ation, ations, able, ability]
+
+# -ise verbs. Written as the British stem; the American form swaps the final s
+# for a z, and the suffix is carried through unchanged.
+ise_stems:
+  - normalis
+  - optimis
+  - serialis
+  - utilis
+  - organis
+  - recognis
+  - prioritis
+  - summaris
+  - specialis
+  - minimis
+  - maximis
+  - authoris
+  - standardis
+  - synchronis
+  - initialis
+  - randomis
+  - customis
+  - capitalis
+  - generalis
+  - characteris
+  - parameteris
+  - categoris
+  - visualis
+  - formalis
+  - modularis
+  - penalis
+  - stabilis
+  - realis
+  - centralis
+  - decentralis
+  - amortis
+  - apologis
+  - criticis
+  - digitis
+  - equalis
+  - familiaris
+  - harmonis
+  - hypothesis
+  - emphasis
+  - idealis
+  - itemis
+  - legitimis
+  - localis
+  - mechanis
+  - memoris
+  - mobilis
+  - modernis
+  - neutralis
+  - polaris
+  - pressuris
+  - publicis
+  - rationalis
+  - sanitis
+  - scrutinis
+  - stigmatis
+  - subsidis
+  - symbolis
+  - sympathis
+  - systematis
+  - tokenis
+  - vandalis
+  - vaporis
+  - weaponis
+  - computeris
+
+# Stems whose whole family converts, because no correctly spelled word shares
+# them. `colour` covers colours, coloured, colouring, and colourful.
+british_stems:
+  colour: color
+  behaviour: behavior
+  honour: honor
+  neighbour: neighbor
+  labour: labor
+  favour: favor
+  flavour: flavor
+  rigour: rigor
+  vigour: vigor
+  endeavour: endeavor
+  vapour: vapor
+  humour: humor
+  rumour: rumor
+  armour: armor
+  odour: odor
+  savour: savor
+  clamour: clamor
+  candour: candor
+  splendour: splendor
+  valour: valor
+  harbour: harbor
+  parlour: parlor
+  licence: license
+  defence: defense
+  offence: offense
+  pretence: pretense
+  analogue: analog
+  sulphur: sulfur
+  aluminium: aluminum
+  encyclopaedia: encyclopedia
+  artefact: artifact
+  draught: draft
+  cheque: check
+  moustache: mustache
+  pyjama: pajama
+  enrolment: enrollment
+  instalment: installment
+  fulfilment: fulfillment
+  skilful: skillful
+  wilful: willful
+  marvellous: marvelous
+
+# Whole words, where a stem would reach a word that is correct in both. Every
+# doubled-l inflection lives here, so cancellation is never touched.
+british_words:
+  # The -re and -ogue families drop the e before a vowel suffix, so a stem rule
+  # would turn centred into centerd and catalogued into catalogd. Their
+  # inflections are written out instead.
+  centre: center
+  centres: centers
+  centred: centered
+  centring: centering
+  fibre: fiber
+  fibres: fibers
+  calibre: caliber
+  calibres: calibers
+  theatre: theater
+  theatres: theaters
+  spectre: specter
+  spectres: specters
+  sombre: somber
+  lustre: luster
+  manoeuvre: maneuver
+  manoeuvres: maneuvers
+  manoeuvred: maneuvered
+  manoeuvring: maneuvering
+  catalogue: catalog
+  catalogues: catalogs
+  catalogued: cataloged
+  cataloguing: cataloging
+  # programme is a whole word because programmer and programming share its
+  # first nine letters and are correct.
+  programme: program
+  programmes: programs
+  # analyses is the plural of the noun analysis, so this family cannot go in
+  # the -ise list either.
+  analyse: analyze
+  analysed: analyzed
+  analysing: analyzing
+  practise: practice
+  practised: practiced
+  practising: practicing
+  grey: gray
+  greys: grays
+  greyed: grayed
+  greyer: grayer
+  greyish: grayish
+  greyscale: grayscale
+  metre: meter
+  metres: meters
+  litre: liter
+  litres: liters
+  tyre: tire
+  tyres: tires
+  distil: distill
+  instil: instill
+  enthral: enthrall
+  fulfil: fulfill
+  fulfils: fulfills
+  enrol: enroll
+  enrols: enrolls
+  storey: story
+  storeys: stories
+  kerb: curb
+  kerbs: curbs
+  plough: plow
+  ploughs: plows
+  gaol: jail
+  whilst: while
+  amongst: among
+  amidst: amid
+  learnt: learned
+  spelt: spelled
+  burnt: burned
+  dreamt: dreamed
+  leapt: leaped
+  labelled: labeled
+  labelling: labeling
+  labeller: labeler
+  modelled: modeled
+  modelling: modeling
+  modeller: modeler
+  travelled: traveled
+  travelling: traveling
+  traveller: traveler
+  signalled: signaled
+  signalling: signaling
+  levelled: leveled
+  levelling: leveling
+  totalled: totaled
+  totalling: totaling
+  fuelled: fueled
+  fuelling: fueling
+  cancelled: canceled
+  cancelling: canceling
+  counselled: counseled
+  counselling: counseling
+  counsellor: counselor
+  counsellors: counselors
+  jeweller: jeweler
+  jewellery: jewelry
+
+# Misspellings. Whole words, and short transpositions that could be a hex digit
+# run or an identifier are deliberately absent.
+typos:
+  accesible: accessible
+  accomodate: accommodate
+  acheive: achieve
+  acheived: achieved
+  aquire: acquire
+  adress: address
+  adressed: addressed
+  agressive: aggressive
+  alot: a lot
+  ammount: amount
+  apparant: apparent
+  arguement: argument
+  arithmatic: arithmetic
+  assesment: assessment
+  atomicly: atomically
+  auxillary: auxiliary
+  avaiable: available
+  availabe: available
+  becuase: because
+  begining: beginning
+  beleive: believe
+  bianry: binary
+  calender: calendar
+  catagory: category
+  cieling: ceiling
+  collegue: colleague
+  comming: coming
+  commited: committed
+  commiting: committing
+  compatable: compatible
+  compatiblity: compatibility
+  completly: completely
+  concious: conscious
+  consistant: consistent
+  contigous: contiguous
+  contructor: constructor
+  coordiante: coordinate
+  correspondance: correspondence
+  decprecated: deprecated
+  defered: deferred
+  definately: definitely
+  dependant: dependent
+  dependancies: dependencies
+  dependancy: dependency
+  depreciated: deprecated
+  descripton: description
+  desription: description
+  determinstic: deterministic
+  developement: development
+  diferent: different
+  dictionry: dictionary
+  dissapear: disappear
+  documenation: documentation
+  enviroment: environment
+  enviromental: environmental
+  equivilant: equivalent
+  excpetion: exception
+  exeception: exception
+  existance: existence
+  explicity: explicitly
+  extention: extension
+  familar: familiar
+  feasable: feasible
+  fetaure: feature
+  fileds: fields
+  fucntion: function
+  funcitons: functions
+  garantee: guarantee
+  guaranteeed: guaranteed
+  hierachy: hierarchy
+  heirarchy: hierarchy
+  identifer: identifier
+  imediately: immediately
+  implmentation: implementation
+  independant: independent
+  indexs: indexes
+  infinte: infinite
+  informations: information
+  inital: initial
+  initalise: initialize
+  initalize: initialize
+  inteface: interface
+  intial: initial
+  interupt: interrupt
+  invarient: invariant
+  langauge: language
+  lenght: length
+  liasion: liaison
+  maintainance: maintenance
+  maintenence: maintenance
+  managment: management
+  mesage: message
+  millenium: millennium
+  mispell: misspell
+  neccessary: necessary
+  necesary: necessary
+  noticable: noticeable
+  occassion: occasion
+  occured: occurred
+  occurance: occurrence
+  occurence: occurrence
+  ocurred: occurred
+  ommitted: omitted
+  paramater: parameter
+  paramters: parameters
+  particulary: particularly
+  peices: pieces
+  perfomance: performance
+  perisist: persist
+  permanant: permanent
+  persistant: persistent
+  posible: possible
+  postion: position
+  preceeding: preceding
+  prefered: preferred
+  priviledge: privilege
+  probaly: probably
+  proccess: process
+  proces: process
+  propery: property
+  psuedo: pseudo
+  quantitiy: quantity
+  recieve: receive
+  recieved: received
+  recomend: recommend
+  recomended: recommended
+  refered: referred
+  refernce: reference
+  reponse: response
+  repositiory: repository
+  represenation: representation
+  requred: required
+  reslut: result
+  responsability: responsibility
+  retreive: retrieve
+  retrun: return
+  seperate: separate
+  seperated: separated
+  seperator: separator
+  sepcific: specific
+  similiar: similar
+  specifed: specified
+  succesful: successful
+  sucessful: successful
+  sucess: success
+  supress: suppress
+  suprised: surprised
+  synchronus: synchronous
+  targetted: targeted
+  taht: that
+  teh: the
+  temperment: temperament
+  tempoary: temporary
+  thier: their
+  threshhold: threshold
+  tolerence: tolerance
+  transfered: transferred
+  transalte: translate
+  truely: truly
+  unecessary: unnecessary
+  unneccessary: unnecessary
+  untill: until
+  usefull: useful
+  varaible: variable
+  varible: variable
+  verison: version
+  visable: visible
+  wich: which
+  wierd: weird
+  writen: written
+  yeild: yield
+
+# The proof, beside the rules it proves.
+#
+# `fires` is what each family must catch, with the suggestion it must make.
+# `passes` is the other half, and it is the half that matters: every word here
+# is correctly spelled and sits one careless stem rule away from being rewritten
+# into something that is not a word. Both lists live here rather than in the
+# gate or its test, because this is the one file the gate does not read for
+# findings, so it is the one file that can hold a wrong spelling on purpose.
+selftest:
+  fires:
+    colour: color
+    behaviour: behavior
+    normalise: normalize
+    serialised: serialized
+    licence: license
+    centre: center
+    centred: centered
+    catalogued: cataloged
+    artefact: artifact
+    labelled: labeled
+    cancelled: canceled
+    fulfilment: fulfillment
+    whilst: while
+    metres: meters
+    grey: gray
+    analysed: analyzed
+    programme: program
+    recieve: receive
+    seperate: separate
+    occured: occurred
+    definately: definitely
+    teh: the
+  passes:
+    - cancellation
+    - hypothesis
+    - analysis
+    - analyses
+    - specialist
+    - capitalist
+    - rationalist
+    - totally
+    - realistic
+    - instilled
+    - distilled
+    - programmer
+    - programming
+    - parameter
+    - diameter
+    - collaborate
+    - advertise
+    - compromise
+    - exercise
+    - franchise
+    - surprise
+    - practice
+    - contour
+    - detour
+    - license
+    - center
+    - color

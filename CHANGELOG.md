@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- check spelling in the tree and in the commit message
 - cut every tag from one pipeline, starting at the first
 - run the roadmap gate everywhere the other gates run
 - validate the plan and prove every idea is placed
