@@ -1,0 +1,36 @@
+# Editor defaults, so a contributor's editor and this repository's gates agree
+# before the commit rather than after it.
+#
+# The settings here are the ones the gates already enforce: ruff formats Python
+# at 100 columns, shellcheck reports a carriage return in a shell script as an
+# error, and the workspace gate compares LICENSE and NOTICE byte for byte.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{yml,yaml,json,jsonc,toml}]
+indent_size = 2
+
+[*.md]
+# Markdown gives a trailing double space a meaning, so trimming it silently
+# rewrites the document.
+trim_trailing_whitespace = false
+
+[justfile]
+indent_size = 4
+
+[Makefile]
+indent_style = tab
+
+# The published license text is not this repository's to reformat, and the
+# license gate compares its bytes against the file apache.org serves.
+[{LICENSE,NOTICE}]
+insert_final_newline = false
+trim_trailing_whitespace = false

@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- sign what the release builds and audit the workflows that build it
 - check that done means delivered and that no script is orphaned
 - give DET-002 the second platform it asserts
 - project the plan onto the tracker and generate the gate document

@@ -83,6 +83,7 @@ lint:
     # does not parse fails here rather than on push.
     uvx --from shellcheck-py shellcheck $(sh scripts/checks/shell-files.sh)
     uvx --with shellcheck-py --from actionlint-py actionlint
+    just actions-audit
 
 # The roadmap, as data. Without a subcommand it validates, proves coverage, and
 # lints the phase diagram, which is the RMAP-001 set minus the tracker half.
@@ -168,3 +169,37 @@ ci-full:
 # Serve the docs site, with mkdocs-material and pymdown-extensions passed in.
 docs:
     uv run --with mkdocs-material --with pymdown-extensions mkdocs serve
+
+# Build the docs site the way CI publishes it.
+#
+# --strict is what makes this a check rather than a render. Without it mkdocs
+# prints a warning for a link that resolves nowhere and exits zero, so a site
+# with broken navigation publishes green.
+docs-build:
+    uv run --with mkdocs-material --with pymdown-extensions mkdocs build --strict
+
+# Coverage over the unit tier, reported and never asserted.
+#
+# No threshold. A coverage floor is a number somebody chose, and this project
+# ships no number it did not measure. The report is published so the figure is
+# visible and moves under review; a gate on it arrives when there is a measured
+# basis for one.
+coverage:
+    uv run pytest -m "not slow and not integration and not property" --cov=twinflow --cov=twinflow_roadmap --cov-report=term-missing --cov-report=xml
+
+# Static security analysis of the workflows themselves.
+#
+# actionlint reads a workflow for syntax; this reads it for security. A
+# workflow is executable code holding write permissions, and it is the part of
+# this repository an attacker reaches without cloning it.
+actions-audit:
+    uvx zizmor --config .github/zizmor.yml .github/workflows/
+
+# Mutation testing over the gate scripts.
+#
+# The stated bar in this repository is that a gate nobody has seen fail may be
+# passing because it cannot fail. Every test here argues that by hand; this
+# argues it mechanically, by perturbing the source and failing when the suite
+# still passes. Budget: slow, so it is not in `just check`.
+mutants:
+    uvx mutmut run --paths-to-mutate tools/roadmap/src/twinflow_roadmap

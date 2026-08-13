@@ -1,0 +1,19 @@
+# zizmor configuration.
+#
+# One entry, and it is not an exemption from a finding: it records where the
+# finding is understood and why it does not apply, so the next reader can
+# disagree with the reasoning rather than guess at it. Everything else zizmor
+# reports is fixed rather than filtered, which is why this file is short.
+
+rules:
+  artipacked:
+    ignore:
+      # The release job is the one job that keeps the checkout credential,
+      # because step 11 pushes the tag it just created and needs it.
+      #
+      # The risk artipacked names is a workspace carrying .git/config into an
+      # uploaded artifact. This job uploads three named paths rather than the
+      # workspace: dist, sbom.cdx.json, and release-record.yaml. Adding a
+      # whole-workspace upload to this job would make the finding real again,
+      # and this entry would have to go with it.
+      - release.yml

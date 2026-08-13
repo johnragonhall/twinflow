@@ -1,0 +1,73 @@
+name: CodeQL
+
+# Static analysis behind the OpenSSF Scorecard SAST check.
+#
+# WHY THIS EXISTS SEPARATELY FROM CI
+# ----------------------------------
+# The lint battery reads style and the type checker reads types. Neither
+# follows a value from where it enters the process to where it is used, which
+# is the class of defect this repository is most exposed to: a config loader, a
+# scenario file, a roadmap document, and a tracker response are all untrusted
+# input parsed by hand-written code.
+#
+# It runs on a schedule as well as on a pull request because a query pack
+# published next month can find a defect in code that has not changed. A
+# scan that only runs on a diff never revisits the tree it already passed.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly, on a fixed day and hour rather than at a random time, so a run
+    # that goes missing is noticeable.
+    - cron: "27 4 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze ${{ matrix.language }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      # Writing the findings to the repository's security tab is the whole
+      # point: a scan whose results nobody can read is a scan nobody acts on.
+      security-events: write
+      contents: read
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        # Rust joins this list when the device agent lands at P3 (R33).
+        # GitHub Actions workflows are analyzed too: a workflow is executable
+        # code with write permissions, and it is the part of this repository an
+        # attacker reaches without cloning it.
+        language: [python, actions]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # The checkout token is not needed past this step, and a
+          # workspace that still holds it leaks it into any artifact
+          # uploaded later.
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@f3712979fa5f215279b101dd0a2e3bdfb4353324 # v3
+        with:
+          languages: ${{ matrix.language }}
+          # The default pack finds high-confidence security defects. The extra
+          # pack trades precision for recall, which is the correct trade on a
+          # repository small enough that a human reads every finding.
+          queries: security-and-quality
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@f3712979fa5f215279b101dd0a2e3bdfb4353324 # v3
+        with:
+          category: /language:${{ matrix.language }}

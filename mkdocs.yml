@@ -107,6 +107,7 @@ nav:
       - People and sustainability: design/human-sustain.md
       - AI layer: design/ai-layer.md
       - Dashboard and replay: design/dashboard-replay.md
+      - Interface direction: design/ui-direction.md
       - Repository craft: design/repo-craft.md
       - Phase detail: design/roadmap.md
   - Validation gates: gates.md

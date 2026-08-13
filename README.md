@@ -7,7 +7,8 @@ A digital twin of a warehouse operation. A discrete-event model of receiving and
 [![CI](https://img.shields.io/github/actions/workflow/status/johnragonhall/twinflow/ci.yml?branch=main&label=CI)](https://github.com/johnragonhall/twinflow/actions)
 [![License](https://img.shields.io/badge/license-Apache--2.0%20or%20commercial-blue)](LICENSING.md)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://github.com/johnragonhall/twinflow)
-[![Docs](https://img.shields.io/badge/docs-planned-lightgrey)](https://github.com/johnragonhall/twinflow/tree/main/docs)
+[![Docs](https://img.shields.io/badge/docs-live-blue)](https://johnragonhall.github.io/twinflow/)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/johnragonhall/twinflow/badge)](https://scorecard.dev/viewer/?uri=github.com/johnragonhall/twinflow)
 
 Milestone E1 records a simulated shift and ships a static replay viewer to GitHub Pages, so the system can be watched without installing anything. It closes phase P2, at v0.3.0, and no URL is linked here until it serves a page.
 

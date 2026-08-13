@@ -1,0 +1,63 @@
+name: Scorecard
+
+# OpenSSF Scorecard: eighteen checks over the repository's security posture,
+# published as a badge and as SARIF in the security tab.
+#
+# WHY A THIRD-PARTY SCORE RATHER THAN THIS REPOSITORY'S OWN GATES
+# ---------------------------------------------------------------
+# Every other gate here is one this project wrote, and a project that only
+# grades itself has graded nothing. Scorecard is maintained elsewhere, its
+# checks are published, and its score moves when the project's posture moves
+# rather than when its opinion of itself does. That is the same argument the
+# validation-gate registry makes about citing an external reference: this
+# repository is never a reference for itself.
+#
+# The score is not a target. Two checks here are ones this project will not
+# satisfy for a while, Fuzzing and CII-Best-Practices, and both are recorded in
+# the roadmap rather than gamed.
+
+on:
+  branch_protection_rule:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "41 4 * * 1"
+
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      security-events: write
+      id-token: write
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Run the analysis
+        uses: ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc # v2.4.4
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          # Publishing is what puts the score behind the README badge, and it
+          # is what lets anybody reading the repository check the number
+          # against the checks rather than taking the badge on trust.
+          publish_results: true
+
+      - name: Upload the results as an artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: scorecard-results
+          path: results.sarif
+          retention-days: 5
+
+      - name: Upload the results to the security tab
+        uses: github/codeql-action/upload-sarif@f3712979fa5f215279b101dd0a2e3bdfb4353324 # v3
+        with:
+          sarif_file: results.sarif

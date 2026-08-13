@@ -55,14 +55,29 @@ jobs:
     name: Release v${{ inputs.version }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    # Every value a shell step reads, declared once. A `${{ }}` expression
+    # inside a `run:` block is expanded by the workflow engine before the shell
+    # sees it, so a value carrying shell syntax becomes shell syntax. Through
+    # the environment it stays a string: parameter expansion cannot become code.
+    env:
+      VERSION: ${{ inputs.version }}
+      DRY_RUN: ${{ inputs.dry_run }}
+      COMMIT_SHA: ${{ github.sha }}
     permissions:
       contents: write
       issues: write
-      # Trusted publishing to PyPI. No token is stored anywhere in this
-      # repository, which is why the publish step reads no secret.
+      # Trusted publishing to PyPI, and the Sigstore signing identity behind
+      # the build provenance. No token is stored anywhere in this repository,
+      # which is why the publish step reads no secret.
       id-token: write
+      # SLSA build provenance. The attestation binds each artifact's digest to
+      # this workflow, this commit, and this runner, signed by a certificate
+      # that lives for the length of the job.
+      attestations: write
     steps:
-      - uses: actions/checkout@v4
+      # This job keeps the checkout credential because step 11 pushes the tag
+      # it creates. .github/zizmor.yml records why that is safe here.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # The release gate reads the CHANGELOG against the tag history, and
           # the roadmap history test walks every commit that touched
@@ -71,7 +86,7 @@ jobs:
 
       - name: Check the version is semver and the tag is free
         run: |
-          version="${{ inputs.version }}"
+          version="$VERSION"
           case "$version" in
             v*) echo "::error::pass the version without the leading v"; exit 1 ;;
           esac
@@ -82,11 +97,18 @@ jobs:
             exit 1
           fi
 
+      # No cache on the release path, deliberately.
+      #
+      # A cache is writable by any run that can reach the same key, including a
+      # pull-request run from a fork. Restoring one here would let a build the
+      # maintainer never reviewed put bytes into the artifacts this job signs
+      # and publishes, and the provenance attestation would faithfully attest
+      # to those bytes. A few minutes of cold install is the correct price for
+      # a release whose inputs came only from the commit being released.
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
         with:
-          enable-cache: true
-          cache-dependency-glob: uv.lock
+          enable-cache: false
 
       - name: Sync dependencies
         run: uv sync --all-extras --dev
@@ -103,8 +125,8 @@ jobs:
         id: phase
         run: |
           phase=$(uv run python -c "
-          import sys, yaml
-          tag = 'v${{ inputs.version }}'
+          import os, sys, yaml
+          tag = 'v' + os.environ['VERSION']
           data = yaml.safe_load(open('roadmap.yaml', encoding='utf-8'))
           for entry in data['phases']:
               if entry['release_tag'] == tag:
@@ -114,7 +136,7 @@ jobs:
               sys.exit(f'no phase in roadmap.yaml releases {tag}')
           ")
           echo "id=$phase" >> "$GITHUB_OUTPUT"
-          echo "v${{ inputs.version }} releases phase $phase"
+          echo "v$VERSION releases phase $phase"
 
       # 1. Lint, types, and the unit tier.
       - name: Step 1, just check
@@ -132,7 +154,9 @@ jobs:
       # 4. The phase-exit suite. The gate runner is WP-P0-15; until it lands,
       #    the gates that do exist run individually rather than through it.
       - name: Step 4, phase-exit gates
-        run: just gate phase-exit ${{ steps.phase.outputs.id }}
+        env:
+          RELEASE_PHASE: ${{ steps.phase.outputs.id }}
+        run: just gate phase-exit "$RELEASE_PHASE"
 
       - name: Step 4b, roadmap drift against the tracker
         env:
@@ -145,7 +169,7 @@ jobs:
         run: |
           echo "SKIP: no seeded run exists before P1, so there is no measured number to write."
           echo "The metric marker gate below fails a marker that claims one anyway."
-          sh scripts/checks/metric-marker-gate.sh --release "${{ inputs.version }}"
+          sh scripts/checks/metric-marker-gate.sh --release "$VERSION"
 
       # 6 and 7. Release-only work that starts at later tags.
       - name: Step 6, re-record the E1 replay bundle
@@ -175,18 +199,52 @@ jobs:
           uvx cyclonedx-py environment > sbom.cdx.json
           uvx pip-audit
 
-      - name: Step 9b, build every brick
-        run: uv build --all-packages --out-dir dist
+      # 9b. Every brick, built twice into separate directories and compared.
+      #
+      #     This project asserts that two runs of a scenario produce
+      #     byte-identical event logs. A build that is not reproducible while
+      #     the runs are is an odd claim to leave standing, and the fix is one
+      #     environment variable: SOURCE_DATE_EPOCH pins the timestamps the zip
+      #     format would otherwise take from the clock.
+      #
+      #     The epoch is this commit's own author date, so it is a function of
+      #     the source rather than of when somebody pressed the button.
+      - name: Step 9b, build every brick reproducibly
+        run: |
+          SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
+          export SOURCE_DATE_EPOCH
+          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
+          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> "$GITHUB_ENV"
+          uv build --all-packages --out-dir dist
+          uv build --all-packages --out-dir dist-verify
+          for artifact in dist/*; do
+            name=$(basename "$artifact")
+            if ! cmp -s "$artifact" "dist-verify/$name"; then
+              echo "::error::$name is not reproducible: two builds of one commit differ"
+              exit 1
+            fi
+          done
+          echo "reproducible: $(find dist -type f | wc -l) artifacts identical across two builds"
+          rm -rf dist-verify
+
+      # 9c. SLSA v1 Build Level 3 provenance, one attestation per artifact.
+      #     Verifiable afterwards with:
+      #         gh attestation verify <wheel> --repo ${{ github.repository }}
+      - name: Step 9c, attest the build provenance
+        if: ${{ !inputs.dry_run }}
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-path: dist/*
 
       # 10. The CHANGELOG section for this tag, and the semver bump policy.
       - name: Step 10, release gate
-        run: just release-check "${{ inputs.version }}"
+        run: just release-check "$VERSION"
 
       - name: Stop here on a dry run
         if: ${{ inputs.dry_run }}
         run: |
           echo "Dry run: every check above passed. Nothing was tagged, published, or closed."
-          echo "Re-run with dry_run false to cut v${{ inputs.version }}."
+          echo "Re-run with dry_run false to cut v$VERSION."
 
       # 11. Tag, release, and the milestone lifecycle. Issue mutation is not
       #     performed here: .roadmap-sync.yaml allows this context to create and
@@ -198,19 +256,19 @@ jobs:
         run: |
           # The release notes are the CHANGELOG section for this tag, not a
           # second description of the same release written by hand.
-          awk -v version="## [${{ inputs.version }}]" '
+          awk -v version="## [$VERSION]" '
             index($0, version) == 1 { printing = 1; next }
             printing && /^## \[/ { exit }
             printing { print }
           ' CHANGELOG.md > release-notes.md
           test -s release-notes.md || {
-            echo "::error::CHANGELOG.md has no section for ${{ inputs.version }}"; exit 1; }
+            echo "::error::CHANGELOG.md has no section for $VERSION"; exit 1; }
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ inputs.version }}" -m "Release v${{ inputs.version }}"
-          git push origin "v${{ inputs.version }}"
-          gh release create "v${{ inputs.version }}" \
-            --title "v${{ inputs.version }}" \
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
             --notes-file release-notes.md \
             dist/* sbom.cdx.json
 
@@ -220,9 +278,36 @@ jobs:
       # pushed leaves a released version nobody can install.
       - name: Step 11b, publish to PyPI
         if: ${{ !inputs.dry_run && inputs.publish }}
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
         with:
           packages-dir: dist
+          # PEP 740 attestations, on by default under trusted publishing. Named
+          # rather than left to the default, because the difference between
+          # "we get them" and "we asked for them" is the difference between a
+          # property and an assumption.
+          attestations: true
+
+      # 11b2. Read the attestation back off PyPI through the Integrity API.
+      #       An attestation nobody fetched is an attestation nobody knows
+      #       arrived, and PEP 740 publishes the endpoint precisely so the
+      #       claim can be checked from outside the pipeline that made it.
+      - name: Step 11b2, verify the PyPI attestation exists
+        if: ${{ !inputs.dry_run && inputs.publish }}
+        run: |
+          missing=0
+          for wheel in dist/*.whl; do
+            name=$(basename "$wheel")
+            project=$(echo "$name" | cut -d- -f1 | tr '_' '-')
+            url="https://pypi.org/integrity/$project/$VERSION/$name/provenance"
+            code=$(curl -sS -o /tmp/provenance.json -w '%{http_code}' "$url" || echo 000)
+            if [ "$code" = "200" ]; then
+              echo "attested: $name"
+            else
+              echo "::error::no PEP 740 provenance at $url (HTTP $code)"
+              missing=$((missing + 1))
+            fi
+          done
+          [ "$missing" -eq 0 ]
 
       # 11c. Milestone lifecycle only. --context release-workflow is what
       #      .roadmap-sync.yaml allows this job to apply: it may create and
@@ -249,9 +334,9 @@ jobs:
           RELEASE_PHASE: ${{ steps.phase.outputs.id }}
         run: |
           {
-            echo "tag: v${{ inputs.version }}"
-            echo "commit_sha: ${{ github.sha }}"
-            echo "dry_run: ${{ inputs.dry_run }}"
+            echo "tag: v$VERSION"
+            echo "commit_sha: $COMMIT_SHA"
+            echo "dry_run: $DRY_RUN"
             echo "runner_label: ubuntu-24.04"
             echo "runner_image_version: ${ImageVersion:-unknown}"
             echo "phase: $RELEASE_PHASE"
@@ -263,7 +348,7 @@ jobs:
           cat release-record.yaml
 
       - name: Upload the release artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: release-v${{ inputs.version }}
           path: |

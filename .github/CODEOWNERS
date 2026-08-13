@@ -1,0 +1,25 @@
+# Who reviews what.
+#
+# One maintainer, so every path resolves to the same person. The file still
+# earns its place: it makes the review requirement automatic rather than
+# remembered, and when a second maintainer arrives the change is one line here
+# instead of a convention nobody wrote down.
+#
+# CONTRIBUTING.md states that the maintainer may self-approve, because this is
+# a single-maintainer repository and pretending otherwise would make the branch
+# protection rule unsatisfiable.
+
+* @johnragonhall
+
+# The contracts. These are the files whose change is a change to what a
+# recorded run means, so they are called out separately: a reviewer who sees
+# only "1 file changed" should still see that the file was this one.
+/gates.yaml                @johnragonhall
+/roadmap.yaml              @johnragonhall
+/requirements.yaml         @johnragonhall
+/schemas/                  @johnragonhall
+/ci_budget.yaml            @johnragonhall
+/.github/workflows/        @johnragonhall
+/LICENSE                   @johnragonhall
+/NOTICE                    @johnragonhall
+/LICENSING.md              @johnragonhall
