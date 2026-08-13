@@ -7,43 +7,84 @@
 #   sh scripts/changelog-sync.sh --selftest             # run the built-in check
 #
 # Type to Keep a Changelog heading:
-#   feat -> Added
-#   fix  -> Fixed
-#   perf -> Changed
-# Everything else (docs, chore, refactor, test) records nothing: those commits
-# do not change what a user of the project can observe.
+#   feat     -> Added
+#   fix      -> Fixed
+#   perf     -> Changed
+#   refactor -> Changed
+# Everything else (docs, chore, test) records nothing: those commits do not
+# change what a user of the project can observe.
+#
+# The body overrides the type for one case. A commit body carries ALL-CAPS
+# category headings, which the commit-msg hook requires, and a commit whose
+# body is mostly SECURITY items lands under Security, the section Keep a
+# Changelog reserves for it. "Mostly" means SECURITY carries strictly more
+# items than any other category, so one hardening note inside a feature leaves
+# that feature under Added. There is no `security` conventional type here, so
+# this heading is the only route a security change has to its own section.
 #
 # Idempotent. An entry already present under [Unreleased] is never duplicated.
 set -u
 
 FILE="CHANGELOG.md"
 SUBJECT=""
+BODY=""
 selftest=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --file)     FILE="$2"; shift 2 ;;
     --subject)  SUBJECT="$2"; shift 2 ;;
+    --body)     BODY="$2"; shift 2 ;;
     --selftest) selftest=1; shift ;;
-    *) echo "usage: $0 [--file F] [--subject S] [--selftest]" >&2; exit 2 ;;
+    *) echo "usage: $0 [--file F] [--subject S] [--body B] [--selftest]" >&2; exit 2 ;;
   esac
 done
 
-# insert <file> <commit-subject>
-# Edits <file> in place when the subject is a feat/fix/perf conventional commit
-# and the entry is not already recorded.
+# dominant_category <body>
+# Prints the category carrying strictly more items than any other, or nothing.
+# An item is one bullet, or one paragraph under a heading; that is what makes
+# "mostly SECURITY" a count of the work rather than a count of the headings,
+# which are one apiece and would tie every time.
+dominant_category() {
+  printf '%s\n' "$1" | awk '
+    /^[A-Z][A-Z0-9 +\/-]{1,23}:?$/ { cat=$0; sub(/:$/, "", cat); started=0; next }
+    /^[[:space:]]*$/               { started=0; next }
+    {
+      if (cat == "") next
+      if ($0 ~ /^[[:space:]]*[-*][[:space:]]/) { count[cat]++; started=0; next }
+      if (!started) { count[cat]++; started=1 }     # a paragraph is one item
+    }
+    END {
+      best=""; top=0; tie=0
+      for (c in count) {
+        if (count[c] > top) { top=count[c]; best=c; tie=0 }
+        else if (count[c] == top) { tie=1 }
+      }
+      if (best != "" && !tie) print best
+    }
+  '
+}
+
+# insert <file> <commit-subject> [<commit-body>]
+# Edits <file> in place when the subject is a recorded conventional type and the
+# entry is not already present.
 insert() {
-  f="$1"; subject="$2"
+  f="$1"; subject="$2"; body="${3:-}"
   [ -f "$f" ] || return 0
   type=$(printf '%s' "$subject" | sed -nE 's/^([a-z]+)(\([^)]*\))?!?:.*/\1/p')
   desc=$(printf '%s' "$subject" | sed -E 's/^[a-z]+(\([^)]*\))?!?:[[:space:]]*//')
   [ -n "$type" ] || return 0
   case "$type" in
-    feat) head="Added" ;;
-    fix)  head="Fixed" ;;
-    perf) head="Changed" ;;
+    feat)     head="Added" ;;
+    fix)      head="Fixed" ;;
+    perf)     head="Changed" ;;
+    refactor) head="Changed" ;;
     *) return 0 ;;
   esac
+  # The body can move a recorded entry to Security, but never make an
+  # unrecorded type recordable: a docs commit full of SECURITY notes is still
+  # a docs commit.
+  [ "$(dominant_category "$body")" = "SECURITY" ] && head="Security"
   entry="- $desc"
   grep -qF -e "$entry" "$f" && return 0
   # Insert as the first bullet under "### <head>" inside [Unreleased].
@@ -96,13 +137,50 @@ if [ "$selftest" = "1" ]; then
   grep -qF -e "### Fixed"                      "$tmp" || { echo "FAIL: Fixed heading not created"; exit 1; }
   grep -qF -e "- batch the delta commit"       "$tmp" || { echo "FAIL: perf not added"; exit 1; }
   grep -qF -e "### Changed"                    "$tmp" || { echo "FAIL: Changed heading not created"; exit 1; }
-  grep -qF -e "split the router"               "$tmp" && { echo "FAIL: refactor leaked in"; exit 1; }
+  grep -qF -e "split the router"               "$tmp" || { echo "FAIL: refactor not added"; exit 1; }
   grep -qF -e "adoption guide"                 "$tmp" && { echo "FAIL: docs leaked in"; exit 1; }
   grep -qF -e "bump ruff"                      "$tmp" && { echo "FAIL: chore leaked in"; exit 1; }
   grep -qF -e "cover the replay path"          "$tmp" && { echo "FAIL: test leaked in"; exit 1; }
   insert "$tmp" "feat(kernel): add seeded rng port"   # re-run: must stay idempotent
   n=$(grep -cF -e "- add seeded rng port" "$tmp")
   [ "$n" = "1" ] || { echo "FAIL: not idempotent (count=$n)"; exit 1; }
+
+  # The body override. A body that is mostly SECURITY moves the entry, and one
+  # hardening note beside two feature notes does not.
+  mostly_security='SECURITY
+- pin the update CA
+- reject an unsigned manifest
+
+BACKEND
+- read the pin from config
+'
+  one_note='BACKEND
+- add the reader
+- wire it to the router
+
+SECURITY
+- bound the copy
+'
+  insert "$tmp" "feat(update): verify the manifest" "$mostly_security"
+  insert "$tmp" "feat(reader): add tag dedup" "$one_note"
+  grep -qF -e "### Security"        "$tmp" || { echo "FAIL: Security heading not created"; exit 1; }
+  awk '/^### Security/{f=1;next} /^### /{f=0} f' "$tmp" | grep -qF -e "verify the manifest" \
+    || { echo "FAIL: mostly-SECURITY body not filed under Security"; exit 1; }
+  awk '/^### Added/{f=1;next} /^### /{f=0} f' "$tmp" | grep -qF -e "add tag dedup" \
+    || { echo "FAIL: one SECURITY note moved a feature out of Added"; exit 1; }
+
+  # A body cannot make an unrecorded type recordable.
+  insert "$tmp" "docs: describe the pinning" "$mostly_security"
+  grep -qF -e "describe the pinning" "$tmp" && { echo "FAIL: docs leaked in via its body"; exit 1; }
+
+  # A tie is not dominance.
+  [ -z "$(dominant_category 'FIX
+- one
+
+TEST
+- one
+')" ] || { echo "FAIL: a tie reported a dominant category"; exit 1; }
+
   rm -f "$tmp"
   echo "changelog-sync selftest: OK"
   exit 0
@@ -112,5 +190,6 @@ fi
 # so a non-ASCII byte cannot land mangled in CHANGELOG.md.
 if [ -z "$SUBJECT" ]; then
   SUBJECT=$(git -c i18n.logOutputEncoding=UTF-8 log -1 --format=%s 2>/dev/null) || exit 0
+  [ -n "$BODY" ] || BODY=$(git -c i18n.logOutputEncoding=UTF-8 log -1 --format=%b 2>/dev/null) || BODY=""
 fi
-insert "$FILE" "$SUBJECT"
+insert "$FILE" "$SUBJECT" "$BODY"

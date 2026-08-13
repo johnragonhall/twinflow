@@ -75,6 +75,15 @@ _SUBJECT = re.compile(
 #: commit that patches a bug, which is exactly the set that owes a test.
 FIX_TYPE = "fix"
 
+#: A FIX category heading in the body, which the commit-msg hook already
+#: requires a body to carry one of. The type alone undercounts: a commit typed
+#: `feat` or `refactor` that repairs something declares it here, and the
+#: changelog reads the same headings to route a mostly-SECURITY commit to its
+#: own section. Reading the author's own declaration beats scanning the
+#: description for the word, which flags "say what to fix" and every commit
+#: about the fix gate itself.
+_FIX_CATEGORY = re.compile(r"^FIX:?[ \t]*$", re.MULTILINE)
+
 #: `Regression-Test: none - reason`. The reason is required and has to say
 #: something: a trailer with an empty reason is a trailer that excuses itself.
 #: The dashes are written as escapes rather than as characters. `re` reads
@@ -160,6 +169,20 @@ def exemption_reason(message: str) -> str | None:
     return match.group("reason").strip() if match else None
 
 
+def repairs(match: re.Match[str], message: str) -> bool:
+    """True when this commit patches a defect, by its type or by its own body.
+
+    Two declarations, either of which counts. `fix(...)` is the conventional
+    one. A FIX category in the body is the same claim made by a commit whose
+    headline work is something else, and a repair carried inside a feature owes
+    a test exactly as much as one committed on its own.
+    """
+    if match.group("type") == FIX_TYPE:
+        return True
+    body = message.split("\n", 1)[1] if "\n" in message else ""
+    return _FIX_CATEGORY.search(body) is not None
+
+
 def judge(message: str, paths: list[str], types: frozenset[str]) -> list[str]:
     """Findings for one commit. Empty means it satisfies the rule."""
     subject = subject_of(message)
@@ -169,7 +192,7 @@ def judge(message: str, paths: list[str], types: frozenset[str]) -> list[str]:
         # is that gate's finding, not this one's, and reporting it twice sends
         # the author to two places for one defect.
         return []
-    if match.group("type") != FIX_TYPE:
+    if not repairs(match, message):
         return []
 
     covering = covering_test(message)
@@ -246,6 +269,36 @@ def selftest() -> int:
         ("fix: a thing", ["src/a.py", "src/a_test.py"], 0, "a pytest-named sibling"),
         ("feat: a thing", ["src/a.py"], 0, "a feature owes nothing here"),
         ("docs: a thing", ["README.md"], 0, "documentation owes nothing here"),
+        (
+            "feat: a thing\n\nFIX\n- the off-by-one under it\n",
+            ["src/a.py"],
+            1,
+            "a repair declared in the body of a feature owes a test",
+        ),
+        (
+            "feat: a thing\n\nFIX\n- the off-by-one under it\n",
+            ["src/a.py", "tests/test_a.py"],
+            0,
+            "and is satisfied by one",
+        ),
+        (
+            "refactor: split it\n\nFIX:\n- the leak it hid\n",
+            ["src/a.py"],
+            1,
+            "the heading counts with or without its colon",
+        ),
+        (
+            "feat: a thing\n\nBACKEND\n- prefix a line with FIX and nothing else\n",
+            ["src/a.py"],
+            0,
+            "FIX inside a bullet is prose, not a category heading",
+        ),
+        (
+            "feat(gate): say what to fix\n\nFEAT\n- the message\n",
+            ["src/a.py"],
+            0,
+            "the word fix in a description is not a declaration",
+        ),
         (
             "fix: a link\n\nRegression-Test: none - a dead link has no runtime behavior",
             ["docs/x.md"],

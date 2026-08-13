@@ -33,9 +33,14 @@ git rev-parse -q --verify MERGE_HEAD >/dev/null 2>&1 && exit 0
 subject=$(git -c i18n.logOutputEncoding=UTF-8 log -1 --format=%s 2>/dev/null) || exit 0
 [ -n "$subject" ] || exit 0
 
+# The body decides the section for one case: a commit whose ALL-CAPS categories
+# are mostly SECURITY records under Security. Passing only the subject leaves
+# that route unreachable, and there is no `security` conventional type here.
+body=$(git -c i18n.logOutputEncoding=UTF-8 log -1 --format=%b 2>/dev/null) || body=""
+
 head_before=$(git rev-parse HEAD 2>/dev/null) || exit 0
 
-sh scripts/changelog-sync.sh --subject "$subject" || exit 0
+sh scripts/changelog-sync.sh --subject "$subject" --body "$body" || exit 0
 git diff --quiet -- CHANGELOG.md && exit 0   # nothing inserted, nothing to amend
 
 # Bail if HEAD moved between the commit and now, so a concurrent session's

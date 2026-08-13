@@ -139,7 +139,7 @@ tree. If it passes either way it covers nothing, and the fix owes a real one.
 | `commit-msg` hook      | the commit being written | the commit                           |
 | `lint.yml`             | `v0.1.0..HEAD`           | the branch and the pull request      |
 | `just gate regression` | `v0.1.0..HEAD`           | the phase exit                       |
-| `--selftest`           | twelve cases             | a change that breaks the gate itself |
+| `--selftest`           | seventeen cases          | a change that breaks the gate itself |
 
 The range starts at `v0.1.0`, which is 17 commits before the gate landed. The
 tag is a boundary rather than the moment the rule became readable. A handful of
@@ -151,7 +151,7 @@ asserted here. Starting earlier would judge history written before any of this
 existed. Moving the boundary later would weaken a range the tree already
 passes.
 
-The selftest is there because a gate has to be seen failing. It runs twelve
-cases, and four of them expect a finding. A gate whose failing path nobody
+The selftest is there because a gate has to be seen failing. It runs seventeen
+cases, and six of them expect a finding. A gate whose failing path nobody
 exercises is indistinguishable from a gate that cannot fail, which is the
 defect doctrine D-12 names.

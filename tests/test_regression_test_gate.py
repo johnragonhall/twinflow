@@ -207,7 +207,20 @@ def test_the_selftest_case_count_is_the_one_the_policy_prints():
     )
     assert result.returncode == 0, result.stdout + result.stderr
     total = int(result.stdout.rsplit("selftest:", 1)[1].split("/")[1].split()[0])
-    spelled = {9: "nine", 10: "ten", 11: "eleven", 12: "twelve"}.get(total)
+    spelled = {
+        9: "nine",
+        10: "ten",
+        11: "eleven",
+        12: "twelve",
+        13: "thirteen",
+        14: "fourteen",
+        15: "fifteen",
+        16: "sixteen",
+        17: "seventeen",
+        18: "eighteen",
+        19: "nineteen",
+        20: "twenty",
+    }.get(total)
     assert spelled, f"no spelling known for {total} cases"
     policy = (REPO_ROOT / "docs" / "testing-policy.md").read_text(encoding="utf-8")
     assert f"{spelled} cases" in policy, (
