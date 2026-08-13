@@ -149,4 +149,4 @@ the ruling wins and the section changes.
 | `D-11` | Validation gates carry real external evidence                             |
 | `D-12` | A test that cannot fail is not a test                                     |
 | `D-13` | Timing tests are scoped to fit their budget                               |
-| `D-14` | twinflow writes its own process mining engine                             |
+| `D-14` | twinflow implements its own process mining                                |
