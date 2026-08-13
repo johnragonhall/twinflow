@@ -708,7 +708,11 @@ work_packages:
     covers:
       - { id: "7", partial: true, note: "one tool" }
       - { id: "E26", partial: true, note: "E26d structured outputs" }
-      - { id: "ARCH-5", partial: false }
+      - {
+          id: "ARCH-5",
+          partial: true,
+          note: "the seam and the local model path, not the hosted provider switch",
+        }
     depends_on: []
     deliverables:
       - "packages/twinflow-agent/src/twinflow/agent/tools.py"
@@ -997,6 +1001,22 @@ work_packages:
     gates:
       - VAL-GATE-E1-001
     brick: null
+    release: v0.3.0
+    status: planned
+  # ADR-0002 refuses Pydantic AI on its license tree, so the hosted half of
+  # ARCH-5 is written here rather than acquired. WP-P1-07 ships the seam and
+  # the local model behind it; this is the provider switch D9 asks for.
+  - id: WP-P2-13
+    title: "Reach a hosted model through the structured-output seam"
+    phase: P2
+    wave: 13
+    covers:
+      - { id: "ARCH-5", partial: false }
+    depends_on: ["WP-P1-07"]
+    deliverables:
+      - "packages/twinflow-agent/src/twinflow/agent/hosted.py"
+    gates: []
+    brick: twinflow-agent
     release: v0.3.0
     status: planned
   - id: WP-P3-01

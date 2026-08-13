@@ -47,6 +47,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- scope the ARCH-5 claim to the half that ships
 - give the tier latency metric the package that measures it
 - refuse a topic type that takes a page out of the linter
 - close three checks that cannot fail
