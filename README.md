@@ -2,7 +2,7 @@
 
 A digital twin of a warehouse operation. A discrete-event model of receiving and putaway runs coupled to a simulated IoT device fleet over MQTT, a Lean Six Sigma engine judges both the live telemetry and the model's own predictions, and an AI agent answers what-if questions with a statistical verdict instead of a paragraph.
 
-**Status: designed in full, built from the bottom up.** Phase P0 fixes the determinism, schema, and config contracts, and phase P1 takes one station end to end. Both are in progress and nothing later has started, so read this as a plan with published evidence rules, not as a shipped product. [ROADMAP.md](ROADMAP.md) holds every milestone with its phase and dependencies, and nothing is ever deleted from it: milestones are reordered, never dropped. [ARCHITECTURE.md](ARCHITECTURE.md) holds the decisions and their rationale.
+**Status: designed in full, built from the bottom up.** Phase P0 closed at v0.1.0, fixing the determinism, schema, and config contracts. Phase P1, which takes one station end to end, is open and nothing later has started, so read this as a plan with published evidence rules, not as a shipped product. [ROADMAP.md](ROADMAP.md) holds every milestone with its phase and dependencies, and nothing is ever deleted from it: milestones are reordered, never dropped. [ARCHITECTURE.md](ARCHITECTURE.md) holds the decisions and their rationale.
 
 [![CI](https://img.shields.io/github/actions/workflow/status/johnragonhall/twinflow/ci.yml?branch=main&label=CI)](https://github.com/johnragonhall/twinflow/actions)
 [![License](https://img.shields.io/badge/license-Apache--2.0%20or%20commercial-blue)](LICENSING.md)
@@ -27,8 +27,8 @@ state, not an oversight.
   2. No estimate, no round figure, no plausible guess goes in a marker.
   3. scripts/checks/metric-marker-gate.sh reports unfilled markers on every lint
      run and fails on any that is malformed. Its --release mode fails the build
-     on any marker still holding TBD, and that mode is wired when the release
-     workflow lands under milestone C9.
+     on any marker still holding TBD, and the release workflow calls it in that
+     mode.
   4. A number stated outside a marker is a configuration value, a gate budget, or
      a published reference value, never a result claimed for this system.
 -->
@@ -73,7 +73,7 @@ flowchart LR
   UNSB -->|"config write-back"| TWIN
 ```
 
-The broker bridge is the only crossing point between the two segments, which puts the Purdue Model in the compose topology rather than only in a diagram. Milestone RA-b lands the test that asserts no device container is reachable from the IT segment. The full layer map, with an ISA-95 level, a Purdue level, and a real-world counterpart for every component, is section 4 of [ARCHITECTURE.md](ARCHITECTURE.md).
+The broker bridge is the only crossing point between the two segments, and section 7 of ARCHITECTURE.md specifies the compose topology that puts the Purdue Model in the deployment rather than only in a diagram. Milestone RA-b lands the test that asserts no device container is reachable from the IT segment. The full layer map, with an ISA-95 level, a Purdue level, and a real-world counterpart for every component, is section 4 of [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## What it does
 
@@ -133,7 +133,7 @@ Rates, unfilled until the eval harness runs: eval-suite accuracy <!--METRIC:agen
 
 ## Determinism, and what it does not mean
 
-One run seed governs every stochastic stream through per-subsystem child seeds, so the same seed and the same config produce a byte-identical event log. That is what makes counterfactual replay and reproducible chaos testing possible at all. The repeated-run hash check that asserts it sits in CI now and reports SKIP until the kernel and its CLI land.
+One run seed governs every stochastic stream through per-subsystem child seeds, so the same seed and the same config produce a byte-identical event log. That is what makes counterfactual replay and reproducible chaos testing possible at all. The repeated-run hash check that asserts it runs `SCN-F1` twice in CI and compares the two logs byte for byte.
 
 Determinism of the run is not predictability of the operation. No distribution is truncated at any sigma anywhere in the codebase, because telling a rare common-cause tail from a genuine special cause is the judgment the engine exists to make. Reproducing a run byte for byte and forecasting the next hour are different properties, and only the first is claimed here.
 
@@ -169,13 +169,14 @@ Start with [docs/reading-guide.md](docs/reading-guide.md). It gives three routes
 | [docs/reading-guide.md](docs/reading-guide.md)       | Where to start, what is built today, and the commands that check each claim on this page        |
 | [docs/glossary.md](docs/glossary.md)                 | Every domain term, marked as defined here or owned by a named external standard                 |
 | [ARCHITECTURE.md](ARCHITECTURE.md)                   | Layer map, ISA-95 and Purdue assignments, real-world counterparts, and decisions with rationale |
-| [ENGINEERING.md](ENGINEERING.md)                     | The eleven rules the work is done under, what each costs, and where the build enforces it       |
+| [ENGINEERING.md](ENGINEERING.md)                     | The rules the work is done under, what each costs, and where the build enforces it              |
 | [ROADMAP.md](ROADMAP.md)                             | Living backlog: every milestone with its phase, dependencies, and validation gates              |
 | [docs/design/](docs/design/)                         | The section specifications the roadmap is built from, plus the doctrine rulings                 |
 | [docs/adr/](docs/adr/)                               | Numbered decision records, and the cross-index to the technology and doctrine registers         |
 | [CONTRIBUTING.md](CONTRIBUTING.md)                   | Development setup, test tiers, and commit and review conventions                                |
 | [docs/code-review.md](docs/code-review.md)           | What a reviewer checks, what blocks a merge, and which external criteria this repository misses |
 | [docs/testing-strategy.md](docs/testing-strategy.md) | The six kinds of test, how to pick one, and what is not measured yet                            |
+| [docs/testing-policy.md](docs/testing-policy.md)     | The rule that a fix ships with the test that catches it, and the gate behind it                 |
 | [LICENSING.md](LICENSING.md)                         | The Apache-2.0 obligations, the commercial option, and the dependency license policy            |
 | [SECURITY.md](SECURITY.md)                           | Private disclosure channel, supported versions, and the MCP and REST threat model               |
 | [CHANGELOG.md](CHANGELOG.md)                         | Release notes and the compatibility table for recorded runs and configs                         |
