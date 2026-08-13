@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- check that done means delivered and that no script is orphaned
 - give DET-002 the second platform it asserts
 - project the plan onto the tracker and generate the gate document
 - make the plan own every number a release defers
