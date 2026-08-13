@@ -499,7 +499,7 @@ work_packages:
       - VAL-GATE-REL-001
     brick: null
     release: v0.1.0
-    status: in_progress
+    status: done
   - id: WP-P0-15
     title: "Assert the five source constraints in CI"
     phase: P0
@@ -828,7 +828,11 @@ work_packages:
     covers:
       - { id: "5", partial: true, note: "SPC, capability, measurement system analysis, and hypothesis testing" }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "packages/twinflow-lss/src/twinflow/lss/spc.py"
+      - "packages/twinflow-lss/src/twinflow/lss/capability.py"
+      - "packages/twinflow-lss/src/twinflow/lss/msa.py"
+      - "packages/twinflow-lss/src/twinflow/lss/hypothesis.py"
     gates:
       - VAL-GATE-NIST-001
       - VAL-GATE-NIST-002
@@ -853,7 +857,8 @@ work_packages:
     covers:
       - { id: "1", partial: true, note: "the flow metrics" }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "packages/twinflow-twin/src/twinflow/twin/flow_metrics.py"
     gates: []
     brick: twinflow-twin
     release: v0.3.0
@@ -865,7 +870,8 @@ work_packages:
     covers:
       - { id: "6", partial: false }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "packages/twinflow-twin/src/twinflow/twin/reconcile.py"
     gates: []
     brick: twinflow-twin
     release: v0.3.0
@@ -877,7 +883,8 @@ work_packages:
     covers:
       - { id: "7", partial: true, note: "four more tools" }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "packages/twinflow-agent/src/twinflow/agent/tools.py"
     gates: []
     brick: twinflow-agent
     release: v0.3.0
@@ -889,7 +896,8 @@ work_packages:
     covers:
       - { id: "E26", partial: true, note: "E26a execution-grounded answers" }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "packages/twinflow-agent/src/twinflow/agent/trace.py"
     gates: []
     brick: twinflow-agent
     release: v0.3.0
@@ -942,7 +950,8 @@ work_packages:
     covers:
       - { id: "E45", partial: true, note: "the counters" }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "packages/twinflow-agent/src/twinflow/agent/cost.py"
     gates: []
     brick: twinflow-agent
     release: v0.3.0
@@ -954,7 +963,9 @@ work_packages:
     covers:
       - { id: "C6", partial: false }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "docs/migration.md"
+      - "docs/compatibility.md"
     gates: []
     brick: null
     release: v0.3.0
@@ -966,7 +977,9 @@ work_packages:
     covers:
       - { id: "C7", partial: false }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "SECURITY.md"
+      - "docs/design/threat-model.md"
     gates: []
     brick: null
     release: v0.3.0
@@ -978,7 +991,9 @@ work_packages:
     covers:
       - { id: "E1", partial: false }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "packages/twinflow-replay/src/twinflow/replay/bundle.py"
+      - ".github/workflows/pages.yml"
     gates:
       - VAL-GATE-E1-001
     brick: null

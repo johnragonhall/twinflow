@@ -35,7 +35,7 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-ABSENT-SEAM-001` | 6a14        | invariant    | no       | declared    | docs/design/human-sustain.md      |
 | `VAL-GATE-ACT-001`         | P1          | policy       | yes      | implemented | docs/design/repo-craft.md         |
 | `VAL-GATE-ADOPT-001`       | P5          | invariant    | no       | declared    | docs/design/repo-craft.md         |
-| `VAL-GATE-AGT-001`         | P2          | invariant    | yes      | declared    | docs/design/ai-layer.md           |
+| `VAL-GATE-AGT-001`         | P2          | invariant    | yes      | specified   | docs/design/ai-layer.md           |
 | `VAL-GATE-ATP-001`         | 6a12        | invariant    | no       | declared    | docs/design/back-office.md        |
 | `VAL-GATE-AUTON-001`       | P6-W4       | invariant    | no       | declared    | docs/design/ai-layer.md           |
 | `VAL-GATE-BATCH-001`       | P3i         | invariant    | no       | declared    | docs/design/production-quality.md |
@@ -61,14 +61,14 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-DOCSITE-001`     | P3          | policy       | no       | declared    | docs/design/repo-craft.md         |
 | `VAL-GATE-DORA-001`        | 6a15        | invariant    | no       | declared    | docs/design/back-office.md        |
 | `VAL-GATE-DRIFT-001`       | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md           |
-| `VAL-GATE-E1-001`          | P2          | invariant    | yes      | declared    | docs/design/dashboard-replay.md   |
+| `VAL-GATE-E1-001`          | P2          | invariant    | yes      | specified   | docs/design/dashboard-replay.md   |
 | `VAL-GATE-ECO-001`         | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md    |
 | `VAL-GATE-EDGE-001`        | P6-W1       | invariant    | no       | declared    | docs/design/iot-fleet.md          |
-| `VAL-GATE-EHB-001`         | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-EHB-002`         | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
+| `VAL-GATE-EHB-001`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
+| `VAL-GATE-EHB-002`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
 | `VAL-GATE-EHB-003`         | P3          | validation   | no       | declared    | docs/design/lss-engine.md         |
 | `VAL-GATE-EHB-004`         | 6a11        | validation   | no       | declared    | docs/design/production-quality.md |
-| `VAL-GATE-EHB-005`         | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
+| `VAL-GATE-EHB-005`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
 | `VAL-GATE-ENG-001`         | P3b         | invariant    | no       | declared    | docs/design/twin-core.md          |
 | `VAL-GATE-ENV-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.5    |
 | `VAL-GATE-EPCIS-001`       | P3          | validation   | no       | declared    | docs/design/iot-fleet.md          |
@@ -97,18 +97,18 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-MAS-001`         | P6-W4       | invariant    | no       | declared    | docs/design/ai-layer.md           |
 | `VAL-GATE-MEIO-001`        | P3h         | ground_truth | no       | declared    | docs/design/planning-supply.md    |
 | `VAL-GATE-MEIO-002`        | P3h         | validation   | no       | declared    | docs/design/planning-supply.md    |
-| `VAL-GATE-MSA-001`         | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-MSA-002`         | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-MTB-001`         | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-MTB-002`         | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-MTB-003`         | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
+| `VAL-GATE-MSA-001`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
+| `VAL-GATE-MSA-002`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
+| `VAL-GATE-MTB-001`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
+| `VAL-GATE-MTB-002`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
+| `VAL-GATE-MTB-003`         | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
 | `VAL-GATE-MTLS-001`        | P5          | invariant    | no       | declared    | docs/design/repo-craft.md         |
 | `VAL-GATE-MULTI-001`       | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md    |
 | `VAL-GATE-NETDES-001`      | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md    |
 | `VAL-GATE-NIOSH-001`       | 6a10        | validation   | no       | declared    | docs/design/human-sustain.md      |
-| `VAL-GATE-NIST-001`        | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-NIST-002`        | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-NIST-003`        | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
+| `VAL-GATE-NIST-001`        | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
+| `VAL-GATE-NIST-002`        | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
+| `VAL-GATE-NIST-003`        | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
 | `VAL-GATE-NIST-004`        | P3          | validation   | no       | declared    | docs/design/lss-engine.md         |
 | `VAL-GATE-NPV-001`         | 6a17        | invariant    | no       | declared    | docs/design/back-office.md        |
 | `VAL-GATE-NTIER-001`       | RISK        | invariant    | no       | declared    | docs/design/planning-supply.md    |
@@ -146,7 +146,7 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-SAST-001`        | P1          | policy       | yes      | implemented | docs/design/repo-craft.md         |
 | `VAL-GATE-SCH-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.5    |
 | `VAL-GATE-SEC-001`         | P0          | validation   | yes      | implemented | CONTRIBUTING.md                   |
-| `VAL-GATE-SIM-001`         | P2          | ground_truth | no       | declared    | docs/design/lss-engine.md         |
+| `VAL-GATE-SIM-001`         | P2          | ground_truth | no       | specified   | docs/design/lss-engine.md         |
 | `VAL-GATE-SLM-001`         | P6-W1       | invariant    | no       | declared    | docs/design/iot-fleet.md          |
 | `VAL-GATE-SMED-001`        | P3i         | invariant    | no       | declared    | docs/design/production-quality.md |
 | `VAL-GATE-SNF-001`         | P4          | invariant    | no       | declared    | docs/design/twin-core.md          |
@@ -164,7 +164,7 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-VLM-001`         | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md           |
 | `VAL-GATE-VMI-001`         | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md    |
 | `VAL-GATE-VSM-001`         | P3c         | invariant    | no       | declared    | docs/design/lss-engine.md         |
-| `VAL-GATE-WE-001`          | P2          | validation   | no       | declared    | docs/design/lss-engine.md         |
+| `VAL-GATE-WE-001`          | P2          | validation   | no       | specified   | docs/design/lss-engine.md         |
 | `VAL-GATE-WEBHOOK-001`     | P3          | invariant    | no       | declared    | docs/design/iot-fleet.md          |
 | `VAL-GATE-WX-001`          | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md        |
 | `VAL-GATE-XDOCK-001`       | P3g         | invariant    | no       | declared    | docs/design/planning-supply.md    |
@@ -204,7 +204,9 @@ Declared at P5, owned by docs/design/repo-craft.md. Its assertion is specified o
 
 ### `VAL-GATE-AGT-001`
 
-Declared at P2, owned by docs/design/ai-layer.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** From v0.3.0 onward the E27 eval suite runs at every tag, accuracy and the abstention rate are recorded in the release notes, and accuracy above the abstention threshold is at least 0.98.
+
+**Falsified by.** A tag whose release notes carry no eval figures, or accuracy above the abstention threshold below 0.98.
 
 ### `VAL-GATE-ATP-001`
 
@@ -340,7 +342,9 @@ Declared at P6-W2, owned by docs/design/ai-layer.md. Its assertion is specified 
 
 ### `VAL-GATE-E1-001`
 
-Declared at P2, owned by docs/design/dashboard-replay.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** From v0.3.0 onward the E1 replay bundle is re-recorded from the code of the tag being cut, the static viewer loads it, and the bundle's agent transcript passes the grounding checker.
+
+**Falsified by.** A tag that publishes a bundle recorded from earlier code, a viewer that fails to load it, or a transcript the grounding checker rejects.
 
 ### `VAL-GATE-ECO-001`
 
@@ -352,11 +356,19 @@ Declared at P6-W1, owned by docs/design/iot-fleet.md. Its assertion is specified
 
 ### `VAL-GATE-EHB-001`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** The center line and both control limits match every digit the handbook prints, to half a unit in the last printed place, using the published unbiasing constants, and the sample mean and sample standard deviation underneath those limits reach log relative error 13 against the StRD univariate sets. Both figures are reported, so a pass on the printed check that fails the estimator check is visible.
+
+**Falsified by.** Any published digit that disagrees at the printed tolerance, or an underlying estimator below log relative error 13.
+
+**Reference.** NIST/SEMATECH e-Handbook of Statistical Methods, section 6.3.2, What are Variables Control Charts?, the X-bar and R and individuals worked examples. The e-Handbook prints rounded results rather than certified ones, typically to four significant figures, which is why this gate carries two tolerances and reports both. <https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc32.htm>
 
 ### `VAL-GATE-EHB-002`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** Cp, Cpk, Pp, Ppk, the sigma level, and DPMO match every printed digit to half a unit in the last printed place, and the mean and standard deviation feeding each index reach log relative error 13 against StRD. Both figures are reported.
+
+**Falsified by.** Any published digit that disagrees at the printed tolerance, or an underlying estimator below log relative error 13.
+
+**Reference.** NIST/SEMATECH e-Handbook of Statistical Methods, section 6.1.6, What is Process Capability?, the capability worked example, which prints Cpk as 0.6667 and Cpl as 1.3333. <https://www.itl.nist.gov/div898/handbook/pmc/section1/pmc16.htm>
 
 ### `VAL-GATE-EHB-003`
 
@@ -368,7 +380,11 @@ Declared at 6a11, owned by docs/design/production-quality.md. Its assertion is s
 
 ### `VAL-GATE-EHB-005`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** The EWMA statistic and its variance-adjusted limits match every printed digit to half a unit in the last printed place, and the recursion reaches log relative error 12 against a closed-form expansion of the same weights. Both figures are reported.
+
+**Falsified by.** Any published digit that disagrees at the printed tolerance, or a recursion below log relative error 12 against the closed form.
+
+**Reference.** NIST/SEMATECH e-Handbook of Statistical Methods, section 6.3.2.4, EWMA Control Charts, the worked EWMA example. <https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc324.htm>
 
 ### `VAL-GATE-ENG-001`
 
@@ -498,23 +514,43 @@ Declared at P3h, owned by docs/design/planning-supply.md. Its assertion is speci
 
 ### `VAL-GATE-MSA-001`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** The full ANOVA table and the %Study Var, %Tolerance, and ndc figures match every digit the manual prints, to half a unit in the last printed place.
+
+**Falsified by.** Any printed figure that disagrees at the printed tolerance.
+
+**Reference.** AIAG Measurement Systems Analysis Reference Manual, 4th edition, the long-form ANOVA Gage R and R worked study, repeatability error term. The manual is sold rather than served, so the fixture encodes the study's data values only and the test docstring cites the edition and the table caption instead of reprinting the table. This repository has not retrieved the primary text and does not state its numbers as independently established fact. <https://www.aiag.org/store/publications/details?ProductCode=MSA-4>
 
 ### `VAL-GATE-MSA-002`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** Both error-term results are printed side by side in the capability report, so the choice of error term is visible rather than hidden, and each matches its own source to the printed place.
+
+**Falsified by.** Either result disagreeing with its source at the printed tolerance, or a report that prints one error term without the other.
+
+**Reference.** AIAG Measurement Systems Analysis Reference Manual, 4th edition, Appendix A convention, operator-by-part interaction error term, cross-checked against the R package SixSigma, function ss.rr with errorTerm set to interaction, on the same data. <https://www.aiag.org/store/publications/details?ProductCode=MSA-4>
 
 ### `VAL-GATE-MTB-001`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** The proportions, the center line, and the variable control limits match every printed digit to half a unit in the last printed place.
+
+**Falsified by.** Any printed digit that disagrees at the printed tolerance.
+
+**Reference.** Minitab p-chart documentation example. The dataset is encoded in the test suite and the docstring cites the page; nothing is redistributed in bulk. <https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/attributes-charts/p-chart/before-you-start/example/>
 
 ### `VAL-GATE-MTB-002`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** The category ordering matches the cited page exactly, and the cumulative percentages match every printed digit to half a unit in the last printed place.
+
+**Falsified by.** A category ordering that differs from the page, or any printed digit that disagrees at the printed tolerance.
+
+**Reference.** Minitab Pareto chart documentation example. The dataset is encoded in the test suite and the docstring cites the page; nothing is redistributed in bulk. <https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/quality-tools/how-to/pareto-chart/before-you-start/example/>
 
 ### `VAL-GATE-MTB-003`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** The statistic, the degrees of freedom, the p-value, and the confidence interval match to the printed place, and the assumption checker selects the same test the cited page used.
+
+**Falsified by.** Any printed digit that disagrees at the printed tolerance, or an assumption checker that selects a different test than the page.
+
+**Reference.** Minitab two-sample t and Mann-Whitney documentation examples. The datasets are encoded in the test suite and the docstring cites both pages; nothing is redistributed in bulk. <https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-sample-t/before-you-start/example/>
 
 ### `VAL-GATE-MTLS-001`
 
@@ -534,15 +570,27 @@ Declared at 6a10, owned by docs/design/human-sustain.md. Its assertion is specif
 
 ### `VAL-GATE-NIST-001`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** Log relative error of the mean, the standard deviation, and the lag-1 autocorrelation against the certified values is at least 13 digits on every listed set except NumAcc4, where at least 10 is asserted and the shortfall is documented in the test docstring.
+
+**Falsified by.** Any listed set whose log relative error falls below its stated floor.
+
+**Reference.** NIST Statistical Reference Datasets, univariate summary statistics: Lottery, Lew, Mavro, Michelso, NumAcc1 to NumAcc4, and PiDigits, whose certified values are computed in multiple precision and published to 15 significant digits. <https://www.itl.nist.gov/div898/strd/>
 
 ### `VAL-GATE-NIST-002`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** Log relative error of the F statistic and of the between and within mean squares is at least 10 on the low-difficulty sets and at least 8 on SmLs07 to SmLs09.
+
+**Falsified by.** Any listed set whose log relative error falls below its stated floor.
+
+**Reference.** NIST Statistical Reference Datasets, one-way analysis of variance: SiRstv, SmLs01 to SmLs09, and AtmWtAg. <https://www.itl.nist.gov/div898/strd/>
 
 ### `VAL-GATE-NIST-003`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** Log relative error of every estimated coefficient and of the residual standard deviation is at least 7 on Filip and at least 10 on every other listed set, and the test docstring records the solver as QR or SVD.
+
+**Falsified by.** Any coefficient below its floor, or a solver that reaches the estimates through the normal equations.
+
+**Reference.** NIST Statistical Reference Datasets, linear regression: Norris, Pontius, NoInt1, NoInt2, Filip, Longley, and Wampler1 to Wampler5. <https://www.itl.nist.gov/div898/strd/>
 
 ### `VAL-GATE-NIST-004`
 
@@ -732,7 +780,15 @@ Declared at P6-W5, owned by docs/design/back-office.md. Its assertion is specifi
 
 ### `VAL-GATE-SIM-001`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** The 95 percent confidence interval the engine reports for each variance component covers the injected truth in at least 91 of 100 runs, and the observed count is published whatever it is. The threshold is the exact one-sided binomial acceptance region rather than a chosen number: at n = 100 and alpha = 0.05, P(X <= 90) = 0.0282 rejects and P(X <= 91) = 0.0631 accepts, and the test docstring carries both probabilities.
+
+**Falsified by.** Coverage at 90 of 100 or fewer for any variance component, or a run that does not publish its observed count.
+
+**Truth source.** Repeated measures generated with injected operator variance, part variance, and repeatability, over the seed set recorded in the fixture.
+
+**Null model.** An interval of the same nominal width placed at the grand mean, which covers the injected truth at chance for the variance components.
+
+**Noise floor.** The seed-to-seed standard deviation of each estimated variance component, measured over the same 100 seeds and published.
 
 ### `VAL-GATE-SLM-001`
 
@@ -810,7 +866,11 @@ Declared at P3c, owned by docs/design/lss-engine.md. Its assertion is specified 
 
 ### `VAL-GATE-WE-001`
 
-Declared at P2, owned by docs/design/lss-engine.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+**Asserts.** For each of the 8 Nelson tests and each of the 4 Western Electric zone rules, a hand-constructed minimal series triggers exactly that rule and no other, and a near-miss series triggers none.
+
+**Falsified by.** Any series that triggers a second rule, or a near-miss series that triggers any rule.
+
+**Reference.** Two rule sets the industry routinely conflates, cited separately. Lloyd S. Nelson, The Shewhart Control Chart, Tests for Special Causes, Journal of Quality Technology 16(4), 237 to 239, October 1984, for the eight tests. The Western Electric Statistical Quality Control Handbook for the four zone rules, which this gate names as the source and does not quote, its text not having been retrieved here. <https://doi.org/10.1080/00224065.1984.11978921>
 
 ### `VAL-GATE-WEBHOOK-001`
 
