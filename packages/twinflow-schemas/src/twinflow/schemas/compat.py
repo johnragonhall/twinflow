@@ -4,8 +4,8 @@ These live in the package rather than in a script because they are part of the
 schemas contract. A consumer deciding whether it can read a newer version asks
 the same question CI asks, and both should get the answer from one place.
 
-Two rows are worth restating, because both are counter-intuitive and both were
-chosen deliberately.
+Two rows are worth restating, because both are counter-intuitive and both are
+deliberate.
 
 Making a required property optional is rejected. That reads like a loosening,
 and it is, for the producer. For a consumer that assumed the field was always

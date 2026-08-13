@@ -4,7 +4,7 @@ Two claims, and they are different claims. This checker proves that a given pair
 of versions is a legal edit; the history test walks the real commits and proves
 that no edit so far broke it; the property test generates pairs and proves the
 checker is right about edits nobody has made yet. Calling the history walk a
-property would have hidden that it says nothing about the next commit.
+property hides that it says nothing about the next commit.
 
 Removal and rewording are the same failure from two directions. Remove an entry
 and the idea leaves the plan with no record. Reword the verbatim clause and the

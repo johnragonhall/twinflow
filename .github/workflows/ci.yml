@@ -59,11 +59,10 @@ jobs:
         with:
           filters: |
             # Every line of Python this project ships lands under packages/**,
-            # and justfile is the task entry point. An earlier filter matched
-            # src/**, which no longer exists, so a pull request touching only
-            # package code skipped this job. The aggregate ci job treats a
-            # skipped job as success, so the badge stayed green over a matrix
-            # that never ran.
+            # and justfile is the task entry point. A path missing from this
+            # list skips the job for a pull request that touches only that
+            # path, and the aggregate ci job treats a skipped job as success,
+            # so the badge stays green over a matrix that never ran.
             python:
               - 'packages/**'
               - 'tools/**'
@@ -81,8 +80,8 @@ jobs:
               - 'agent/**'
             # The roadmap is data, and a change to the data or to the diagram
             # it renders is a change the coverage proof has to see. Without
-            # this filter an edit to ROADMAP.md alone would skip every job and
-            # the badge would stay green over a plan that no longer validates.
+            # this filter an edit to ROADMAP.md alone skips every job, and the
+            # badge stays green over a plan that does not validate.
             roadmap:
               - 'roadmap.yaml'
               - 'requirements.yaml'

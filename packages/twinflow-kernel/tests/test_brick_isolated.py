@@ -90,11 +90,11 @@ def test_the_core_install_pulls_no_heavy_dependency():
 def test_the_private_implementation_is_a_regular_package():
     """Only twinflow itself is a namespace package.
 
-    A missing __init__.py under _impl would make it an implicit namespace
-    package, which lets another installed distribution add modules into it and
-    hides the whole subtree from the import graph. When that happened here,
-    import-linter reported every private-module contract as KEPT while the
-    modules those contracts name were absent from the graph entirely.
+    A missing __init__.py under _impl makes it an implicit namespace package,
+    which lets another installed distribution add modules into it and hides the
+    whole subtree from the import graph. import-linter then reports every
+    private-module contract as KEPT while the modules those contracts name are
+    absent from the graph entirely.
     """
     assert (SOURCE_ROOT / "_impl" / "__init__.py").is_file()
 

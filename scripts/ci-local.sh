@@ -162,7 +162,7 @@ if [ "$MODE" != "--security" ]; then
     if have uv; then
       # SCH-001. The published schemas are generated from their models, so a
       # drift here means a consumer is validating against a contract the
-      # producer no longer honors.
+      # producer does not honor.
       step "published schemas match their models" uv run python tools/gen_schemas.py --check
       # SEC-001. Reads the resolved tree rather than the manifests, so it
       # reports what would actually ship.

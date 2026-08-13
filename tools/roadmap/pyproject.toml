@@ -4,7 +4,7 @@ description = "Program management as code: the requirement register, the work-pa
 requires-python = ">=3.12"
 # A leaf on purpose. This package imports nothing else in the workspace, because
 # it has to run on a checkout that does not yet build: `roadmap validate` is the
-# first thing CI runs on a branch that broke the twin.
+# first thing CI runs on a branch that breaks the twin.
 #
 # docs/design/roadmap.md section 2 declares networkx, jinja2, and typer
 # alongside these two. Each arrives with the work package that consumes it

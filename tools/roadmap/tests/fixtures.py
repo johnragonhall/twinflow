@@ -1,8 +1,8 @@
 """A minimal four-file roadmap, and the knobs a negative test turns.
 
 Every rule test builds its own tiny repository rather than editing the shipped
-one. A test that mutated the real files would pass or fail depending on what the
-build had reached that week, which is the opposite of what a rule test is for.
+one. A test that mutates the real files passes or fails depending on what the
+build has reached that week, which is the opposite of what a rule test is for.
 """
 
 from __future__ import annotations

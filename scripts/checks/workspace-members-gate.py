@@ -12,8 +12,8 @@ The middle one is the trap. This workspace root is a virtual project, so
 `uv sync` installs the root's own dependencies and prunes everything else, and
 `uv run` syncs the same set before it runs anything. A package that is a
 workspace member but not a root dev dependency is therefore uninstalled by the
-very command that is about to test it, and the failure reads as a broken import
-rather than a missing install. It cost a wave of debugging once.
+very command that is about to test it. The failure reads as a broken import
+rather than as a missing install, which is what makes it expensive to diagnose.
 
 The third one fails louder but no earlier: without a tool.uv.sources entry uv
 looks for the member on PyPI, where nothing under packages/ has ever been
@@ -49,7 +49,7 @@ def _member_directories(root: dict) -> list[Path]:
     Read from tool.uv.workspace.members rather than hard-coded to packages/*.
     A member that lives somewhere else is still a member: twinflow-roadmap sits
     under tools/ because it is not part of the twinflow namespace, and a gate
-    that only looked at packages/ would have let it ship with no LICENSE.
+    scoped to packages/ lets it ship with no LICENSE.
     """
     globs = root.get("tool", {}).get("uv", {}).get("workspace", {}).get("members", [])
     found: list[Path] = []

@@ -51,7 +51,7 @@ def test_every_requirement_is_placed(roadmap):
 def test_the_tier_counts(roadmap):
     """The counts the coverage proof publishes, asserted one by one.
 
-    Two numbers per tier, because one was ambiguous. The bleeding-edge tier
+    Two numbers per tier, because a single number is ambiguous. The bleeding-edge tier
     holds 47 E-items other than E26, plus E26(a) through E26(g), which is 54
     placed identifiers covering 48 numbered source entries.
 

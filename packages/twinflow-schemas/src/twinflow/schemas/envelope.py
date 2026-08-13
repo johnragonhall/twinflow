@@ -92,8 +92,7 @@ class Envelope(BaseModel):
 
     # Attributes owned by CloudEvents extensions rather than by twinflow. A
     # twinflow-prefixed name here would be invisible to every off-the-shelf
-    # CloudEvents tool, which is the interoperability the envelope was adopted
-    # for.
+    # CloudEvents tool, and interoperability is what the envelope is for.
     partitionkey: str | None = None
     traceparent: str | None = None
     tracestate: str | None = None

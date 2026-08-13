@@ -13,9 +13,8 @@ from __future__ import annotations
 
 # The entry points are named check_coverage and check_drift rather than
 # coverage and drift, because a function exported beside a module of the
-# same name shadows it: `from twinflow_roadmap import coverage` would then
-# bind whichever of the two imported last, and the caller would not know
-# which one it got.
+# same name shadows it: `from twinflow_roadmap import coverage` binds
+# whichever of the two imports last, and the caller cannot tell which.
 from twinflow_roadmap.coverage import CoverageReport, check_coverage, missing_quotes
 from twinflow_roadmap.drift import DriftReport, check_drift
 from twinflow_roadmap.errors import Finding, RoadmapError

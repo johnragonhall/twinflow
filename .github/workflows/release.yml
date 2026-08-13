@@ -202,8 +202,8 @@ jobs:
 
       # The publisher has to be configured on PyPI before the first upload, and
       # it is a separate input rather than a consequence of dry_run so the first
-      # tag can be cut before that exists. A publish that failed after the tag
-      # was pushed would leave a released version nobody can install.
+      # tag can be cut before that exists. A publish that fails after the tag is
+      # pushed leaves a released version nobody can install.
       - name: Step 11b, publish to PyPI
         if: ${{ !inputs.dry_run && inputs.publish }}
         uses: pypa/gh-action-pypi-publish@release/v1

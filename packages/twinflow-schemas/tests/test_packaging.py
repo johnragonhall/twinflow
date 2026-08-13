@@ -60,9 +60,9 @@ def test_wheel_carries_the_package_and_no_namespace_init(dists: tuple[Path, Path
 def test_wheel_metadata_version_is_the_module_version(dists: tuple[Path, Path]) -> None:
     """One version, read from the module by the build, so the two cannot drift.
 
-    The version used to be written twice, once in pyproject.toml and once as
-    __version__, with nothing comparing them. tool.hatch.version now reads the
-    module, and this asserts the build honored it.
+    tool.hatch.version reads the module, so the distribution metadata and
+    __version__ are one value. This asserts the build honors it: a version
+    written in two places with nothing comparing them drifts.
     """
     wheel, _ = dists
     with zipfile.ZipFile(wheel) as zf:

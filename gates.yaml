@@ -15,9 +15,10 @@
 #   implemented  plus test_path exists on disk
 #
 # Kind and first phase come from ROADMAP.md section 7 wherever that file carries
-# the row, because it is the revised one and its own text records which rows an
-# earlier revision got wrong. The rest take theirs from docs/design/roadmap.md
-# section 7.4, which is where the policy and budget kinds are used.
+# the row, because that file is the authority on gate identity and states the
+# D-11 conditions each row meets. The rest take theirs from
+# docs/design/roadmap.md section 7.4, which is where the policy and budget kinds
+# are used.
 #
 # Gate ids are never renamed. Release notes cite them.
 

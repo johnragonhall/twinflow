@@ -6,10 +6,10 @@ covering work packages carries `partial: false`, and that one is the last in
 build order. An id with no coverage entry is a silent cut, and this project has
 no cut list.
 
-The report prints two counts per tier rather than one, because one number was
-ambiguous. The bleeding-edge tier holds 47 E-items other than E26, plus E26(a)
-through E26(g), which is 54 placed identifiers covering 48 numbered source
-entries. Printing only one of those two invites a reader to conclude the other.
+The report prints two counts per tier rather than one, because a single number
+is ambiguous. The bleeding-edge tier holds 47 E-items other than E26, plus
+E26(a) through E26(g), which is 54 placed identifiers covering 48 numbered
+source entries. Printing one of the two invites a reader to conclude the other.
 """
 
 from __future__ import annotations
