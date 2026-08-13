@@ -115,6 +115,23 @@ advance that a whole category owes nothing, and `fix(ci)` covers both a typo
 and a workflow that silently skipped a job. The trailer puts the reason in the
 log beside the commit it excuses, where review reads it.
 
+### A fix the existing tests already cover
+
+A data fix is the other case. Correcting `roadmap.yaml` or `gates.yaml` is
+caught by a check that predates the commit. The covering test is red before the
+fix and green after, and there is no test to add. Name it:
+
+```text
+fix(roadmap): give the tier latency metric the package that measures it
+
+Regression-Test: tools/roadmap/tests/test_roadmap.py
+```
+
+The gate checks that the path is a test and that it is in the checkout. The
+trailer names something a reader can run rather than something an author
+asserts. Use this form only when the named test fails against the unfixed
+tree. If it passes either way it covers nothing, and the fix owes a real one.
+
 ## 5. Where the rule runs
 
 | Where                  | Range                    | Blocks                               |
@@ -122,7 +139,7 @@ log beside the commit it excuses, where review reads it.
 | `commit-msg` hook      | the commit being written | the commit                           |
 | `lint.yml`             | `v0.1.0..HEAD`           | the branch and the pull request      |
 | `just gate regression` | `v0.1.0..HEAD`           | the phase exit                       |
-| `--selftest`           | nine cases               | a change that breaks the gate itself |
+| `--selftest`           | twelve cases             | a change that breaks the gate itself |
 
 The range starts at `v0.1.0`, which is 17 commits before the gate landed. The
 tag is a boundary rather than the moment the rule became readable. A handful of
@@ -134,7 +151,7 @@ asserted here. Starting earlier would judge history written before any of this
 existed. Moving the boundary later would weaken a range the tree already
 passes.
 
-The selftest is there because a gate has to be seen failing. It runs nine
-cases, and two of them expect a finding. A gate whose failing path nobody
+The selftest is there because a gate has to be seen failing. It runs twelve
+cases, and four of them expect a finding. A gate whose failing path nobody
 exercises is indistinguishable from a gate that cannot fail, which is the
 defect doctrine D-12 names.

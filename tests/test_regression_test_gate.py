@@ -238,3 +238,43 @@ def test_the_shipped_history_satisfies_the_gate():
         cwd=REPO_ROOT,
     )
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+# --- a fix the existing tests already cover ---------------------------------
+
+
+def test_a_data_fix_may_name_the_test_that_already_covers_it():
+    """Regression. A data fix has no test to add and still owes one.
+
+    Correcting roadmap.yaml is caught by a check that predates the commit, so
+    the covering test is red before the fix and green after while the commit
+    touches no test file. Refusing that commit teaches contributors to write
+    an exemption reason that is not true.
+    """
+    message = (
+        "fix(roadmap): claim the marker\n\nRegression-Test: tests/test_regression_test_gate.py"
+    )
+    assert gate.judge(message, ["roadmap.yaml"], TYPES) == []
+
+
+def test_a_named_test_that_is_not_in_the_checkout_is_refused():
+    message = "fix(roadmap): claim the marker\n\nRegression-Test: tests/test_nope.py"
+    findings = gate.judge(message, ["roadmap.yaml"], TYPES)
+    assert len(findings) == 1
+    assert "not in the checkout" in findings[0]
+
+
+def test_a_named_path_that_is_not_a_test_is_refused():
+    # Naming the script the fix touched would let any fix satisfy the rule by
+    # pointing at itself.
+    message = "fix(roadmap): claim the marker\n\nRegression-Test: scripts/checks/prose-gate.py"
+    findings = gate.judge(message, ["roadmap.yaml"], TYPES)
+    assert len(findings) == 1
+    assert "not a test path" in findings[0]
+
+
+def test_the_covering_form_does_not_swallow_the_none_form():
+    # `none - reason` must still parse as an exemption rather than as a path.
+    message = "fix(docs): a link\n\nRegression-Test: none - a dead link has no runtime behavior"
+    assert gate.covering_test(message) is None
+    assert gate.judge(message, ["docs/x.md"], TYPES) == []

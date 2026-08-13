@@ -87,6 +87,13 @@ _EXEMPTION = re.compile(
 #: How short a reason is too short to be one.
 MIN_REASON_CHARS = 20
 
+#: `Regression-Test: <path>`, naming a test that already covers the defect.
+#: A data fix is the case: correcting roadmap.yaml or gates.yaml can be caught
+#: by a check that predates the commit, so the covering test is red before the
+#: fix and green after, and the commit touches no test file because there was
+#: nothing to add. The path is verified rather than taken on trust.
+_COVERED_BY = re.compile(r"^Regression-Test:\s*(?P<path>[\w./\\-]+\.py)\s*$", re.MULTILINE)
+
 #: What counts as a test. A path under a tests directory, or a file named the
 #: way pytest discovers one.
 TEST_DIR_PARTS = ("tests",)
@@ -142,6 +149,12 @@ def subject_of(message: str) -> str:
     return ""
 
 
+def covering_test(message: str) -> str | None:
+    """The test a `Regression-Test: <path>` trailer names, if there is one."""
+    match = _COVERED_BY.search(message)
+    return match.group("path").strip() if match else None
+
+
 def exemption_reason(message: str) -> str | None:
     match = _EXEMPTION.search(message)
     return match.group("reason").strip() if match else None
@@ -157,6 +170,21 @@ def judge(message: str, paths: list[str], types: frozenset[str]) -> list[str]:
         # the author to two places for one defect.
         return []
     if match.group("type") != FIX_TYPE:
+        return []
+
+    covering = covering_test(message)
+    if covering is not None:
+        if not is_test_path(covering):
+            return [
+                f"names `Regression-Test: {covering}`, which is not a test path. "
+                f"The trailer names the test that already covers the defect, and a "
+                f"path outside a tests directory is not one"
+            ]
+        if not (REPO_ROOT / covering).is_file():
+            return [
+                f"names `Regression-Test: {covering}`, which is not in the checkout. "
+                f"A trailer naming a test nobody can run records nothing"
+            ]
         return []
 
     reason = exemption_reason(message)
@@ -229,6 +257,24 @@ def selftest() -> int:
             ["docs/x.md"],
             1,
             "an exemption with no real reason",
+        ),
+        (
+            "fix: data\n\nRegression-Test: tests/test_regression_test_gate.py",
+            ["roadmap.yaml"],
+            0,
+            "a data fix naming the test that already covers it",
+        ),
+        (
+            "fix: data\n\nRegression-Test: tests/test_nope.py",
+            ["roadmap.yaml"],
+            1,
+            "a trailer naming a test nobody can run",
+        ),
+        (
+            "fix: data\n\nRegression-Test: scripts/checks/prose-gate.py",
+            ["roadmap.yaml"],
+            1,
+            "a trailer naming something that is not a test",
         ),
         ("not a conventional subject", ["src/a.py"], 0, "CC-001 owns an unparseable subject"),
     ]
