@@ -5,22 +5,28 @@
 # is the hard backstop (.github/workflows/lint.yml runs all of this repo-wide).
 #
 # Gates, in order:
-#   0. IP hygiene     - client and employer names, and internal-document markers
-#   1. prose          - documentation standard conformance
-#   2. nondeterminism - no direct clock, RNG, or socket calls outside the kernel
-#   3. ruff           - lint and format check on Python
-#   4. markdownlint   - Markdown
-#   5. shellcheck     - shell
-#   6. actionlint     - workflows
+#   0.  IP hygiene     - client and employer names, and internal-document markers
+#   1.  prose          - documentation standard conformance
+#   1b. spelling       - British variants and common misspellings
+#   2.  nondeterminism - no direct clock, RNG, or socket calls outside the kernel
+#   3.  ruff           - lint and format check on Python
+#   4.  markdownlint   - Markdown
+#   5.  shellcheck     - shell
+#   6.  actionlint     - workflows
 #
 # Bypass:
 #   LINT_OK=1 git commit ...     skip these lint gates, keep commit-msg checks
-#   git commit --no-verify ...   skip every hook
+#   git commit --no-verify ...   skip every hook, including gate 0
 #
-# Gate 0 is outside both bypasses on purpose, and is the only gate that is. The
-# others guard style, and a style finding costs a follow-up commit. Gate 0
-# guards a disclosure into a public history, and that costs a history rewrite,
-# so it runs before the bypass is read.
+# Gate 0 runs before LINT_OK is read, and is the only gate that does. The others
+# guard style, and a style finding costs a follow-up commit. Gate 0 guards a
+# disclosure into a public history, and that costs a history rewrite.
+#
+# --no-verify is different, and the difference matters. install.sh copies these
+# hooks into .git/hooks rather than setting core.hooksPath, so --no-verify stops
+# git invoking this file at all and gate 0 never runs. No hook can defend
+# against that. The backstop for a disclosure is lint.yml, which runs the
+# generic half over the whole tree on every push.
 set -u
 
 root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0

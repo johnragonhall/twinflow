@@ -2,8 +2,8 @@
 
 `scripts/hooks/resolve-python.sh` exists because both hooks need to pick a
 Python interpreter and two copies of that choice drift. It also exists because
-the choice is measured: the project virtualenv starts in roughly a fifth of the
-time `uv run` takes, and a commit runs six gates through it.
+the choice is measured rather than assumed. The measurement and its method live
+in that file's header, and the last test here is what keeps them there.
 
 The assertions here are about the shape of the resolution rather than about
 timing. A wall-clock assertion in the unit tier fails on a loaded runner and

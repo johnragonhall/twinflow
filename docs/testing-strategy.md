@@ -80,7 +80,10 @@ Work down this list and take the first row that fits.
 5. The change adds a public symbol to a package. Extend that package's brick
    isolation test.
 6. The change fixes a bug. Write a regression test in the tier matching its
-   runtime, not the tier matching where the bug lived.
+   runtime, not the tier matching where the bug lived. This one is a rule
+   rather than a choice, and `VAL-GATE-REG-001` enforces it.
+   [testing-policy.md](testing-policy.md) carries the procedure and the
+   trailer that exempts a defect with no test which could fail.
 
 A change matching none of the six is either an implementation detail with an
 existing test above it, or a change whose effect nobody has stated. The second

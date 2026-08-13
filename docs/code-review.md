@@ -44,11 +44,12 @@ Each row is a hard stop. None of them is waived by argument in a review thread,
 because each one has a document or a gate behind it.
 
 | Blocker                                                                       | Behind it                      |
-| ----------------------------------------------------------------------------- | ------------------------------ |
+|-------------------------------------------------------------------------------|--------------------------------|
 | A red gate in the set in force at the open phase                              | `just gate phase-exit <phase>` |
 | A number in a document that no recorded run produced                          | Section 1 of ENGINEERING.md    |
 | A new statistic with no validation gate naming its external reference         | Doctrine D-11                  |
 | A test whose assertion holds for every possible implementation                | Doctrine D-12                  |
+| A fix commit carrying no test and no exemption trailer                        | `VAL-GATE-REG-001`             |
 | A wall-clock read outside the four places doctrine permits                    | Doctrine D-02                  |
 | A dependency whose license is outside the allowlist                           | Decision D15                   |
 | A milestone id removed from the plan rather than reordered                    | Section 1 of ROADMAP.md        |

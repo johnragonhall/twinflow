@@ -1,16 +1,21 @@
 # Single task entry point. CI calls these same recipes, so a green local run
 # and a green CI run mean the same thing.
 #
-# PERF: L0 rejected for these recipes, applied to the hooks. `uv run` costs
-# 643ms of startup before recipe code runs, against 145ms for the interpreter
-# in .venv (medians of 5, this checkout). That ratio pays in the pre-commit
-# hook, which runs six short gates where startup is most of the work:
-# scripts/hooks/resolve-python.sh now picks the virtualenv there, and the hook
-# went from 2787ms to 1202ms wall clock, 3 runs each with no overlap.
-# It does not pay here. A recipe is one long process, not six short ones:
-# `just test` runs 41s, so the same 500ms is under 2% of it, and Amdahl caps
-# the gain at 1.01x. CI calls these recipes as its entry point and needs the
-# environment resolved from the lockfile rather than from whatever .venv holds.
+# PERF: L0 rejected for these recipes, applied to the hooks. One `uv run`
+# launch costs 643ms before any code runs, against 145ms for the interpreter in
+# .venv, medians of five on this checkout. The per-launch delta is 498ms.
+#
+# That pays in the pre-commit hook, which spends most of its time starting
+# interpreters rather than reading files. Measured end to end on this checkout
+# with an empty staged set, three runs each and no overlap between the two
+# sets: 2787ms before scripts/hooks/resolve-python.sh, 1202ms after.
+#
+# It does not pay here. A recipe is one long process rather than several short
+# ones, and the fast tier alone is budgeted at 60s in CONTRIBUTING.md, so one
+# 498ms launch is under a percent of the budget it sits inside. CI calls these
+# recipes as its entry point and needs the environment resolved from the
+# lockfile rather than from whatever .venv happens to hold.
+#
 # Revisit if a recipe shorter than five seconds ends up on a per-save path.
 
 # List every recipe with its description.
@@ -76,6 +81,13 @@ lint:
     uv run python scripts/checks/spelling-gate.py --selftest
     uv run python scripts/checks/spelling-gate.py --all
     uv run python scripts/checks/workspace-members-gate.py
+    # RA-a and RA-b, asserted rather than described. Both carry a selftest
+    # because a completeness check over a document that already passes is a
+    # check nobody has watched refuse anything.
+    uv run python scripts/checks/layer-map-gate.py --selftest
+    uv run python scripts/checks/layer-map-gate.py
+    uv run python scripts/checks/compose-segmentation-gate.py --selftest
+    uv run python scripts/checks/compose-segmentation-gate.py
     uv run python scripts/checks/import-boundary-gate.py
     uv run python tools/gen_importlinter.py --check
     uv run python tools/gen_schemas.py --check

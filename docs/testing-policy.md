@@ -1,7 +1,7 @@
 ---
 title: Testing policy
 description: The rule that a fix ships with the test that catches it, the procedure that makes such a test valid, and the gate that enforces the rule.
-topic_type: procedure
+topic_type: task
 audience: contributors
 ---
 
@@ -49,8 +49,8 @@ The order matters, and it is the whole procedure.
 
 Step 2 is the step that gets skipped, and skipping it is how a test that
 asserts nothing reaches the suite. A test written after the fix passes on its
-first run, and a first run that passes proves only that the code and the test
-agree today.
+first run. A first run that passes proves only that the code and the test agree
+today.
 
 Name the test for the defect rather than the function. `test_a_script_does_not
 _answer_for_itself` says what broke. `test_check_reached` says where somebody
@@ -74,9 +74,9 @@ the isinstance chain has three branches breaks when somebody rewrites the chain
 correctly. A test that asserts a bool is compared exactly survives the rewrite
 and still catches the defect.
 
-Pick the tier by the test's runtime, not by where the bug lived. A bug in a
-slow integration path can often be pinned by a fast unit test, and that test
-runs on every commit rather than nightly.
+Pick the tier by the test's runtime, not by where the bug lived. A bug in a slow
+integration path can often be pinned by a fast unit test. That test then runs
+on every commit rather than nightly.
 
 ## 3. What the gate checks, and what it cannot
 
@@ -120,13 +120,19 @@ log beside the commit it excuses, where review reads it.
 | Where                  | Range                    | Blocks                               |
 | ---------------------- | ------------------------ | ------------------------------------ |
 | `commit-msg` hook      | the commit being written | the commit                           |
-| `just gate regression` | `v0.1.0..HEAD`           | the phase exit and CI                |
+| `lint.yml`             | `v0.1.0..HEAD`           | the branch and the pull request      |
+| `just gate regression` | `v0.1.0..HEAD`           | the phase exit                       |
 | `--selftest`           | nine cases               | a change that breaks the gate itself |
 
-The range starts at `v0.1.0` because that is where the policy starts. History
-written before the rule existed was written under a policy that did not exist,
-and rewriting it would rewrite every hash after it. Every fix since that tag
-already carries a test, so the baseline costs nothing to adopt.
+The range starts at `v0.1.0`, which is 17 commits before the gate landed. The
+tag is a boundary rather than the moment the rule became readable. A handful of
+fixes in that gap are held to a rule their author could not have read.
+
+That is deliberate, and it is cheap. Every fix since the tag already carries a
+test, checked by `test_the_shipped_history_satisfies_the_gate` rather than
+asserted here. Starting earlier would judge history written before any of this
+existed. Moving the boundary later would weaken a range the tree already
+passes.
 
 The selftest is there because a gate has to be seen failing. It runs nine
 cases, and two of them expect a finding. A gate whose failing path nobody

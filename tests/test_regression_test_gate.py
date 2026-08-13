@@ -17,6 +17,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 GATE = REPO_ROOT / "scripts" / "checks" / "regression-test-gate.py"
@@ -149,9 +150,69 @@ def test_the_commit_msg_hook_calls_this_gate():
     assert "--staged" in text
 
 
-def test_the_justfile_carries_the_recipe_the_registry_names():
-    text = (REPO_ROOT / "justfile").read_text(encoding="utf-8")
-    assert "regression) uv run python scripts/checks/regression-test-gate.py" in text
+def registry_command() -> str:
+    """The command `VAL-GATE-REG-001` declares."""
+    registry = yaml.safe_load((REPO_ROOT / "gates.yaml").read_text(encoding="utf-8"))
+    return registry["gates"]["VAL-GATE-REG-001"]["command"].strip()
+
+
+def test_the_justfile_runs_exactly_the_command_the_registry_names():
+    """Regression. The range lived in three files and nothing compared them.
+
+    An earlier assertion stopped at the script path, so `gates.yaml` and the
+    justfile could name different ranges and both look wired. The phase-exit
+    runner calls the registry command and a contributor calls the recipe, so a
+    divergence means the two of them check different history.
+    """
+    justfile = (REPO_ROOT / "justfile").read_text(encoding="utf-8")
+    command = registry_command()
+    assert f"regression) {command} ;;" in justfile, (
+        f"the justfile arm and the registry disagree. The registry says {command!r}"
+    )
+
+
+def test_the_documented_range_is_the_range_that_runs():
+    # docs/testing-policy.md section 5 prints the range in a table, and a
+    # reader takes that as what CI checks.
+    command = registry_command()
+    rng = command.split("--range", 1)[1].strip()
+    policy = (REPO_ROOT / "docs" / "testing-policy.md").read_text(encoding="utf-8")
+    assert rng in policy, f"the policy page does not name the range {rng!r} the gate runs"
+
+    workflow = (REPO_ROOT / ".github" / "workflows" / "lint.yml").read_text(encoding="utf-8")
+    assert rng in workflow, f"lint.yml does not run the range {rng!r} the policy claims"
+
+
+def test_the_exemption_floor_is_the_one_the_documents_quote():
+    """Regression. Three documents spelled out a constant nothing checked.
+
+    `MIN_REASON_CHARS` is the floor, and the policy page, CONTRIBUTING, and the
+    registry all state it in words. A contributor who writes to the documented
+    length and is refused by the gate has been told the wrong number.
+    """
+    floor = gate.MIN_REASON_CHARS
+    spelled = {20: "twenty", 25: "twenty-five", 30: "thirty", 40: "forty"}.get(floor)
+    assert spelled, f"no spelling known for {floor}, so this check cannot read the prose"
+
+    for relative in ("docs/testing-policy.md", "gates.yaml"):
+        text = (REPO_ROOT / relative).read_text(encoding="utf-8")
+        assert spelled in text or str(floor) in text, (
+            f"{relative} does not state the {floor}-character floor the gate enforces"
+        )
+
+
+def test_the_selftest_case_count_is_the_one_the_policy_prints():
+    result = subprocess.run(
+        ["python", str(GATE), "--selftest"], capture_output=True, text=True, cwd=REPO_ROOT
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    total = int(result.stdout.rsplit("selftest:", 1)[1].split("/")[1].split()[0])
+    spelled = {9: "nine", 10: "ten", 11: "eleven", 12: "twelve"}.get(total)
+    assert spelled, f"no spelling known for {total} cases"
+    policy = (REPO_ROOT / "docs" / "testing-policy.md").read_text(encoding="utf-8")
+    assert f"{spelled} cases" in policy, (
+        f"the selftest runs {total} cases and the policy page prints a different count"
+    )
 
 
 def test_the_selftest_passes_and_exercises_the_failing_path():

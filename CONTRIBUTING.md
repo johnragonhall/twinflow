@@ -121,49 +121,55 @@ log beside the commit it excuses.
 
 [docs/testing-policy.md](docs/testing-policy.md) carries the procedure and what
 the gate cannot check. [docs/testing-strategy.md](docs/testing-strategy.md)
-covers which of the six kinds of test a change needs.
+covers which kind of test a change needs.
 
 ## Linting
 
 Two workflows share this work, and they do not cover the same ground. Read the
 `Enforced by` column before you assume a green tick covers your change.
 
-| Target      | Tool                                     | Config                     | Enforced by                                                        |
-|-------------|------------------------------------------|----------------------------|--------------------------------------------------------------------|
-| IP hygiene  | `scripts/checks/banned-terms-gate.py`    | `.ip-denylist`             | `pre-commit`, staged files, before either bypass is read           |
-| Regression  | `scripts/checks/regression-test-gate.py` | none                       | `commit-msg`, the commit being written, and `just gate regression` |
-| Commit log  | `scripts/checks/commit-message-gate.py`  | `scripts/hooks/commit-msg` | `lint.yml`, the range since the previous tag                       |
-| Prose       | `scripts/checks/prose-gate.py`           | `docs/style/*.yml`         | `lint.yml`, whole tree, on every commit that reaches it            |
-| Spelling    | `scripts/checks/spelling-gate.py`        | `docs/style/spelling.yml`  | `lint.yml`, whole tree, and the commit message                     |
-| Determinism | `scripts/checks/nondeterminism-gate.sh`  | none                       | `lint.yml`, whole tree                                             |
-| Metrics     | `scripts/checks/metric-marker-gate.sh`   | none                       | `lint.yml`, report mode, fatal only on a release tag               |
-| Markdown    | `markdownlint-cli2`                      | `.markdownlint.jsonc`      | `lint.yml`, whole tree                                             |
-| Shell       | `shellcheck`                             | `.shellcheckrc`            | `lint.yml`, whole tree                                             |
-| Workflows   | `actionlint`                             | none                       | `lint.yml`, whole tree                                             |
-| Agreement   | the `cla` job                            | `CLA.md` section 7         | `lint.yml`, pull requests only                                     |
-| Python      | `ruff check`, `ruff format --check`      | `pyproject.toml`           | `ci.yml`, only when its `python` path filter matches               |
-| Types       | `ty check`                               | `pyproject.toml`           | `ci.yml`, only when its `python` path filter matches               |
-| Rust        | `cargo fmt`, `cargo clippy -D warnings`  | `agent/`                   | `ci.yml`, only when `agent/` changed                               |
+| Target      | Tool                                     | Config                     | Enforced by                                                         |
+|-------------|------------------------------------------|----------------------------|---------------------------------------------------------------------|
+| IP hygiene  | `scripts/checks/banned-terms-gate.py`    | `.ip-denylist`             | `pre-commit`, staged files, before either bypass is read            |
+| Regression  | `scripts/checks/regression-test-gate.py` | `scripts/hooks/commit-msg` | `commit-msg`, `lint.yml` over the range, and `just gate regression` |
+| Commit log  | `scripts/checks/commit-message-gate.py`  | `scripts/hooks/commit-msg` | `lint.yml`, the range since the previous tag                        |
+| Prose       | `scripts/checks/prose-gate.py`           | `docs/style/*.yml`         | `lint.yml`, whole tree, on every commit that reaches it             |
+| Spelling    | `scripts/checks/spelling-gate.py`        | `docs/style/spelling.yml`  | `lint.yml`, whole tree, and the commit message                      |
+| Determinism | `scripts/checks/nondeterminism-gate.sh`  | none                       | `lint.yml`, whole tree                                              |
+| Metrics     | `scripts/checks/metric-marker-gate.sh`   | none                       | `lint.yml`, report mode, fatal only on a release tag                |
+| Markdown    | `markdownlint-cli2`                      | `.markdownlint.jsonc`      | `lint.yml`, whole tree                                              |
+| Shell       | `shellcheck`                             | `.shellcheckrc`            | `lint.yml`, whole tree                                              |
+| Workflows   | `actionlint`                             | none                       | `lint.yml`, whole tree                                              |
+| Agreement   | the `cla` job                            | `CLA.md` section 7         | `lint.yml`, pull requests only                                      |
+| Python      | `ruff check`, `ruff format --check`      | `pyproject.toml`           | `ci.yml`, only when its `python` path filter matches                |
+| Types       | `ty check`                               | `pyproject.toml`           | `ci.yml`, only when its `python` path filter matches                |
+| Rust        | `cargo fmt`, `cargo clippy -D warnings`  | `agent/`                   | `ci.yml`, only when `agent/` changed                                |
 
-The `python` filter in `ci.yml` covers `src/`, `tests/`, `scenarios/`,
-`pyproject.toml`, `uv.lock`, and `ci.yml` itself. A Python file outside those
-paths is linted by the pre-commit hook and by `scripts/ci-local.sh`, and not by
-a hosted job.
+The `python` filter in `ci.yml` covers `packages/`, `tools/`, `scripts/`,
+`tests/`, `scenarios/`, `justfile`, `pyproject.toml`, `uv.lock`, and `ci.yml`
+itself. Every line of Python this project ships lands under one of those, so a
+pull request that skips the job touched none of them. A path missing from the
+list skips the job, and the aggregate `ci` job counts a skipped job as success,
+so the list is what keeps the badge honest.
 
-The pre-commit hook runs the IP hygiene, prose, determinism, Python, Markdown,
-shell, and workflow gates over the staged files. It does not run `ty`, `cargo`,
+The pre-commit hook runs the IP hygiene, prose, spelling, determinism, Python,
+Markdown, shell, and workflow gates over the staged files. It does not run `ty`, `cargo`,
 or the metric marker gate.
 
-IP hygiene runs first and is the one gate that neither `LINT_OK=1` nor
-`--no-verify` skips. The others guard style, and a style finding costs a
-follow-up commit. That one guards a client name or an internal document marker
-reaching a public history, which costs a history rewrite, so it runs before the
-bypass is read.
+IP hygiene runs before `LINT_OK=1` is read, and is the only gate that does. The
+others guard style, and a style finding costs a follow-up commit. That one
+guards a client name or an internal document marker reaching a public history,
+which costs a history rewrite.
+
+`--no-verify` is different. The hooks are copied into `.git/hooks` rather than
+installed through `core.hooksPath`, so `--no-verify` stops git running the hook
+at all and gate 0 with it. No hook defends against that flag. The backstop is
+`lint.yml`, which runs the generic half over the whole tree on every push.
 
 The commit-msg hook runs the spelling gate, the narration judge, and the
-regression gate against the message and the staged files together. It runs
-there rather than in pre-commit because two of those rules read the commit
-type. That type does not exist until the message does.
+regression gate against the message and the staged files together. The
+regression gate runs there rather than in pre-commit because it reads the
+commit type, and that type does not exist until the message does.
 
 Markdown tables are column-aligned. markdownlint reports a misaligned table as
 `MD060` and does not repair it. Re-align an edited table with
@@ -175,9 +181,9 @@ it prints a skip line and passes, and CI catches what it missed.
 
 Both hooks pick their interpreter through `scripts/hooks/resolve-python.sh`,
 which prefers the project virtualenv and falls back to `uv` and then to a bare
-interpreter. The virtualenv carries PyYAML and starts in roughly a fifth of the
-time `uv run` takes, which is most of what a commit waits for. Its header
-carries the measurement.
+interpreter. The virtualenv carries PyYAML and starts faster, which is most of
+what a commit waits for. That file's header carries the measurement and the
+method behind it.
 
 Install the tools you are missing so the hook stops skipping them:
 

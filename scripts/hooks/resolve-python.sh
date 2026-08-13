@@ -9,15 +9,16 @@
 #
 # WHY THE VIRTUALENV COMES FIRST
 # ------------------------------
-# Startup, measured on the reference checkout, medians of five:
+# Startup for one launch, medians of five on the reference checkout:
 #
 #   .venv interpreter                                145 ms
 #   uv run --quiet --no-project python               643 ms
 #   uv run --quiet --no-project --with pyyaml python 792 ms
 #
-# A commit runs six of these, so the difference is 5110 ms against 1389 ms of
-# wall clock, three runs each with no overlap. A hook a contributor waits
-# through is a hook they learn to pass --no-verify.
+# A commit pays that several times over, once per gate. The end to end figure
+# is in the justfile marker beside the recipe it was taken from, so it is
+# stated once rather than restated here. A hook a contributor waits through is
+# a hook they learn to pass --no-verify.
 #
 # Nothing is given up for it. `--no-project` already syncs nothing, so the uv
 # path is a launcher rather than an environment check, and a stale virtualenv
