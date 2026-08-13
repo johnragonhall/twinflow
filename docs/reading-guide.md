@@ -28,14 +28,14 @@ Pick the route that matches the time you have.
 Phase P0 is the contract phase. It ships no product. It fixes the decisions a
 later phase cannot change without invalidating every run already recorded.
 
-| Question                        | Answer today                                                                                                          |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| What is tagged                  | v0.1.0, the P0 contracts release                                                                                      |
-| What installs                   | `twinflow-schemas`, `twinflow-rng`, `twinflow-kernel`, `twinflow-config`, and the `twinflow-roadmap` tool, each alone |
-| What runs                       | A determinism scenario, `SCN-F1`, which writes an event log and matches its own hash across two runs                  |
-| What does not exist             | The station model, the device fleet, the statistical engine, the agent, and the dashboard                             |
-| Gates in force at the P0 exit   | Twelve, all of them implemented and runnable                                                                          |
-| Gates declared for later phases | 138 in total, each carrying the phase it starts at                                                                    |
+| Question                      | Answer today                                                                                                          |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| What is tagged                | v0.1.0, the P0 contracts release                                                                                      |
+| What installs                 | `twinflow-schemas`, `twinflow-rng`, `twinflow-kernel`, `twinflow-config`, and the `twinflow-roadmap` tool, each alone |
+| What runs                     | A determinism scenario, `SCN-F1`, which writes an event log and matches its own hash across two runs                  |
+| What does not exist           | The station model, the device fleet, the statistical engine, the agent, and the dashboard                             |
+| Gates in force at the P0 exit | Twelve, all of them implemented and runnable                                                                          |
+| Gates in the registry         | 141 in total, each carrying the phase it starts at                                                                    |
 
 A reader who wants a running warehouse will not find one. A reader who wants to
 see how someone sets up a system so that its later numbers can be trusted is in

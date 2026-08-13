@@ -70,7 +70,7 @@ The phase-exit runner refuses to skip. A gate in force at a phase that is not
 `implemented` fails the run, because the registry already promised it at the
 phase it starts at. That is the difference between a plan and an intention.
 
-138 gates are declared. Twelve are in force at the P0 exit, and all twelve are
+141 gates are declared. Twelve are in force at the P0 exit, and all twelve are
 implemented.
 
 | Enforced by                                                                                     | Where                               |
