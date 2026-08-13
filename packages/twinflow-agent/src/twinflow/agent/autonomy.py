@@ -139,13 +139,18 @@ class AutonomyGrant(BaseModel):
         The second half of the rule is the one that gets forgotten. An approver
         equal to the requester is self-approval, which is self-elevation with a
         friendlier name, and it stays refused even when both actors are human.
+
+        The comparison is on `id` alone, never on the whole `ActorId`. Model
+        equality reads `kind` too, so one principal requesting as an agent and
+        approving as a human compares unequal and the rule lets them through.
+        The id is the principal; `kind` is a claim about it.
         """
         if self.approver.kind != "human":
             raise ValueError(
                 f"an elevation to {self.granted_tier} needs a human approver, "
                 f"and {self.approver.id!r} is an agent"
             )
-        if self.approver == self.requested_by:
+        if self.approver.id == self.requested_by.id:
             raise ValueError(
                 f"{self.approver.id!r} cannot approve their own request for "
                 f"{self.granted_tier}: an approval is a second party or it is nothing"

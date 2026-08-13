@@ -117,6 +117,31 @@ def test_a_human_cannot_approve_their_own_request():
         grant_for(make_session()[0], requested_by=HUMAN, approver=HUMAN)
 
 
+def test_one_principal_cannot_approve_itself_by_changing_its_own_kind():
+    """The same id requesting as an agent and approving as a human is one
+    principal, not two.
+
+    `ActorId` is a model, so whole-model equality reads `kind` as well as `id`.
+    Comparing the models therefore let a caller pass the non-self-elevation rule
+    by flipping the field that says what it is, which is the claim under test
+    rather than an identity. The id is the principal.
+    """
+    with pytest.raises(ValidationError):
+        grant_for(
+            make_session()[0],
+            requested_by=ActorId(kind="agent", id="ops-copilot"),
+            approver=ActorId(kind="human", id="ops-copilot"),
+        )
+
+
+def test_two_different_principals_still_approve_each_other():
+    """The control. A rule that refused every pair would pass the test above
+    while making an elevation impossible to approve at all."""
+    grant = grant_for(make_session()[0], requested_by=AGENT, approver=HUMAN)
+
+    assert grant.approver.id != grant.requested_by.id
+
+
 def test_a_grant_never_names_a_wildcard_scope():
     with pytest.raises(ValidationError):
         grant_for(make_session()[0], scope=("*",))
