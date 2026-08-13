@@ -109,6 +109,7 @@ nav:
       - Dashboard and replay: design/dashboard-replay.md
       - Repository craft: design/repo-craft.md
       - Phase detail: design/roadmap.md
+  - Validation gates: gates.md
   - Documentation standard: DOCUMENTATION-STANDARD.md
 
 extra:

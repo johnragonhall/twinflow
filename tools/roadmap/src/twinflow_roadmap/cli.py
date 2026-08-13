@@ -14,11 +14,13 @@ import argparse
 import sys
 from pathlib import Path
 
+from twinflow_roadmap import render as render_module
 from twinflow_roadmap.coverage import check_coverage, missing_quotes
 from twinflow_roadmap.drift import check_drift
 from twinflow_roadmap.errors import Finding, RoadmapError
 from twinflow_roadmap.graph import graph_lint, render_mermaid
 from twinflow_roadmap.roadmap import Roadmap
+from twinflow_roadmap.sync import apply_plan, build_plan
 
 #: The repository root, from this file: tools/roadmap/src/twinflow_roadmap/cli.py
 DEFAULT_ROOT = Path(__file__).resolve().parents[4]
@@ -99,6 +101,52 @@ def command_drift(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_render(args: argparse.Namespace) -> int:
+    roadmap = _load(args.root)
+    if args.check:
+        findings = render_module.check(roadmap)
+        if findings:
+            sys.stderr.write(f"\nBLOCKED: {len(findings)} generated documents are stale\n")
+            _print(findings)
+            return 1
+        print(f"[roadmap] {len(render_module.DOCUMENTS)} generated documents are current")
+        return 0
+
+    changed = render_module.write(roadmap)
+    for path in changed:
+        print(f"[roadmap] wrote {path.as_posix()}")
+    if not changed:
+        print(f"[roadmap] {len(render_module.DOCUMENTS)} generated documents were already current")
+    return 0
+
+
+def command_sync(args: argparse.Namespace) -> int:
+    roadmap = _load(args.root)
+    plan = build_plan(roadmap, offline=args.offline)
+    print(plan.render())
+
+    if not args.apply:
+        if plan.operations:
+            print(
+                "\n[roadmap] dry run: nothing was changed. Re-run with --apply "
+                "from a checkout to perform the operations above"
+            )
+        return 0
+
+    refused = apply_plan(plan, roadmap, context=args.context)
+    if refused:
+        sys.stderr.write(
+            f"\nBLOCKED: {len(refused)} operations were refused or failed in "
+            f"context {args.context or 'a checkout'}\n"
+        )
+        for line in refused:
+            sys.stderr.write(f"  {line}\n")
+        return 1
+
+    print(f"[roadmap] applied {len(plan.operations)} operations")
+    return 0
+
+
 def command_gates(args: argparse.Namespace) -> int:
     roadmap = _load(args.root)
     if args.phase:
@@ -159,6 +207,40 @@ def build_parser() -> argparse.ArgumentParser:
         help="run the local half only, without contacting the tracker",
     )
     drift.set_defaults(handler=command_drift)
+
+    render = subparsers.add_parser(
+        "render", help="write the documents generated from the roadmap data"
+    )
+    render.add_argument(
+        "--check",
+        action="store_true",
+        help="regenerate in memory and fail when a document on disk disagrees",
+    )
+    render.set_defaults(handler=command_render)
+
+    sync = subparsers.add_parser(
+        "sync", help="project roadmap.yaml onto the tracker. Prints the plan and changes nothing"
+    )
+    sync.add_argument(
+        "--apply",
+        action="store_true",
+        help="perform the plan. Without it the plan is printed and nothing is changed",
+    )
+    sync.add_argument(
+        "--context",
+        default=None,
+        help=(
+            "the automation context applying this. Only a context .roadmap-sync.yaml "
+            "allows may touch milestones, and none may mutate issues: that waits for a "
+            "human running --apply from a checkout"
+        ),
+    )
+    sync.add_argument(
+        "--offline",
+        action="store_true",
+        help="compute nothing and report what a tracker read would have covered",
+    )
+    sync.set_defaults(handler=command_sync)
 
     gates = subparsers.add_parser("gates", help="print the gate registry")
     gates.add_argument("--phase", help="print the exit gates for one phase instead")

@@ -7,6 +7,7 @@ no workspace package at all".
 """
 
 import ast
+import sys
 import tomllib
 from pathlib import Path
 
@@ -52,22 +53,11 @@ def test_every_third_party_import_is_declared():
         declared.add(name)
         declared.add(name.replace("-", "_"))
         declared.add(name.split(".")[0])
-    standard_library = {
-        "__future__",
-        "argparse",
-        "ast",
-        "collections",
-        "dataclasses",
-        "json",
-        "pathlib",
-        "re",
-        "shutil",
-        "subprocess",
-        "sys",
-        "textwrap",
-        "tomllib",
-        "typing",
-    }
+    # The interpreter's own list, rather than a set maintained here. A
+    # hand-written allowlist has to be edited every time a module imports a
+    # standard-library name nobody thought of, and the finding it produces
+    # reads as a boundary violation rather than as a missing line in a test.
+    standard_library = set(sys.stdlib_module_names)
     borrowed: dict[str, list[str]] = {}
     for path in sorted(SOURCE_ROOT.rglob("*.py")):
         outside = {

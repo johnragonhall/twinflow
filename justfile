@@ -91,6 +91,10 @@ lint:
 #   just roadmap validate        one of them
 #   just roadmap coverage --quotes
 #   just roadmap drift           needs gh; reports what it skipped without it
+#   just roadmap render          write docs/gates.md from gates.yaml
+#   just roadmap render --check  fail when a generated document is stale
+#   just roadmap sync            print the tracker plan and change nothing
+#   just roadmap sync --apply    perform it from a checkout
 roadmap *args:
     #!/usr/bin/env sh
     set -eu
@@ -128,6 +132,7 @@ roadmap-gate:
     uv run twinflow-roadmap validate
     uv run twinflow-roadmap coverage
     uv run twinflow-roadmap graph-lint
+    uv run twinflow-roadmap render --check
     uv run twinflow-roadmap drift --offline
 
 # REL-001 for a tag about to be cut. Without a version it checks the

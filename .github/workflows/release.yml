@@ -13,11 +13,11 @@ name: Release
 #
 # STEPS THAT CANNOT RUN YET
 # -------------------------
-# Six ritual steps need artifacts a later phase produces: the end-to-end tier,
-# the phase-exit gate runner, the README headline metric, the replay bundle, the
-# load harness, and the ROADMAP renderers. Each is a step here, each names the
-# work package that arms it, and each prints why it did nothing. A skipped step
-# that prints nothing is a step a reader assumes ran.
+# Three ritual steps need artifacts a later phase produces: the README headline
+# metric, which needs a seeded run P1 delivers; the E1 replay bundle, from
+# v0.3.0; and the A4 load harness, from v0.4.0. Each is a step here, each names
+# the tag that arms it, and each prints why it did nothing. A skipped step that
+# prints nothing is a step a reader assumes ran.
 #
 # WHAT IT MUTATES
 # ---------------
@@ -96,6 +96,26 @@ jobs:
           uv tool install rust-just
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
+      # The phase this tag releases, from roadmap.yaml rather than from an
+      # input. A version and a phase that disagree is a release record naming
+      # gates the release did not run.
+      - name: Resolve the phase this tag releases
+        id: phase
+        run: |
+          phase=$(uv run python -c "
+          import sys, yaml
+          tag = 'v${{ inputs.version }}'
+          data = yaml.safe_load(open('roadmap.yaml', encoding='utf-8'))
+          for entry in data['phases']:
+              if entry['release_tag'] == tag:
+                  print(entry['id'])
+                  break
+          else:
+              sys.exit(f'no phase in roadmap.yaml releases {tag}')
+          ")
+          echo "id=$phase" >> "$GITHUB_OUTPUT"
+          echo "v${{ inputs.version }} releases phase $phase"
+
       # 1. Lint, types, and the unit tier.
       - name: Step 1, just check
         run: just check
@@ -104,21 +124,15 @@ jobs:
       - name: Step 2, property invariants
         run: just test-property
 
-      # 3. The end-to-end tier. It arms when the first scenario exists.
+      # 3. The end-to-end tier: SCN-F1 runs, its log satisfies the envelope
+      #    invariants, and three runs at one seed hash the same.
       - name: Step 3, end-to-end tier
-        run: |
-          if just --list | grep -q '^ *test-e2e'; then
-            just test-e2e
-          else
-            echo "SKIP: no test-e2e recipe yet. It arrives with the SCN-F1 scenario in WP-P0-17."
-          fi
+        run: just test-e2e
 
       # 4. The phase-exit suite. The gate runner is WP-P0-15; until it lands,
       #    the gates that do exist run individually rather than through it.
       - name: Step 4, phase-exit gates
-        run: |
-          just gate phase-exit
-          just determinism
+        run: just gate phase-exit ${{ steps.phase.outputs.id }}
 
       - name: Step 4b, roadmap drift against the tracker
         env:
@@ -142,16 +156,17 @@ jobs:
         run: |
           echo "SKIP: VAL-GATE-PERF-001 applies from v0.4.0."
 
-      # 8. The generated artifacts are regenerated and the tree is asserted
-      #    clean over those paths and no others. The renderers land with
-      #    WP-P0-13; the check half of the same rule runs today.
+      # 8. Every generated artifact is regenerated and the tree is asserted
+      #    clean over those paths and no others. Regenerating rather than only
+      #    checking is the point: a tag that shipped a stale gate table would
+      #    publish a promise the registry does not make.
       - name: Step 8, generated artifacts are current
         run: |
           uv run python tools/gen_schemas.py --check
           uv run python tools/gen_importlinter.py --check
           uv run twinflow-roadmap graph-lint
-          echo "SKIP: the ROADMAP.md and docs/gates.md renderers arrive with WP-P0-13."
-          git diff --exit-code -- ROADMAP.md schemas .importlinter
+          uv run twinflow-roadmap render
+          git diff --exit-code -- ROADMAP.md docs/gates.md schemas .importlinter
 
       # 9. SBOM, license allowlist, and the wheels.
       - name: Step 9, SBOM and license allowlist
@@ -209,26 +224,39 @@ jobs:
         with:
           packages-dir: dist
 
-      - name: Step 11c, close this milestone and open the next
+      # 11c. Milestone lifecycle only. --context release-workflow is what
+      #      .roadmap-sync.yaml allows this job to apply: it may create and
+      #      describe a milestone and it may not touch an issue. Issue mutation
+      #      waits for a human running `just roadmap sync --apply` from a
+      #      checkout, and the sync refuses it here rather than being trusted
+      #      not to try.
+      - name: Step 11c, project the roadmap onto the tracker
         if: ${{ !inputs.dry_run }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "SKIP: the milestone lifecycle arrives with WP-P0-13, which is what"
-          echo "creates the milestones this step would close."
+        run: uv run twinflow-roadmap sync --apply --context release-workflow
 
       # 12. The release record. ops.release.tagged.v1 is published once the ops
       #     schema subjects exist; until then the same fields are written as a
       #     build artifact so the numbers are recorded either way.
+      #
+      #     The gate list is read from the registry rather than written here. A
+      #     hand-written list is a list that goes stale: this one had seven
+      #     entries while the phase ran twelve gates, so the record understated
+      #     what the release proved.
       - name: Step 12, write the release record
+        env:
+          RELEASE_PHASE: ${{ steps.phase.outputs.id }}
         run: |
           {
             echo "tag: v${{ inputs.version }}"
             echo "commit_sha: ${{ github.sha }}"
             echo "dry_run: ${{ inputs.dry_run }}"
-            echo "runner: ubuntu-latest"
-            echo "gates_run: [VAL-GATE-DET-001, VAL-GATE-ENV-001, VAL-GATE-SCH-001,"
-            echo "  VAL-GATE-CFG-001, VAL-GATE-SEC-001, VAL-GATE-REL-001, VAL-GATE-RMAP-001]"
+            echo "runner_label: ubuntu-24.04"
+            echo "runner_image_version: ${ImageVersion:-unknown}"
+            echo "phase: $RELEASE_PHASE"
+            echo "gates_run:"
+            uv run twinflow-roadmap gates --phase "$RELEASE_PHASE"               | awk 'NR > 1 { print "  - " $1 }'
             echo "note: >-"
             echo "  ops.release.tagged.v1 publishes once the /schemas/ops subjects land."
           } > release-record.yaml
