@@ -120,12 +120,20 @@ fi
 # prose gate above owns everything mechanical. This one fails open when the CLI
 # is unavailable, so a network blip never blocks a commit.
 if [ "${COMMENT_JUDGE:-1}" != "0" ] && [ -f scripts/hooks/comment_judge.py ]; then
-  JUDGE_PY=""
-  for candidate in python3 python; do
-    command -v "$candidate" >/dev/null 2>&1 && { JUDGE_PY="$candidate"; break; }
-  done
+  # The same interpreter the prose gate resolved above. A bare `python` is not
+  # the same thing on every machine: a wrapper that insists on `uv run python`
+  # rejects the direct call, and the judge then fails open every time on a
+  # machine where it would have run perfectly well through uv.
+  JUDGE_PY="$PY"
+  if [ -z "$JUDGE_PY" ]; then
+    for candidate in python3 python; do
+      command -v "$candidate" >/dev/null 2>&1 && { JUDGE_PY="$candidate"; break; }
+    done
+  fi
   if [ -n "$JUDGE_PY" ]; then
-    "$JUDGE_PY" scripts/hooks/comment_judge.py
+    # Word splitting is the point: $PY is a command with arguments.
+    # shellcheck disable=SC2086
+    $JUDGE_PY scripts/hooks/comment_judge.py
     # Only 3 means the judge ran and found something. Any other non-zero is a
     # launcher or interpreter problem, which fails open like every other
     # infrastructure failure: an author cannot act on it.

@@ -159,12 +159,21 @@ fi
 # is skipped outright when the judge is turned off, so the disable switch costs
 # nothing rather than starting a process that exits immediately.
 if [ "${COMMENT_JUDGE:-1}" != "0" ] && [ -f scripts/hooks/comment_judge.py ]; then
+  # uv first, for the same reason the pre-commit hook resolves it that way: a
+  # wrapper that insists on `uv run python` rejects a direct call, and the
+  # judge then fails open on a machine where it would have run.
   JUDGE_PY=""
-  for candidate in python3 python; do
-    command -v "$candidate" >/dev/null 2>&1 && { JUDGE_PY="$candidate"; break; }
-  done
+  if command -v uv >/dev/null 2>&1; then
+    JUDGE_PY="uv run --quiet --no-project python"
+  else
+    for candidate in python3 python; do
+      command -v "$candidate" >/dev/null 2>&1 && { JUDGE_PY="$candidate"; break; }
+    done
+  fi
   if [ -n "$JUDGE_PY" ]; then
-    "$JUDGE_PY" scripts/hooks/comment_judge.py --commit-msg "$msg_file"
+    # Word splitting is the point: JUDGE_PY is a command with arguments.
+    # shellcheck disable=SC2086
+    $JUDGE_PY scripts/hooks/comment_judge.py --commit-msg "$msg_file"
     # Only 3 means the judge ran and found something. Any other non-zero is a
     # launcher or interpreter problem, which fails open.
     [ "$?" = "3" ] && exit 1
