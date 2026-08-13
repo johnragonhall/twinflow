@@ -47,7 +47,7 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-CC-001`          | P0          | validation   | yes      | implemented | CONTRIBUTING.md                   |
 | `VAL-GATE-CFG-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.6    |
 | `VAL-GATE-CI-001`          | P0          | policy       | yes      | implemented | docs/design/repo-craft.md         |
-| `VAL-GATE-CLA-001`         | P1          | invariant    | yes      | specified   | CLA.md section 7                  |
+| `VAL-GATE-CLA-001`         | P1          | invariant    | yes      | implemented | CLA.md section 7                  |
 | `VAL-GATE-COLD-001`        | P3h         | invariant    | no       | declared    | docs/design/sensor-catalog.md     |
 | `VAL-GATE-CONF-001`        | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md           |
 | `VAL-GATE-CONFTUT-001`     | P3          | budget       | no       | declared    | docs/design/repo-craft.md         |
@@ -160,7 +160,7 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-SUP-001`         | P3e         | invariant    | no       | declared    | docs/design/planning-supply.md    |
 | `VAL-GATE-SURR-001`        | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md           |
 | `VAL-GATE-TAR-001`         | ECON        | invariant    | no       | declared    | docs/design/back-office.md        |
-| `VAL-GATE-TIER-001`        | P1          | invariant    | no       | specified   | docs/design/foundations.md        |
+| `VAL-GATE-TIER-001`        | P1          | invariant    | yes      | implemented | docs/design/foundations.md        |
 | `VAL-GATE-VAR-001`         | 6a17        | invariant    | no       | declared    | docs/design/back-office.md        |
 | `VAL-GATE-VLM-001`         | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md           |
 | `VAL-GATE-VMI-001`         | P6-W3       | invariant    | no       | declared    | docs/design/planning-supply.md    |
@@ -272,6 +272,8 @@ Declared at ECON, owned by docs/design/back-office.md. Its assertion is specifie
 **Asserts.** The contributor agreement job passes the three checks CLA.md section 7 names: the pull request author's handle is in the signatories list, every signatory line matches the published expression, and every commit carries a Signed-off-by trailer.
 
 **Falsified by.** A pull request that merges having failed any of the three checks.
+
+**Runs.** `uv run pytest tests/test_cla_gate.py -q`, tested by `tests/test_cla_gate.py`.
 
 ### `VAL-GATE-COLD-001`
 
@@ -859,6 +861,8 @@ Declared at ECON, owned by docs/design/back-office.md. Its assertion is specifie
 
 **Falsified by.** One unfilled cell in the layer map, or one package with no row.
 
+**Runs.** `uv run python scripts/checks/layer-map-gate.py`, tested by `tests/test_layer_map_gate.py`.
+
 ### `VAL-GATE-VAR-001`
 
 Declared at 6a17, owned by docs/design/back-office.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
@@ -917,35 +921,35 @@ registry cannot disagree.
 |-----------|----------------|
 | `P0`      | 13             |
 | `P1`      | 24             |
-| `P2`      | 37             |
-| `P3`      | 36             |
-| `P3b`     | 27             |
-| `P3c`     | 29             |
-| `P3d`     | 29             |
-| `P3e`     | 27             |
-| `P3f`     | 26             |
-| `P3g`     | 27             |
-| `P3h`     | 29             |
-| `P3i`     | 28             |
-| `ECON`    | 29             |
-| `6a10`    | 29             |
-| `6a11`    | 30             |
-| `ROST`    | 26             |
-| `6a12`    | 28             |
-| `RISK`    | 27             |
-| `6a13`    | 27             |
-| `6a14`    | 27             |
-| `OTDRILL` | 26             |
-| `6a15`    | 28             |
-| `CAUSAL`  | 27             |
-| `6a16`    | 28             |
-| `SOE`     | 26             |
-| `6a17`    | 29             |
-| `P4`      | 27             |
-| `P5`      | 28             |
-| `P6-W1`   | 29             |
-| `P6-W2`   | 31             |
-| `P6-W3`   | 31             |
-| `P6-W4`   | 29             |
-| `P6-W5`   | 30             |
-| `P6-W6`   | 27             |
+| `P2`      | 38             |
+| `P3`      | 37             |
+| `P3b`     | 28             |
+| `P3c`     | 30             |
+| `P3d`     | 30             |
+| `P3e`     | 28             |
+| `P3f`     | 27             |
+| `P3g`     | 28             |
+| `P3h`     | 30             |
+| `P3i`     | 29             |
+| `ECON`    | 30             |
+| `6a10`    | 30             |
+| `6a11`    | 31             |
+| `ROST`    | 27             |
+| `6a12`    | 29             |
+| `RISK`    | 28             |
+| `6a13`    | 28             |
+| `6a14`    | 28             |
+| `OTDRILL` | 27             |
+| `6a15`    | 29             |
+| `CAUSAL`  | 28             |
+| `6a16`    | 29             |
+| `SOE`     | 27             |
+| `6a17`    | 30             |
+| `P4`      | 28             |
+| `P5`      | 29             |
+| `P6-W1`   | 30             |
+| `P6-W2`   | 32             |
+| `P6-W3`   | 32             |
+| `P6-W4`   | 30             |
+| `P6-W5`   | 31             |
+| `P6-W6`   | 28             |
