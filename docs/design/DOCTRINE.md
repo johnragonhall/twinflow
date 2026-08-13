@@ -26,7 +26,7 @@ fails by construction.
 **Ruling.** Split the manifest.
 
 | Part               | Contents                                                                                                    | In the hash |
-| ------------------ | ----------------------------------------------------------------------------------------------------------- | ----------- |
+|--------------------|-------------------------------------------------------------------------------------------------------------|-------------|
 | Hashed core        | seed, config hash, schema snapshot hash, scenario id, mode, tick rate, horizon, warmup, fault schedule hash | Yes         |
 | Provenance sidecar | started_wall_utc, finished_wall_utc, git sha and dirty flag, platform, package versions, host               | No          |
 
@@ -91,7 +91,7 @@ SIMD dispatch. A cross-platform byte-identity claim cannot be supported.
 **Ruling.** Two tiers, and the README states both rather than the stronger one alone.
 
 | Tier             | Guarantee                                                         | Gate                                                                                                                       |
-| ---------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+|------------------|-------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
 | Byte-identical   | Same seed, same config, same platform, same pinned dependency set | Hash equality                                                                                                              |
 | Value-equivalent | Same seed and config across platforms                             | Business events identical; continuous fields agree within a stated tolerance derived from measured divergence, not assumed |
 
@@ -134,7 +134,7 @@ provides none of those.
 **Ruling.** Separate the ports.
 
 | Port       | Shape                                            | Adapters                                |
-| ---------- | ------------------------------------------------ | --------------------------------------- |
+|------------|--------------------------------------------------|-----------------------------------------|
 | `Network`  | MQTT: retain, QoS, last will, wildcard subscribe | InMemory, Mosquitto, EMQX, NanoMQ       |
 | `EventBus` | Subject-addressed fan-out, no retain, no will    | InMemory, partitioned log at enterprise |
 
@@ -246,7 +246,7 @@ is MIT, statsforecast is Apache-2.0, Optuna is MIT, and DoWhy is MIT.
 ## Sections that must change
 
 | Ruling | Sections affected                                                |
-| ------ | ---------------------------------------------------------------- |
+|--------|------------------------------------------------------------------|
 | D-01   | foundations                                                      |
 | D-02   | foundations, twin-core, ai-layer, iot-fleet                      |
 | D-03   | foundations, twin-core, planning-supply, back-office             |

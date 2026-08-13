@@ -12,8 +12,8 @@ than validate. They exist because two of the compatibility rules in
 `docs/design/foundations.md` section 5.5 cannot be decided from a schema alone.
 
 | Keyword                    | Meaning                                                                                  |
-| -------------------------- | ---------------------------------------------------------------------------------------- |
-| `x-twinflow-precision`     | Decimal places a float is quantised to before serialisation                              |
+|----------------------------|------------------------------------------------------------------------------------------|
+| `x-twinflow-precision`     | Decimal places a float is quantised to before serialization                              |
 | `x-twinflow-unit`          | The SI unit the number is expressed in, validated against pint                           |
 | `x-twinflow-open-enum`     | Consumers must tolerate unknown members. Only such enums may gain members within a major |
 | `x-twinflow-open-range`    | Consumers must tolerate values outside the declared range. Only such fields may widen    |

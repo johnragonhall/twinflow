@@ -15,7 +15,7 @@ would falsify it (doctrine D-11).
 Doctrine rulings applied in this section, with the subsections that apply them:
 
 | Ruling | What it settles here                                                                        | Applied in                      |
-| ------ | ------------------------------------------------------------------------------------------- | ------------------------------- |
+|--------|---------------------------------------------------------------------------------------------|---------------------------------|
 | D-01   | Wall clock lives in the run provenance sidecar, never in the hashed tape                    | 3.3, 3.4, 4, 5.13, 5.15, 5.18   |
 | D-02   | The four legal wall-clock readers, and the ban on wall clock in payloads                    | 4, 5.15, 5.18, 7.3              |
 | D-03   | Every emitted collection is ordered by a declared key, and every tie breaks on a stated key | 2.2, 3, 4, 5.2, 5.15, 5.20, 7.2 |
@@ -37,14 +37,14 @@ This section is the implementation contract for the following numbered requireme
 twinflow prompt.
 
 | Requirement | Title                                                  | Coverage in this section                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| ----------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-------------|--------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 6a9         | Upstream production and manufacturing                  | Full. Hybrid batch-plus-discrete factory, ISA-88 recipes, golden-batch scoring, PackML machine states, equipment-level OEE with six-big-losses decomposition, changeover and SMED, finite-capacity scheduling with sequence-dependent setups feeding the DC inbound schedule, push/pull/CONWIP/DBR with kanban card counts, takt discipline and level loading between stages (5.22), first-pass yield and scrap through lot genealogy, in-line SPC per stage, schedule-versus-actual divergence as a finding class (5.23), production-twin recalibration from telemetry (5.24), the make-versus-buffer what-if (5.25), and the one-point-of-FPY valuation experiment |
 | 6a11        | QMS and compliance auditing                            | Full. Auto-raised NCRs with dedupe, CAPA lifecycle with statistical effectiveness verification and automatic reopen, MIL-STD-105E / ANSI-ASQ-Z1.4-class acceptance sampling with switching rules, CoA generation, COPQ four-bucket classification, append-only audit trail with agent attribution, audit checklists as versioned code mapped to ISO 9001-class clauses, layered process audits, timed mock recall drill returning full blast radius                                                                                                                                                                                                                  |
-| 6b          | Business-system loop                                   | Full. ERP stub issuing ASN-style expected receipts, three-way reconciliation against observed RFID and CV counts with discrepancy-cause classification, mini CMMS turning PdM findings into prioritised work orders with twin-quantified cost of deferral                                                                                                                                                                                                                                                                                                                                                                                                            |
+| 6b          | Business-system loop                                   | Full. ERP stub issuing ASN-style expected receipts, three-way reconciliation against observed RFID and CV counts with discrepancy-cause classification, mini CMMS turning PdM findings into prioritized work orders with twin-quantified cost of deferral                                                                                                                                                                                                                                                                                                                                                                                                            |
 | E10         | Digital product passport traceability                  | Full. DPP data model over the genealogy graph, GS1 Digital Link identifiers, role-scoped access views, ESPR framing, honest conformance limitation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | E35         | Tamper-evident traceability ledger                     | Full. RFC 6962 Merkle tree, hash-chained blocks, RFC 8785 canonicalisation, Ed25519 multi-party signatures with per-event-type threshold policy, GS1 EPCIS 2.0 event emission, third-party verifier that does not trust the DC database, honest trust-model statement                                                                                                                                                                                                                                                                                                                                                                                                |
 | E37         | PLM and engineering change management                  | Full. Versioned items, BOMs and ISA-88 recipes, ECR/ECO/ECN lifecycle, effectivity by date/lot/serial, use-up versus scrap disposition, propagation into open POs and standard costs, as-built revision recorded in genealogy so recall scopes by revision                                                                                                                                                                                                                                                                                                                                                                                                           |
-| E24         | Telemetry-grounded generative SOPs                     | Full. Structured SOP drafting from golden-batch profiles, CAPA history, alarm rationalisation records, mined process variants and measured standard work; grounding gate on every number; document control lifecycle; simulated adherence so SOP quality is a measurable variable                                                                                                                                                                                                                                                                                                                                                                                    |
+| E24         | Telemetry-grounded generative SOPs                     | Full. Structured SOP drafting from golden-batch profiles, CAPA history, alarm rationalization records, mined process variants and measured standard work; grounding gate on every number; document control lifecycle; simulated adherence so SOP quality is a measurable variable                                                                                                                                                                                                                                                                                                                                                                                    |
 | E8          | SOP grounding via retrieval with clause-level citation | Full. Clause-addressable SOP corpus, hybrid retrieval with structural eligibility filter, citation contract, time-travel citation against the revision effective at violation time, abstention path, ground-truth eval set                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 Requirements this section depends on but does not own, with the owning section named so the seam is
@@ -63,8 +63,8 @@ explicit:
   postings; it does not post them.
 - Component 7 (agent) owns tool exposure and answer composition. This section owns the tools'
   return payloads.
-- The dashboard section owns alarm rationalisation: severity ranking, grouping and shelving. This
-  section reads `shelve_policy` and `dedupe_key` from the finding catalogue the back-office section
+- The dashboard section owns alarm rationalization: severity ranking, grouping and shelving. This
+  section reads `shelve_policy` and `dedupe_key` from the finding catalog the back-office section
   declares, and applies them at NCR intake (5.9). It does not define a second shelving model.
 - C1, C2, C3, C5, C10 and A1 are contracts this section is built inside, not requirements it owns.
 
@@ -72,23 +72,23 @@ Two facts about the repository govern several choices below and are stated once 
 repository ships under Apache-2.0 with a commercial option, so every vendored artifact and every
 runtime dependency must be Apache-2.0 compatible (2.8). All data is synthetic, generated by the
 twin, so every ground-truth claim in section 7 is a claim about the twin's own injected truth and
-is labelled as such.
+is labeled as such.
 
 Requirements this section reaches through a named protocol seam, with the pre-arrival binding
 stated so nothing here is blocked on a later phase. Section 8.7 records the resequencing each seam
 implies.
 
 | Later item                        | Protocol seam           | Binding before the item lands                                                                                                                          |
-| --------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|-----------------------------------|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
 | E26(b) governed metrics           | `MetricOracle`          | The metrics subset this section names moves to 6a11 (8.7); free-text metrics are rejected at load from day one                                         |
 | E26(f) grounding checker          | `GroundingOracle`       | The grounding checker moves to 6a11 (8.7) because the audit trail's first entry needs query result ids                                                 |
 | E5 autonomy tiers                 | `AutonomyOracle`        | `Actor.autonomy_tier` is a Phase 0 field; before E5 the CoA rule keys on `actor.kind`, not on tier value                                               |
-| E23 labour rostering              | `AuditorAvailability`   | Bound to the shift calendar of `production.calendar` until E23 replaces the binding                                                                    |
+| E23 labor rostering               | `AuditorAvailability`   | Bound to the shift calendar of `production.calendar` until E23 replaces the binding                                                                    |
 | E43 model registry                | `ModelRefResolver`      | Bound to a pinned model artifact digest declared in config until E43 replaces the binding                                                              |
 | E46 RF read zones                 | `ReadZoneOracle`        | Reconciliation raises `portal_read_anomaly`; E46 refines it into read-zone and cross-read geometry findings                                            |
 | E48 failure runbooks              | `RunbookResolver`       | `runbook_ref` is nullable and renders as "no runbook published" until E48                                                                              |
 | 6a17 authority matrix             | `AuthorityOracle`       | Bound to `authority_matrix.yaml` in this section's config until 6a17 owns it                                                                           |
-| E9 optimisation engine            | `StudyRunner`           | The Optuna study for scheduling moves to 3i (8.7); the seam is the same one E9 later reuses                                                            |
+| E9 optimization engine            | `StudyRunner`           | The Optuna study for scheduling moves to 3i (8.7); the seam is the same one E9 later reuses                                                            |
 | E17 carbon, 6a4 disposition       | passport attribute maps | An unpopulated passport attribute group renders as `not_yet_sourced` with the sourcing item named (5.17)                                               |
 | E43 dense retrieval, E24 drafting | `Inference`             | Every learned model reached from this section goes through the kernel `Inference` port, bound to a recorded-response adapter in simulation mode (D-04) |
 
@@ -225,7 +225,7 @@ Purpose: a generic append-only, hash-chained, Merkle-committed, multi-party-sign
 standalone verification. Domain-agnostic by design.
 
 Take-one-brick story: anyone who wants an append-only audit log with inclusion and consistency
-proofs and multi-party signatures installs it alone and feeds it any JSON-serialisable records. It
+proofs and multi-party signatures installs it alone and feeds it any JSON-serializable records. It
 names no factory, quality or traceability concept anywhere in its public API, which is what makes
 the claim checkable: `test_ledger_api_is_domain_free` asserts no symbol in `__all__` and no field
 name in any exported model matches the section's domain vocabulary.
@@ -348,7 +348,7 @@ rather than silently ranking differently.
 
 Purpose: the business-system loop of 6b. An ERP stub that issues ASN-style expected receipts, the
 three-way reconciler that classifies what actually arrived, and the mini CMMS that turns predictive
-maintenance findings into prioritised work orders with a twin-quantified cost of deferral.
+maintenance findings into prioritized work orders with a twin-quantified cost of deferral.
 
 Take-one-brick story: a systems integrator who wants only the three-way reconciliation classifier,
 fed expected, RFID-observed and vision-observed counts, installs this alone and gets a typed
@@ -376,14 +376,14 @@ This is a separate distribution rather than a subpackage of `twinflow-quality`. 
 brick" table routes an ERP-and-CMMS reader to one install line, and burying an ERP stub inside a
 QMS package would make that line wrong.
 
-### 2.8 Dependency licences
+### 2.8 Dependency licenses
 
 The repository ships under Apache-2.0 with a commercial option, so every runtime dependency named
-above must be compatible with both. The versions and licences below were read from the PyPI JSON
+above must be compatible with both. The versions and licenses below were read from the PyPI JSON
 API on 2026-08-10 (HTTP 200 for each) and are the versions the lockfile pins.
 
-| Package                 | Version | Licence declared on the package index              |
-| ----------------------- | ------- | -------------------------------------------------- |
+| Package                 | Version | License declared on the package index              |
+|-------------------------|---------|----------------------------------------------------|
 | `numpy`                 | 2.5.2   | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 |
 | `networkx`              | 3.6.1   | BSD-3-Clause                                       |
 | `jsonschema`            | 4.26.0  | MIT                                                |
@@ -396,7 +396,7 @@ API on 2026-08-10 (HTTP 200 for each) and are the versions the lockfile pins.
 No dependency in this section is copyleft, and none is AGPL. The process-mining capability this
 section consumes runs on `twinflow-procmine`, the Apache-2.0 miner written in this repository,
 because PM4Py is AGPL-3.0 and serving a dashboard, an MCP server and an HTTP API would place the
-whole work under AGPL (D-14). `LICENSE-1` re-reads every declared licence in CI against the
+whole work under AGPL (D-14). `LICENSE-1` re-reads every declared license in CI against the
 Apache-2.0-compatible allowlist (C11) and fails on a change, so a dependency that relicenses
 between releases is caught at the next build rather than at the next audit.
 
@@ -412,7 +412,7 @@ C5 config validation and E26(d) structured outputs come from the same declaratio
 **`Plant`**
 
 | Field           | Type                 | Notes                                                                                           |
-| --------------- | -------------------- | ----------------------------------------------------------------------------------------------- |
+|-----------------|----------------------|-------------------------------------------------------------------------------------------------|
 | `plant_id`      | `str`                | ISA-95 Site or Area identifier, used as the UNS path segment                                    |
 | `process_cells` | `list[ProcessCell]`  | ISA-88 physical model, batch side                                                               |
 | `work_centers`  | `list[WorkCenter]`   | discrete side                                                                                   |
@@ -432,7 +432,7 @@ thing a batch occupies exclusively for the duration of a unit procedure.
 **`Machine`**
 
 | Field                 | Type           | Notes                                                                             |
-| --------------------- | -------------- | --------------------------------------------------------------------------------- |
+|-----------------------|----------------|-----------------------------------------------------------------------------------|
 | `machine_id`          | `str`          | also the device-registry asset id, so PdM telemetry attaches without new plumbing |
 | `state`               | `MachineState` | PackML state, see 5.3                                                             |
 | `mode`                | `MachineMode`  | `producing`, `maintenance`, `manual`                                              |
@@ -447,7 +447,7 @@ history is a total, gap-free partition of the run's sim-time.
 **`MasterRecipe`** (ISA-88)
 
 | Field                     | Type                         | Notes                                                                                                       |
-| ------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
+|---------------------------|------------------------------|-------------------------------------------------------------------------------------------------------------|
 | `recipe_id`               | `str`                        |                                                                                                             |
 | `revision`                | `Revision`                   | PLM-controlled, see 3.5                                                                                     |
 | `header`                  | `RecipeHeader`               | author, effective range, approval refs                                                                      |
@@ -466,7 +466,7 @@ specific set of input lots. It is the as-built artifact and is immutable once th
 **`BatchRecord`**
 
 | Field            | Type                      | Notes                                                                               |
-| ---------------- | ------------------------- | ----------------------------------------------------------------------------------- |
+|------------------|---------------------------|-------------------------------------------------------------------------------------|
 | `batch_id`       | `str`                     |                                                                                     |
 | `control_recipe` | `ControlRecipe`           | as-built, including the recipe revision                                             |
 | `phase_log`      | `list[PhaseExecution]`    | start, end, unit, operator, hold events                                             |
@@ -479,12 +479,12 @@ Invariant `material_conservation` (see 7.2) holds over every `BatchRecord`.
 **`GoldenProfile`**
 
 | Field                | Type          | Notes                                                                  |
-| -------------------- | ------------- | ---------------------------------------------------------------------- |
+|----------------------|---------------|------------------------------------------------------------------------|
 | `recipe_id`          | `str`         |                                                                        |
 | `recipe_revision`    | `str`         | a golden profile is per recipe revision, never shared across revisions |
 | `phase_id`           | `str`         |                                                                        |
 | `cpp_id`             | `str`         | critical process parameter                                             |
-| `grid`               | `int`         | number of normalised sample points, default 64                         |
+| `grid`               | `int`         | number of normalized sample points, default 64                         |
 | `mean`               | `list[float]` | length `grid`                                                          |
 | `lower`              | `list[float]` | envelope                                                               |
 | `upper`              | `list[float]` | envelope                                                               |
@@ -520,26 +520,26 @@ Invariant `kanban_wip_bound`: WIP in the loop never exceeds `cards * container_s
 **`Node`**
 
 | Field           | Type                   | Notes                                                                                                                                                                  |
-| --------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------------|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `node_id`       | `str`                  | EPC URI where one applies, otherwise an internal id                                                                                                                    |
 | `kind`          | `NodeKind`             | `raw_lot`, `batch`, `wip_lot`, `finished_lot`, `serial_unit`, `pallet`, `carton`, `shipment`                                                                           |
 | `item_id`       | `str`                  | PLM item                                                                                                                                                               |
 | `item_revision` | `str`                  | **as-built**, populated from Phase 0 onward even before E37 ships                                                                                                      |
 | `quantity`      | `Quantity`             | value plus UOM                                                                                                                                                         |
 | `created_at`    | `SimTime`              |                                                                                                                                                                        |
-| `attributes`    | `dict[str, JsonValue]` | supplier_id, country_of_origin, hs_code, expiry, carbon_kgco2e, all reserved by their owning sections; keys inserted in sorted order so serialisation is stable (D-03) |
+| `attributes`    | `dict[str, JsonValue]` | supplier_id, country_of_origin, hs_code, expiry, carbon_kgco2e, all reserved by their owning sections; keys inserted in sorted order so serialization is stable (D-03) |
 
 **`Edge`**
 
-| Field          | Type          | Notes                                                                  |
-| -------------- | ------------- | ---------------------------------------------------------------------- |
-| `edge_id`      | `str`         |                                                                        |
-| `kind`         | `EdgeKind`    | `consumed_by`, `contains`, `custody_of`, `observed_at`, `derived_from` |
-| `parent`       | `str`         | node id                                                                |
-| `child`        | `str`         | node id                                                                |
-| `quantity`     | `Quantity`    | for `consumed_by`, the consumed amount                                 |
-| `at`           | `SimTime`     |                                                                        |
-| `equipment_id` | `str \        | None`                                                                  |
+| Field          | Type       | Notes                                                                  |
+|----------------|------------|------------------------------------------------------------------------|
+| `edge_id`      | `str`      |                                                                        |
+| `kind`         | `EdgeKind` | `consumed_by`, `contains`, `custody_of`, `observed_at`, `derived_from` |
+| `parent`       | `str`      | node id                                                                |
+| `child`        | `str`      | node id                                                                |
+| `quantity`     | `Quantity` | for `consumed_by`, the consumed amount                                 |
+| `at`           | `SimTime`  |                                                                        |
+| `equipment_id` | `str \     | None`                                                                  |
 
 Invariants: the graph is a DAG (`genealogy_closure`); every non-`raw_lot` node has at least one
 inbound `consumed_by` or `derived_from` edge; `item_revision` is never null; forward closure of the
@@ -581,24 +581,24 @@ mutation anywhere in the persisted store causes verification failure.
 
 **`Ncr`**
 
-| Field                | Type                     | Notes                                                                                |
-| -------------------- | ------------------------ | ------------------------------------------------------------------------------------ |
-| `ncr_id`             | `str`                    |                                                                                      |
-| `dedupe_key`         | `DedupeKey`              | `(source_class, subject_ref, characteristic_id, window_bucket)`                      |
-| `source_finding_ids` | `list[str]`              | appended to on recurrence within the correlation window                              |
-| `raised_at`          | `SimTime`                |                                                                                      |
-| `subject`            | `SubjectRef`             | lot, batch, machine, supplier lot, order, or device                                  |
-| `quantity_affected`  | `Quantity`               |                                                                                      |
-| `severity`           | `Severity`               | inherited from the finding, floored by the safety rule                               |
-| `state`              | `NcrState`               | `open`, `contained`, `dispositioned`, `closed`, `voided`                             |
-| `disposition`        | `NcrDisposition \        | None`                                                                                |
-| `capa_id`            | `str \                   | None`                                                                                |
-| `copq_postings`      | `list[str]`              |                                                                                      |
+| Field                | Type              | Notes                                                           |
+|----------------------|-------------------|-----------------------------------------------------------------|
+| `ncr_id`             | `str`             |                                                                 |
+| `dedupe_key`         | `DedupeKey`       | `(source_class, subject_ref, characteristic_id, window_bucket)` |
+| `source_finding_ids` | `list[str]`       | appended to on recurrence within the correlation window         |
+| `raised_at`          | `SimTime`         |                                                                 |
+| `subject`            | `SubjectRef`      | lot, batch, machine, supplier lot, order, or device             |
+| `quantity_affected`  | `Quantity`        |                                                                 |
+| `severity`           | `Severity`        | inherited from the finding, floored by the safety rule          |
+| `state`              | `NcrState`        | `open`, `contained`, `dispositioned`, `closed`, `voided`        |
+| `disposition`        | `NcrDisposition \ | None`                                                           |
+| `capa_id`            | `str \            | None`                                                           |
+| `copq_postings`      | `list[str]`       |                                                                 |
 
 **`Capa`**
 
 | Field                  | Type                         | Notes                                              |
-| ---------------------- | ---------------------------- | -------------------------------------------------- |
+|------------------------|------------------------------|----------------------------------------------------|
 | `capa_id`              | `str`                        |                                                    |
 | `ncr_ids`              | `list[str]`                  | one CAPA may cover many NCRs sharing a root cause  |
 | `state`                | `CapaState`                  | see 5.9                                            |
@@ -612,7 +612,7 @@ mutation anywhere in the persisted store causes verification failure.
 **`VerificationPlan`**
 
 | Field                       | Type                             | Validation                                                                                |
-| --------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------- |
+|-----------------------------|----------------------------------|-------------------------------------------------------------------------------------------|
 | `primary_metric`            | `str`                            | must resolve in the governed metrics layer (E26b); free-text metrics are rejected at load |
 | `secondary_metrics`         | `list[str]`                      | reported, never decision-making                                                           |
 | `direction`                 | `Literal["increase","decrease"]` |                                                                                           |
@@ -759,7 +759,7 @@ gate checks which tier.
 ### 4.1 Published by `twinflow-production`
 
 | Schema                              | v     | Payload shape (abridged)                                                                                                                                                                                                                                                           |
-| ----------------------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-------------------------------------|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `production.batch.started`          | 1.0.0 | `{batch_id, recipe_id, recipe_revision, unit_id, planned_qty, input_lot_ids[], control_recipe_digest}`                                                                                                                                                                             |
 | `production.batch.phase_transition` | 1.0.0 | `{batch_id, phase_id, from_state, to_state, reason, unit_id, operator_id}`                                                                                                                                                                                                         |
 | `production.batch.completed`        | 1.0.0 | `{batch_id, good_qty, rework_qty, scrap_qty, declared_loss_qty, output_lot_ids[], duration_s}`                                                                                                                                                                                     |
@@ -780,7 +780,7 @@ production-side statistics code.
 ### 4.2 Published by `twinflow-genealogy`
 
 | Schema                       | v     | Payload shape (abridged)                                                                              |
-| ---------------------------- | ----- | ----------------------------------------------------------------------------------------------------- |
+|------------------------------|-------|-------------------------------------------------------------------------------------------------------|
 | `genealogy.transformation`   | 1.0.0 | `{inputs: [{node_id, qty}], outputs: [{node_id, qty}], equipment_id, recipe_id, recipe_revision, at}` |
 | `genealogy.aggregation`      | 1.0.0 | `{parent_node_id, child_node_ids[], action: "add"\                                                    |
 | `genealogy.custody_transfer` | 1.0.0 | `{node_ids[], from_party, to_party, location_gln, at, conveyance_ref}`                                |
@@ -791,7 +791,7 @@ production-side statistics code.
 ### 4.3 Published by `twinflow-ledger`
 
 | Schema                       | v     | Payload shape                                                                  |
-| ---------------------------- | ----- | ------------------------------------------------------------------------------ |
+|------------------------------|-------|--------------------------------------------------------------------------------|
 | `ledger.entry.appended`      | 1.0.0 | `{entry_seq, payload_schema, payload_hash, tree_size_after}`                   |
 | `ledger.block.sealed`        | 1.0.0 | `{block_seq, prev_block_hash, merkle_root, tree_size, entry_count, sealed_by}` |
 | `ledger.signature.attached`  | 1.0.0 | `{entry_seq, party_id, role, algorithm, public_key_fingerprint}`               |
@@ -800,26 +800,26 @@ production-side statistics code.
 
 ### 4.4 Published by `twinflow-quality`
 
-| Schema                                 | v     | Payload shape (abridged)                                                                                                                                                                                                                                       |
-| -------------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `qms.ncr.raised`                       | 1.0.0 | `{ncr_id, dedupe_key, source_finding_ids[], subject_ref, quantity_affected, severity}`                                                                                                                                                                         |
-| `qms.ncr.evidence_appended`            | 1.0.0 | `{ncr_id, finding_id, occurrence_count}`                                                                                                                                                                                                                       |
-| `qms.ncr.disposition`                  | 1.0.0 | `{ncr_id, disposition, qty, approved_by, copq_posting_ids[]}`                                                                                                                                                                                                  |
-| `qms.capa.opened`                      | 1.0.0 | `{capa_id, ncr_ids[], owner_role, verification_plan}`                                                                                                                                                                                                          |
-| `qms.capa.state_changed`               | 1.0.0 | `{capa_id, from_state, to_state, actor, reason}`                                                                                                                                                                                                               |
-| `qms.capa.effectiveness_verified`      | 1.0.0 | `{capa_id, check_kind: "initial"\                                                                                                                                                                                                                              |
-| `qms.capa.reopened`                    | 1.0.0 | `{capa_id, reopen_count, reason: "effectiveness_not_demonstrated"\                                                                                                                                                                                             |
-| `qms.sampling.lot_inspected`           | 1.0.0 | `{lot_ref, plan: {code_letter, n, c, r, severity, aql, level, source_table}, defectives_found, decision, switching_state_after}`                                                                                                                               |
-| `qms.sampling.switching_state_changed` | 1.0.0 | `{supplier_id, item_id, from_severity, to_severity, rule_fired, ruleset}`                                                                                                                                                                                      |
-| `qms.coa.issued`                       | 1.0.0 | `{coa_id, lot_ref, item_id, item_revision, results[], released_by, signature_ref, genealogy_merkle_root}`                                                                                                                                                      |
-| `qms.copq.posted`                      | 1.0.0 | `{posting_id, copq_class, amount, currency, cost_driver, source_event_id, subject_ref}`                                                                                                                                                                        |
-| `qms.audit.executed`                   | 1.0.0 | `{audit_id, checklist_id, checklist_version, scope, results: [{question_id, clause_ref, outcome, evidence_refs[]}], score, nonconformities[]}`                                                                                                                 |
-| `qms.lpa.scheduled`                    | 1.0.0 | `{lpa_id, layer, auditor_role, station_id, due_at}`                                                                                                                                                                                                            |
-| `qms.lpa.executed`                     | 1.0.0 | `{lpa_id, layer, station_id, completed_at, results[], on_time: bool}`                                                                                                                                                                                          |
-| `qms.quarantine.requested`             | 1.0.0 | `{quarantine_id, node_ids[], reason, source: "ncr"\                                                                                                                                                                                                            |
-| `qms.quarantine.released`              | 1.0.0 | `{quarantine_id, node_ids[], released_by, rationale}`                                                                                                                                                                                                          |
-| `qms.recall_drill.completed`           | 1.0.0 | `{drill_id, scope, blast_radius: {raw_lots, batches, finished_lots, pallets, cartons, orders, shipments, customers, open_pos}, qty_produced, qty_accounted, qty_unlocated, elapsed_sim_s, graph_edges_walked, merkle_root, proof_bundle_ref}`                  |
-| `qms.audit_trail.appended`             | 1.0.0 | `{seq, actor, action, subject_ref, before_digest, after_digest, reason, ledger_entry_seq}`                                                                                                                                                                     |
+| Schema                                 | v     | Payload shape (abridged)                                                                                                                                                                                                                      |
+|----------------------------------------|-------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `qms.ncr.raised`                       | 1.0.0 | `{ncr_id, dedupe_key, source_finding_ids[], subject_ref, quantity_affected, severity}`                                                                                                                                                        |
+| `qms.ncr.evidence_appended`            | 1.0.0 | `{ncr_id, finding_id, occurrence_count}`                                                                                                                                                                                                      |
+| `qms.ncr.disposition`                  | 1.0.0 | `{ncr_id, disposition, qty, approved_by, copq_posting_ids[]}`                                                                                                                                                                                 |
+| `qms.capa.opened`                      | 1.0.0 | `{capa_id, ncr_ids[], owner_role, verification_plan}`                                                                                                                                                                                         |
+| `qms.capa.state_changed`               | 1.0.0 | `{capa_id, from_state, to_state, actor, reason}`                                                                                                                                                                                              |
+| `qms.capa.effectiveness_verified`      | 1.0.0 | `{capa_id, check_kind: "initial"\                                                                                                                                                                                                             |
+| `qms.capa.reopened`                    | 1.0.0 | `{capa_id, reopen_count, reason: "effectiveness_not_demonstrated"\                                                                                                                                                                            |
+| `qms.sampling.lot_inspected`           | 1.0.0 | `{lot_ref, plan: {code_letter, n, c, r, severity, aql, level, source_table}, defectives_found, decision, switching_state_after}`                                                                                                              |
+| `qms.sampling.switching_state_changed` | 1.0.0 | `{supplier_id, item_id, from_severity, to_severity, rule_fired, ruleset}`                                                                                                                                                                     |
+| `qms.coa.issued`                       | 1.0.0 | `{coa_id, lot_ref, item_id, item_revision, results[], released_by, signature_ref, genealogy_merkle_root}`                                                                                                                                     |
+| `qms.copq.posted`                      | 1.0.0 | `{posting_id, copq_class, amount, currency, cost_driver, source_event_id, subject_ref}`                                                                                                                                                       |
+| `qms.audit.executed`                   | 1.0.0 | `{audit_id, checklist_id, checklist_version, scope, results: [{question_id, clause_ref, outcome, evidence_refs[]}], score, nonconformities[]}`                                                                                                |
+| `qms.lpa.scheduled`                    | 1.0.0 | `{lpa_id, layer, auditor_role, station_id, due_at}`                                                                                                                                                                                           |
+| `qms.lpa.executed`                     | 1.0.0 | `{lpa_id, layer, station_id, completed_at, results[], on_time: bool}`                                                                                                                                                                         |
+| `qms.quarantine.requested`             | 1.0.0 | `{quarantine_id, node_ids[], reason, source: "ncr"\                                                                                                                                                                                           |
+| `qms.quarantine.released`              | 1.0.0 | `{quarantine_id, node_ids[], released_by, rationale}`                                                                                                                                                                                         |
+| `qms.recall_drill.completed`           | 1.0.0 | `{drill_id, scope, blast_radius: {raw_lots, batches, finished_lots, pallets, cartons, orders, shipments, customers, open_pos}, qty_produced, qty_accounted, qty_unlocated, elapsed_sim_s, graph_edges_walked, merkle_root, proof_bundle_ref}` |
+| `qms.audit_trail.appended`             | 1.0.0 | `{seq, actor, action, subject_ref, before_digest, after_digest, reason, ledger_entry_seq}`                                                                                                                                                    |
 
 ### 4.5 Published by `twinflow-bizsys`
 
@@ -827,7 +827,7 @@ production-side statistics code.
 three-way reconciler and the mini CMMS.
 
 | Schema                           | v     | Payload shape (abridged)                                                                                                                                                                                          |
-| -------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|----------------------------------|-------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `erp.expected_receipt.published` | 1.0.0 | `{asn_id, po_ref, supplier_id, ship_datetime, eta, carrier_scac, hierarchy: [{sscc, cartons: [{sscc_or_gtin, items: [{item_id, item_revision, lot, qty, uom, hs_code?, country_of_origin?, carbon_kgco2e?}]}]}]}` |
 | `erp.receipt.reconciled`         | 1.0.0 | `{asn_id, receipt_id, lines: [{item_id, lot, expected_qty, rfid_qty, cv_qty, accepted_qty, variance_class, cause_class, confidence}], overall_variance_class}`                                                    |
 | `erp.inventory.book_adjusted`    | 1.0.0 | `{item_id, lot, location, delta_qty, reason, source_event_id}`                                                                                                                                                    |
@@ -839,7 +839,7 @@ three-way reconciler and the mini CMMS.
 ### 4.6 Published by `twinflow-plm`
 
 | Schema                      | v     | Payload shape (abridged)                                                                                              |
-| --------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------- |
+|-----------------------------|-------|-----------------------------------------------------------------------------------------------------------------------|
 | `plm.item.revised`          | 1.0.0 | `{item_id, from_rev, to_rev, interchangeability, eco_id}`                                                             |
 | `plm.eco.state_changed`     | 1.0.0 | `{eco_id, from_state, to_state, actor, approvals[]}`                                                                  |
 | `plm.eco.effective`         | 1.0.0 | `{eco_id, effectivity, affected[], dispositions[]}`                                                                   |
@@ -850,7 +850,7 @@ three-way reconciler and the mini CMMS.
 ### 4.7 Published by `twinflow-sop`
 
 | Schema                   | v     | Payload shape (abridged)                                                                                                                           |
-| ------------------------ | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------------|-------|----------------------------------------------------------------------------------------------------------------------------------------------------|
 | `sop.revision.published` | 1.0.0 | `{sop_id, revision, state, effective_from, applies_to, clause_count, clarity_score, content_digest}`                                               |
 | `sop.clause.cited`       | 1.0.0 | `{finding_id, clause_id, sop_revision, quoted_span, char_start, char_end, retrieval_score, eligibility_reason}`                                    |
 | `sop.citation.abstained` | 1.0.0 | `{finding_id, reason, downgraded_finding_class}`                                                                                                   |
@@ -861,7 +861,7 @@ three-way reconciler and the mini CMMS.
 ### 4.8 Consumed events
 
 | Schema                             | Owning section | Used for                                                           |
-| ---------------------------------- | -------------- | ------------------------------------------------------------------ |
+|------------------------------------|----------------|--------------------------------------------------------------------|
 | `lss.finding.raised`               | 5              | NCR auto-raise rules, checklist evidence, CAPA triggers            |
 | `lss.hypothesis.result`            | 5              | CAPA effectiveness verdicts, FPY valuation, SMED validation        |
 | `telemetry.reading`                | 2              | golden-batch profiles, in-line measurements, cold-chain excursions |
@@ -882,25 +882,25 @@ force a major version bump on the most-referenced schema in the repo.
 
 ---
 
-## 5. Behaviour
+## 5. Behavior
 
 ### 5.1 The hybrid factory shape (6a9)
 
 The plant is one continuous/batch front end feeding one discrete back end, and the handoff is
-modelled explicitly because hybrid support is the hard requirement the source calls out.
+modeled explicitly because hybrid support is the hard requirement the source calls out.
 
 Reference shape shipped in the enterprise profile: **mix -> coat -> cure** (batch, ISA-88 controlled,
 process cells and units, campaign-based) hands finished intermediate lots to **form -> finish ->
-pack** (discrete, work centers and machines, unit-serialised). The handoff node is a
+pack** (discrete, work centers and machines, unit-serialized). The handoff node is a
 `wip_lot` genealogy node with a quantity in the batch UOM, consumed by the discrete side in a
 different UOM through a declared conversion factor on the BOM line. UOM conversion at the handoff is
 where real hybrid systems break, so the conversion is a first-class, validated config value and a
 property test asserts round-trip conversion error is zero for the configured factors.
 
 Batch side timing: each `Phase` has a duration distribution and a set of critical process parameters
-whose trajectories are generated from a phase-local parameterised model (ramp, soak, decay) plus
+whose trajectories are generated from a phase-local parameterized model (ramp, soak, decay) plus
 noise drawn from the phase's child RNG stream. Every physics parameter is config, and the model is
-documented as a chosen parameterisation rather than a fitted plant model. The process and chemical
+documented as a chosen parameterization rather than a fitted plant model. The process and chemical
 sensors from the 2b catalog (pH, conductivity, viscosity, Coriolis and magnetic flow, radar and
 ultrasonic level, dissolved oxygen, corrosion) attach to units and read the same trajectories through
 their catalog signal models, so a drifting viscosity sensor and a genuinely drifting viscosity are
@@ -918,7 +918,7 @@ Recipes are loaded from `recipes/*.yaml`, validated against `/schemas/recipe.v1.
 by `twinflow-plm` (5.14). The four ISA-88 recipe types are represented as follows: general and site
 recipes are documentation-only files in `docs/recipes/` that name the master recipes derived from
 them, master recipes are the executable configuration, and control recipes are runtime artifacts
-recorded into the batch record. Modelling all four is what makes the ISA-88 claim honest rather than
+recorded into the batch record. Modeling all four is what makes the ISA-88 claim honest rather than
 a label on a config file.
 
 **Golden profile construction.** A profile is built per `(recipe_id, recipe_revision, phase_id,
@@ -928,7 +928,7 @@ FPY at or above `golden.min_fpy`, and no NCR raised against it. At least
 `golden.min_qualifying_batches` (default 20) are required, and the mean and envelope are computed as:
 
 - resample each qualifying batch's CPP trajectory onto a fixed grid of `golden.grid` points
-  (default 64) in **normalised phase progress**, not wall time, using piecewise-linear
+  (default 64) in **normalized phase progress**, not wall time, using piecewise-linear
   interpolation, because phase durations vary and comparing on absolute time compares a fast batch's
   soak against a slow batch's ramp;
 - `mean[i]` is the median across qualifying batches at grid point i (median, not mean, so one
@@ -982,7 +982,7 @@ OMAC's own PackML page makes (omac.org/packml, retrieved 2026-08-10, HTTP 200). 
 `complete`. Modes: `producing`, `maintenance`, `manual`. twinflow builds the state names and the
 transition graph and cites ISA-TR88.00.02 as the formal source; it does not reproduce the technical
 report's text, which is copyrighted and paid (Open Question 9.6). The report's edition year is not
-asserted here because it could not be read from a primary or catalogue source on 2026-08-10, and
+asserted here because it could not be read from a primary or catalog source on 2026-08-10, and
 Open Question 9.14 records the confirmation that must happen before the README cites it.
 
 PackML is chosen over an ad hoc state enum for one reason that matters to OEE: PackML distinguishes
@@ -1019,9 +1019,9 @@ headlines, and ARCHITECTURE.md states the choice and why. Both records are alway
 neither answer is hidden.
 
 If `performance > 1.0`, the ideal cycle time is misconfigured. The engine does not clamp silently:
-it emits a config finding `oee_ideal_cycle_time_implausible` carrying the observed fastest realised
+it emits a config finding `oee_ideal_cycle_time_implausible` carrying the observed fastest realized
 cycle time as the suggested correction, and reports performance uncapped so the error is visible.
-The finding fires on the first completed unit whose realised cycle time is below
+The finding fires on the first completed unit whose realized cycle time is below
 `ideal_cycle_time_s`, which is the same condition as `performance > 1.0` over any window containing
 that unit, stated once so config validation (6.1) and runtime agree.
 
@@ -1031,14 +1031,14 @@ exactly one bucket. The six-loss taxonomy is the one Nakajima sets out in *Intro
 reproduce the book's text. The mapping from PackML state plus reason code to loss bucket is config
 (`oee.loss_mapping`), with this default:
 
-| Loss (Nakajima six)           | OEE factor   | Default source states and conditions                                                                                               |
-| ----------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Breakdown                  | Availability | `aborted`, `aborting`, `clearing`, and `held`/`holding` with `cause=internal` at or above `minor_stop_threshold_s`                 |
-| 2. Setup and adjustment       | Availability | `resetting`, `starting` with `reason_code=changeover`, and mode `manual` during a changeover                                       |
-| 3. Idling and minor stops     | Performance  | `held`/`holding` with `cause=internal` and duration below `minor_stop_threshold_s` (default 300 s)                                 |
-| 4. Reduced speed              | Performance  | time in `execute` where realised cycle time exceeds `ideal_cycle_time_s`                                                           |
-| 5. Process defects and rework | Quality      | units scrapped or reworked while in steady `execute` outside the startup window                                                    |
-| 6. Startup and yield loss     | Quality      | units scrapped within `oee.startup_window_units` after `starting` or `resetting`, and batch-side yield below `expected_yield_pct`  |
+| Loss (Nakajima six)           | OEE factor   | Default source states and conditions                                                                                              |
+|-------------------------------|--------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| 1. Breakdown                  | Availability | `aborted`, `aborting`, `clearing`, and `held`/`holding` with `cause=internal` at or above `minor_stop_threshold_s`                |
+| 2. Setup and adjustment       | Availability | `resetting`, `starting` with `reason_code=changeover`, and mode `manual` during a changeover                                      |
+| 3. Idling and minor stops     | Performance  | `held`/`holding` with `cause=internal` and duration below `minor_stop_threshold_s` (default 300 s)                                |
+| 4. Reduced speed              | Performance  | time in `execute` where realized cycle time exceeds `ideal_cycle_time_s`                                                          |
+| 5. Process defects and rework | Quality      | units scrapped or reworked while in steady `execute` outside the startup window                                                   |
+| 6. Startup and yield loss     | Quality      | units scrapped within `oee.startup_window_units` after `starting` or `resetting`, and batch-side yield below `expected_yield_pct` |
 
 External stop time is absent from the table because it is not one of the six. Under
 `external_counted: false` it sits outside planned production time in `external_stop_s`. Under
@@ -1098,7 +1098,7 @@ because the whole point of external setup is that it happens while the machine r
 **Problem.** A flexible flow shop: stages in series, parallel non-identical machines within a stage,
 jobs with release dates, due dates, weights, and machine-eligibility sets, and sequence-dependent
 setup times `S[machine][from_family][to_family]` drawn from a configured matrix keyed on attribute
-changes (colour, formulation, allergen, tooling). Setup time is charged before the run and is
+changes (color, formulation, allergen, tooling). Setup time is charged before the run and is
 attributed to loss bucket 2.
 
 **Solver ladder**, all three built, selectable by config, all deterministic given the seed:
@@ -1107,10 +1107,10 @@ attributed to loss bucket 2.
    Pinedo, "A heuristic to minimize the total weighted tardiness with sequence-dependent setups",
    IIE Transactions 29(1):45-52, 1997, DOI 10.1080/07408179708966311, with its look-ahead parameters
    `k1` and `k2` exposed as config. Fast, explainable, the baseline.
-2. `local_search`: `dispatch_atcs` followed by a deterministic first-improvement neighbourhood search
+2. `local_search`: `dispatch_atcs` followed by a deterministic first-improvement neighborhood search
    (adjacent-pair swap and single-job reinsertion) under a stated iteration budget.
 3. `optuna_search`: an Optuna study over the dispatching-rule parameters and the sequencing decisions
-   for the top-N bottleneck machines, under a stated trial budget. This is the E9 optimisation engine
+   for the top-N bottleneck machines, under a stated trial budget. This is the E9 optimization engine
    applied to scheduling; the sampler name and its seed are recorded in
    `production.schedule.published` so the result is reproducible.
 
@@ -1124,7 +1124,7 @@ same instance with the process restricted to one core and then unrestricted, and
 published schedule is byte-identical.
 
 The schedule **evaluator** is separate from every solver and is exact: `evaluate_schedule` computes
-makespan, total weighted tardiness, total setup time and machine utilisation from an assignment list
+makespan, total weighted tardiness, total setup time and machine utilization from an assignment list
 with no heuristics anywhere. That separation exists so the evaluator can be checked against
 published benchmark instances while the solvers stay free to be heuristic (VAL-GATE-PROD-2).
 
@@ -1145,7 +1145,7 @@ extended one echelon further upstream.
 `production.flow_control` selects one of four, all implemented:
 
 - `push`: each stage runs to its own schedule; WIP is bounded only by buffer capacity.
-- `pull_kanban`: stage-to-stage kanban loops. Cards authorise production. Card count per loop is
+- `pull_kanban`: stage-to-stage kanban loops. Cards authorize production. Card count per loop is
   either set explicitly or computed by the classical kanban sizing formula
   `N = ceil(D * L * (1 + alpha) / C)` where D is demand rate in units per second, L is replenishment
   lead time in seconds, alpha is the safety factor, and C is container size. Both paths are
@@ -1173,7 +1173,7 @@ tolerance above that measured noise floor, then publishes both.
 
 Per stage: `FPY_stage = units_passing_first_time / units_entering_stage`, where "first time" means
 without rework and without repair. Rolled throughput yield across n stages is
-`RTY = prod(FPY_i)`, and normalised yield is `RTY ** (1/n)`. RTY is converted to DPMO and sigma level
+`RTY = prod(FPY_i)`, and normalized yield is `RTY ** (1/n)`. RTY is converted to DPMO and sigma level
 by the LSS engine, not here.
 
 Every scrap event writes `production.scrap.recorded` and a genealogy terminal node so scrapped
@@ -1215,7 +1215,7 @@ quality at the source", and it is measured rather than asserted rhetorically.
 
 The **one point of FPY** experiment is a designed paired comparison. Two seeded runs, common random
 numbers, identical in every respect except `stages.coat.base_fpy` differing by one percentage point.
-Measured deltas: DC inbound inspection labour hours, internal-failure COPQ, external-failure COPQ,
+Measured deltas: DC inbound inspection labor hours, internal-failure COPQ, external-failure COPQ,
 returns units (6a4), fill rate and on-time ship rate (6a3), and the total COPQ delta. Reported with
 confidence intervals from the LSS engine over `experiment.replications` seed pairs. This is the
 headline number the README can carry for the production layer.
@@ -1247,10 +1247,10 @@ occurrence count rather than creating a new one. The occurrence count drives esc
 `ncr_dedupe_idempotence` (7.2) asserts that replaying the same finding stream produces the same NCR
 set with the same occurrence counts.
 
-This is the QMS half of the alarm-rationalisation requirement in the reference-architecture
+This is the QMS half of the alarm-rationalization requirement in the reference-architecture
 paragraph. The other half, severity ranking and shelving, belongs to the dashboard section's alarm
 manager, and the NCR engine consumes rather than duplicates it: intake reads `shelve_policy` from
-the finding catalogue, and a finding shelved at the alarm layer still raises its NCR but does not
+the finding catalog, and a finding shelved at the alarm layer still raises its NCR but does not
 page anyone. Shelving suppresses the notification, never the record, because a QMS that can hide a
 nonconformance by shelving it is not a QMS. `test_shelved_finding_still_raises_its_ncr` asserts it.
 
@@ -1260,7 +1260,7 @@ nonconformance by shelving it is not a QMS. `test_shelved_finding_still_raises_i
 open -> containment -> investigation -> action_planned -> implemented
      -> awaiting_evidence -> verifying -> closed_effective
                                        -> reopened -> action_planned (loop)
-any state -> cancelled (with reason and approval)
+any state -> canceled (with reason and approval)
 ```
 
 `capa_state_monotone` (7.2) asserts transitions follow this graph and `reopen_count` never decreases.
@@ -1346,7 +1346,7 @@ standard's own text on 2026-08-10, and the paragraph number is carried in the `r
 a reader can check any transition against the source.
 
 | From      | To           | Condition, with the MIL-STD-105E paragraph that states it                                                                                                                                                                                             |
-| --------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | normal    | tightened    | 4.7.1: 2 out of 2, 3, 4 or 5 consecutive lots rejected on original inspection, ignoring resubmitted lots                                                                                                                                              |
 | tightened | normal       | 4.7.2: 5 consecutive lots considered acceptable on original inspection                                                                                                                                                                                |
 | normal    | reduced      | 4.7.3, all four: the preceding 10 lots on normal inspection all accepted on original inspection; total nonconformities in those samples at or below the Table VIII limit number; production at a steady rate; reduced inspection considered desirable |
@@ -1389,7 +1389,7 @@ binomial on a small lot is a real and common error.
 
 Inbound lot rejection emits an NCR against the supplier lot, feeds the supplier scorecard (6a2),
 writes a genealogy annotation so every downstream node inherits the "from a rejected-then-sorted lot"
-attribute, and posts appraisal COPQ for the inspection labour plus internal-failure COPQ for any
+attribute, and posts appraisal COPQ for the inspection labor plus internal-failure COPQ for any
 sorting.
 
 ### 5.11 Certificate of analysis (6a11)
@@ -1425,12 +1425,12 @@ source requirement names, so the taxonomy is the requirement rather than a citat
 attribution is claimed for it here. Every cost-bearing quality event carries exactly one class,
 assigned by `copq_classification.yaml`:
 
-| Class            | Default drivers wired in this repo                                                                                                                                                                                                |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Prevention       | Gage R&R study labour, calibration programme, SPC monitoring effort, FMEA sessions, supplier development visits, quality training hours (6a14), preventive maintenance attributable to quality, SOP authoring and revision effort |
-| Appraisal        | Incoming AQL inspection labour and consumables, in-process inspection, final inspection, CoA generation, internal and layered process audits, CV audit compute                                                                    |
-| Internal failure | Scrap material and labour, rework labour and material, re-inspection, downgrade loss, quality-hold downtime, yield loss below expected, ECO scrap disposition, containment cost                                                   |
-| External failure | Returns processing (6a4), warranty and credit, complaint handling labour (6a12), recall execution cost, expedited replacement freight, lost margin from churned customers (6a12)                                                  |
+| Class            | Default drivers wired in this repo                                                                                                                                                                                             |
+|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Prevention       | Gage R&R study labor, calibration program, SPC monitoring effort, FMEA sessions, supplier development visits, quality training hours (6a14), preventive maintenance attributable to quality, SOP authoring and revision effort |
+| Appraisal        | Incoming AQL inspection labor and consumables, in-process inspection, final inspection, CoA generation, internal and layered process audits, CV audit compute                                                                  |
+| Internal failure | Scrap material and labor, rework labor and material, re-inspection, downgrade loss, quality-hold downtime, yield loss below expected, ECO scrap disposition, containment cost                                                  |
+| External failure | Returns processing (6a4), warranty and credit, complaint handling labor (6a12), recall execution cost, expedited replacement freight, lost margin from churned customers (6a12)                                                |
 
 `copq_exhaustive_partition` (7.2) asserts that every event carrying a quality cost produces exactly
 one posting, that the four bucket totals sum to total quality cost, and that no event is double
@@ -1440,7 +1440,7 @@ The reported KPIs are COPQ as a percentage of revenue, the prevention-plus-appra
 ratio, and the trend of each bucket on a control chart. Because twinflow can run paired seeded
 configurations, the classic "one dollar of prevention saves ten of internal failure and a hundred of
 external failure" claim becomes an experiment rather than a slogan: run the same seed with and
-without a prevention programme, difference the failure buckets, and publish the observed ratio under
+without a prevention program, difference the failure buckets, and publish the observed ratio under
 the twin's parameters, including the case where the ratio does not hold. Saying so honestly is the
 point.
 
@@ -1470,8 +1470,8 @@ do that", not only "what did it do".
   records", and states that "record changes shall not obscure previously recorded information" <!-- docs-lint-ok STE-01 verbatim quotation of 21 CFR 11.10(e) -->
   (eCFR, title 21 as in force 2026-01-01, retrieved 2026-08-10, HTTP 200). Append-only with a
   before-and-after digest per entry is how twinflow meets the second sentence.
-- 21 CFR 11.10(d) and 11.10(g) call for limiting system access to authorised individuals and for
-  authority checks so that only authorised individuals can electronically sign a record. That is the
+- 21 CFR 11.10(d) and 11.10(g) call for limiting system access to authorized individuals and for
+  authority checks so that only authorized individuals can electronically sign a record. That is the
   `AuthorityOracle` binding and the CoA release rule in 5.11.
 - 21 CFR 11.50(a) requires a signed electronic record to carry the printed name of the signer, the
   date and time the signature was executed, and the meaning associated with the signature. twinflow's
@@ -1602,7 +1602,7 @@ graph return byte-identical reports, which is what lets the drill's output be a 
 file at all.
 
 **Blast radius returned**: raw lots, production batches, WIP lots, finished lots, pallets, cartons,
-serialised units, storage locations, customer orders, shipments split by state (staged, in transit,
+serialized units, storage locations, customer orders, shipments split by state (staged, in transit,
 delivered), customers, open purchase orders (relevant when scoping by revision), and the quantity in <!-- docs-lint-ok STE-TERM-WORD purchase order is the domain term -->
 each bucket.
 
@@ -1640,25 +1640,25 @@ Shipment-Order-Tare-Pack-Item hierarchy that the ASC X12 856 Advance Ship Notice
 standard is copyrighted and paid, so twinflow models the hierarchy's shape under its own field names
 and reproduces none of its text (Open Question 9.6).
 
-Modelling the hierarchy rather than a flat line list matters because the reconciliation logic depends
+Modeling the hierarchy rather than a flat line list matters because the reconciliation logic depends
 on it: an RFID portal reads pallet-level and item-level tags, and knowing which items were expected
 on which pallet is what turns "we are two short" into "pallet SSCC 0042 is two short".
 
 **Three-way reconciliation.** For each ASN line, three counts exist: expected (ASN), RFID observed,
 and CV observed. The disambiguation matrix:
 
-| Expected        | RFID | CV  | Classification          | Consequence                                                                                                                                           |
-| --------------- | ---- | --- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| E               | E    | E   | `match`                 | receipt posted                                                                                                                                        |
-| E               | E-k  | E   | `read_failure`          | E46 read-zone finding, portal read-rate control chart, no supplier NCR                                                                                |
-| E               | E-k  | E-k | `genuine_short`         | supplier NCR, scorecard hit (6a2), three-way match exception (6a13)                                                                                   |
-| E               | E    | E-k | `cv_count_failure`      | CV model finding, no supplier NCR                                                                                                                     |
-| E               | E    | E+k | `cv_count_failure`      | CV model finding, no supplier NCR                                                                                                                     |
-| E               | E+k  | E+k | `overship`              | supplier NCR (minor), inventory adjustment                                                                                                            |
-| E               | E+k  | E   | `cross_read`            | E46 cross-read finding at the neighbouring portal                                                                                                     |
-| E               | 0    | 0   | `not_arrived_yet`       | partial-arrival timer, escalates to `missing` after the configured window                                                                             |
-| absent from ASN | k    | k   | `unexpected_receipt`    | ASN exception, procurement notified                                                                                                                   |
-| any             | any  | any | `channels_disagree`     | catch-all when both channels differ from expected and from each other in opposite directions; both a portal finding and a CV finding, no supplier NCR |
+| Expected        | RFID | CV  | Classification       | Consequence                                                                                                                                           |
+|-----------------|------|-----|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| E               | E    | E   | `match`              | receipt posted                                                                                                                                        |
+| E               | E-k  | E   | `read_failure`       | E46 read-zone finding, portal read-rate control chart, no supplier NCR                                                                                |
+| E               | E-k  | E-k | `genuine_short`      | supplier NCR, scorecard hit (6a2), three-way match exception (6a13)                                                                                   |
+| E               | E    | E-k | `cv_count_failure`   | CV model finding, no supplier NCR                                                                                                                     |
+| E               | E    | E+k | `cv_count_failure`   | CV model finding, no supplier NCR                                                                                                                     |
+| E               | E+k  | E+k | `overship`           | supplier NCR (minor), inventory adjustment                                                                                                            |
+| E               | E+k  | E   | `cross_read`         | E46 cross-read finding at the neighboring portal                                                                                                      |
+| E               | 0    | 0   | `not_arrived_yet`    | partial-arrival timer, escalates to `missing` after the configured window                                                                             |
+| absent from ASN | k    | k   | `unexpected_receipt` | ASN exception, procurement notified                                                                                                                   |
+| any             | any  | any | `channels_disagree`  | catch-all when both channels differ from expected and from each other in opposite directions; both a portal finding and a CV finding, no supplier NCR |
 
 The last row is the residual class, and it exists so that the classifier is total. The eight rows
 above it do not cover every combination of two independent counts, and a classifier with a hole
@@ -1681,8 +1681,8 @@ ground truth and publishes the confusion matrix, including the genuinely ambiguo
 **Mini CMMS.** A PdM finding (`pdm.threshold_crossing.estimated`) creates a work order with:
 
 ```
-priority_score = w_rpn * normalise(rpn)
-               + w_deferral * normalise(deferral_cost_slope_per_day)
+priority_score = w_rpn * normalize(rpn)
+               + w_deferral * normalize(deferral_cost_slope_per_day)
                + w_safety * safety_multiplier
                + w_criticality * asset_criticality
 ```
@@ -1700,7 +1700,7 @@ total_expected_cost(d) = P_fail(<= d) * E[cost_unplanned_failure]
 - `P_fail(<= d)` comes from the PdM layer's time-to-threshold distribution, not from a point
   estimate.
 - `E[cost_unplanned_failure]` is computed **by running the twin**: R paired replications with common
-  random numbers, identical seeds, differing only in whether the asset fails at the modelled time.
+  random numbers, identical seeds, differing only in whether the asset fails at the modeled time.
   The difference in throughput, overtime, expedite freight, scrap, and service-level penalty is the
   cost. Common random numbers are used deliberately as a variance-reduction technique so the
   difference is attributable to the failure rather than to seed noise, and a test asserts that the
@@ -1740,11 +1740,11 @@ below.
 - Article 12 requires unique operator and facility identifiers to comply with the standards named in
   Annex III or equivalent European or international standards.
 
-Point (f) is the reason role-scoped access is modelled rather than mentioned, and Article 9(2) is the
+Point (f) is the reason role-scoped access is modeled rather than mentioned, and Article 9(2) is the
 reason no conformance claim is made below.
 
 **Identity.** Each passport is addressed by a GS1 Digital Link URI built from the item's GTIN plus
-the batch or lot (application identifier 10) and, for serialised items, the serial (AI 21):
+the batch or lot (application identifier 10) and, for serialized items, the serial (AI 21):
 
 ```
 https://id.twinflow.example/01/09506000134352/10/L4471
@@ -1754,7 +1754,7 @@ https://id.twinflow.example/01/09506000134352/21/SN00042851
 The GTIN in the examples is a syntactically valid GS1 documentation GTIN with a correct check digit,
 and the company prefix is synthetic and not licensed from GS1, which 6.4 makes the load-time warning
 say out loud. The resolver is a static route in the dashboard and in the E1 replay viewer, so a
-passport is a link a reader can open. The data carrier modelled is a QR Code encoding the Digital
+passport is a link a reader can open. The data carrier modeled is a QR Code encoding the Digital
 Link URI. ESPR Article 9(2)(b) leaves the choice of carrier to the delegated act for each product
 group, so twinflow models one carrier and claims nothing about the carrier any delegated act will
 name.
@@ -1762,7 +1762,7 @@ name.
 **Attribute groups**, each attribute annotated with the event that sourced it:
 
 | Group                 | Attributes                                                          | Source                                               |
-| --------------------- | ------------------------------------------------------------------- | ---------------------------------------------------- |
+|-----------------------|---------------------------------------------------------------------|------------------------------------------------------|
 | Identification        | GTIN, lot, serial, item revision, manufacturer GLN, production date | `genealogy.transformation`, `plm.item.revised`       |
 | Composition           | component lots, materials, substances-of-concern flags              | BOM explosion plus `genealogy.transformation` inputs |
 | Carbon                | cradle-to-gate kgCO2e                                               | E17 ledger inheritance through genealogy             |
@@ -1774,7 +1774,7 @@ name.
 
 **Access roles.** `PassportAudience` is one of `public`, `customer`, `regulator`, `recycler`,
 `internal`. Each attribute declares the minimum audience that may see it, and `render_passport`
-filters accordingly. This is the Article 9(2)(f) mechanic, so it is modelled rather than mentioned,
+filters accordingly. This is the Article 9(2)(f) mechanic, so it is modeled rather than mentioned,
 and `test_passport_audience_filter_is_total` asserts every attribute declares an audience and that no
 rendering for a lower audience contains a higher-audience attribute.
 
@@ -1787,13 +1787,13 @@ model, the resolver and the access filter.
 
 ### 5.18 Tamper-evident ledger, signatures and EPCIS 2.0 (E35)
 
-**Canonicalisation.** Every payload is serialised with the RFC 8785 JSON Canonicalization Scheme
+**Canonicalisation.** Every payload is serialized with the RFC 8785 JSON Canonicalization Scheme
 before hashing. This is not a detail: a canonicalisation bug produces signatures that check out on
 the writer and fail on the reader, which is the classic and hard-to-debug failure of homegrown
 ledgers. RFC 8785 carries its own vectors in three places, and VAL-GATE-LEDGER-2 runs all three:
 section 3.2.3 gives a seven-key object and the exact sorted order its property names must take,
 section 3.2.4 gives the canonical UTF-8 output of a sample document as a hexadecimal byte sequence,
-and Appendix B Table 1 gives twenty-two IEEE 754 doubles with their required JSON serialisations,
+and Appendix B Table 1 gives twenty-two IEEE 754 doubles with their required JSON serializations,
 including the edge cases that break naive number printers.
 
 **Merkle tree.** RFC 6962 (Certificate Transparency, June 2013) section 2.1 definitions, used
@@ -1825,7 +1825,7 @@ which breaks the chain from that block forward.
 **Signatures.** Ed25519 (RFC 8032). Ed25519 is chosen over ECDSA for a reason specific to this
 repository: RFC 8032 section 8.2 states that "EdDSA signatures are deterministic", so the same seed
 and config produce the same signature bytes, and the ledger can sit inside a hashed event log. A
-randomised signature scheme would change the log on every run and quietly break the determinism hash
+randomized signature scheme would change the log on every run and quietly break the determinism hash
 check. Under D-05 the resulting claim is the two-tier one: byte-identical on a pinned platform with a
 pinned dependency set, and value-equivalent across platforms, which for the ledger means the same
 entries in the same order producing the same roots, since every hashed input is an integer, a byte
@@ -1870,7 +1870,7 @@ the GS1 EPCIS Standard, Release 2.0, ratified June 2022 (ref.gs1.org/standards/e
 7.4.2 to 7.4.6.
 
 | twinflow event               | EPCIS 2.0 type and section                                | Key fields                                                                                                                    |
-| ---------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+|------------------------------|-----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
 | `genealogy.transformation`   | `TransformationEvent`, 7.4.5                              | `inputEPCList`/`inputQuantityList`, `outputEPCList`/`outputQuantityList`, `bizStep: commissioning`, `ilmd` for lot attributes |
 | `genealogy.aggregation`      | `AggregationEvent`, 7.4.3                                 | `parentID` (SSCC), `childEPCs`, `action: ADD`/`DELETE`, `bizStep: packing`                                                    |
 | `genealogy.custody_transfer` | `ObjectEvent`, 7.4.2, with `sourceList`/`destinationList` | `bizStep: shipping` with `disposition: in_transit`; `bizStep: receiving` with the disposition omitted                         |
@@ -1889,14 +1889,14 @@ traceability events, and twinflow already attaches telemetry to lots, so cold-ch
 in-line measurements ride the standard interoperability format rather than a bespoke side channel.
 
 Identifiers: `sscc` for pallets and cartons (logistic units), `lgtin` for lot-level trade item
-classes, `sgtin` for serialised units, `gln` for read points and business locations. Vocabulary
+classes, `sgtin` for serialized units, `gln` for read points and business locations. Vocabulary
 values for `bizStep` and `disposition` come from the GS1 Core Business Vocabulary Standard, Release
 2.0, whose canonical form for a business step is `https://ref.gs1.org/cbv/Bizstep-<name>`.
 
 Emitted documents validate against the GS1-published EPCIS 2.0 JSON schema (VAL-GATE-LEDGER-4), and
-GS1's published example documents are parsed and re-serialised for a round-trip semantic-equality
+GS1's published example documents are parsed and re-serialized for a round-trip semantic-equality
 check. Whether those artifacts can be vendored or must be fetched at test time depends on their
-licence; see Open Question 9.3.
+license; see Open Question 9.3.
 
 ### 5.19 PLM and engineering change management (E37)
 
@@ -1905,7 +1905,7 @@ and drives everything downstream, because whether a superseded revision can stil
 question that
 determines disposition, PO handling and recall scope.
 
-**ECO lifecycle**: `draft -> review -> approved -> released -> effective -> closed`, with `cancelled`
+**ECO lifecycle**: `draft -> review -> approved -> released -> effective -> closed`, with `canceled`
 reachable from any pre-effective state. Approvals are checked against the authority matrix owned by
 6a17, through a `AuthorityOracle` protocol so PLM does not import finance.
 
@@ -1950,7 +1950,7 @@ financial twin and judged by the LSS engine.
   and emits `plm.po_change.requested` for procurement (6a13) to execute. Receiving the superseded revision
   after an `amend` becomes the `wrong_revision` reconciliation class in 5.16.
 - **Standard costs.** `rollup_standard_cost` explodes the new BOM, multiplies by component standard
-  costs, adds routing labour and overhead at the configured rates, and emits
+  costs, adds routing labor and overhead at the configured rates, and emits
   `plm.standard_cost.revised`. Finance (6a17) consumes it, revalues inventory, and rebaselines
   purchase price variance. Rounding is banker's rounding at the configured currency precision, stated <!-- docs-lint-ok STE-TERM-WORD purchase price variance is the domain term -->
   in config, so the rollup is exactly reproducible.
@@ -1992,7 +1992,7 @@ applies_to:
 
 ### 4.2 Zone assignment
 
-Staged pallets must be placed in the zone printed on the pallet licence plate. A pallet whose
+Staged pallets must be placed in the zone printed on the pallet license plate. A pallet whose
 zone cannot be read is staged in the exception lane and escalated to the supervisor.
 ```
 
@@ -2048,7 +2048,7 @@ from the twin's own artifacts, never from free text:
 - golden-batch profiles for the process, with the CPP setpoints and envelopes;
 - CAPA history for the process, with accepted root causes and the corrective actions that verified
   effective;
-- alarm rationalisation records (which alarms fire, at what rates, with what operator response);
+- alarm rationalization records (which alarms fire, at what rates, with what operator response);
 - process-mining output from `twinflow-procmine`, the Apache-2.0 miner written here rather than
   PM4Py (D-14): the discovered dominant variant and the rework loops, so the SOP documents what the
   process actually does rather than what someone remembers;
@@ -2082,12 +2082,12 @@ effective -> superseded -> obsolete`. Approval requires a human role from the au
 agent drafts and revises but does not approve. Publishing a new effective revision emits training
 requirements to 6a14; an operator executing an effective revision they are not trained on is a
 compliance finding (`untrained_execution`). Training records gate station assignment in the rostering
-optimiser (E23).
+optimizer (E23).
 
 **Adherence as a measurable variable.** Each SOP revision has a computed `clarity_score` (a
 transparent formula over step count, decision points, average sentence length, undefined-term count
 and reading-level proxy, all published in `docs/sop_clarity.md`) and the adherence model maps SOP
-quality to operator behaviour:
+quality to operator behavior:
 
 ```
 logit(adherence_p) = a0
@@ -2099,7 +2099,7 @@ logit(adherence_p) = a0
 ```
 
 Every coefficient is config, and `docs/sop_adherence.md` states plainly that these coefficients are
-chosen to produce plausible behaviour, not fitted to field data, because claiming otherwise would be
+chosen to produce plausible behavior, not fitted to field data, because claiming otherwise would be
 a fabricated empirical result. What the model buys is a closed loop that can be measured inside the
 twin: a worse SOP lowers adherence, lower adherence produces more CV-detected violations, violations
 produce NCRs, the CAPA's corrective action is an SOP revision, the revision raises clarity, adherence
@@ -2146,14 +2146,14 @@ changeover_burden  = total setup seconds implied by the released sequence / avai
 levelling_index    = 1 - clamp01(w_mix * mix_deviation + w_vol * volume_cv + w_chg * changeover_burden)
 ```
 
-The three weights are config and sum to 1, and `docs/levelling.md` states that `levelling_index` is
+The three weights are config and sum to 1, and `docs/leveling.md` states that `levelling_index` is
 twinflow's own composite, not a published index, so nobody reads it as a standard metric. What makes
 it useful is that it is comparable across scenario arms of the same configuration, which is the only
 comparison the what-if engine ever asks it to support.
 
-Levelling is a lever, not only a measurement. `production.levelling.policy` selects `as_released`
+Leveling is a lever, not only a measurement. `production.leveling.policy` selects `as_released`
 (no smoothing), `fixed_repeating_pattern` (a declared repeating sequence, the classic heijunka
-pattern), or `smoothed_by_family` (the scheduler minimises `mix_deviation` subject to due dates).
+pattern), or `smoothed_by_family` (the scheduler minimizes `mix_deviation` subject to due dates).
 Switching policy is a what-if: the LSS engine judges whether the resulting change in throughput,
 WIP and total setup time is real, and the ergonomics layer reports whether flattening the mix moved
 operator load. `E2E-PROD-009` runs `as_released` against `smoothed_by_family` on paired seeds and
@@ -2184,7 +2184,7 @@ different operation from one that hit it evenly.
 already in the log: `machine_down` (a breakdown overlapping the bucket), `material_starved` (an
 upstream buffer empty), `blocked` (a downstream buffer full), `changeover_overrun` (a changeover
 longer than its scheduled element sum), `quality_hold` (a quarantine intersecting the bucket),
-`labour_short` (a station unstaffed against the roster), and `unexplained`. The last class is
+`labor_short` (a station unstaffed against the roster), and `unexplained`. The last class is
 deliberate and is reported rather than hidden: a divergence attribution model that always finds a
 cause is not measuring anything. `scheduling.max_unexplained_share` sets the level at which the
 unexplained share itself raises `divergence_attribution_weak`, which is a finding about the model,
@@ -2207,12 +2207,12 @@ simulation.
 `recalibrate_from_telemetry(window)` produces a `RecalibrationPlan`, and the plan is a proposal, not
 an edit. Recalibration touches four parameter families and no others:
 
-| Parameter                          | Estimator over the window                                                        | Guard                                                                |
-| ---------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Machine cycle-time distribution    | Refit the configured family to observed realised cycle times in steady `execute` | Family is never changed by recalibration, only its parameters        |
-| Changeover element durations       | Refit per `(machine, from_family, to_family)` element                            | Elements absent from the window keep their prior values              |
-| Stage base first-pass yield        | Beta posterior over observed first-pass outcomes                                 | Never moves more than `recalibrate.max_step_frac` in one plan        |
-| Phase CPP trajectory parameters    | Least squares on the phase-local ramp, soak and decay parameters                 | Only for phases with at least `recalibrate.min_batches` completions  |
+| Parameter                       | Estimator over the window                                                        | Guard                                                               |
+|---------------------------------|----------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| Machine cycle-time distribution | Refit the configured family to observed realized cycle times in steady `execute` | Family is never changed by recalibration, only its parameters       |
+| Changeover element durations    | Refit per `(machine, from_family, to_family)` element                            | Elements absent from the window keep their prior values             |
+| Stage base first-pass yield     | Beta posterior over observed first-pass outcomes                                 | Never moves more than `recalibrate.max_step_frac` in one plan       |
+| Phase CPP trajectory parameters | Least squares on the phase-local ramp, soak and decay parameters                 | Only for phases with at least `recalibrate.min_batches` completions |
 
 Four properties keep this honest.
 
@@ -2233,27 +2233,27 @@ Four properties keep this honest.
    on itself.
 
 A parameter that recalibration moves repeatedly in the same direction is itself a finding
-(`twin_parameter_drift`), because a twin that needs the same correction every week is modelling
+(`twin_parameter_drift`), because a twin that needs the same correction every week is modeling
 something it has not represented.
 
 ### 5.25 The make-versus-buffer what-if (6a9)
 
 The source names this as the question entire engagements are sold to answer: is the cheapest capacity
-a third shift at the factory, a faster changeover programme, or more DC safety stock? It is the last
+a third shift at the factory, a faster changeover program, or more DC safety stock? It is the last
 capability in 3i because it composes the factory, the DC, the planning layer and the financial twin.
 
 `compare_scenarios` runs four arms from one baseline config, on paired seeds with common random
-numbers, over the same horizon and the same demand realisation:
+numbers, over the same horizon and the same demand realization:
 
-| Arm             | Config change                                                                         | Cost side                                                         |
-| --------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `baseline`      | none                                                                                  | none                                                              |
-| `third_shift`   | `production.calendar.shifts` gains a third shift on the bottleneck stage              | Labour cost from 6a14, including shift premium and ramp curve     |
-| `smed_program`  | the 5.4 SMED programme is applied to the bottleneck machine                           | `smed.capex` plus the engineering effort declared with it         |
-| `more_buffer`   | DC safety stock for the affected SKU class is raised by `whatif.buffer_step_frac`     | Carrying cost and space from the planning and finance layers      |
+| Arm            | Config change                                                                     | Cost side                                                    |
+|----------------|-----------------------------------------------------------------------------------|--------------------------------------------------------------|
+| `baseline`     | none                                                                              | none                                                         |
+| `third_shift`  | `production.calendar.shifts` gains a third shift on the bottleneck stage          | Labor cost from 6a14, including shift premium and ramp curve |
+| `smed_program` | the 5.4 SMED program is applied to the bottleneck machine                         | `smed.capex` plus the engineering effort declared with it    |
+| `more_buffer`  | DC safety stock for the affected SKU class is raised by `whatif.buffer_step_frac` | Carrying cost and space from the planning and finance layers |
 
 Each arm reports the same measured vector: units shipped, fill rate, on-time ship rate, factory OEE
-at the bottleneck, average WIP, total setup seconds, COPQ by bucket, labour hours, inventory
+at the bottleneck, average WIP, total setup seconds, COPQ by bucket, labor hours, inventory
 carrying cost, and total cost to serve. The comparison the agent presents is throughput gained per
 dollar of assumed cost, ranked, with the LSS engine's verdict on whether each arm's throughput delta
 is distinguishable from seed noise at the configured replication count.
@@ -2284,72 +2284,72 @@ config bug that costs a day.
 
 ### 6.1 `facility.yaml`, `production:` block
 
-| Key                                             | Type                                                    | Validation                                                                                                                         |
-| ----------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `production.plant_id`                           | str                                                     | matches `^[a-z0-9_]{2,32}$`, unique across sites                                                                                   |
-| `production.stage_graph`                        | list of `{id, kind: batch\                              | discrete, downstream: [id]}`                                                                                                       |
-| `production.process_cells[].units[]`            | list                                                    | each unit declares `capabilities: [str]` matched against recipe phase requirements                                                 |
-| `production.work_centers[].machines[]`          | list                                                    | see machine keys below                                                                                                             |
-| `production.machines[].ideal_cycle_time_s`      | float                                                   | `> 0`; a value below the observed p1 cycle time at runtime raises `oee_ideal_cycle_time_implausible`                               |
-| `production.machines[].setup_matrix_ref`        | str                                                     | must resolve in `setup_matrices`                                                                                                   |
-| `production.machines[].startup_scrap_units`     | int                                                     | `>= 0`                                                                                                                             |
-| `production.machines[].failure_model_ref`       | str                                                     | must resolve in the shared reliability catalog                                                                                     |
-| `production.calendar.shifts`                    | list                                                    | must tile the week without overlap; gaps become planned downtime                                                                   |
-| `production.uom_conversions`                    | map                                                     | every batch-to-discrete handoff needs a factor; round-trip error must be zero                                                      |
-| `oee.count_external_stops_as_availability_loss` | bool                                                    | default false; both variants are always emitted regardless                                                                         |
-| `oee.minor_stop_threshold_s`                    | float                                                   | default 300; `> 0`                                                                                                                 |
-| `oee.startup_window_units`                      | int                                                     | default 10; `>= 0`                                                                                                                 |
-| `oee.loss_mapping`                              | map state+reason to loss bucket                         | must cover every reachable state; an uncovered state is a load error, not a runtime surprise                                       |
-| `flow_control.mode`                             | enum                                                    | `push \                                                                                                                            |
-| `flow_control.kanban_loops[]`                   | list                                                    | `cards` or the formula inputs `{demand_rate, lead_time_s, safety_factor, container_size}`, not both                                |
-| `flow_control.conwip_cap`                       | int                                                     | required when mode is `conwip`; `> 0`                                                                                              |
-| `scheduling.solver`                             | enum                                                    | `dispatch_atcs \                                                                                                                   |
-| `scheduling.atcs.k1`, `.k2`                     | float                                                   | `> 0`; defaults 2.0 and 1.5                                                                                                        |
-| `scheduling.budget`                             | `{iterations}` or `{trials}`                            | required for non-baseline solvers; recorded on every published schedule; a wall-clock budget key is rejected at load (D-04)        |
-| `setup_matrices.<ref>`                          | matrix of `from_family x to_family -> seconds`          | square, non-negative, diagonal must be zero or the configured minor-setup value                                                    |
-| `smed.program_id`                               | str                                                     | optional; when present all named elements must exist on the named machines                                                         |
-| `stages.<id>.ctq[]`                             | list                                                    | `{characteristic_id, subgroup_size, sampling_period_s, lsl, usl, target, chart_preference}`; `lsl < target < usl` when all present |
-| `stages.<id>.base_fpy`                          | float                                                   | in `(0, 1]`                                                                                                                        |
-| `takt.ratio_ceiling`                            | float                                                   | `> 1`; default 1.05                                                                                                                |
-| `takt.ratio_floor`                              | float                                                   | `> 0` and below `takt.ratio_ceiling`; default 0.70                                                                                 |
-| `takt.consecutive_windows`                      | int                                                     | `>= 1`; default 3                                                                                                                  |
-| `levelling.policy`                              | enum                                                    | `as_released \                                                                                                                     |
-| `levelling.weights`                             | `{w_mix, w_vol, w_chg}`                                 | non-negative, sum to 1                                                                                                             |
-| `levelling.share_target`                        | map family to share                                     | shares in `[0,1]` summing to 1; required when policy is not `as_released`                                                          |
-| `scheduling.adherence_bucket_s`                 | float                                                   | `> 0`; must divide the shift length exactly                                                                                        |
-| `scheduling.adherence_floor_pct`                | float                                                   | `(0, 100]`                                                                                                                         |
-| `scheduling.adherence_consecutive_buckets`      | int                                                     | `>= 1`                                                                                                                             |
-| `scheduling.max_unexplained_share`              | float                                                   | `[0, 1]`; above this the model itself raises `divergence_attribution_weak`                                                         |
-| `recalibrate.alpha`                             | float                                                   | `(0, 0.5)`                                                                                                                         |
-| `recalibrate.min_effect`                        | map parameter family to a minimum shift                 | every recalibrated family needs one; no default of convenience                                                                     |
-| `recalibrate.max_step_frac`                     | float                                                   | `(0, 1]`; the largest single-plan move for a bounded parameter                                                                     |
-| `recalibrate.min_batches`                       | int                                                     | `>= 1`; phases below this are not recalibrated                                                                                     |
-| `recalibrate.autonomy_tier_required`            | int                                                     | E5 tier needed to apply a plan; default 2, so a human approves                                                                     |
-| `whatif.buffer_step_frac`                       | float                                                   | `> 0`; the safety-stock increase the `more_buffer` arm applies                                                                     |
+| Key                                             | Type                                           | Validation                                                                                                                         |
+|-------------------------------------------------|------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| `production.plant_id`                           | str                                            | matches `^[a-z0-9_]{2,32}$`, unique across sites                                                                                   |
+| `production.stage_graph`                        | list of `{id, kind: batch\                     | discrete, downstream: [id]}`                                                                                                       |
+| `production.process_cells[].units[]`            | list                                           | each unit declares `capabilities: [str]` matched against recipe phase requirements                                                 |
+| `production.work_centers[].machines[]`          | list                                           | see machine keys below                                                                                                             |
+| `production.machines[].ideal_cycle_time_s`      | float                                          | `> 0`; a value below the observed p1 cycle time at runtime raises `oee_ideal_cycle_time_implausible`                               |
+| `production.machines[].setup_matrix_ref`        | str                                            | must resolve in `setup_matrices`                                                                                                   |
+| `production.machines[].startup_scrap_units`     | int                                            | `>= 0`                                                                                                                             |
+| `production.machines[].failure_model_ref`       | str                                            | must resolve in the shared reliability catalog                                                                                     |
+| `production.calendar.shifts`                    | list                                           | must tile the week without overlap; gaps become planned downtime                                                                   |
+| `production.uom_conversions`                    | map                                            | every batch-to-discrete handoff needs a factor; round-trip error must be zero                                                      |
+| `oee.count_external_stops_as_availability_loss` | bool                                           | default false; both variants are always emitted regardless                                                                         |
+| `oee.minor_stop_threshold_s`                    | float                                          | default 300; `> 0`                                                                                                                 |
+| `oee.startup_window_units`                      | int                                            | default 10; `>= 0`                                                                                                                 |
+| `oee.loss_mapping`                              | map state+reason to loss bucket                | must cover every reachable state; an uncovered state is a load error, not a runtime surprise                                       |
+| `flow_control.mode`                             | enum                                           | `push \                                                                                                                            |
+| `flow_control.kanban_loops[]`                   | list                                           | `cards` or the formula inputs `{demand_rate, lead_time_s, safety_factor, container_size}`, not both                                |
+| `flow_control.conwip_cap`                       | int                                            | required when mode is `conwip`; `> 0`                                                                                              |
+| `scheduling.solver`                             | enum                                           | `dispatch_atcs \                                                                                                                   |
+| `scheduling.atcs.k1`, `.k2`                     | float                                          | `> 0`; defaults 2.0 and 1.5                                                                                                        |
+| `scheduling.budget`                             | `{iterations}` or `{trials}`                   | required for non-baseline solvers; recorded on every published schedule; a wall-clock budget key is rejected at load (D-04)        |
+| `setup_matrices.<ref>`                          | matrix of `from_family x to_family -> seconds` | square, non-negative, diagonal must be zero or the configured minor-setup value                                                    |
+| `smed.program_id`                               | str                                            | optional; when present all named elements must exist on the named machines                                                         |
+| `stages.<id>.ctq[]`                             | list                                           | `{characteristic_id, subgroup_size, sampling_period_s, lsl, usl, target, chart_preference}`; `lsl < target < usl` when all present |
+| `stages.<id>.base_fpy`                          | float                                          | in `(0, 1]`                                                                                                                        |
+| `takt.ratio_ceiling`                            | float                                          | `> 1`; default 1.05                                                                                                                |
+| `takt.ratio_floor`                              | float                                          | `> 0` and below `takt.ratio_ceiling`; default 0.70                                                                                 |
+| `takt.consecutive_windows`                      | int                                            | `>= 1`; default 3                                                                                                                  |
+| `leveling.policy`                               | enum                                           | `as_released \                                                                                                                     |
+| `leveling.weights`                              | `{w_mix, w_vol, w_chg}`                        | non-negative, sum to 1                                                                                                             |
+| `leveling.share_target`                         | map family to share                            | shares in `[0,1]` summing to 1; required when policy is not `as_released`                                                          |
+| `scheduling.adherence_bucket_s`                 | float                                          | `> 0`; must divide the shift length exactly                                                                                        |
+| `scheduling.adherence_floor_pct`                | float                                          | `(0, 100]`                                                                                                                         |
+| `scheduling.adherence_consecutive_buckets`      | int                                            | `>= 1`                                                                                                                             |
+| `scheduling.max_unexplained_share`              | float                                          | `[0, 1]`; above this the model itself raises `divergence_attribution_weak`                                                         |
+| `recalibrate.alpha`                             | float                                          | `(0, 0.5)`                                                                                                                         |
+| `recalibrate.min_effect`                        | map parameter family to a minimum shift        | every recalibrated family needs one; no default of convenience                                                                     |
+| `recalibrate.max_step_frac`                     | float                                          | `(0, 1]`; the largest single-plan move for a bounded parameter                                                                     |
+| `recalibrate.min_batches`                       | int                                            | `>= 1`; phases below this are not recalibrated                                                                                     |
+| `recalibrate.autonomy_tier_required`            | int                                            | E5 tier needed to apply a plan; default 2, so a human approves                                                                     |
+| `whatif.buffer_step_frac`                       | float                                          | `> 0`; the safety-stock increase the `more_buffer` arm applies                                                                     |
 
 ### 6.2 `recipes/*.yaml` and `golden_batches/*.yaml`
 
-| Key                                       | Type                                                              | Validation                                                                                                         |
-| ----------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `recipe_id`, `revision`                   | str                                                               | revision must exist in PLM for this recipe                                                                         |
-| `procedure`                               | nested                                                            | exactly four levels: procedure, unit_procedure, operation, phase                                                   |
-| `procedure...phase.required_capabilities` | list[str]                                                         | at least one configured unit must have all of them                                                                 |
-| `formula.process_parameters.<cpp>`        | `{setpoint, tolerance, uom, model: ramp\                          | soak\                                                                                                              |
-| `expected_yield_pct`                      | float                                                             | `(0, 100]`                                                                                                         |
-| `expected_yield_loss_pct`                 | float                                                             | `[0, 100)`; sum with `expected_yield_pct` at most 100                                                              |
-| `material_balance_tolerance_pct`          | float                                                             | default 0.5; `[0, 5]`, and a value above 2 emits a config warning because a loose material balance hides real loss |
-| `golden.grid`                             | int                                                               | default 64; power of two between 16 and 512                                                                        |
-| `golden.min_qualifying_batches`           | int                                                               | default 20; `>= 5`, and below 20 emits a warning recorded on every score                                           |
-| `golden.envelope_quantiles`               | `[float, float]`                                                  | strictly increasing, both in `(0,1)`                                                                               |
-| `golden.envelope_floor_frac`              | float                                                             | default 0.05; `[0, 0.5]`                                                                                           |
-| `golden.alignment`                        | enum                                                              | `progress_resample \                                                                                               |
-| `golden.verdict_bands`                    | list[float]                                                       | strictly decreasing, all in `[0,100]`                                                                              |
-| `golden.weights`                          | `{w_rmse, w_oob}`                                                 | both `>= 0`, sum to 1                                                                                              |
+| Key                                       | Type                                     | Validation                                                                                                         |
+|-------------------------------------------|------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `recipe_id`, `revision`                   | str                                      | revision must exist in PLM for this recipe                                                                         |
+| `procedure`                               | nested                                   | exactly four levels: procedure, unit_procedure, operation, phase                                                   |
+| `procedure...phase.required_capabilities` | list[str]                                | at least one configured unit must have all of them                                                                 |
+| `formula.process_parameters.<cpp>`        | `{setpoint, tolerance, uom, model: ramp\ | soak\                                                                                                              |
+| `expected_yield_pct`                      | float                                    | `(0, 100]`                                                                                                         |
+| `expected_yield_loss_pct`                 | float                                    | `[0, 100)`; sum with `expected_yield_pct` at most 100                                                              |
+| `material_balance_tolerance_pct`          | float                                    | default 0.5; `[0, 5]`, and a value above 2 emits a config warning because a loose material balance hides real loss |
+| `golden.grid`                             | int                                      | default 64; power of two between 16 and 512                                                                        |
+| `golden.min_qualifying_batches`           | int                                      | default 20; `>= 5`, and below 20 emits a warning recorded on every score                                           |
+| `golden.envelope_quantiles`               | `[float, float]`                         | strictly increasing, both in `(0,1)`                                                                               |
+| `golden.envelope_floor_frac`              | float                                    | default 0.05; `[0, 0.5]`                                                                                           |
+| `golden.alignment`                        | enum                                     | `progress_resample \                                                                                               |
+| `golden.verdict_bands`                    | list[float]                              | strictly decreasing, all in `[0,100]`                                                                              |
+| `golden.weights`                          | `{w_rmse, w_oob}`                        | both `>= 0`, sum to 1                                                                                              |
 
 ### 6.3 `quality.yaml`
 
 | Key                                            | Type                    | Validation                                                                                                                                                                                                                  |
-| ---------------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------------------------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ncr_rules[]`                                  | list                    | each rule's `finding_class` must exist in the findings taxonomy                                                                                                                                                             |
 | `ncr_rules[].dedupe.window_s`                  | float                   | `> 0`                                                                                                                                                                                                                       |
 | `ncr.escalate_after_occurrences`               | int                     | `>= 2`                                                                                                                                                                                                                      |
@@ -2376,12 +2376,12 @@ config bug that costs a day.
 ### 6.4 `ledger.yaml`
 
 | Key                               | Type                                              | Validation                                                                                                          |
-| --------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+|-----------------------------------|---------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
 | `ledger.block_max_entries`        | int                                               | `> 0`; default 1000                                                                                                 |
 | `ledger.block_max_interval_s`     | float                                             | `> 0`; default 3600 sim-seconds                                                                                     |
 | `ledger.hash`                     | enum                                              | `sha256` only; the key exists so the choice is explicit and auditable                                               |
 | `ledger.canonicalisation`         | enum                                              | `rfc8785` only, same reason                                                                                         |
-| `ledger.signature_algorithm`      | enum                                              | `ed25519` only; ECDSA is rejected at load with the message that a randomised signature scheme breaks C1 determinism |
+| `ledger.signature_algorithm`      | enum                                              | `ed25519` only; ECDSA is rejected at load with the message that a randomized signature scheme breaks C1 determinism |
 | `ledger.key_derivation`           | `{scheme: hkdf_sha256, salt: str}`                | keys derived from the run seed; a config that points at a key file path is rejected so keys can never be committed  |
 | `ledger.parties[]`                | list                                              | `{party_id, roles: [str]}`                                                                                          |
 | `signature_policy.<event_schema>` | `{required_roles, threshold, forbid_actor_kinds}` | `threshold <= len(required_roles)`                                                                                  |
@@ -2392,7 +2392,7 @@ config bug that costs a day.
 ### 6.5 `plm.yaml`
 
 | Key                                     | Type  | Validation                                                           |
-| --------------------------------------- | ----- | -------------------------------------------------------------------- |
+|-----------------------------------------|-------|----------------------------------------------------------------------|
 | `plm.revision_scheme`                   | enum  | `alpha \                                                             |
 | `plm.default_interchangeability`        | enum  | required, no default of convenience                                  |
 | `plm.eco.max_use_up_days`               | int   | `>= 0`                                                               |
@@ -2405,7 +2405,7 @@ config bug that costs a day.
 ### 6.6 `bizsys.yaml`
 
 | Key                                           | Type                                                    | Validation                                                                       |
-| --------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+|-----------------------------------------------|---------------------------------------------------------|----------------------------------------------------------------------------------|
 | `erp.asn_lead_time_s`                         | distribution                                            | ASN issued this far before arrival; must be non-negative                         |
 | `erp.asn_accuracy`                            | `{qty_error_rate, lot_error_rate, revision_error_rate}` | each in `[0,1]`; these inject the discrepancies the reconciler must classify     |
 | `erp.reconciliation.partial_arrival_window_s` | float                                                   | `> 0`                                                                            |
@@ -2420,18 +2420,18 @@ config bug that costs a day.
 
 ### 6.7 `sop_policy.yaml`
 
-| Key                                      | Type  | Validation                                                                                                                 |
-| ---------------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------- |
-| `sop.corpus_dir`                         | path  | must exist; every file must parse and carry required front matter                                                          |
-| `sop.retrieval.mode`                     | enum  | `lexical_only \                                                                                                            |
-| `sop.retrieval.min_score`                | float | `(0, 1]`; the abstention threshold                                                                                         |
-| `sop.retrieval.rrf_k`                    | int   | `> 0`; default 60                                                                                                          |
-| `sop.retrieval.require_structural_match` | bool  | default true; setting false is allowed for ablation studies and is recorded in the eval report                             |
-| `sop.adherence.coefficients`             | map   | all six named; every value required, none defaulted, so nobody accidentally ships an unexamined behaviour model            |
-| `sop.clarity.weights`                    | map   | non-negative, sum to 1                                                                                                     |
-| `sop.generation.model_ref`               | str   | resolves in the model registry (E43) to a pinned artifact digest; a floating tag is rejected at load (D-04)                |
-| `sop.generation.require_grounding`       | bool  | default true; false is rejected in CI configurations                                                                       |
-| `sop.retrieval.model_digest`             | str   | required when mode is `hybrid`; the pinned dense-encoder digest recorded in the run manifest's hashed core                 |
+| Key                                      | Type  | Validation                                                                                                     |
+|------------------------------------------|-------|----------------------------------------------------------------------------------------------------------------|
+| `sop.corpus_dir`                         | path  | must exist; every file must parse and carry required front matter                                              |
+| `sop.retrieval.mode`                     | enum  | `lexical_only \                                                                                                |
+| `sop.retrieval.min_score`                | float | `(0, 1]`; the abstention threshold                                                                             |
+| `sop.retrieval.rrf_k`                    | int   | `> 0`; default 60                                                                                              |
+| `sop.retrieval.require_structural_match` | bool  | default true; setting false is allowed for ablation studies and is recorded in the eval report                 |
+| `sop.adherence.coefficients`             | map   | all six named; every value required, none defaulted, so nobody accidentally ships an unexamined behavior model |
+| `sop.clarity.weights`                    | map   | non-negative, sum to 1                                                                                         |
+| `sop.generation.model_ref`               | str   | resolves in the model registry (E43) to a pinned artifact digest; a floating tag is rejected at load (D-04)    |
+| `sop.generation.require_grounding`       | bool  | default true; false is rejected in CI configurations                                                           |
+| `sop.retrieval.model_digest`             | str   | required when mode is `hybrid`; the pinned dense-encoder digest recorded in the run manifest's hashed core     |
 
 ---
 
@@ -2442,7 +2442,7 @@ property tests nor end-to-end scenarios and hiding them inside either tier would
 Each tier has a stated budget enforced in CI:
 
 | Tier              | Budget                      | Scope                                         |
-| ----------------- | --------------------------- | --------------------------------------------- |
+|-------------------|-----------------------------|-----------------------------------------------|
 | unit              | 90 s for all seven packages | pure functions, state machines, table lookups |
 | property          | 240 s                       | Hypothesis invariants, 7.2                    |
 | gates             | 300 s                       | 7.3                                           |
@@ -2503,7 +2503,7 @@ statement is also its failure condition (D-12): the test fails on any generated 
 stated sentence is false, and Hypothesis prints the shrunk counterexample.
 
 | Invariant name                     | Statement                                                                                                                                                                                                                                 |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `material_conservation`            | For every transformation, inputs times conversion times expected yield equals good plus rework plus scrap plus declared loss, within `material_balance_tolerance_pct`, and declared loss never exceeds `expected_yield_loss_pct` of input |
 | `genealogy_closure`                | The graph is acyclic; every non-raw node has at least one inbound lineage edge; for any node n, `n in forward_closure(backward_closure(n))`; forward closure is idempotent                                                                |
 | `revision_in_genealogy`            | Every genealogy node carries a non-null as-built `item_revision`, for arbitrary generated event streams                                                                                                                                   |
@@ -2552,16 +2552,16 @@ that must close or a classifier that must be total. It carries no external sourc
 nothing external to check against, and it never appears in the README's
 "validated against published references" table. It still states its falsifier. Calling an invariant
 gate a validation against a published reference is what makes a repository's evidence table
-untrustworthy, so the two are labelled and reported separately.
+untrustworthy, so the two are labeled and reported separately.
 
 This repository is never cited as its own external reference. Where a gate rests on ground truth,
 that ground truth is the twin's own injected value, the gate says so, and the gate is an invariant
 gate.
 
 | Gate              | Kind      | Source, with edition and locator                                                                                                                                                                                                                                                                   | Assertion, tolerance and noise floor                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Falsifier                                                                                                            |
-| ----------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+|-------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | VAL-GATE-PROD-1a  | Invariant | None. Closed-form construction over a synthesised timeline                                                                                                                                                                                                                                         | Loss buckets and unit buckets close exactly in integer sim-ticks and integer units, tolerance 0. The four ratios equal the closed form to within 8 units in the last place of a double, which bounds the rounding of the four arithmetic operations that produce them                                                                                                                                                                                                                                                                                                               | Any bucket sum that misses closure by one tick, or a ratio outside 8 ulp                                             |
-| VAL-GATE-PROD-1b  | Reference | ISO 22400-2:2014 including Amendment 1:2017, KPI definitions; ISA-TR88.00.02, state model. Both cited, neither reproduced. Designation read from the ANSI webstore catalogue listing on 2026-08-10                                                                                                 | Every KPI this section computes carries a `standard_ref` annotation naming the clause it implements, and a docs test asserts the annotation exists and resolves. The standard text is paid, so the gate checks annotation coverage, not numeric agreement. No free certified dataset for OEE exists; Open Question 9.5                                                                                                                                                                                                                                                              | A KPI with no `standard_ref`, or a `standard_ref` naming a clause absent from the cited standard's clause list       |
+| VAL-GATE-PROD-1b  | Reference | ISO 22400-2:2014 including Amendment 1:2017, KPI definitions; ISA-TR88.00.02, state model. Both cited, neither reproduced. Designation read from the ANSI webstore catalog listing on 2026-08-10                                                                                                   | Every KPI this section computes carries a `standard_ref` annotation naming the clause it implements, and a docs test asserts the annotation exists and resolves. The standard text is paid, so the gate checks annotation coverage, not numeric agreement. No free certified dataset for OEE exists; Open Question 9.5                                                                                                                                                                                                                                                              | A KPI with no `standard_ref`, or a `standard_ref` naming a clause absent from the cited standard's clause list       |
 | VAL-GATE-PROD-2   | Reference | Taillard, "Benchmarks for basic scheduling problems", European Journal of Operational Research 64(2):278-285, 1993, DOI 10.1016/0377-2217(93)90182-M. Setup-time extension per Ruiz, Maroto and Alcaraz, EJOR 165(1):34-54, 2005, DOI 10.1016/j.ejor.2004.01.022                                   | `evaluate_schedule` never returns a makespan below the published lower bound for the instance, tolerance 0 since both are integers. Solver quality is reported as the measured distribution of the ratio to the best value the ladder finds, published rather than asserted against a bound nobody published. Open Question 9.15 records that the bound table must be re-obtained from a live copy                                                                                                                                                                                  | A makespan below an instance's published lower bound, which can only mean the evaluator is wrong                     |
 | VAL-GATE-PROD-3   | Reference | Little, "A Proof for the Queuing Formula: L = lambda W", Operations Research 9(3):383-387, 1961, DOI 10.1287/opre.9.3.383                                                                                                                                                                          | Over at least 10,000 completions after warm-up, `WIP / (throughput * cycle_time)` equals 1. The tolerance is 3 times the measured run-to-run standard deviation of that ratio across 30 replications, computed in the same job and printed with the result, never a number fixed in advance                                                                                                                                                                                                                                                                                         | A ratio outside the measured band, or a measured standard deviation that grows between releases without a cause      |
 | VAL-GATE-PROD-4   | Reference | NIST/SEMATECH e-Handbook of Statistical Methods, section 6.3.2, which states that for a 3-sigma Shewhart chart on normal data p is 0.0027 and the ARL is approximately 371 (retrieved 2026-08-10, HTTP 200) <!-- docs-lint-ok STE-TERM-WORD verbatim quotation of the NIST/SEMATECH e-Handbook --> | In control, the empirical ARL over 10,000 seeded runs matches the handbook value. The published value carries three significant figures, so agreement is checked at that precision. Run length is geometric, so the standard error of the mean over 10,000 runs is about 1.0 percent of the ARL; the tolerance is 5 percent, five standard errors above that floor. For shifts of 1, 2 and 3 sigma the same 5 percent tolerance applies against `ARL1 = 1 / (1 - Phi(3 - delta*sqrt(n)) + Phi(-3 - delta*sqrt(n)))`, the geometric mean anchored on the same in-control probability | An empirical ARL outside the 5 percent band, which is a five-sigma event under the null                              |
@@ -2576,9 +2576,9 @@ gate.
 | VAL-GATE-QMS-7    | Invariant | None. A performance measurement, published in the A4 scaling evidence                                                                                                                                                                                                                              | Recall-drill p95 elapsed time at 1,000,000 genealogy edges on the GitHub-hosted `ubuntu-latest` standard runner for public repositories (4 vCPU, 16 GB RAM, x64), compared against the recorded baseline for that runner class. The threshold is the recorded baseline plus its measured run-to-run spread, not the round number in config. Elapsed time is read by the observability exporter and never enters the tape (D-02)                                                                                                                                                     | A p95 above the recorded baseline band on the same runner class, which is a performance regression                   |
 | VAL-GATE-QMS-8    | Invariant | None. Tamper detection over the section's own persisted store                                                                                                                                                                                                                                      | For 10,000 Hypothesis-generated single-byte mutations of the persisted audit trail, the detection rate is 1.0 and the reported first bad sequence is the sequence containing the mutated byte. Detection is deterministic, so anything below 1.0 is a defect                                                                                                                                                                                                                                                                                                                        | One undetected mutation, or a first-bad-sequence that does not contain the mutated byte                              |
 | VAL-GATE-LEDGER-1 | Reference | RFC 6962, June 2013, sections 2.1, 2.1.1, 2.1.2 and the worked seven-leaf example in 2.1.3; verification procedures from RFC 9162, December 2021, sections 2.1.3.2 and 2.1.4.2                                                                                                                     | For the seven-leaf tree of 2.1.3, the audit paths for d0, d3, d4 and d6 and the consistency proofs PROOF(3, D[7]), PROOF(4, D[7]) and PROOF(6, D[7]) equal the node lists the RFC enumerates. `MTH({})` equals SHA-256 of the empty string. Tolerance 0: these are byte comparisons                                                                                                                                                                                                                                                                                                 | Any audit path or consistency proof whose node list differs from the RFC's                                           |
-| VAL-GATE-LEDGER-2 | Reference | RFC 8785, section 3.2.3 property-sort test data, section 3.2.4 canonical UTF-8 byte sequence, and Appendix B Table 1 number serialisation samples                                                                                                                                                  | Sorted property order matches the seven-entry expected order; canonical output matches the published hexadecimal byte sequence; all twenty-two IEEE 754 samples serialise to the published strings. Tolerance 0 throughout                                                                                                                                                                                                                                                                                                                                                          | One byte of difference in any of the three                                                                           |
+| VAL-GATE-LEDGER-2 | Reference | RFC 8785, section 3.2.3 property-sort test data, section 3.2.4 canonical UTF-8 byte sequence, and Appendix B Table 1 number serialization samples                                                                                                                                                  | Sorted property order matches the seven-entry expected order; canonical output matches the published hexadecimal byte sequence; all twenty-two IEEE 754 samples serialize to the published strings. Tolerance 0 throughout                                                                                                                                                                                                                                                                                                                                                          | One byte of difference in any of the three                                                                           |
 | VAL-GATE-LEDGER-3 | Reference | RFC 8032 section 7.1, Ed25519 test vectors                                                                                                                                                                                                                                                         | Signing each published secret key and message yields the published signature, and verification accepts it. Tolerance 0                                                                                                                                                                                                                                                                                                                                                                                                                                                              | One signature byte that differs, or one published vector that fails to check out                                     |
-| VAL-GATE-LEDGER-4 | Reference | GS1 EPCIS Standard Release 2.0, ratified June 2022, section 10 JSON/JSON-LD binding and the GS1-published JSON schema; GS1's published example documents                                                                                                                                           | Every emitted document validates against the schema, and GS1's example documents round-trip through parse and re-serialise with semantic equality. Tolerance 0 on schema validity. Whether the artifacts can be vendored depends on their licence; Open Question 9.3                                                                                                                                                                                                                                                                                                                | A document the schema rejects, or an example whose round trip changes any semantic field                             |
+| VAL-GATE-LEDGER-4 | Reference | GS1 EPCIS Standard Release 2.0, ratified June 2022, section 10 JSON/JSON-LD binding and the GS1-published JSON schema; GS1's published example documents                                                                                                                                           | Every emitted document validates against the schema, and GS1's example documents round-trip through parse and re-serialize with semantic equality. Tolerance 0 on schema validity. Whether the artifacts can be vendored depends on their license; Open Question 9.3                                                                                                                                                                                                                                                                                                                | A document the schema rejects, or an example whose round trip changes any semantic field                             |
 | VAL-GATE-PLM-1    | Invariant | None. Totality of `resolve_revision`                                                                                                                                                                                                                                                               | Over 10,000 generated effectivity timelines, `resolve_revision` returns exactly one revision for every item and every time in the horizon, and is monotone in release order                                                                                                                                                                                                                                                                                                                                                                                                         | One timeline and time for which the function raises, returns nothing, or returns two candidates                      |
 | VAL-GATE-PLM-2    | Invariant | None. Hand-computed multi-level rollup in the test fixture                                                                                                                                                                                                                                         | A three-level BOM with known component costs and routing rates rolls up to the value derived by hand in the fixture, exactly, at the configured currency precision under the configured rounding mode                                                                                                                                                                                                                                                                                                                                                                               | Any difference at the configured precision                                                                           |
 | VAL-GATE-PLM-3    | Invariant | None. The twin built the units, so the true revision of each is known                                                                                                                                                                                                                              | After an ECO, `RevisionScope` returns exactly the units built to the affected revisions: precision 1.0, recall 1.0                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | One unit of an unaffected revision returned, or one affected unit omitted                                            |
@@ -2591,17 +2591,17 @@ gate.
 ### 7.4 Seeded end-to-end scenarios with golden files
 
 | Scenario         | Seed | Flow                                                                                                                                                                                                                                                                                                                                                           | Golden files                                                                             |
-| ---------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+|------------------|------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
 | `E2E-PROD-001`   | 4471 | Coating viscosity sensor drifts; golden-batch score falls into `marginal`; in-line Cpk shortfall at cure; NCR raised and deduped across a shift; CAPA opened; containment quarantines three batches; corrective action is an ECO changing a recipe parameter; effectiveness verified at the ECO effectivity date; sustain check at 90 days passes; CAPA closes | capability report HTML, CAPA record JSON, batch records, detection-lead-time measurement |
-| `E2E-PROD-002`   | 8812 | SMED programme applied to `form_01`; paired CRN runs before and after; changeover time distribution, internal fraction, throughput delta with hypothesis-test verdict; capex request emitted                                                                                                                                                                   | VSM before and after, hypothesis result, schedule comparison                             |
+| `E2E-PROD-002`   | 8812 | SMED program applied to `form_01`; paired CRN runs before and after; changeover time distribution, internal fraction, throughput delta with hypothesis-test verdict; capex request emitted                                                                                                                                                                     | VSM before and after, hypothesis result, schedule comparison                             |
 | `E2E-QMS-003`    | 4471 | Supplier B lot 4471 arrives with elevated defect rate; AQL inspection under tightened severity rejects; NCR and supplier scorecard hit; contamination reaches three batches; timed mock recall drill over material and equipment-contact scope; recall-readiness report with Merkle proof bundle; quarantine issued                                            | recall report HTML and JSON, blast-radius counts, proof bundle, ground-truth comparison  |
 | `E2E-PLM-004`    | 1337 | ECO from rev B to rev C, `forward_only`, six-week date effectivity; 1,200 units used up, 300 scrapped; two open POs amended with supplier acknowledgement; standard cost revised and consumed by finance; a later recall scopes to rev B only and correctly excludes rev C units                                                                               | ECO record, disposition table, standard cost rollup, revision-scoped recall result       |
 | `E2E-BIZ-005`    | 2718 | ASN declares 40 cartons; RFID reads 38; CV counts 40; classified `read_failure`; no supplier NCR; E46 read-zone finding raised; portal read-rate control chart updated; a second ASN with a genuine short is classified correctly and does raise a supplier NCR                                                                                                | reconciliation report, confusion matrix, findings stream                                 |
 | `E2E-CMMS-006`   | 3141 | Vibration trend on `form_01` crosses the PdM threshold estimate; work order created with RPN and deferral-cost curve from 30 paired CRN twin runs; agent recommends a window inside a planned changeover; work executed; MTBF updated; finding closed                                                                                                          | deferral cost curve, work order record, agent transcript                                 |
 | `E2E-SOP-007`    | 1618 | A poorly written SOP revision lowers adherence; CV detects staging violations and cites clause `sop:RCV-002@r3#4.2`; NCRs accumulate; CAPA corrective action is an agent-drafted SOP revision that passes the grounding gate; training issued; adherence rises; hypothesis test confirms the improvement; SOP effectiveness recorded                           | SOP draft, grounding report, citation records, hypothesis result                         |
 | `E2E-LEDGER-008` | 9001 | A full shift of genealogy events sealed into blocks; a customer checks a lot's chain of custody using only the standalone verifier and a published root; a deliberately tampered store is detected; a withheld entry is detected via root divergence                                                                                                           | verifier output, tamper report, withholding detection report                             |
-| `E2E-PROD-009`   | 5772 | Level loading: the same released demand run under `as_released` and under `smoothed_by_family` on paired seeds; takt ratio per stage, levelling index, WIP, total setup seconds, throughput and operator load compared with the LSS engine's verdict on each delta                                                                                             | levelling report before and after, takt profiles, hypothesis result                      |
-| `E2E-PROD-010`   | 6180 | Make versus buffer: baseline, third shift, SMED programme and raised DC safety stock run as four arms on paired seeds; each arm's measured vector priced by the financial twin; ranked investment table with the bottleneck's final location named in each arm                                                                                                 | ranked investment table, per-arm measured vectors, bottleneck migration report           |
+| `E2E-PROD-009`   | 5772 | Level loading: the same released demand run under `as_released` and under `smoothed_by_family` on paired seeds; takt ratio per stage, leveling index, WIP, total setup seconds, throughput and operator load compared with the LSS engine's verdict on each delta                                                                                              | leveling report before and after, takt profiles, hypothesis result                       |
+| `E2E-PROD-010`   | 6180 | Make versus buffer: baseline, third shift, SMED program and raised DC safety stock run as four arms on paired seeds; each arm's measured vector priced by the financial twin; ranked investment table with the bottleneck's final location named in each arm                                                                                                   | ranked investment table, per-arm measured vectors, bottleneck migration report           |
 | `E2E-PROD-011`   | 2236 | Divergence and recalibration: a machine's true cycle time drifts away from its configured value; schedule adherence falls and buckets attribute to `machine_down` and `reduced_speed`; recalibration proposes a cycle-time refit; a human approves at E5 tier 2; the next window's adherence recovers and `twin_parameter_drift` is raised on the repeat move  | adherence series with cause attribution, recalibration plan, audit-trail entries         |
 
 Each golden file is regenerated by `just golden-update` and reviewed in the diff, never
@@ -2620,7 +2620,7 @@ optional, or marked future work.
 ### 8.1 Phase 0 seam obligations
 
 | Item                                                | What lands in Phase 0                                                                                                | Why it cannot wait                                                                                                                                                                                                                                      |
-| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `twinflow-ledger` append-only core                  | `canonicalise`, `merkle_tree_hash`, `Ledger.append`, `seal`, `verify_chain`                                          | Every package in the repo writes to an audit trail. Retrofitting append-only semantics and hash chaining after twenty packages already write mutable records is the retrofit that fails. The Merkle proofs, signatures and EPCIS projection stay at E35 |
 | `genealogy.Node.item_revision`                      | The field, required and non-null, populated with a literal `"-"` until PLM exists                                    | E37 is deep in Phase 6. If revision is added to the genealogy schema then, every recorded run before it becomes unreadable and C3's additive-only rule is violated at the most-referenced schema in the repo                                            |
 | Reserved node attributes                            | `hs_code`, `country_of_origin`, `carbon_kgco2e`, `supplier_id`, `expiry` declared as optional in `genealogy.node.v1` | Same argument, for E14, E17 and 6a2                                                                                                                                                                                                                     |
@@ -2633,7 +2633,7 @@ The author's order places the ERP/CMMS loop in Phase 3 alongside sensor breadth 
 maintenance. That is where 6b lands.
 
 | Piece                                                           | Phase | Dependency reason                                                                                                                                                                                                      |
-| --------------------------------------------------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------------------------------------------------------------|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `twinflow-bizsys` ERP stub, ASN publication                     | 3     | Needs only the supplier stub and the receiving line from Phase 1                                                                                                                                                       |
 | Three-way reconciliation, `read_failure` versus `genuine_short` | 3     | Needs RFID from Phase 1; the CV leg is stubbed as "CV unavailable" until Phase 4, at which point the full matrix activates. The matrix is written once, with the CV column optional, so Phase 4 adds data and not code |
 | Mini CMMS work orders                                           | 3     | Needs the PdM layer, which is Phase 3                                                                                                                                                                                  |
@@ -2681,7 +2681,7 @@ The author's order is 3i, then 6a10 (safety and ergonomics), then 6a11 (QMS). 6a
 in dependency order:
 
 1. Audit trail with agent attribution. Everything in the QMS writes to it.
-2. NCR engine with dedupe. Needs the findings stream from Phase 2 and the alarm-rationalisation
+2. NCR engine with dedupe. Needs the findings stream from Phase 2 and the alarm-rationalization
    dedupe pattern.
 3. Acceptance sampling with switching rules. Needs the supplier network from 3e and inbound lots.
 4. CAPA workflow. Needs NCRs and the LSS hypothesis and power modules from Phase 2.
@@ -2705,7 +2705,7 @@ in dependency order:
 ### 8.6 Phase 6: the bleeding-edge list, in the author's stated order
 
 | Item                         | Position               | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| ---------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------------------|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | E10 digital product passport | As listed at E10       | Depends only on genealogy, which exists from Phase 3. The source permits pulling an item forward when it is nearly free, and the passport generator plus resolver adds no new subsystem: it projects a graph that already exists and serves it on a route the dashboard already has. **Recommendation, for the author to confirm:** ship the passport generator immediately after 6a11 and leave the cryptographic upgrade at E35, which makes the 6a11 recall demo better and gives E1's replay viewer a shareable artifact. Recorded as a recommendation, not a unilateral resequencing |
 | E24 generative SOPs          | **Moved to after E26** | E24 as listed precedes E26, but E24's grounding gate is E26(f). Under the agreed rule that dependencies move ahead of dependents, E26 precedes E24. Flagged as Open Question 9.4 so the author can confirm the rule applied here rather than the number order                                                                                                                                                                                                                                                                                                                             |
 | E35 ledger completion        | As listed at E35       | Merkle proofs, Ed25519 signatures, signature policy, root publication, EPCIS 2.0 projection, standalone verifier. The append-only core already landed in Phase 0, so this phase is proofs, signatures and the standard format, not foundations                                                                                                                                                                                                                                                                                                                                            |
@@ -2723,13 +2723,13 @@ is recorded here with what moves, why, and what is bound in the meantime. Nothin
 deferred as optional, or marked future work: every item below still lands at its own position with
 its full scope, and only the seam moves ahead of it.
 
-| Item that moves ahead    | Moves to  | What exactly moves                                                                                     | Why it cannot wait                                                                                                                                                           | What the later item still owns                                               |
-| ------------------------ | --------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| E26(b) governed metrics  | 6a11      | The metric registry and the subset of metric names this section's CAPA plans and checklists reference  | A `VerificationPlan` frozen before implementation must name a metric that resolves, or the freeze proves nothing. Free-text metrics are rejected at load from the first CAPA | The full metrics layer, its SQL expressions and its dimensional model        |
-| E26(f) grounding checker | 6a11      | The checker itself, run over audit-trail justifications                                                | The audit trail's first entry already records query result ids behind a number, and a recorded id nobody checks is decoration                                                | The agent-facing integration and the abstention policy on top of it          |
-| E8 clause index          | 6a11      | `parse_sop`, `ClauseIndex`, `build_index` and `effective_at`                                           | The audit checklists of 5.14 need clause-addressable documents and the same retrieval machinery. Building the index twice is the waste                                       | Retrieval binding to CV violations, the citation contract, the eval set      |
-| E9 study runner          | 3i        | The `StudyRunner` protocol and one Optuna binding, used by `optuna_search` in 5.5                      | The scheduler's third rung is an optimisation study, and the seam E9 later reuses is cheaper to declare once than to retrofit                                                | The general optimisation engine, its search spaces and its cost budget       |
-| E24 generative SOPs      | after E26 | The whole of E24                                                                                       | E24's grounding gate is E26(f). Shipping E24 first would leave a window in which generated SOPs carry unverified numbers                                                     | Nothing moves out of E24; only its position changes, and 9.4 confirms it     |
+| Item that moves ahead    | Moves to  | What exactly moves                                                                                    | Why it cannot wait                                                                                                                                                           | What the later item still owns                                           |
+|--------------------------|-----------|-------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| E26(b) governed metrics  | 6a11      | The metric registry and the subset of metric names this section's CAPA plans and checklists reference | A `VerificationPlan` frozen before implementation must name a metric that resolves, or the freeze proves nothing. Free-text metrics are rejected at load from the first CAPA | The full metrics layer, its SQL expressions and its dimensional model    |
+| E26(f) grounding checker | 6a11      | The checker itself, run over audit-trail justifications                                               | The audit trail's first entry already records query result ids behind a number, and a recorded id nobody checks is decoration                                                | The agent-facing integration and the abstention policy on top of it      |
+| E8 clause index          | 6a11      | `parse_sop`, `ClauseIndex`, `build_index` and `effective_at`                                          | The audit checklists of 5.14 need clause-addressable documents and the same retrieval machinery. Building the index twice is the waste                                       | Retrieval binding to CV violations, the citation contract, the eval set  |
+| E9 study runner          | 3i        | The `StudyRunner` protocol and one Optuna binding, used by `optuna_search` in 5.5                     | The scheduler's third rung is an optimization study, and the seam E9 later reuses is cheaper to declare once than to retrofit                                                | The general optimization engine, its search spaces and its cost budget   |
+| E24 generative SOPs      | after E26 | The whole of E24                                                                                      | E24's grounding gate is E26(f). Shipping E24 first would leave a window in which generated SOPs carry unverified numbers                                                     | Nothing moves out of E24; only its position changes, and 9.4 confirms it |
 
 Two registration obligations follow from section 2 and are recorded here so they are not discovered
 during a release. The seven packages of this section are added to `[tool.twinflow.layers]` as domain
@@ -2769,7 +2769,7 @@ confirm nobody expects the Z1.4 tables themselves in the repository.
 **9.3 GS1 EPCIS 2.0 artifact licensing.**
 Emitted documents must validate against the GS1-published EPCIS 2.0 JSON schema, and the round-trip
 gate uses GS1's published example documents. Whether those artifacts can be vendored into an Apache-2.0 repo
-or must be fetched at test time depends on their licence, which must be checked before Phase 6 rather
+or must be fetched at test time depends on their license, which must be checked before Phase 6 rather
 than assumed. If they cannot be vendored, VAL-GATE-LEDGER-4 becomes a network-dependent gate that is
 skipped with a loud message when offline, which weakens the CI story. The author decides between
 accepting that and writing a conformance subset by hand.
@@ -2800,7 +2800,7 @@ of ISO 9001:2015; they are used here as widely published clause identifiers, not
 the standard, and nothing in this section verifies them.
 
 **9.7 How much physics does the batch stage need?**
-Two options. (a) Parameterised trajectories (ramp, soak, decay plus noise): deterministic, cheap,
+Two options. (a) Parameterized trajectories (ramp, soak, decay plus noise): deterministic, cheap,
 enough for golden-batch scoring and for the process sensors to read something meaningful. (b) A
 small ODE model for the cure kinetics, which would make the chemical sensors (pH, dissolved oxygen,
 conductivity) physically coherent with each other rather than independently generated. The spec
@@ -2867,7 +2867,7 @@ VAL-GATE-PROD-2 falsifies on a makespan below an instance's published lower boun
 their bounds are Taillard's, and the paper's metadata is confirmed, but the author's original
 benchmark host did not respond on 2026-08-10, so the bound table itself was not retrieved. The gate
 cannot ship until a live copy of the instance and bound distribution is obtained and vendored with
-its licence checked. If no redistributable copy exists, the fallback is to check the evaluator
+its license checked. If no redistributable copy exists, the fallback is to check the evaluator
 against hand-computed instances only and to say in the README that the scheduler is checked against
 constructed instances rather than against a published benchmark. That is a real weakening, and the
 author must choose it deliberately rather than inherit it.

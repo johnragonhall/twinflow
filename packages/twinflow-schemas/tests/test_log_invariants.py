@@ -108,7 +108,7 @@ def test_two_identical_runs_hash_the_same():
 
 def test_the_hash_does_not_depend_on_the_order_events_arrive_in():
     """The hash is over the canonical order, so a reader that collected events
-    in a different order still recognises the same run.
+    in a different order still recognizes the same run.
     """
     forward = _run()
     assert log_hash(forward) == log_hash(list(reversed(forward)))

@@ -19,7 +19,7 @@ Three redistribution conditions come with it, and they are the reason this proje
 Apache-2.0 rather than MIT:
 
 | Section | What it asks of a redistributor                                                                                                                               |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 4(a)    | Give any other recipient of the work, or of a derivative work, a copy of the license.                                                                         |
 | 4(b)    | Make any modified file carry a prominent notice stating that you changed it.                                                                                  |
 | 4(c)    | Retain, in the source form of any derivative work you distribute, the copyright, patent, trademark, and attribution notices from the source form of the work. |

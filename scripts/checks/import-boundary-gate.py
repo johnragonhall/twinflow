@@ -117,28 +117,28 @@ def _defined_names(root: Path) -> set[str]:
 
 def _find_cycle(graph: dict[str, set[str]]) -> list[str] | None:
     """Depth-first search for a cycle, returning the path that closes it."""
-    WHITE, GREY, BLACK = 0, 1, 2
-    colour = dict.fromkeys(graph, WHITE)
+    WHITE, GRAY, BLACK = 0, 1, 2
+    color = dict.fromkeys(graph, WHITE)
     stack: list[str] = []
 
     def visit(node: str) -> list[str] | None:
-        colour[node] = GREY
+        color[node] = GRAY
         stack.append(node)
-        for neighbour in sorted(graph.get(node, ())):
-            if neighbour not in colour:
+        for neighbor in sorted(graph.get(node, ())):
+            if neighbor not in color:
                 continue
-            if colour[neighbour] == GREY:
-                return stack[stack.index(neighbour) :] + [neighbour]
-            if colour[neighbour] == WHITE:
-                found = visit(neighbour)
+            if color[neighbor] == GRAY:
+                return stack[stack.index(neighbor) :] + [neighbor]
+            if color[neighbor] == WHITE:
+                found = visit(neighbor)
                 if found:
                     return found
         stack.pop()
-        colour[node] = BLACK
+        color[node] = BLACK
         return None
 
     for node in sorted(graph):
-        if colour[node] == WHITE:
+        if color[node] == WHITE:
             found = visit(node)
             if found:
                 return found

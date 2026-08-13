@@ -79,7 +79,7 @@ The broker bridge is the only crossing point between the two segments, which put
 Each row is a separately installable package, so taking one brick does not drag in the rest.
 
 | Part                  | What it does                                                                                                                                                                     | Package              | Lands in               |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ---------------------- |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------|------------------------|
 | Process twin          | Discrete-event model of receiving and putaway on SimPy, with takt, cycle time, WIP, utilization, OEE, and the bottleneck, all from `facility.yaml`                               | `twinflow-twin`      | P1, flow metrics at P2 |
 | Simulated IoT fleet   | Edge devices publishing Sparkplug B into an ISA-95 unified namespace, from a YAML sensor catalog with declared failure modes                                                     | `twinflow-sensors`   | P1, breadth at P3      |
 | Fleet health          | Device registry, severity-occurrence-detection scoring, and trend detection on motor temperature, vibration, and current                                                         | `twinflow-fleet`     | P3                     |
@@ -105,7 +105,7 @@ Remove any of the three and this is a simulation with a dashboard.
 No statistic merges without a validation gate that checks it against a published reference value. The registry that holds those gates lands at P0, ahead of the first statistic, and each family goes to the reference that covers it.
 
 | Statistic family                                              | Reference                                                  | Coverage, as the source states it                                                          |
-| ------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+|---------------------------------------------------------------|------------------------------------------------------------|--------------------------------------------------------------------------------------------|
 | Univariate statistics, ANOVA, linear and nonlinear regression | NIST Statistical Reference Datasets                        | "univariate statistics, linear regression, nonlinear regression, and analysis of variance" |
 | Control charts, process capability, acceptance sampling       | NIST/SEMATECH e-Handbook of Statistical Methods, chapter 6 | Chapter 6 is "Process or Product Monitoring and Control", covering all three               |
 | Gage R and R                                                  | The CRAN documentation for the R SixSigma package          | Both published F-test error terms for the operator effect                                  |
@@ -162,7 +162,7 @@ I deploy IoT tracking fleets in industrial settings and apply Lean Six Sigma to 
 ## Documentation
 
 | Document                           | Contents                                                                                        |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------- |
+|------------------------------------|-------------------------------------------------------------------------------------------------|
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Layer map, ISA-95 and Purdue assignments, real-world counterparts, and decisions with rationale |
 | [ROADMAP.md](ROADMAP.md)           | Living backlog: every milestone with its phase, dependencies, and validation gates              |
 | [docs/design/](docs/design/)       | The section specifications the roadmap is built from, plus the doctrine rulings                 |

@@ -13,7 +13,7 @@ name: Release
 #
 # STEPS THAT CANNOT RUN YET
 # -------------------------
-# Six ritual steps need artefacts a later phase produces: the end-to-end tier,
+# Six ritual steps need artifacts a later phase produces: the end-to-end tier,
 # the phase-exit gate runner, the README headline metric, the replay bundle, the
 # load harness, and the ROADMAP renderers. Each is a step here, each names the
 # work package that arms it, and each prints why it did nothing. A skipped step
@@ -141,10 +141,10 @@ jobs:
       - name: Step 7, re-run the A4 load harness
         run: echo "SKIP: VAL-GATE-PERF-001 applies from v0.4.0."
 
-      # 8. The generated artefacts are regenerated and the tree is asserted
+      # 8. The generated artifacts are regenerated and the tree is asserted
       #    clean over those paths and no others. The renderers land with
       #    WP-P0-13; the check half of the same rule runs today.
-      - name: Step 8, generated artefacts are current
+      - name: Step 8, generated artifacts are current
         run: |
           uv run python tools/gen_schemas.py --check
           uv run python tools/gen_importlinter.py --check
@@ -152,8 +152,8 @@ jobs:
           echo "SKIP: the ROADMAP.md and docs/gates.md renderers arrive with WP-P0-13."
           git diff --exit-code -- ROADMAP.md schemas .importlinter
 
-      # 9. SBOM, licence allowlist, and the wheels.
-      - name: Step 9, SBOM and licence allowlist
+      # 9. SBOM, license allowlist, and the wheels.
+      - name: Step 9, SBOM and license allowlist
         run: |
           uv run python scripts/checks/license-allowlist-gate.py
           uvx cyclonedx-py environment > sbom.cdx.json
@@ -218,7 +218,7 @@ jobs:
 
       # 12. The release record. ops.release.tagged.v1 is published once the ops
       #     schema subjects exist; until then the same fields are written as a
-      #     build artefact so the numbers are recorded either way.
+      #     build artifact so the numbers are recorded either way.
       - name: Step 12, write the release record
         run: |
           {
@@ -233,7 +233,7 @@ jobs:
           } > release-record.yaml
           cat release-record.yaml
 
-      - name: Upload the release artefacts
+      - name: Upload the release artifacts
         uses: actions/upload-artifact@v4
         with:
           name: release-v${{ inputs.version }}

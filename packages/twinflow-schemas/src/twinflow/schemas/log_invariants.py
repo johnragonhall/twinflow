@@ -17,7 +17,7 @@ DET-001 is tier one of doctrine D-05: two runs at one seed, one config, one
 platform, and one pinned dependency set produce byte-identical logs. The hash
 here is what "identical" means, and it is computed over the ordering key and
 the payload rather than over the file, so a difference in whitespace or in key
-order is not mistaken for a difference in behaviour.
+order is not mistaken for a difference in behavior.
 """
 
 from __future__ import annotations
@@ -118,7 +118,7 @@ def log_hash(events: Iterable[Envelope]) -> str:
     """The tier-one determinism hash of doctrine D-05.
 
     Computed over the canonical order and a canonical encoding rather than over
-    the bytes of a file. Two runs that agree on every event but serialise their
+    the bytes of a file. Two runs that agree on every event but serialize their
     keys in a different order are the same run, and a hash that disagreed about
     that would make DET-001 fire on a formatting change.
     """

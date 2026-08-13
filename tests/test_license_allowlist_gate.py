@@ -1,4 +1,4 @@
-"""The licence allowlist gate (SEC-001).
+"""The license allowlist gate (SEC-001).
 
 Repository policy gates live in scripts/checks and are not part of any
 distribution, so their tests live here rather than inside a package.

@@ -34,8 +34,8 @@ _HOOK_NAME = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$")
 class EnvironmentState:
     """The exogenous state at one instant.
 
-    Every field is a normalised scalar rather than a physical quantity. A hook
-    multiplies a rate or shifts a duration by these, and normalising here means
+    Every field is a normalized scalar rather than a physical quantity. A hook
+    multiplies a rate or shifts a duration by these, and normalizing here means
     a hook never needs to know whether the driver behind it models millimetres
     of rain or a storm category.
     """
@@ -46,7 +46,7 @@ class EnvironmentState:
     visibility: float = 1.0
     #: Fraction of normal surface grip, 1.0 being dry.
     traction: float = 1.0
-    #: Degrees above or below the seasonal norm, as a normalised offset.
+    #: Degrees above or below the seasonal norm, as a normalized offset.
     temperature_offset: float = 0.0
 
     def __post_init__(self) -> None:

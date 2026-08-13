@@ -24,7 +24,7 @@ observed stream and the predicted stream are separate, first-class chart streams
 difference between them is a third stream with its own charts and its own findings.
 
 | Source text                                                                                                                                                                                                                                                                                                              | Covered in    |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
 | "It runs continuously against both the real telemetry stream and the twin's predictions"                                                                                                                                                                                                                                 | 3.2, 5.2, 5.8 |
 | "SPC control charts as code: I-MR, X-bar/R, p-chart selection by data type, with Western Electric and Nelson rule evaluation producing typed violations (rule number, severity, evidence window)"                                                                                                                        | 5.1, 5.3, 5.4 |
 | "Process capability: Cp, Cpk, Pp, Ppk against spec limits defined in config, with sigma level and DPMO"                                                                                                                                                                                                                  | 5.5           |
@@ -44,7 +44,7 @@ handling them shows operator empathy." Covered in 5.10.
 Engineering craft items this section owns or co-owns:
 
 | Item | What this section owes it                                                                                                                                                       | Where     |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+|------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
 | C1   | Every statistic, finding id, chart render, and report byte is a deterministic function of (run seed, config, input window)                                                      | 5.14, 7.4 |
 | C3   | Authors the finding, finding state change, alarm, alarm metrics, test result, contribution table, process model, divergence spec, value stream map, and validation gate schemas | 4         |
 | C4   | Unit, property, seeded end-to-end, and gate tiers, with golden-file comparison of the report and the value stream map                                                           | 7         |
@@ -58,7 +58,7 @@ Engineering craft items this section owns or co-owns:
 and the text below is the changed text.
 
 | Ruling | Applied where                   | Effect                                                                                                                      |
-| ------ | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+|--------|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | D-01   | 4.2, 5.9.2, 5.14                | `run_id` is a content address over the manifest hashed core. No wall-clock value reaches a finding, a hash, or a sort key   |
 | D-02   | 5.14                            | These packages read no wall clock at all. The four legal readers are all outside them                                       |
 | D-03   | 5.14, 7.2                       | No `set` iteration reaches an output, a hash, or a control decision. Alignment frontier order is total and stated           |
@@ -78,7 +78,7 @@ The workflow is owned elsewhere. This section defines the API and the gate; the 
 consumes it.
 
 | Requirement                                                                 | What it consumes                                                                        |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
 | 1, twin OEE, takt, cycle time, bottleneck                                   | `twinflow_lss.spc`, cross-checked against the mined waiting-time contribution of 5.11.5 |
 | 3, PdM trend detection and time-to-threshold                                | `twinflow_lss.trend`, gated by VG-TRD-01, VG-TRD-02, VG-TRD-03                          |
 | 4, CV SOP violations and RFID-versus-CV disagreement                        | The finding constructor of 5.9, and attribute agreement analysis, 5.6.6                 |
@@ -98,7 +98,7 @@ consumes it.
 | E5, autonomy tiers                                                          | Shelve, acknowledge, and re-baseline are audited decisions, 5.10.5                      |
 | E7, idle-energy waste as an eighth-waste finding                            | The waste taxonomy of 5.12.2                                                            |
 | E8, SOP clause citation                                                     | `Finding.sop_refs`                                                                      |
-| E24, generative SOPs from alarm rationalisation                             | The rationalisation records of 5.10.2                                                   |
+| E24, generative SOPs from alarm rationalization                             | The rationalization records of 5.10.2                                                   |
 | E26(b), governed semantic metric layer                                      | Every chart's `metric` resolves in the metric registry, 6.6                             |
 | E26(f), grounding checker                                                   | Every finding's evidence carries a `query_result_id`, 4.2                               |
 | E27, E30, E31, E43, E45                                                     | The hypothesis layer and the chart layer, unchanged                                     |
@@ -200,7 +200,7 @@ OperatorConsole, ConsoleAssignment
 ```
 
 This brick exists because of a contradiction the earlier draft carried. The stream's guarantees
-(one constructor, one rationalisation table, one severity floor, one id rule) belong to every
+(one constructor, one rationalization table, one severity floor, one id rule) belong to every
 producer, and most producers are not statistical. The CV auditor, the fleet health scorer, and the
 twin sync connector all raise findings, and none of them installs scipy to do it. Putting the
 constructor in the statistics brick would have made "nothing depends on twinflow-lss at runtime"
@@ -324,9 +324,9 @@ Runtime dependencies: `numpy`, `pyarrow`, `pydantic>=2`, `twinflow-contracts`,
 `twinflow-findings`. There is one engine and it ships in this package. PM4Py is not a runtime
 dependency, not an optional extra, and never imported by anything this project distributes or
 serves. The reason is licensing and D-14 settles it: PM4Py 2.7.23.3 and pm4pyminimal 2.7.23.3 are
-AGPL-3.0, read from the package index JSON API on 2026-08-09. Section 13 of that licence triggers
+AGPL-3.0, read from the package index JSON API on 2026-08-09. Section 13 of that license triggers
 on network interaction, and this project serves a dashboard, an MCP server, and an HTTP API.
-Importing either would place the whole work under AGPL and end the dual licence.
+Importing either would place the whole work under AGPL and end the dual license.
 
 PM4Py appears in exactly one place: a development-only test group, `[oracle]`, installed by the
 CI job that runs VG-PM-03 and by nothing else. That job compares this package's fitness and
@@ -419,7 +419,7 @@ contract too, because that moved down into `twinflow-findings`.
 D-09 is enforced rather than described. `test_import_graph_is_acyclic` walks the declared
 dependency graph and every module's imports and fails on a cycle.
 `test_every_public_name_is_defined_here` asserts that each name in a package's `__all__` is
-defined in that package rather than re-exported from a neighbour.
+defined in that package rather than re-exported from a neighbor.
 `test_declared_dependencies_cover_every_import` asserts that each import resolves to a
 distribution listed in that package's `pyproject.toml`, which is the check that catches a public
 API needing a package it does not depend on.
@@ -435,9 +435,9 @@ schema-constrained per E26(d) and returns a `query_result_id` per E26(f). 5.9.4 
 that id in each phase.
 
 | Tool                                                             | Returns                                                                                                                      |
-| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+|------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | `get_findings(window, severity_min, kinds, subject, state)`      | list of `Finding`                                                                                                            |
-| `explain_finding(finding_id)`                                    | the finding, its evidence window, the chart that renders it, its rationalisation record, and its `suggested_next_tool` chain |
+| `explain_finding(finding_id)`                                    | the finding, its evidence window, the chart that renders it, its rationalization record, and its `suggested_next_tool` chain |
 | `run_capability_report(window, metrics, profile)`                | path to the generated HTML plus the machine-readable JSON                                                                    |
 | `run_spc(metric, window, chart, rules, stream)`                  | `ChartFit` plus violations                                                                                                   |
 | `run_gage_rr(device_class, parts, operators, replicates, seed)`  | `GageRRResult`                                                                                                               |
@@ -457,7 +457,7 @@ that id in each phase.
 `ChartSpec`, immutable and config-derived:
 
 | Field          | Type                                              | Notes                                                                  |
-| -------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
+|----------------|---------------------------------------------------|------------------------------------------------------------------------|
 | `chart_id`     | `str`                                             | unique within a facility config; used in finding subjects              |
 | `metric`       | `MetricId`                                        | must resolve in the metric registry; config validation fails otherwise |
 | `subject`      | `UnsPath` or `DeviceId` or `StationId` or `LotId` | what the chart is about                                                |
@@ -491,7 +491,7 @@ the series.
 `Violation`, the typed violation the source asks for:
 
 | Field                 | Type                                                                      |
-| --------------------- | ------------------------------------------------------------------------- |
+|-----------------------|---------------------------------------------------------------------------|
 | `rule_set`            | `"western_electric"` or `"nelson"`                                        |
 | `rule_number`         | `int`, WE 1 to 4, Nelson 1 to 8                                           |
 | `rule_id`             | `str`, for example `"nelson.3"`                                           |
@@ -524,13 +524,13 @@ Invariant: the join is a function, so no observed point pairs with two predicted
 unmatched counts are always reported, because a pairing that quietly drops half the observations
 would make every downstream residual statistic wrong in a direction nobody could see.
 
-`ResidualSeries`: `metric`, `subject`, `method` (`difference`, `ratio`, `standardised`,
+`ResidualSeries`: `metric`, `subject`, `method` (`difference`, `ratio`, `standardized`,
 `pit` for the probability integral transform), `values`, `sim_times`, `n`, `source_paired_id`.
 
 - `difference` is `observed - predicted`, and its unit is the metric's own unit.
 - `ratio` is `observed / predicted`, defined only where `predicted != 0`, with the excluded count
   reported.
-- `standardised` divides the difference by the twin's own predictive standard deviation when the
+- `standardized` divides the difference by the twin's own predictive standard deviation when the
   twin publishes one, so the residual is dimensionless and comparable across metrics.
 - `pit` maps each observation through the twin's predictive distribution function. Under a
   correctly calibrated twin the result is uniform on the unit interval, which turns calibration
@@ -538,7 +538,7 @@ would make every downstream residual statistic wrong in a direction nobody could
 
 A residual chart is an ordinary control chart whose `stream` is `residual`. That is the whole
 mechanism: no new rule engine, no new limit theory, no second code path. A twin that tracks
-reality produces residuals that are stable and centred on zero, and every Western Electric and
+reality produces residuals that are stable and centerd on zero, and every Western Electric and
 Nelson rule then means what it usually means. 5.8 states what a firing on that chart becomes.
 
 ### 3.3 Capability entities
@@ -565,7 +565,7 @@ The three sigma-level fields replace a pair that had the Six Sigma shift convent
 `sigma_level_z_within` is the unshifted short-term Z. `sigma_level_z_overall` is the unshifted
 long-term Z. `sigma_level_shifted` is `z_bench_overall + sigma_shift`, and it is the number the
 quoted "six sigma" figure refers to: in the canonical identity a long-term Z of 4.5 is quoted as
-a nominal six sigma because `4.5 + 1.5 = 6`. Labelling the shifted number "long term" inverted
+a nominal six sigma because `4.5 + 1.5 = 6`. Labeling the shifted number "long term" inverted
 that, and VG-CAP-03 validates the identity, so the field names and the gate now agree.
 
 Invariants. `cpk <= cp` always. `cpk == cp` if and only if the mean sits at the spec midpoint, to
@@ -643,7 +643,7 @@ possible at all (D-01). `test_run_id_has_no_time_derived_component` asserts the 
 by running the same scenario twice and comparing ids, and
 `test_finding_id_changes_with_seed` asserts the other direction.
 
-Every `Finding` carries a `rationalization_id`. A finding kind with no rationalisation record
+Every `Finding` carries a `rationalization_id`. A finding kind with no rationalization record
 cannot be raised; the factory raises and CI catches it (VG-ALM-01).
 
 Severity floors: a finding whose kind is in a floored class (`safety`, `security`) cannot be
@@ -804,9 +804,9 @@ dashboard, the agent, the QMS (6a11), the CMMS (6b), and the replay viewer (E1).
 
 Field notes that matter to implementers:
 
-`severity.shape` and `severity.label` carry the non-colour channels C12 asks for, so a consumer
+`severity.shape` and `severity.label` carry the non-color channels C12 asks for, so a consumer
 never has to derive one from the level. A schema field cannot by itself stop a consumer rendering
-colour only, so the claim is backed by a test rather than by assertion: every artifact this
+color only, so the claim is backed by a test rather than by assertion: every artifact this
 section produces is checked by `test_severity_renders_shape_and_label`, which parses the generated
 HTML and SVG and asserts that each severity present in the window appears with its declared shape
 token and its text label, and the dashboard section carries the matching contract test against the
@@ -819,7 +819,7 @@ states must trace to a logged query result id, and a finding is a query result.
 name.
 
 `kind` is a closed enum in v1, and new members are an additive change under C3's rule, so
-consumers treat an unknown kind as `INFO` with passthrough rather than erroring. That behaviour is
+consumers treat an unknown kind as `INFO` with passthrough rather than erroring. That behavior is
 contract-tested.
 
 There is no wall-clock field anywhere in the record. The sim-to-wall mapping lives once per run in
@@ -844,7 +844,7 @@ the audit trail (6a11), and the dashboard.
 `autonomy_tier` and `decision_register_ref` are present from v1 even though E21's register is a
 Phase 6 deliverable, because adding an envelope-level field after Phase 0 is a major version bump
 on every subject. Before the register exists, `autonomy_tier` carries the tier the local config
-grants and `decision_register_ref` is null; 5.10.5 states the phase behaviour and 8 records the
+grants and `decision_register_ref` is null; 5.10.5 states the phase behavior and 8 records the
 resequencing.
 
 ### 4.4 `alarm/v1` and `alarm_metrics/v1` (published)
@@ -862,14 +862,14 @@ types crossed one without a schema in the earlier draft. They are authored here 
 with `finding/v1`.
 
 | Schema                                | Producer                                                                    | Consumer                                                                                        | Why it crosses                                                                 |
-| ------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+|---------------------------------------|-----------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
 | `/schemas/test_result/v1.json`        | `twinflow-lss`                                                              | `twinflow-procmine` variant comparison, `twinflow-vsm` future-state diff, the agent, the report | `compare_variants` returns one and the future-state map attaches one           |
 | `/schemas/contribution_table/v1.json` | `twinflow-procmine`                                                         | `twinflow-vsm`, the report, the agent                                                           | `build_current_state` takes one                                                |
 | `/schemas/process_model/v1.json`      | component 1 (`export_reference_model`) and `twinflow-procmine` (`discover`) | `twinflow-procmine` conformance, the report                                                     | the ground-truth model is produced outside this section and consumed inside it |
 
 Each carries the envelope of 4.1 when published as an event and the same field set when passed
 in-process, and the generated pydantic binding ships in `twinflow-contracts`. Round-trip contract
-tests assert that the in-process object and the serialised form agree.
+tests assert that the in-process object and the serialized form agree.
 
 ### 4.6 `divergence_spec/v1` (published)
 
@@ -890,7 +890,7 @@ left a named-but-empty enum member, so the contract is authored here and compone
     "prediction_horizon_s": 900.0,
     "min_paired_points": 100
   },
-  "residual_method": "standardised",
+  "residual_method": "standardized",
   "detector": {
     "kind": "residual_chart",
     "chart_type": "ewma",
@@ -924,7 +924,7 @@ the finding.
 ### 4.7 Consumed events
 
 | Event                | From                     | Used for                                                                                   |
-| -------------------- | ------------------------ | ------------------------------------------------------------------------------------------ |
+|----------------------|--------------------------|--------------------------------------------------------------------------------------------|
 | `telemetry/v1`       | component 2 sensor fleet | the observed series behind every control chart                                             |
 | `twin_prediction/v1` | component 1 twin         | the predicted series behind every residual chart                                           |
 | `process_event/v1`   | component 1 twin         | the process mining event log: `case_id`, `activity`, `lifecycle`, `resource`, `sim_time`   |
@@ -963,7 +963,7 @@ two representations round-trip to identical `Finding` objects.
 
 ---
 
-## 5. Behaviour
+## 5. Behavior
 
 ### 5.1 Chart selection by data type
 
@@ -999,7 +999,7 @@ The source's "runs continuously against both the real telemetry stream and the t
 predictions" is implemented as three chart streams over the same machinery.
 
 | Stream      | Source event                   | What a rule firing means                                                  | Default finding kind                                    |
-| ----------- | ------------------------------ | ------------------------------------------------------------------------- | ------------------------------------------------------- |
+|-------------|--------------------------------|---------------------------------------------------------------------------|---------------------------------------------------------|
 | `observed`  | `telemetry/v1`                 | the process changed                                                       | `SPC_RULE_VIOLATION`                                    |
 | `predicted` | `twin_prediction/v1`           | the model's own output changed, which is a model event, not a plant event | `SPC_RULE_VIOLATION` with `evidence.stream = predicted` |
 | `residual`  | the difference of the two, 3.2 | the model and the plant have parted company                               | `TWIN_DIVERGENCE`                                       |
@@ -1017,7 +1017,7 @@ fitted on 12 points is a number with the shape of evidence and none of the subst
 
 Residual charts default to `i_mr` with the `mr_d2` estimator, because residuals arrive one per
 paired point and have no natural subgroup. When the twin publishes a predictive standard
-deviation, `residual_method: standardised` is the default and the chart's centre line is expected
+deviation, `residual_method: standardized` is the default and the chart's center line is expected
 at zero with unit sigma, which makes the limits interpretable without a fit.
 
 Phase I on a residual chart uses a declared calibration window in which the twin is known to be
@@ -1029,7 +1029,7 @@ that already contains a divergence would fold the defect into the yardstick.
 Sigma estimators, all implemented, selected by config:
 
 | Estimator   | Formula                                 | Default for                                      |
-| ----------- | --------------------------------------- | ------------------------------------------------ |
+|-------------|-----------------------------------------|--------------------------------------------------|
 | `mr_d2`     | `MRbar / d2(2)`                         | I-MR and residual charts                         |
 | `rbar_d2`   | `Rbar / d2(n)`                          | X-bar and R                                      |
 | `sbar_c4`   | `Sbar / c4(n)`                          | X-bar and s                                      |
@@ -1075,19 +1075,19 @@ Western Electric, from Western Electric Company, _Statistical Quality Control Ha
 restated in the NIST/SEMATECH e-Handbook section 6.3.2:
 
 | Rule | Statement                                                    |
-| ---- | ------------------------------------------------------------ |
+|------|--------------------------------------------------------------|
 | WE1  | one point beyond 3 sigma                                     |
 | WE2  | two of three consecutive points beyond 2 sigma, same side    |
 | WE3  | four of five consecutive points beyond 1 sigma, same side    |
-| WE4  | eight consecutive points on the same side of the centre line |
+| WE4  | eight consecutive points on the same side of the center line |
 
 Nelson, from Nelson, "The Shewhart Control Chart: Tests for Special Causes", _Journal of Quality
 Technology_ 16(4), 1984:
 
 | Rule | Statement                                                             |
-| ---- | --------------------------------------------------------------------- |
+|------|-----------------------------------------------------------------------|
 | N1   | one point beyond 3 sigma                                              |
-| N2   | nine points in a row on the same side of the centre line              |
+| N2   | nine points in a row on the same side of the center line              |
 | N3   | six points in a row, all increasing or all decreasing                 |
 | N4   | fourteen points in a row alternating up and down                      |
 | N5   | two of three consecutive points beyond 2 sigma, same side             |
@@ -1117,7 +1117,7 @@ the longest window any rule of either set inspects, and, per rule, at most one `
 record holding `(start_index, start_sim_time, n_points, running_min, running_max,
 running_extreme_sigma, last_contributing_index)`. `update(point)` does O(1) work and touches
 O(active rules) state, which is bounded by 12. It does not hold O(1) memory in the number of
-points, and it never did: a 400-point sustained run on one side of the centre line has a
+points, and it never did: a 400-point sustained run on one side of the center line has a
 400-point union evidence window, and 15 zone codes cannot represent one. What the record holds is
 the window's endpoints and its running extremes, which is all the union window needs. The claim
 this section makes is that the online and batch paths produce the same violations, including the
@@ -1250,7 +1250,7 @@ The 10 and 30 percent verdict thresholds are defined against the 6.0 basis. Sele
 `study_var_multiplier: 5.15` rescales them by `5.15 / 6.0` and the report prints both the raw and
 the rescaled threshold, or, when `msa.rescale_thresholds` is false, the loader raises a
 config diagnostic naming the mismatch. Silently comparing a 5.15-basis percentage against a
-6.0-basis threshold is not an available behaviour.
+6.0-basis threshold is not an available behavior.
 
 Verdict: `%StudyVar < 10` acceptable, 10 to 30 marginal, above 30 unacceptable; `ndc >= 5`
 needed. Findings: `MSA_UNACCEPTABLE` at CRITICAL, because it invalidates every downstream
@@ -1332,14 +1332,14 @@ Ordered, and the order is the `decision_trace`:
    `hypothesis.alpha_assumption` (default 0.05). Applied to batch means when batching is active,
    where the central limit theorem usually makes it pass, which is one of the reasons batching is
    right.
-4. Equal variance. Levene (Brown-Forsythe, median-centred) by default, Bartlett available.
+4. Equal variance. Levene (Brown-Forsythe, median-centerd) by default, Bartlett available.
 5. Outliers. Reported by a stated rule (median plus or minus 3 MAD) and never removed
    automatically. A flagged outlier appears in the result and in the report.
 
 #### 5.7.2 Test selection
 
 | Situation                                     | Test                                                                                  |
-| --------------------------------------------- | ------------------------------------------------------------------------------------- |
+|-----------------------------------------------|---------------------------------------------------------------------------------------|
 | 2 groups, paired, normal                      | paired t                                                                              |
 | 2 groups, paired, non-normal                  | Wilcoxon signed-rank                                                                  |
 | 2 groups, independent, normal, equal variance | pooled two-sample t, only when `hypothesis.prefer_welch` is false                     |
@@ -1385,7 +1385,7 @@ computed by comparing the confidence interval on the difference against that thr
 quadrants render distinctly:
 
 | Statistically significant | Practically significant                            | Verdict sentence                                                                                           |
-| ------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+|---------------------------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------|
 | yes                       | yes                                                | "Throughput increased by 41 pallets/shift (95% CI 33 to 49), above the 20 pallet threshold."               |
 | yes                       | no                                                 | "The 3 pallet/shift increase is statistically significant but below the 20 pallet threshold that matters." |
 | no                        | inconclusive, the interval spans the threshold     | "The data cannot distinguish a meaningful change from none; 4,000 more cases would be needed."             |
@@ -1443,7 +1443,7 @@ Every producer calls `FindingFactory.raise_finding`, which lives in `twinflow-fi
 that a producer with no statistics can call it. The factory:
 
 1. Validates against `/schemas/finding/v1.json`.
-2. Resolves `rationalization_id` from the rationalisation table and refuses when absent.
+2. Resolves `rationalization_id` from the rationalization table and refuses when absent.
 3. Applies the severity floor for the finding's class.
 4. Resolves the console through `ConsoleAssignment`.
 5. Computes the deterministic `finding_id`.
@@ -1469,7 +1469,7 @@ chains tools, and being able to point at the file and say "this is the chaining 
 reviewable" is worth more than clever code. The default chains:
 
 | Finding kind                             | Chain                                                                                                                                    |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
 | `SPC_RULE_VIOLATION` on a device metric  | `run_gage_rr`, then `get_pdm_trend`, then `run_whatif`                                                                                   |
 | `SPC_RULE_VIOLATION` on a process metric | `get_variants`, then `run_conformance`, then `get_bottleneck`                                                                            |
 | `CAPABILITY_SHORTFALL`                   | `run_spc`, then `run_gage_rr`, then `get_vsm`                                                                                            |
@@ -1486,7 +1486,7 @@ reviewable" is worth more than clever code. The default chains:
 
 The MSA chain deserves emphasis. When the measurement system fails, the engine walks the open
 findings on that metric and degrades their confidence rather than deleting them. Scenario S-LSS-02
-tests that behaviour, and it is the clearest demonstration in the repo that the engine reasons
+tests that behavior, and it is the clearest demonstration in the repo that the engine reasons
 like a practitioner rather than a rule evaluator.
 
 #### 5.9.4 Where `query_result_id` comes from
@@ -1522,7 +1522,7 @@ verification that remains outstanding. No gate asserts a benchmark value from ei
 parallel state and `EXPIRED` for stale entries. Every transition publishes `finding_state_change/v1`
 with the actor and the reason. Nothing is deleted.
 
-#### 5.10.2 Rationalisation
+#### 5.10.2 Rationalization
 
 `alarms/rationalization.yaml`, one record per finding kind, optionally per kind plus subject
 class:
@@ -1547,10 +1547,10 @@ class:
   moc_ref: "issue-142"
 ```
 
-VG-ALM-01, no alarm without a rationalisation record: a test enumerates every `FindingKind` member
+VG-ALM-01, no alarm without a rationalization record: a test enumerates every `FindingKind` member
 reachable in code and asserts a matching record exists, that `priority` equals the matrix-derived
 value, that `operator_response` is non-empty, and that every chart `severity_map` entry for that
-kind is within one ordinal of `max_finding_severity`. A finding kind added without rationalisation
+kind is within one ordinal of `max_finding_severity`. A finding kind added without rationalization
 fails the build. This is the mechanism that keeps the stream from becoming noise, and it is a
 genuinely uncommon thing to find in a repository.
 
@@ -1575,7 +1575,7 @@ respond, declared in `alarms/priority_matrix.yaml`. It describes how bad this ki
 this kind of subject, and it is never hand-assigned.
 
 | Consequence and time to respond | under 5 min | 5 to 30 min | 30 min to 4 h | over 4 h |
-| ------------------------------- | ----------- | ----------- | ------------- | -------- |
+|---------------------------------|-------------|-------------|---------------|----------|
 | safety or environment           | CRITICAL    | CRITICAL    | HIGH          | HIGH     |
 | security                        | CRITICAL    | HIGH        | HIGH          | MEDIUM   |
 | quality, customer-affecting     | CRITICAL    | HIGH        | MEDIUM        | LOW      |
@@ -1586,7 +1586,7 @@ this kind of subject, and it is never hand-assigned.
 the only one the operator view orders by. Taking the maximum means a chart may raise the rank
 of a specific observation above its kind's baseline and may never lower it below.
 
-The `priority` field in the rationalisation record is a redundant assertion that CI checks against
+The `priority` field in the rationalization record is a redundant assertion that CI checks against
 the matrix, which catches drift between what someone intended and what the matrix says. A
 `severity_map` entry more than one ordinal below its kind's matrix priority is a config validation
 error naming both values, so the two mechanisms cannot silently disagree.
@@ -1609,9 +1609,9 @@ duration at `shelve_max_s` (default 8 hours of sim time), and schedules an auto-
 sim clock. A shelved alarm that would re-fire at a higher presented rank than when it was shelved
 auto-unshelves immediately. Shelved alarms remain queryable and count in the metrics.
 
-The shelve record names the autonomy tier that authorised it and carries a decision register
+The shelve record names the autonomy tier that authorized it and carries a decision register
 reference. E5's tier model and E21's register are Phase 6 deliverables and alarm management in
-full is P2, so the behaviour is phased and the phasing is stated rather than assumed. From P2 the
+full is P2, so the behavior is phased and the phasing is stated rather than assumed. From P2 the
 `autonomy_tier` field carries the tier the local config grants the actor, the tier check runs
 against that config, and `decision_register_ref` is null. From P6 the register mints the reference
 and the same field carries it. No schema changes at the boundary, which is the reason the field
@@ -1623,7 +1623,7 @@ Suppression by design. `suppression_parents` declares causal relationships: when
 and a count, which is the whole point of the exercise.
 
 Stale alarms. An alarm active longer than `alarms.stale_after_s` (default 24 hours of sim time)
-raises `ALARM_STALE`. Stale alarms are the standing evidence that a rationalisation record is
+raises `ALARM_STALE`. Stale alarms are the standing evidence that a rationalization record is
 wrong.
 
 #### 5.10.6 Flood detection and alarm system metrics
@@ -1637,7 +1637,7 @@ as a division by zero. `annunciated alarms per operator hour` is the annunciated
 `operator_hours`.
 
 The flood detector runs on a rolling `alarms.flood.window_s` window per console. Entering flood
-raises `ALARM_FLOOD`, itself a rationalised finding, switches the presented list to
+raises `ALARM_FLOOD`, itself a rationalized finding, switches the presented list to
 `collapse_to_priority` mode showing the top N by presented rank with a count of the rest, and
 records the flood start. Leaving flood records the duration, the peak rate, and the top
 contributors.
@@ -1646,7 +1646,7 @@ Alarm system metrics, published as `alarm_metrics/v1` on a fixed cadence per con
 control charts by this same engine:
 
 | Metric                                       | Definition here                                          | Benchmark source                                              |
-| -------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------- |
+|----------------------------------------------|----------------------------------------------------------|---------------------------------------------------------------|
 | annunciated alarms per operator hour         | annunciated count over `operator_hours`                  | EEMUA 191, value configured, attributed in the report caption |
 | percent of time in flood                     | flood minutes over window minutes                        | EEMUA 191, value configured, attributed                       |
 | peak alarms in 10 minutes                    | maximum over rolling 10 minute sim windows               | EEMUA 191, value configured, attributed                       |
@@ -1698,7 +1698,7 @@ carries a distortion figure for a flow the twin cannot yet produce.
 Miners, all behind one `Miner` protocol so the algorithm choice is swappable and comparable:
 
 | Miner                                       | Purpose                                                                                                                         |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+|---------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
 | Directly-follows graph                      | the baseline everyone starts from, and the input to the frequency and performance views                                         |
 | Alpha                                       | the historical baseline, included because its known failure modes on loops and skips are useful teaching material in the report |
 | Heuristics miner                            | noise-tolerant, dependency threshold configurable                                                                               |
@@ -1749,7 +1749,7 @@ distinct variant plus a seeded sample of instances per variant, with the sample 
 stream name recorded on the result. The sampling stream is `procmine.alignment.sampling`, so the
 sampled set is identical across runs of the same seed.
 
-Precision in the ETC-align style, generalisation, and simplicity are reported alongside fitness so
+Precision in the ETC-align style, generalization, and simplicity are reported alongside fitness so
 nobody reads a fitness of 1.0 from a flower model as success.
 
 Each `Deviation` that survives a configurable frequency floor becomes a `CONFORMANCE_DEVIATION`
@@ -1779,7 +1779,7 @@ to resource seized, `sojourn_time = service + waiting`, occurrences per case, an
 `share_of_lead_time`. Waiting time is attributed to the resource that was busy, so the table
 answers "what is the constraint" and not merely "what is slow".
 
-The twin independently names a bottleneck from resource utilisation (component 1). The mined
+The twin independently names a bottleneck from resource utilization (component 1). The mined
 waiting-time ranking is a second, independent estimate. When the two disagree by more than
 `procmine.bottleneck_disagreement_threshold`, that disagreement is itself a finding,
 `BOTTLENECK_DISAGREEMENT`. Two methods agreeing is evidence; two methods disagreeing is a lead.
@@ -1793,7 +1793,7 @@ well mining recovers it.
 `recovery_benchmark(ground_truth, log, miners, noise_levels)` produces a published table:
 
 | Dimension   | Values                                                                           |
-| ----------- | -------------------------------------------------------------------------------- |
+|-------------|----------------------------------------------------------------------------------|
 | miner       | alpha, heuristics, inductive at several noise thresholds, directly-follows graph |
 | log noise   | 0, 1, 5, 10, and 20 percent injected deviations of known type                    |
 | case notion | the notions whose producers exist, plus the OCEL flattening variants for those   |
@@ -1812,7 +1812,7 @@ hides underfitting.
 
 Edit distance over the process tree where both models have one.
 
-Precision and generalisation against the ground-truth log.
+Precision and generalization against the ground-truth log.
 
 At zero noise with a complete log, the inductive miner must recover footprint F1 of exactly 1.0
 (VG-PM-02). Everything else is published as a curve rather than as pass or fail, because the
@@ -1878,7 +1878,7 @@ Generated from an accepted what-if (`whatif_result/v1`), never hand-drawn:
 3. Rebuild the contribution table and the map.
 4. `diff(current, future)` produces which stations changed cycle time, which inventory triangles
    shrank, the new lead time, the new process cycle efficiency, and the delta on each.
-5. Annotate kaizen bursts on the changed elements, one per applied change, labelled with the change
+5. Annotate kaizen bursts on the changed elements, one per applied change, labeled with the change
    description.
 6. Attach the statistical verdict. Every claimed improvement in the diff carries the `TestResult`
    from 5.7 for that metric, as its published schema (4.5): test name, p-value adjusted where a
@@ -1965,7 +1965,7 @@ golden file stays stable across phases and a missing section is visible rather t
 inferred.
 
 Accessibility (C12): semantic headings, every chart followed by its data table, severity encoded
-by shape and label in addition to colour, a colour-blind-safe palette, and a print stylesheet.
+by shape and label in addition to color, a color-blind-safe palette, and a print stylesheet.
 `test_severity_renders_shape_and_label` (4.2) runs against the generated file.
 
 ### 5.14 Determinism and the simulation seam
@@ -2009,8 +2009,8 @@ The determinism claim is two-tier and the README states both rather than the str
 (D-05).
 
 | Tier             | Guarantee                                                             | Gate                                                                                                                                          |
-| ---------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Byte-identical   | Same run seed, same config, same platform, same pinned dependency set | VG-DET-01, hash equality on findings JSONL, its gzip, the report, the map SVG, and the map JSON, each after the declared normalisation filter |
+|------------------|-----------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| Byte-identical   | Same run seed, same config, same platform, same pinned dependency set | VG-DET-01, hash equality on findings JSONL, its gzip, the report, the map SVG, and the map JSON, each after the declared normalization filter |
 | Value-equivalent | Same run seed and config across platforms                             | VG-DET-02, identical business events, continuous fields agreeing within a tolerance derived from measured divergence                          |
 
 VG-DET-02 reports the observed maximum divergence rather than asserting a number chosen in
@@ -2091,7 +2091,7 @@ lss:
   divergence:
     specs: divergence/specs.yaml # path, one DivergenceSpec per metric
     baseline_window: { start_sim_time: 0.0, end_sim_time: 172800.0 }
-    default_residual_method: standardised # difference | ratio | standardised | pit
+    default_residual_method: standardized # difference | ratio | standardized | pit
   findings:
     sinks: [jsonl] # delta needs the [delta] extra of twinflow-findings
     jsonl_path: artifacts/findings/{run_id}.jsonl.gz
@@ -2194,7 +2194,7 @@ vsm:
 ### 6.5 Standalone files
 
 | File                                       | Schema                                            | Notes                                                 |
-| ------------------------------------------ | ------------------------------------------------- | ----------------------------------------------------- |
+|--------------------------------------------|---------------------------------------------------|-------------------------------------------------------|
 | `alarms/rationalization.yaml`              | `/schemas/config/rationalization.v1.json`         | one record per finding kind; CI enforces completeness |
 | `alarms/priority_matrix.yaml`              | `/schemas/config/priority_matrix.v1.json`         | consequence by time-to-respond grid                   |
 | `alarms/consoles.yaml`                     | `/schemas/config/consoles.v1.json`                | console patterns and staffed shifts                   |
@@ -2225,8 +2225,8 @@ Beyond per-field types, the loader enforces:
 
 1. Every `spc.charts[].metric` resolves in the metric registry (6.6).
 2. Every metric with an `spc.charts` entry that also appears in `capability` has `specs` limits.
-3. Every `FindingKind` reachable in code has a rationalisation record (VG-ALM-01).
-4. Every rationalisation record's `priority` equals the matrix-derived priority.
+3. Every `FindingKind` reachable in code has a rationalization record (VG-ALM-01).
+4. Every rationalization record's `priority` equals the matrix-derived priority.
 5. No `severity_map` entry is more than one ordinal below its kind's matrix priority, and none
    exceeds the record's `max_finding_severity` (5.10.4).
 6. Every activity in the twin's station graph has a classification entry.
@@ -2310,7 +2310,7 @@ explicitly required for that reason:
 Named invariants, each a `@given` test with a seeded, reproducible `derandomize` profile in CI.
 
 | Id       | Invariant                                                                                                                                                                                                                                           |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | P-NUM-01 | Online and batch agreement: for any finite series, the streaming mean, variance, EWMA, and control limits equal the batch computation to a relative tolerance of 1e-12                                                                              |
 | P-SPC-01 | Affine equivariance: for `a > 0` and any `b`, the chart fitted on `a*x + b` has limits `a*L + b` and the identical set of violations                                                                                                                |
 | P-SPC-02 | Rule-1 invariance under permutation, for order-independent estimators only: with `sbar_c4` or `pooled_sd` on fixed subgroups, the set of point values flagged by rule 1 does not change when the series is permuted                                 |
@@ -2334,7 +2334,7 @@ Named invariants, each a `@given` test with a seeded, reproducible `derandomize`
 | P-HYP-05 | Paired consistency: the paired t on `(a, b)` equals the one-sample t on `a - b` to a relative tolerance of 1e-12                                                                                                                                    |
 | P-HYP-06 | Order symmetry: swapping group order negates the effect size and leaves abs(statistic) and the two-sided p unchanged                                                                                                                                |
 | P-HYP-07 | Pairing honesty: when `crn_integrity` reports unequal draw counts on any shared stream, the selected test is an independent-samples test and `HYPOTHESIS_PAIRING_LOST` is raised                                                                    |
-| P-DIV-01 | Residual centring: a paired series whose predicted equals its observed produces residuals that are exactly zero under `difference` and exactly one under `ratio`                                                                                    |
+| P-DIV-01 | Residual centering: a paired series whose predicted equals its observed produces residuals that are exactly zero under `difference` and exactly one under `ratio`                                                                                   |
 | P-DIV-02 | Magnitude gate: with `magnitude` set above the injected shift, no `TWIN_DIVERGENCE` is raised even when the residual chart fires                                                                                                                    |
 | P-FND-01 | Id stability: identical `(kind, subject, rule_id, window start, run_id)` yields an identical `finding_id`, and any change yields a different one                                                                                                    |
 | P-FND-02 | Round-trip: `Finding` to JSON to `Finding` is the identity and the JSON validates against the schema                                                                                                                                                |
@@ -2349,7 +2349,7 @@ Named invariants, each a `@given` test with a seeded, reproducible `derandomize`
 | P-VSM-01 | Ladder conservation: value-added plus business-value-added plus non-value-added plus triangle waits equals `lead_time` to a relative tolerance of 1e-9                                                                                              |
 | P-VSM-02 | `0 <= process_cycle_efficiency <= 1`                                                                                                                                                                                                                |
 | P-VSM-03 | Little's Law: at steady state, WIP and `throughput * lead_time` agree within the interval VG-VSM-02 measures                                                                                                                                        |
-| P-REP-01 | Report determinism: the same window, run seed, and config produce byte-identical HTML and SVG after the declared normalisation filter, on the same platform and pinned dependency set                                                               |
+| P-REP-01 | Report determinism: the same window, run seed, and config produce byte-identical HTML and SVG after the declared normalization filter, on the same platform and pinned dependency set                                                               |
 
 P-SPC-02 was restricted and P-SPC-03 added because the earlier single property was false for the
 first chart the source names. The moving-range mean is not invariant under permutation, so
@@ -2378,7 +2378,7 @@ S-LSS-02, the gauge eats the tolerance. Configure an RFID portal with inflated r
 variance. Assert that capability drops, that the Gage R and R reports `%StudyVar` above 30 and
 raises `MSA_UNACCEPTABLE` at CRITICAL, that every open capability and SPC finding on that metric
 gains `confidence_degraded_by` pointing at the MSA finding, and that the report prints the
-degradation banner rather than the Cpk alone. This scenario is the section's headline behaviour.
+degradation banner rather than the Cpk alone. This scenario is the section's headline behavior.
 Its gage study comes from `twinflow_lss.testing.gage_study_generator` at P2 and from component 2's
 sensor catalog at P3, and the assertions are identical in both.
 
@@ -2407,7 +2407,7 @@ Assert that it is presented at CRITICAL, at the top of the collapsed list, and i
 away.
 
 S-DIV-01, twin divergence. Apply a step change to the plant that the twin's config does not carry,
-so the twin keeps predicting the pre-change behaviour. Assert that the observed chart and the predicted
+so the twin keeps predicting the pre-change behavior. Assert that the observed chart and the predicted
 chart both stay in control on their own terms, that the residual chart fires, that the magnitude
 filter passes, that `TWIN_DIVERGENCE` is raised with the residual evidence, and that the chain
 leads to `get_fleet_health` first. Then repeat with the magnitude threshold set above the injected
@@ -2415,7 +2415,7 @@ step and assert no finding is raised, which is the half of the test that can fai
 reason.
 
 S-DIV-02, calibration drift without a mean shift. Inflate the plant's variance while leaving its
-mean where the twin predicts. Assert that the difference residuals stay centred, that the
+mean where the twin predicts. Assert that the difference residuals stay centerd, that the
 probability integral transform residuals fail the uniformity test, and that
 `TWIN_CALIBRATION_DRIFT` is raised rather than `TWIN_DIVERGENCE`.
 
@@ -2424,8 +2424,8 @@ miner recovers the loop, that conformance flags exactly the injected traces, tha
 rework rate lands within 0.5 percentage points of the injected rate, and that the map's
 non-value-added ladder grows by the measured rework time.
 
-S-PM-02, bottleneck cross-check. Configure a case where resource utilisation and mined waiting
-time disagree, a station with high utilisation but low queueing because of upstream starvation.
+S-PM-02, bottleneck cross-check. Configure a case where resource utilization and mined waiting
+time disagree, a station with high utilization but low queueing because of upstream starvation.
 Assert that `BOTTLENECK_DISAGREEMENT` fires and that both estimates appear in the evidence.
 
 S-VSM-01, future state. Accept a what-if, regenerate the map, and assert that the diff names
@@ -2434,7 +2434,7 @@ an interval, and that the golden SVG and JSON match.
 
 Golden files under `tests/golden/`: `capability-report.html`, `vsm-current.svg`,
 `vsm-current.json`, `findings.jsonl`, `findings.jsonl.gz`, `validation-report.md`. Each is compared
-after the declared normalisation filter of 2.1, and the filter version is printed in the failure
+after the declared normalization filter of 2.1, and the filter version is printed in the failure
 message so a golden mismatch never gets blamed on the wrong thing. Regeneration is an explicit
 `just golden-update` and the diff is reviewed in the pull request.
 
@@ -2443,7 +2443,7 @@ message so a golden mismatch never gets blamed on the wrong thing. Regeneration 
 VG-DET-01, byte-identical on a pinned platform. Run the full S-LSS-03 scenario twice in one
 process and once in a fresh process with a different `PYTHONHASHSEED`. Assert byte-identical
 findings JSONL, byte-identical gzip of that JSONL, byte-identical capability report, map SVG, map
-JSON, and validation report, each after the normalisation filter. Falsified by any byte
+JSON, and validation report, each after the normalization filter. Falsified by any byte
 difference, and the failure message names which artifact and the first differing offset.
 
 VG-DET-02, value-equivalent across platforms. Run the same scenario on the three platforms the CI
@@ -2470,7 +2470,7 @@ A declarative record in `validation/valgates.yaml`, schema `/schemas/valgate/v1.
 
 ```yaml
 - id: VG-SPC-08
-  statistic: "EWMA control chart centre line and control limits"
+  statistic: "EWMA control chart center line and control limits"
   implementation: "twinflow_lss.spc.ControlChart(chart_type='ewma')"
   reference:
     class: published_reference
@@ -2478,7 +2478,7 @@ A declarative record in `validation/valgates.yaml`, schema `/schemas/valgate/v1.
     locator: "Section 6.3.2.4, EWMA Control Charts, worked example"
     edition: "2012 update"
     url: "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc324.htm"
-    licence: "public domain, US Government work"
+    license: "public domain, US Government work"
     retrieved_date: "2026-08-09"
     retrieved_by_author: true
     published_precision: "4 decimal places"
@@ -2500,13 +2500,13 @@ rule.
 `reference.class` is one of six values, and the generated claim block partitions on it:
 
 | Class                        | Meaning                                                                                                                    | Counts toward the published-reference claim |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+|------------------------------|----------------------------------------------------------------------------------------------------------------------------|---------------------------------------------|
 | `published_reference`        | the expected numbers are printed in a named external publication                                                           | yes                                         |
 | `published_formula`          | the definition is printed in a named external publication and the expected numbers follow from evaluating it independently | no, counted separately                      |
 | `closed_form`                | the expected value is an exact mathematical result, with a named external publication for the result itself                | no, counted separately                      |
 | `ground_truth_recovery`      | the expected value is the simulator's injected truth                                                                       | no, counted separately                      |
 | `independent_implementation` | the comparison is against a third-party implementation's output                                                            | no, counted separately                      |
-| `software_invariant`         | the assertion is about behaviour, not about a statistic                                                                    | no, excluded entirely                       |
+| `software_invariant`         | the assertion is about behavior, not about a statistic                                                                     | no, excluded entirely                       |
 
 `reference.retrieved_by_author` records whether the person who wrote the record has read the source
 text. It is false for every paid or paywalled publication this repository cites. A gate whose
@@ -2563,7 +2563,7 @@ _The American Statistician_ 52(4), 1998, rather than to NIST, which publishes th
 and the difficulty levels but not this score.
 
 | Gate      | Statistic                                                                                                    | Datasets                                                                    | Assertion                                                                                                                                                                                                                                                                  |
-| --------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VG-NUM-01 | mean, standard deviation, lag-1 autocorrelation                                                              | PiDigits, Lottery, Lew, Mavro, Michelso, NumAcc1, NumAcc2, NumAcc3, NumAcc4 | `LRE >= 13` on NumAcc1; `LRE >= 10` on NumAcc2 and NumAcc3; `LRE >= 8` on NumAcc4, whose difficulty level the source prints as Higher. A companion test shows the naive one-pass sum of squares failing NumAcc4 and the Welford path passing, and publishes the comparison |
 | VG-NUM-02 | one-way ANOVA sums of squares, mean squares, F                                                               | SiRstv, AtmWtAg, SmLs01 through SmLs09                                      | `LRE >= 8` on the hardest set; `LRE >= 11` on the sets the source marks Lower difficulty                                                                                                                                                                                   |
 | VG-NUM-03 | linear and polynomial regression coefficients, their standard errors, residual standard deviation, R-squared | Norris, Pontius, NoInt1, NoInt2, Filip, Longley, Wampler1 through Wampler5  | `LRE >= 7` on Filip, degree 10, which the source marks Higher difficulty, via SVD or QR; `LRE >= 10` elsewhere. The published table also shows the normal-equations path failing Filip, which is the honest way to make the point that the solver choice matters           |
@@ -2604,15 +2604,15 @@ SPC examples. Which sections contain a worked example, and which contain only fo
 per gate, because the difference decides the reference class.
 
 | Gate      | Statistic                                                                                         | Reference                                                                                                                                                                                        | Class               | Tolerance and falsifier                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| --------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------|---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VG-SPC-01 | factors `A2`, `D3`, `D4` for n = 2 to 10                                                          | e-Handbook 6.3.2.1, "Factors for Calculating Limits for X-bar and R Charts", printed to 3 decimals                                                                                               | published_reference | analytic value rounded to 3 decimals equals the printed value, equivalently an absolute difference of at most 5e-4. Falsified by any of the 27 tabulated values differing in the third decimal                                                                                                                                                                                                                                                                                                                              |
 | VG-SPC-02 | factors `d2`, `d3`, `c4`, `A3`, `B3`, `B4` for n = 2 to 25, and `A2`, `D3`, `D4` for n = 11 to 25 | the two analytic routes to each constant, with `c4`'s closed form as the e-Handbook prints it in 6.3.2                                                                                           | closed_form         | the quadrature route and the closed-form route agree to a relative tolerance of 1e-10. Falsified by any n where they do not. See OQ-3: no external table this repository has read covers these constants at these n                                                                                                                                                                                                                                                                                                         |
-| VG-SPC-03 | individuals and moving-range chart centre line and limits                                         | e-Handbook 6.3.2.2 worked example, flow rate, 10 batches, printed centre line 50.81, UCL 55.8041, LCL 45.8159                                                                                    | published_reference | absolute difference at most 5e-5, half a unit in the last printed digit. Falsified by any of the three values differing in the fourth decimal                                                                                                                                                                                                                                                                                                                                                                               |
+| VG-SPC-03 | individuals and moving-range chart center line and limits                                         | e-Handbook 6.3.2.2 worked example, flow rate, 10 batches, printed center line 50.81, UCL 55.8041, LCL 45.8159                                                                                    | published_reference | absolute difference at most 5e-5, half a unit in the last printed digit. Falsified by any of the three values differing in the fourth decimal                                                                                                                                                                                                                                                                                                                                                                               |
 | VG-SPC-04 | X-bar and R, X-bar and s, and u chart limits                                                      | the e-Handbook factor definitions of 6.3.2 and 6.3.2.1, evaluated independently                                                                                                                  | published_formula   | limits computed from the factors and limits computed from the sigma estimate agree to a relative tolerance of 1e-12 on a constructed balanced dataset. Falsified by disagreement at that tolerance, or by a factor that does not match VG-SPC-01                                                                                                                                                                                                                                                                            |
-| VG-SPC-05 | c chart centre line and limits                                                                    | e-Handbook 6.3.3.1, Counts Control Charts, worked example with `cbar = 16`, UCL 28, LCL 4                                                                                                        | published_reference | exact integer match on all three. Falsified by any difference                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| VG-SPC-05 | c chart center line and limits                                                                    | e-Handbook 6.3.3.1, Counts Control Charts, worked example with `cbar = 16`, UCL 28, LCL 4                                                                                                        | published_reference | exact integer match on all three. Falsified by any difference                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | VG-SPC-06 | p chart with constant subgroup size                                                               | e-Handbook 6.3.3.2, Proportions Control Charts, worked example, 30 wafers of 50 chips                                                                                                            | published_reference | absolute difference at most half a unit in the last printed digit of each published value. Falsified by any difference beyond that                                                                                                                                                                                                                                                                                                                                                                                          |
 | VG-SPC-07 | p chart with varying subgroup size, per-point limits                                              | the constant-n case as the boundary                                                                                                                                                              | closed_form         | with every `n_i` equal, the per-point limits equal the constant-n limits to a relative tolerance of 1e-12, and each per-point limit equals the closed form at its own `n_i`. Falsified by a single-band result, or by disagreement at the boundary. See OQ-3                                                                                                                                                                                                                                                                |
-| VG-SPC-08 | EWMA chart centre line and limits                                                                 | e-Handbook 6.3.2.4 worked example, UCL 52.5884, LCL 47.4115                                                                                                                                      | published_reference | absolute difference at most 5e-5. Falsified by either limit differing in the fourth decimal                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| VG-SPC-08 | EWMA chart center line and limits                                                                 | e-Handbook 6.3.2.4 worked example, UCL 52.5884, LCL 47.4115                                                                                                                                      | published_reference | absolute difference at most 5e-5. Falsified by either limit differing in the fourth decimal                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | VG-SPC-09 | tabular CUSUM and V-mask                                                                          | e-Handbook 6.3.2.3 worked example, `h = 4.1959`, `k = 0.3175`                                                                                                                                    | published_reference | absolute difference at most 5e-5 on the design parameters and on every tabulated cumulative sum. Falsified by any difference beyond that                                                                                                                                                                                                                                                                                                                                                                                    |
 | VG-SPC-10 | Hotelling T-squared phase I and phase II upper control limits                                     | e-Handbook 6.5.4.3.1 and 6.5.4.3.2, which print the closed-form limits; the F quantiles come from the e-Handbook's upper critical values of the F distribution, 1.3.6.7.3, printed to 3 decimals | published_formula   | the implemented limit equals the published formula evaluated at the tabulated F quantile to a relative tolerance of 1e-9, and the F quantile matches the printed table to 5e-4. Falsified by either comparison                                                                                                                                                                                                                                                                                                              |
 | VG-SPC-11 | rule firing fixtures and the single-rule in-control average run length                            | constructed fixtures for firing and near-miss, plus the e-Handbook 6.3.2.1 statement that for a normal distribution `p = 0.0027` and the ARL is about 371                                        | published_reference | every fixture fires exactly where hand-verified; and the measured ARL0 over 10 to the 6 seeded in-control points has a 95 percent interval containing 371. Noise floor: the null run length is geometric with `p = 0.0027`, so its standard deviation is `sqrt(1-p)/p`, about 370, and over the roughly 2,700 completed runs in 10 to the 6 points the standard error of the mean is about 7.1 and the 95 percent half-width about 14. Falsified when a fixture fires in the wrong place, or when the interval excludes 371 |
@@ -2624,7 +2624,7 @@ implemented correctly together, which is where implementations usually diverge.
 #### 7.5.6 Capability, MSA, trend, and chart gates
 
 | Gate      | Statistic                                                                                                                     | Reference                                                                                                                                                                                                                                                                                                                             | Class                 | Tolerance and falsifier                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------|-------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VG-CAP-01 | Cp, Cpk, Cpu, Cpl, and the k factor                                                                                           | e-Handbook 6.1.6 Capability Index Example: USL 20, LSL 8, mean 16, s 2, giving Cp 1.0, k 0.3333, Cpk 0.6667, Cpu 0.6667, Cpl 1.3333                                                                                                                                                                                                   | published_reference   | absolute difference at most 5e-5, half a unit in the last printed digit. Falsified by any of the five values differing in the fourth decimal                                                                                                                                                                                                                                                                                                             |
 | VG-CAP-02 | Pp, Ppk, and the observed against expected PPM table                                                                          | the same worked example re-run with the overall sigma estimate, where Pp and Ppk are Cp and Cpk by construction                                                                                                                                                                                                                       | closed_form           | Pp and Ppk computed from `sigma_overall` equal Cp and Cpk computed from the same number to a relative tolerance of 1e-12, and the PPM table rows sum to the total row exactly. Falsified by either. See OQ-5: no published Pp and Ppk worked example has been retrieved, so this gate does not count toward the published-reference claim                                                                                                                |
 | VG-CAP-03 | sigma level and DPMO conversion                                                                                               | the standard normal distribution function, and the canonical identity that a long-term Z of 4.5 is quoted as a nominal six sigma after the 1.5 shift                                                                                                                                                                                  | closed_form           | `dpmo(4.5)` equals `(1 - Phi(4.5)) * 1e6`, which is 3.3977 to 4 decimals, to a relative tolerance of 1e-9, and `sigma_level_shifted` equals `z_bench_overall + 1.5` exactly. Falsified by either, and by the field-naming check that `sigma_level_shifted` and not `sigma_level_z_overall` carries the shift                                                                                                                                             |
@@ -2650,7 +2650,7 @@ implemented correctly together, which is where implementations usually diverge.
 #### 7.5.7 Hypothesis gates
 
 | Gate      | Statistic                                                                | Reference                                                                                                                                                                                                                                 | Class               | Tolerance and falsifier                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| --------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|-----------|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VG-HYP-01 | pooled two-sample t                                                      | e-Handbook 1.3.5.3, AUTO83B.DAT: `T = -12.62059`, two-tailed critical value 1.9673, one-tailed 1.6495                                                                                                                                     | published_reference | absolute difference at most 5e-6 on T and 5e-5 on each critical value. Falsified by any difference beyond that. The page prints no p-value, so the p-value path is checked by VG-HYP-02 and by the closed-form relation to the critical values                                                                                                                                                                                                   |
 | VG-HYP-02 | Welch's t and the Welch-Satterthwaite degrees of freedom                 | e-Handbook 7.3.1 worked example: means 36.0909 and 32.2222, standard deviations 4.9082 and 2.5386, `t = 2.2694`, `nu = 15.5`                                                                                                              | published_reference | absolute difference at most 5e-5 on t and 5e-2 on nu, each half a unit in the last printed digit. Falsified by either                                                                                                                                                                                                                                                                                                                            |
 | VG-HYP-03 | one-way ANOVA                                                            | the certified ANOVA datasets of VG-NUM-02                                                                                                                                                                                                 | published_reference | as VG-NUM-02                                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -2668,12 +2668,12 @@ implemented correctly together, which is where implementations usually diverge.
 | VG-HYP-15 | two-proportion z and Fisher exact                                        | the hypergeometric enumeration, and the identity `z^2 = chi-square` without continuity correction                                                                                                                                         | closed_form         | Fisher exact matches the enumerated hypergeometric tail exactly, and `z^2` equals the uncorrected chi-square to a relative tolerance of 1e-12. Falsified by either                                                                                                                                                                                                                                                                               |
 | VG-HYP-16 | chi-square test of independence                                          | the same identity extended to an r by c table, and the closed-form chi-square distribution function                                                                                                                                       | closed_form         | the statistic equals the direct sum over cells to a relative tolerance of 1e-12, and the p-value equals the closed-form upper tail to 1e-10. Falsified by either                                                                                                                                                                                                                                                                                 |
 | VG-HYP-17 | Bonferroni adjustment                                                    | the definition                                                                                                                                                                                                                            | closed_form         | `p_adjusted = min(1, m * p)` exactly for every input, and the familywise error rate over 10,000 seeded families of true nulls is at most alpha within Monte Carlo error. Noise floor: the standard error of a proportion at alpha over 10,000 families, printed each run. Falsified by an arithmetic mismatch, or by a measured rate above alpha by more than two standard errors                                                                |
-| VG-HYP-18 | Benjamini-Hochberg FDR control                                           | Benjamini and Hochberg, "Controlling the False Discovery Rate", _Journal of the Royal Statistical Society Series B_ 57(1), 1995                                                                                                           | closed_form         | over 10,000 seeded families with known true nulls, the realised false discovery rate is at most `q` plus two standard errors. Noise floor: the measured standard error of the realised rate across the families, printed each run. Falsified when the realised rate exceeds that bound                                                                                                                                                           |
+| VG-HYP-18 | Benjamini-Hochberg FDR control                                           | Benjamini and Hochberg, "Controlling the False Discovery Rate", _Journal of the Royal Statistical Society Series B_ 57(1), 1995                                                                                                           | closed_form         | over 10,000 seeded families with known true nulls, the realized false discovery rate is at most `q` plus two standard errors. Noise floor: the measured standard error of the realized rate across the families, printed each run. Falsified when the realized rate exceeds that bound                                                                                                                                                           |
 | VG-HYP-19 | Cohen's d, Hedges' g, and interval coverage                              | Hedges and Olkin, _Statistical Methods for Meta-Analysis_, 1985                                                                                                                                                                           | published_reference | the exact gamma form of `J` agrees with `1 - 3/(4m - 1)` to a relative tolerance of 1e-3 at `m >= 10`, which is the approximation's own accuracy rather than a machine tolerance, and the non-central t interval covers at [0.93, 0.97] over 20,000 seeded samples at nominal 0.95. Noise floor: 0.0015, as VG-CAP-06. `retrieved_by_author: false`. Falsified by either                                                                         |
-| VG-HYP-20 | Cliff's delta and rank-biserial correlation                              | the algebraic identities `rank_biserial = 1 - 2U/(n1 n2)` and `cliffs_delta = 2U/(n1 n2) - 1`; Cliff, "Dominance Statistics: Ordinal Analyses to Answer Ordinal Questions", _Psychological Bulletin_ 114(3), 1993                         | closed_form         | both identities hold to a relative tolerance of 1e-12 for every generated sample. Falsified by either                                                                                                                                                                                                                                                                                                                                            |
+| VG-HYP-20 | Cliff's delta and rank-biserial correlation                              | the algebraic identities `rank_biserial = 1 - 2U/(n1 n2)` and `cliffs_delta = 2U/(n1 n2) - 1`; Cliff, "Dominance Statistics: Ordinal Analyzes to Answer Ordinal Questions", _Psychological Bulletin_ 114(3), 1993                         | closed_form         | both identities hold to a relative tolerance of 1e-12 for every generated sample. Falsified by either                                                                                                                                                                                                                                                                                                                                            |
 | VG-HYP-21 | eta-squared and omega-squared                                            | the ANOVA table identities                                                                                                                                                                                                                | closed_form         | both equal their definitions computed from the certified ANOVA sums of squares of VG-NUM-02 to a relative tolerance of 1e-12, and omega-squared is at most eta-squared. Falsified by either                                                                                                                                                                                                                                                      |
 | VG-HYP-22 | TOST equivalence                                                         | Schuirmann, "A Comparison of the Two One-Sided Tests Procedure and the Power Approach", _Journal of Pharmacokinetics and Biopharmaceutics_ 15(6), 1987                                                                                    | published_formula   | the type I error at the equivalence boundary over 20,000 seeded datasets lies within two standard errors of alpha. Noise floor: the standard error of a proportion at alpha over 20,000 datasets, printed each run. Falsified when it lies outside                                                                                                                                                                                               |
-| VG-HYP-23 | autocorrelation handling and batch means                                 | the AR(1) variance inflation factor `(1 + rho) / (1 - rho)`, a closed-form result stated in Law, _Simulation Modeling and Analysis_, 5th edition, chapter 9                                                                               | closed_form         | on seeded AR(1) data with `rho = 0.6` the naive t test's realised type I error matches the predicted inflation within two standard errors, and the batch-means test's realised type I error lies within two standard errors of alpha. Noise floor: the standard error of each realised rate, printed each run. Falsified when either comparison lies outside its band. This gate is what licenses every hypothesis test run on simulation output |
+| VG-HYP-23 | autocorrelation handling and batch means                                 | the AR(1) variance inflation factor `(1 + rho) / (1 - rho)`, a closed-form result stated in Law, _Simulation Modeling and Analysis_, 5th edition, chapter 9                                                                               | closed_form         | on seeded AR(1) data with `rho = 0.6` the naive t test's realized type I error matches the predicted inflation within two standard errors, and the batch-means test's realized type I error lies within two standard errors of alpha. Noise floor: the standard error of each realized rate, printed each run. Falsified when either comparison lies outside its band. This gate is what licenses every hypothesis test run on simulation output |
 | VG-SAM-01 | single sampling plan selection and OC curve                              | e-Handbook 6.2.3, "How do you Choose a Single Sampling Plan?", and e-Handbook 6.2.3.1, "Choosing a Sampling Plan: MIL Standard 105D"                                                                                                      | published_reference | plan parameters match the published example exactly, and OC curve points match the closed-form binomial or hypergeometric value to a relative tolerance of 1e-9. Falsified by either                                                                                                                                                                                                                                                             |
 | VG-SAM-02 | Z1.4-class switching rules                                               | ANSI/ASQ Z1.4, clause cited in the record                                                                                                                                                                                                 | published_reference | the switching state machine reproduces the standard's transitions on the worked sequence in the standard. `retrieved_by_author: false`, so the gate stays `PENDING`. Falsified by any transition differing                                                                                                                                                                                                                                       |
 
@@ -2684,19 +2684,19 @@ selection policy", which is a circular reference. It is replaced by a check with
 anchor and a real falsifier.
 
 VG-HYP-24, class `closed_form`. Over 20,000 seeded null datasets drawn from a normal generator, a
-lognormal generator, and a Student-t generator with 3 degrees of freedom, the realised rejection
+lognormal generator, and a Student-t generator with 3 degrees of freedom, the realized rejection
 rate of the auto-selected test lies within two standard errors of alpha for every generator. The
 external anchor is the definition of a test's size: under the null the rejection rate is alpha,
 which is what each named test's own published derivation asserts. The noise floor is the standard
 error of a proportion at alpha over 20,000 datasets, about 0.0015 at alpha 0.05, printed each run.
-It is falsified when any generator's realised rate lies outside the band, and the failure message
+It is falsified when any generator's realized rate lies outside the band, and the failure message
 names the generator and the test the checker selected, so a calibration failure points at the
 selection rule rather than at "the checker".
 
 #### 7.5.9 Process mining, value stream map, alarm, divergence, determinism, and schema gates
 
 | Gate      | Statistic                                             | Reference                                                                                                                                   | Class                      | Tolerance and falsifier                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| --------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VG-PM-01  | conformance against ground truth                      | the checked-in exported reference model and a log with K injected deviations of known type and position                                     | ground_truth_recovery      | a deviation-free log achieves alignment fitness exactly 1.0, and a log with K injected deviations reports exactly K deviations at exactly those positions under the total frontier order of 5.11.3. Falsified by a different count, a different position, or a fitness below 1.0 on the clean log                                                                                                                                                 |
 | VG-PM-02  | discovery recovery, clean case                        | the twin's exported reference model                                                                                                         | ground_truth_recovery      | the inductive miner on a complete, noise-free log recovers footprint F1 of exactly 1.0. Falsified by any cell of the footprint matrix differing                                                                                                                                                                                                                                                                                                   |
 | VG-PM-03  | engine agreement                                      | PM4Py's output on the same log, run in the development-only `[oracle]` CI job and never distributed or served (D-14)                        | independent_implementation | this package's fitness and precision agree with PM4Py's to a relative tolerance of 1e-9, and a disagreement is reported with both values and the log that produced it. Falsified by disagreement beyond the tolerance. This class does not count toward the published-reference claim, because agreement between two implementations is not a publication                                                                                         |
@@ -2706,22 +2706,22 @@ selection rule rather than at "the checker".
 | VG-PM-07  | OCEL flattening distortion                            | the twin's known object structure                                                                                                           | ground_truth_recovery      | for each flattening, the reported convergence and divergence counts equal the counts derived from the known object structure exactly. Rows for object types whose producer does not yet exist print as "not yet generated" and assert nothing. Falsified by a count differing, or by a row printing a number for a flow that does not exist                                                                                                       |
 | VG-VSM-01 | current-state lead time and process cycle efficiency  | the twin's ground-truth value-added and total time accounting, from the checked-in recorded run                                             | ground_truth_recovery      | lead time agrees to a relative tolerance of 1e-9 and process cycle efficiency to 1e-9, because both derive from the same recorded events. Falsified by either                                                                                                                                                                                                                                                                                     |
 | VG-VSM-02 | Little's Law                                          | Little, "A Proof for the Queuing Formula L = lambda W", _Operations Research_ 9(3), 1961                                                    | published_reference        | at steady state, WIP and `throughput * lead_time` agree within the 95 percent interval measured over 30 seeded replications of the recorded scenario. Noise floor: the measured standard error of the ratio across the 30 replications, printed each run. `retrieved_by_author: false` on the paper; the theorem statement is standard and the gate's assertion is the equality it states. Falsified when the interval excludes 1.0 for the ratio |
-| VG-VSM-03 | render determinism                                    | none; this is a behaviour assertion                                                                                                         | software_invariant         | byte-identical SVG and JSON across processes for the same input after the normalisation filter. Falsified by any byte difference                                                                                                                                                                                                                                                                                                                  |
-| VG-ALM-01 | rationalisation completeness and priority consistency | none; this is a completeness assertion over the repository's own configuration                                                              | software_invariant         | every reachable `FindingKind` has a record, every record's declared priority equals the matrix-derived priority, every `operator_response` is non-empty, and no `severity_map` entry violates 5.10.4. Falsified by any missing record, any priority mismatch, any empty response, or any out-of-range severity map entry                                                                                                                          |
+| VG-VSM-03 | render determinism                                    | none; this is a behavior assertion                                                                                                          | software_invariant         | byte-identical SVG and JSON across processes for the same input after the normalization filter. Falsified by any byte difference                                                                                                                                                                                                                                                                                                                  |
+| VG-ALM-01 | rationalization completeness and priority consistency | none; this is a completeness assertion over the repository's own configuration                                                              | software_invariant         | every reachable `FindingKind` has a record, every record's declared priority equals the matrix-derived priority, every `operator_response` is non-empty, and no `severity_map` entry violates 5.10.4. Falsified by any missing record, any priority mismatch, any empty response, or any out-of-range severity map entry                                                                                                                          |
 | VG-ALM-02 | alarm metric arithmetic                               | a constructed alarm log with a declared console and a declared shift pattern, with hand-computed expected values published in the test file | software_invariant         | every metric of 5.10.6 matches its hand-computed value exactly, `operator_hours` matches the shift arithmetic exactly, and a window with no staffed shift reports null rather than a division by zero. This gate asserts nothing about any benchmark value from either alarm standard; see OQ-4. Falsified by any metric differing, or by a null-denominator window producing a number                                                            |
-| VG-ALM-03 | no-loss invariant                                     | none; this is a behaviour assertion                                                                                                         | software_invariant         | every finding raised during a constructed flood is retrievable from the sink regardless of dedupe, suppression, or shelving. Falsified by a single finding missing from the sink                                                                                                                                                                                                                                                                  |
+| VG-ALM-03 | no-loss invariant                                     | none; this is a behavior assertion                                                                                                          | software_invariant         | every finding raised during a constructed flood is retrievable from the sink regardless of dedupe, suppression, or shelving. Falsified by a single finding missing from the sink                                                                                                                                                                                                                                                                  |
 | VG-ALM-04 | console assignment                                    | none; this is a routing assertion                                                                                                           | software_invariant         | every finding routes to the first matching console pattern in declared order, and a subject matching no pattern routes to the default console. Falsified by a route that does not match the declared order                                                                                                                                                                                                                                        |
 | VG-DIV-01 | divergence detection                                  | an injected step change the twin's config does not carry                                                                                    | ground_truth_recovery      | `TWIN_DIVERGENCE` is raised within the detector's expected point range of the injected step, and no divergence is raised when the magnitude threshold is set above the injected step. Falsified by a miss, by a firing outside the range, or by a firing the magnitude filter was set to block                                                                                                                                                    |
-| VG-DIV-02 | calibration detection                                 | an injected variance inflation with the mean held where the twin predicts                                                                   | ground_truth_recovery      | the probability integral transform residuals fail the uniformity test and `TWIN_CALIBRATION_DRIFT` is raised, while the difference residuals stay centred and `TWIN_DIVERGENCE` is not raised. Falsified by the wrong finding kind, or by neither                                                                                                                                                                                                 |
-| VG-DET-01 | byte-identical determinism on a pinned platform       | none; this is a behaviour assertion                                                                                                         | software_invariant         | as 7.4. Falsified by any byte difference in any listed artifact                                                                                                                                                                                                                                                                                                                                                                                   |
-| VG-DET-02 | value-equivalent determinism across platforms         | none; this is a behaviour assertion                                                                                                         | software_invariant         | as 7.4. Falsified by any business-event difference, or by a continuous-field divergence above the recorded tolerance                                                                                                                                                                                                                                                                                                                              |
+| VG-DIV-02 | calibration detection                                 | an injected variance inflation with the mean held where the twin predicts                                                                   | ground_truth_recovery      | the probability integral transform residuals fail the uniformity test and `TWIN_CALIBRATION_DRIFT` is raised, while the difference residuals stay centerd and `TWIN_DIVERGENCE` is not raised. Falsified by the wrong finding kind, or by neither                                                                                                                                                                                                 |
+| VG-DET-01 | byte-identical determinism on a pinned platform       | none; this is a behavior assertion                                                                                                          | software_invariant         | as 7.4. Falsified by any byte difference in any listed artifact                                                                                                                                                                                                                                                                                                                                                                                   |
+| VG-DET-02 | value-equivalent determinism across platforms         | none; this is a behavior assertion                                                                                                          | software_invariant         | as 7.4. Falsified by any business-event difference, or by a continuous-field divergence above the recorded tolerance                                                                                                                                                                                                                                                                                                                              |
 | VG-SCH-01 | schema conformance and additive-only evolution        | none; this is a contract assertion                                                                                                          | software_invariant         | every published finding validates against `/schemas/finding/v1.json`, every published event carries the envelope of 4.1, and a schema-diff test fails any non-additive change within a major version. Falsified by a validation failure or a non-additive diff                                                                                                                                                                                    |
 | VG-SCH-02 | registry coverage of the public API                   | none; this is a coverage assertion                                                                                                          | software_invariant         | as 7.5.4: every public statistical callable names a gate, every named gate exists, and every gate is named. Falsified by an unnamed callable, a dangling id, or an orphan gate                                                                                                                                                                                                                                                                    |
 
 ### 7.6 Reporting and the README claim
 
 `twinflow-lss validate report` generates `docs/VALIDATION.md` containing every gate with its id,
-statistic, reference class, reference (name, locator, edition, licence, retrieval date, and
+statistic, reference class, reference (name, locator, edition, license, retrieval date, and
 whether the author retrieved it), tolerance, noise floor, falsifier, status, and CI run id.
 
 The README's claim block is generated from the registry, not typed. The generator partitions on
@@ -2737,7 +2737,7 @@ Validation, generated from validation/valgates.yaml on every CI run:
   24 checked against closed-form mathematical results.
   10 checked against the simulation's known injected ground truth.
    1 checked against an independent third-party implementation.
-  10 software invariants: determinism, schema conformance, and no-loss behaviour.
+  10 software invariants: determinism, schema conformance, and no-loss behavior.
   See docs/VALIDATION.md for every gate, its reference, and the result that would falsify it.
 ```
 
@@ -2773,8 +2773,8 @@ No GPL-licensed package's data files are vendored. Where a cross-check against s
 wanted, only the scalar expected values are stored, with the citation. OQ-2 covers the one case
 this section has.
 
-Every file under `validation/data/` carries a `PROVENANCE.md` line with source, licence, and
-retrieval date, and the licence-compatibility CI job (C11) reads it.
+Every file under `validation/data/` carries a `PROVENANCE.md` line with source, license, and
+retrieval date, and the license-compatibility CI job (C11) reads it.
 
 ### 7.8 Runtime budgets
 
@@ -2788,7 +2788,7 @@ recorded value by more than 50 percent fails the same test and names itself, so 
 grows past its job budget fails as a defect rather than as a timeout.
 
 | Tier                | Declared budget       | Composition                                                                                                                                             |
-| ------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|---------------------|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
 | unit                | 60 s                  | 7.1                                                                                                                                                     |
 | property            | 180 s                 | 7.2, with a `derandomize` profile in CI and `max_examples` tuned per test                                                                               |
 | gate, deterministic | 180 s                 | every gate whose `noise_floor` is null                                                                                                                  |
@@ -2808,20 +2808,20 @@ than executing the twin 30 times, which is what brings it inside any budget at a
 ### 8.1 The sequence
 
 | Piece                                                                                                                                                                                                                  | Phase                | Why here                                                                                                                                                                                                                                                        |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `/schemas/finding/v1.json`, `/schemas/valgate/v1.json`, `/schemas/config/lss.v1.json`, and the common envelope fields of 4.1                                                                                           | P0                   | C3 contracts cannot be retrofitted, and D-07 settles the envelope before schemas freeze. Every producer in every later phase publishes findings; the shape must exist before the first one does                                                                 |
 | `/schemas/test_result/v1.json`, `/schemas/contribution_table/v1.json`, `/schemas/process_model/v1.json`, `/schemas/divergence_spec/v1.json`                                                                            | P0                   | Each crosses a package boundary. Authoring them later would mean a major version bump on a subject that already shipped                                                                                                                                         |
 | `metrics/registry.yaml`, the flat metric id registry of 6.6                                                                                                                                                            | P0                   | The chart loader enforces metric resolution from P2, so the thing it resolves against has to exist by then. Pulled forward from E26(b)                                                                                                                          |
-| Gate registry skeleton, `twinflow-lss validate` CLI, `just phase-gate`, `just defer-gate`, CI wiring                                                                                                                   | P0                   | The rule "no statistic merges without a gate" works only when the registry predates the first statistic. Building it later means back-filling gates, which is how validation claims become theatre                                                              |
+| Gate registry skeleton, `twinflow-lss validate` CLI, `just phase-gate`, `just defer-gate`, CI wiring                                                                                                                   | P0                   | The rule "no statistic merges without a gate" works only when the registry predates the first statistic. Building it later means back-filling gates, which is how validation claims become theater                                                              |
 | `Clock` binding, the `twinflow-rng` stream declarations of 5.14, the no-wall-clock lint applied to these packages                                                                                                      | P0                   | C1 and C2. Retrofitting determinism into a statistics package is a rewrite                                                                                                                                                                                      |
 | Package skeletons for the five bricks with independent `pyproject.toml`, README, and CI job, plus the install-alone job of 2                                                                                           | P0                   | A1 and C10. Splitting a monolith later never produces clean boundaries                                                                                                                                                                                          |
-| `twinflow-artifact` in full: SVG emitter, HTML renderer, normalisation filter                                                                                                                                          | P0                   | Every later artifact renders through it, and its byte-stability property is what VG-DET-01 asserts                                                                                                                                                              |
+| `twinflow-artifact` in full: SVG emitter, HTML renderer, normalization filter                                                                                                                                          | P0                   | Every later artifact renders through it, and its byte-stability property is what VG-DET-01 asserts                                                                                                                                                              |
 | `twinflow-findings` in full: factory, policy loader, floors, id computation, sinks, console assignment                                                                                                                 | P1                   | The walking skeleton needs one finding to travel end to end, device to broker to historian to engine to agent to dashboard                                                                                                                                      |
 | The query-result recorder in `twinflow-contracts` that mints `query_result_id` (5.9.4)                                                                                                                                 | P1                   | Every finding from P1 carries the field. Pulled forward from E26(f), which adds the checker at P6 and not the id                                                                                                                                                |
 | One I-MR chart on one metric, `get_findings` agent tool                                                                                                                                                                | P1                   | One chart proves the path without widening                                                                                                                                                                                                                      |
 | Full SPC: all chart types, both rule sets, constants, limit policies, online and batch, all three streams                                                                                                              | P2                   | The source names the LSS engine as Phase 2 and SPC is its base. Everything else in the engine cites SPC                                                                                                                                                         |
 | Capability, MSA (all five studies plus attribute agreement), `twinflow_lss.testing.gage_study_generator`, hypothesis layer, Pareto, histogram                                                                          | P2                   | Same phase, and each depends on SPC: capability needs stability, MSA stability needs a chart, hypothesis needs the assumption machinery capability's normality check also uses. The study generator lands here so VG-MSA-08 does not wait on the sensor catalog |
-| Alarm management in full, `alarms/consoles.yaml`, `findings/next_tool_policy.yaml`                                                                                                                                     | P2                   | The stream must be rationalised before phase 3 multiplies the producers. Adding alarm management after 60 sensor types are publishing is how real projects end up with alarm floods                                                                             |
+| Alarm management in full, `alarms/consoles.yaml`, `findings/next_tool_policy.yaml`                                                                                                                                     | P2                   | The stream must be rationalized before phase 3 multiplies the producers. Adding alarm management after 60 sensor types are publishing is how real projects end up with alarm floods                                                                             |
 | Capability report, sections 1 to 8 and 12                                                                                                                                                                              | P2                   | The source calls it "the artifact a hiring manager actually opens", and E1 pulls forward to just after P2 needing a static artifact to show                                                                                                                     |
 | Gates VG-NUM-01 to 04, VG-SPC-01 to 12, VG-CAP-01 to 07, VG-MSA-01 to 08, VG-HYP-01 to 24, VG-CHT-01 to 02, VG-ALM-01 to 04, VG-DET-01 to 02, VG-SCH-01 to 02                                                          | P2                   | P2 cannot close until all of these pass. This is the phase-gate rule's first real test, and the gates whose reference has `retrieved_by_author: false` are the first real test of 7.5.1's `PENDING` rule                                                        |
 | Findings stream consumed by the E1 replay viewer; JSONL sink hardened for static hosting with the gzip header rule of 4.8                                                                                              | just after P2        | Per the agreed resequencing, E1 pulls forward. It needs an event log plus a static viewer, and the findings JSONL plus the capability report are exactly that                                                                                                   |
@@ -2834,7 +2834,7 @@ than executing the twin 30 times, which is what brings it inside any budget at a
 | Capability report sections 10 and 11 switch from placeholder to content                                                                                                                                                | P3c                  | The placeholder mechanism of 5.13 means the golden file is stable across the switch                                                                                                                                                                             |
 | Future-state map with statistical verdicts attached                                                                                                                                                                    | P3c, extended at P3d | The current state must exist first; the what-if plumbing that generates future states matures with the planning layer                                                                                                                                           |
 | `twinflow_lss.batch` golden-batch scoring, in-line SPC at production stages, VG-BAT-01                                                                                                                                 | P3i                  | Upstream production is P3i and is the only consumer                                                                                                                                                                                                             |
-| `twinflow_lss.divergence`, residual charts wired to component 6's specs, VG-DIV-01 to 02, report section 9                                                                                                             | with component 6     | The contract and the residual machinery ship at P2; the parameter values arrive with the twin sync connector. Until then, 4.6 states the behaviour                                                                                                              |
+| `twinflow_lss.divergence`, residual charts wired to component 6's specs, VG-DIV-01 to 02, report section 9                                                                                                             | with component 6     | The contract and the residual machinery ship at P2; the parameter values arrive with the twin sync connector. Until then, 4.6 states the behavior                                                                                                               |
 | `twinflow_lss.sampling` (Z1.4 plans, OC curves, switching rules), VG-SAM-01 to 02                                                                                                                                      | 6a11                 | The QMS layer owns the acceptance-sampling workflow; the engine supplies the mathematics when that layer lands                                                                                                                                                  |
 | Attribute agreement analysis pointed at the CV auditor; `SOP_VIOLATION` adopting the stream                                                                                                                            | P4                   | CV auditing is P4. The attribute MSA code ships in P2 but its first real subject arrives here                                                                                                                                                                   |
 | CAPA statistical effectiveness verification                                                                                                                                                                            | 6a11                 | The QMS workflow owns the lifecycle; this is the hook                                                                                                                                                                                                           |
@@ -2843,7 +2843,7 @@ than executing the twin 30 times, which is what brings it inside any budget at a
 | Report polish, validation badge, README generated claim block                                                                                                                                                          | P5                   | P5 is polish and the README headline                                                                                                                                                                                                                            |
 | E21 decision register binds `decision_register_ref`; E5 binds `autonomy_tier` to the tier model                                                                                                                        | P6                   | The fields exist from v1 (4.3) and carry local values from P2, so binding the register is a value change rather than a schema change                                                                                                                            |
 | E26(b) governed semantic layer built on the P0 metric registry; E26(f) grounding checker walks agent answers                                                                                                           | P6                   | Neither adds an identifier. Both add governance over identifiers that already exist                                                                                                                                                                             |
-| Model drift control charts (E43), conformal coverage chart (E31), causal layer consuming the hypothesis engine (E30), AI cost per question on a control chart (E45), SOP generation from rationalisation records (E24) | P6                   | Each is an E-tier consumer of an engine that already exists                                                                                                                                                                                                     |
+| Model drift control charts (E43), conformal coverage chart (E31), causal layer consuming the hypothesis engine (E30), AI cost per question on a control chart (E45), SOP generation from rationalization records (E24) | P6                   | Each is an E-tier consumer of an engine that already exists                                                                                                                                                                                                     |
 
 ### 8.2 Resequencing this section asked for, and what it costs
 
@@ -2851,7 +2851,7 @@ Five dependencies pointed forward in time. None was dropped; each was resolved b
 narrow slice earlier or by restating the capability so it does not need the later thing yet.
 
 | Dependency                                                             | Was                                                      | Now                                                                                                              | Cost                                                          |
-| ---------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+|------------------------------------------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
 | Chart metric resolution against E26(b)                                 | rule enforced at P2, layer at P6                         | flat metric registry at P0, governed layer still at P6                                                           | one YAML file and its schema at P0                            |
 | `query_result_id` on every finding                                     | field required at P1, minter at P6                       | content-addressed recorder in `twinflow-contracts` at P1                                                         | about 30 lines and a test                                     |
 | Shelve records referencing E5 and E21                                  | both P6, alarm layer P2                                  | fields present from v1, local tier check from P2, register binds at P6                                           | none; the field was always going to be needed                 |
@@ -2864,7 +2864,7 @@ recorded-response pattern D-04 names for any component that cannot be brought in
 deterministic boundary.
 
 The through-line: everything later phases depend on being right (the finding contract, the
-envelope, the determinism seam, the gate registry, the alarm rationalisation discipline, the
+envelope, the determinism seam, the gate registry, the alarm rationalization discipline, the
 metric registry) is in P0, P1, or P2, and everything after that is a new configuration or a new
 consumer rather than a change to the engine.
 
@@ -2976,7 +2976,7 @@ covariance estimate, and the dimension grows with the sensor catalog. This secti
 to per-equipment sensor groups with an optional PCA reduction and a stated maximum dimension. The
 owner may want a different boundary, or may want multivariate monitoring handled entirely by the
 anomaly-detection layer rather than by the SPC layer, in which case the two need an explicit
-division of labour so the same drift is not reported twice.
+division of labor so the same drift is not reported twice.
 
 OQ-13. The divergence spec's parameter values. 4.6 authors the `DivergenceSpec` contract, 5.2
 builds the residual charts, 5.8 states the four-step evaluation, and VG-DIV-01 and VG-DIV-02 gate
@@ -2984,7 +2984,7 @@ it. What component 6 still owes is the numbers: which metrics are monitored, wha
 relative magnitude matters for each, and what prediction horizon the twin publishes them at.
 Until those arrive, the magnitude filter is skipped and every divergence finding records
 `magnitude_enforced: false`, so nobody reads an unfiltered chart firing as a validated divergence.
-This is a values question with a stated default behaviour, not an undefined capability.
+This is a values question with a stated default behavior, not an undefined capability.
 
 OQ-14. Cpk or Ppk for the capability finding. The two answer different questions, potential
 against actual, and vendor convention differs by audience. This section computes both and lets
@@ -3000,8 +3000,8 @@ ships a derived spec-limit mode, with the upper limit taken from takt, from the 
 promise time in 6a12, or from a percentile of a golden period, which would make the capability
 claim stronger and adds a policy decision the owner may want to make explicitly.
 
-OQ-16. Rationalisation authority in a single-maintainer public repository. ISA-18.2 assumes a
-cross-functional rationalisation team. Proposed substitute: CODEOWNERS on
+OQ-16. Rationalization authority in a single-maintainer public repository. ISA-18.2 assumes a
+cross-functional rationalization team. Proposed substitute: CODEOWNERS on
 `alarms/rationalization.yaml` plus a management-of-change issue template that every change to a
 record must reference through `moc_ref`, which also feeds 6a15's change management. Confirm that
 this is the right level of ceremony for a public repository, or whether a lighter arrangement
@@ -3009,7 +3009,7 @@ is right.
 
 OQ-17. Design of experiments. The source's hypothesis-testing bullet covers comparison of before
 and after, not experimental design. A Black Belt toolkit conventionally includes factorial
-screening and response surface methods, and E9's optimisation engine partly overlaps them. Nothing
+screening and response surface methods, and E9's optimization engine partly overlaps them. Nothing
 about design of experiments appears in the source, so nothing has been invented here. When the
 owner wants it, it is a roadmap milestone with a natural home in this brick and a natural
 validation reference in the e-Handbook's chapter 5 worked examples, sequenced after E9 so the two

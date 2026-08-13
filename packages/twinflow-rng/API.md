@@ -11,7 +11,7 @@ Boundary rule A1.4 gives every public symbol exactly one owning package. These
 are the names this package owns.
 
 | Symbol                   | Kind     | What it is                                                             |
-| ------------------------ | -------- | ---------------------------------------------------------------------- |
+|--------------------------|----------|------------------------------------------------------------------------|
 | `StreamRegistry`         | class    | The append-only registry of declared stream names for one run          |
 | `generator_for`          | function | Build the generator for one stream name, seed, and replication index   |
 | `derive_spawn_key`       | function | Hash a stream name into the four uint32 words of the spawn key         |
@@ -19,7 +19,7 @@ are the names this package owns.
 | `STREAM_CATALOG_VERSION` | constant | Bumped when the catalog gains, loses, or renames a stream              |
 | `__version__`            | constant | The distribution version, read by the build so the two cannot disagree |
 
-## Registry behaviour worth knowing
+## Registry behavior worth knowing
 
 `get` refuses an unregistered name, so the catalog stays a complete record of a
 run's randomness. It refuses a retired name rather than deleting it, because a

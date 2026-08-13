@@ -22,22 +22,22 @@ The `Status` column below was read from the issuing body on 2026-08-09. Section
 withdrawn standard as current has not read it, so the withdrawn rows stay
 visible rather than being quietly dropped.
 
-| Standard                | Status on 2026-08-09                                    | What it governs here                                      |
-| ----------------------- | ------------------------------------------------------- | --------------------------------------------------------- |
-| ISO/IEC/IEEE 26514:2022 | Published, edition 1, 2022-01                           | Structure, content, and format of information for users   |
-| ISO/IEC 26514:2008      | Withdrawn. ISO names 26514:2022 as the new version      | Nothing. Recorded because it is what 26514:2022 replaced  |
-| ISO/IEC/IEEE 26511:2018 | Published, edition 2, 2018-12                           | How documentation work is managed and scheduled           |
-| ISO/IEC/IEEE 26512:2026 | Published, edition 3, 2026-08                           | Acquirer and supplier requirements for information        |
-| ISO/IEC/IEEE 26512:2018 | Withdrawn, stage 95.99, revised by 26512:2026           | Nothing. Recorded because the source requirements name it |
-| ISO/IEC/IEEE 26515:2018 | Published, edition 2, 2018-12                           | Producing documentation inside an agile cycle             |
-| IEEE 1063-2001          | Superseded Standard, in IEEE SA's own wording           | Retained for the minimum content checklist in section 8   |
-| DITA 1.3                | OASIS Standard, approved 17 December 2015               | Topic typing, short descriptions, reuse discipline        |
-| ASD-STE100 Issue 9      | Current issue, dated 15 January 2025                    | Controlled language for procedural and reference topics   |
+| Standard                | Status on 2026-08-09                               | What it governs here                                      |
+|-------------------------|----------------------------------------------------|-----------------------------------------------------------|
+| ISO/IEC/IEEE 26514:2022 | Published, edition 1, 2022-01                      | Structure, content, and format of information for users   |
+| ISO/IEC 26514:2008      | Withdrawn. ISO names 26514:2022 as the new version | Nothing. Recorded because it is what 26514:2022 replaced  |
+| ISO/IEC/IEEE 26511:2018 | Published, edition 2, 2018-12                      | How documentation work is managed and scheduled           |
+| ISO/IEC/IEEE 26512:2026 | Published, edition 3, 2026-08                      | Acquirer and supplier requirements for information        |
+| ISO/IEC/IEEE 26512:2018 | Withdrawn, stage 95.99, revised by 26512:2026      | Nothing. Recorded because the source requirements name it |
+| ISO/IEC/IEEE 26515:2018 | Published, edition 2, 2018-12                      | Producing documentation inside an agile cycle             |
+| IEEE 1063-2001          | Superseded Standard, in IEEE SA's own wording      | Retained for the minimum content checklist in section 8   |
+| DITA 1.3                | OASIS Standard, approved 17 December 2015          | Topic typing, short descriptions, reuse discipline        |
+| ASD-STE100 Issue 9      | Current issue, dated 15 January 2025               | Controlled language for procedural and reference topics   |
 
 Three of those rows record a supersession, and each one changes what this
 repository treats as authoritative.
 
-ISO/IEC 26514:2008 is withdrawn, and the ISO catalogue entry names
+ISO/IEC 26514:2008 is withdrawn, and the ISO catalog entry names
 ISO/IEC/IEEE 26514:2022 as its replacement. This repository treats the 2022
 edition as authoritative for document structure.
 
@@ -61,11 +61,11 @@ Technical Content Edition, at sections 2.7.1.1 through 2.7.1.4. The `shortdesc`
 element that section 3 of this page uses is defined in the same part, at
 section 3.2.1.6.
 
-| Type      | Answers                                     | Verb mood  | Examples in this repo                                     |
-| --------- | ------------------------------------------- | ---------- | --------------------------------------------------------- |
-| Concept   | What is this, and why does it work this way | Indicative | ARCHITECTURE.md, SECURITY.md, CODE_OF_CONDUCT.md          |
-| Task      | How do I do this                            | Imperative | CONTRIBUTING.md, quickstarts                              |
-| Reference | What are the exact values                   | Indicative | Sensor catalog, event schemas, CLA.md, LICENSING.md       |
+| Type      | Answers                                     | Verb mood  | Examples in this repo                               |
+|-----------|---------------------------------------------|------------|-----------------------------------------------------|
+| Concept   | What is this, and why does it work this way | Indicative | ARCHITECTURE.md, SECURITY.md, CODE_OF_CONDUCT.md    |
+| Task      | How do I do this                            | Imperative | CONTRIBUTING.md, quickstarts                        |
+| Reference | What are the exact values                   | Indicative | Sensor catalog, event schemas, CLA.md, LICENSING.md |
 
 A concept topic does not contain numbered steps. A task topic does not contain
 architectural rationale. Where a task needs rationale, it links to the concept
@@ -236,7 +236,7 @@ a net rather than the definition.
 ## 5a. Files exempt from their own gates
 
 | File                               | Exempt from                              | Reason                                                                                                |
-| ---------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+|------------------------------------|------------------------------------------|-------------------------------------------------------------------------------------------------------|
 | `docs/style/banned-phrases.yml`    | Every rule                               | It holds the phrases the rules reject                                                                 |
 | `docs/style/ste-terms.yml`         | Every rule                               | It holds the words the rules reject                                                                   |
 | `docs/DOCUMENTATION-STANDARD.md`   | The prose rules, not the character rules | It quotes the phrases it bans. Dashes, curly quotes, and emoji still fail here                        |
@@ -313,7 +313,7 @@ documented recovery is an unfinished feature.
 ## 9. Enforcement
 
 | Gate                         | Runs                    | Scope            |
-| ---------------------------- | ----------------------- | ---------------- |
+|------------------------------|-------------------------|------------------|
 | `scripts/hooks/pre-commit`   | Local, on commit        | Staged files     |
 | `scripts/ci-local.sh`        | Local, on demand        | Whole repository |
 | `.github/workflows/lint.yml` | GitHub Actions, on push | Whole repository |
@@ -322,12 +322,12 @@ documented recovery is an unfinished feature.
 `docs/style/banned-phrases.yml` and `docs/style/ste-terms.yml`. It applies four
 families of check, and nothing else.
 
-| Family              | Rule ids                | Severity                                   | Where it applies                                                                           |
-| ------------------- | ----------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| Regular expressions | As given in the YAML    | The `severity` field of each rule          | Markdown only, unless the rule sets `applies_to: all` or its pattern holds no ASCII letter |
-| Front matter        | `FM-01` through `FM-05` | Error                                      | Markdown, minus the files in section 5a                                                    |
-| Heading case        | `HEAD-01`               | Warning                                    | Markdown                                                                                   |
-| Sentence length     | `LEN-01`, `LEN-02`      | Warning                                    | Markdown, minus the files in section 5a                                                    |
+| Family              | Rule ids                | Severity                          | Where it applies                                                                           |
+|---------------------|-------------------------|-----------------------------------|--------------------------------------------------------------------------------------------|
+| Regular expressions | As given in the YAML    | The `severity` field of each rule | Markdown only, unless the rule sets `applies_to: all` or its pattern holds no ASCII letter |
+| Front matter        | `FM-01` through `FM-05` | Error                             | Markdown, minus the files in section 5a                                                    |
+| Heading case        | `HEAD-01`               | Warning                           | Markdown                                                                                   |
+| Sentence length     | `LEN-01`, `LEN-02`      | Warning                           | Markdown, minus the files in section 5a                                                    |
 
 The project word list arrives as a fifth family that is compiled into the same
 shape as the regular expressions. A word under `non_approved` becomes an error
@@ -339,13 +339,13 @@ reference topics only, and neither fires inside a string listed under
 
 What the front matter family checks, exactly:
 
-| Rule    | Fails when                                                               |
-| ------- | ------------------------------------------------------------------------ |
-| `FM-01` | The file has no YAML front matter block                                  |
-| `FM-02` | `title`, `description`, or `topic_type` is missing or empty              |
-| `FM-03` | The description is under 10 words or over 30                             |
-| `FM-04` | The description is more than one sentence                                |
-| `FM-05` | The description begins with the title text                               |
+| Rule    | Fails when                                                  |
+|---------|-------------------------------------------------------------|
+| `FM-01` | The file has no YAML front matter block                     |
+| `FM-02` | `title`, `description`, or `topic_type` is missing or empty |
+| `FM-03` | The description is under 10 words or over 30                |
+| `FM-04` | The description is more than one sentence                   |
+| `FM-05` | The description begins with the title text                  |
 
 `audience` is required by section 3 of this page and is not checked by
 `FM-02`. A reviewer catches a missing `audience`.
@@ -419,7 +419,7 @@ Every locator below was retrieved on 2026-08-09 with `curl`, and each returned
 HTTP 200.
 
 | Claim                                                       | Locator                                                                                                 |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+|-------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
 | ISO/IEC/IEEE 26514:2022 published, edition 1, 2022-01       | <https://www.iso.org/standard/77451.html>                                                               |
 | ISO/IEC 26514:2008 withdrawn, replaced by 26514:2022        | <https://www.iso.org/standard/43073.html>                                                               |
 | ISO/IEC/IEEE 26511:2018 published, edition 2, 2018-12       | <https://www.iso.org/standard/70879.html>                                                               |

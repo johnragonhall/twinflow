@@ -116,7 +116,7 @@ def resolve_spec_limits(
 ) -> list[Diagnostic]:
     """TF-C103. Every spec_limits key names a metric the registry declares.
 
-    This is the reason the identifier space is a Phase 0 artefact: a spec limit
+    This is the reason the identifier space is a Phase 0 artifact: a spec limit
     authored now against an id that computes two phases from now still has to
     resolve now, or the typo surfaces at a demo rather than at CI.
     """

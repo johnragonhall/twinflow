@@ -44,7 +44,7 @@
           "enum": ["higher_is_better", "lower_is_better", "target_is_best"]
         },
         "precision": {
-          "description": "Decimal places when serialised.",
+          "description": "Decimal places when serialized.",
           "type": "integer",
           "minimum": 0,
           "maximum": 9,

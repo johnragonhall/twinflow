@@ -51,7 +51,7 @@ subjects:
       its calendar, its layout, and the flows that move work through it. The
       loader validates against this published file rather than against a second
       copy expressed in Python, so the schema an author reads and the schema the
-      loader enforces are one artefact.
+      loader enforces are one artifact.
     owner: twinflow-config
     versions:
       - version: "1.0"

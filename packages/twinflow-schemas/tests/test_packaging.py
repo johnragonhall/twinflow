@@ -62,7 +62,7 @@ def test_wheel_metadata_version_is_the_module_version(dists: tuple[Path, Path]) 
 
     The version used to be written twice, once in pyproject.toml and once as
     __version__, with nothing comparing them. tool.hatch.version now reads the
-    module, and this asserts the build honoured it.
+    module, and this asserts the build honored it.
     """
     wheel, _ = dists
     with zipfile.ZipFile(wheel) as zf:
@@ -79,7 +79,7 @@ def test_both_distributions_carry_the_license_and_the_notice(dists: tuple[Path, 
 
     4(a) requires a copy of the License to reach every recipient of the work,
     and 4(d) requires the NOTICE text to travel with it. A wheel published
-    without them is a licence breach, and it is invisible from the source tree.
+    without them is a license breach, and it is invisible from the source tree.
     """
     wheel, sdist = dists
     with zipfile.ZipFile(wheel) as zf:

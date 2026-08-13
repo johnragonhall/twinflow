@@ -20,11 +20,11 @@ D-05, D-07, D-09, D-10, D-11, D-12, D-13, and D-14.
 This section covers the following numbered requirements in full.
 
 | Requirement | Title in the source                                  | Owned here                                                                                                           |
-| ----------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+|-------------|------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | 6a12        | Order management and customer service                | Entire component                                                                                                     |
 | 6a13        | Procurement and purchasing                           | Entire component                                                                                                     |
 | 6a14        | HR and workforce management                          | Entire component except the roster solver itself (E23), whose input and output contracts are defined here            |
-| 6a15        | IT and cybersecurity operations                      | Entire component. The adversarial scenario catalogue is E18 and consumes the hooks defined here                      |
+| 6a15        | IT and cybersecurity operations                      | Entire component. The adversarial scenario catalog is E18 and consumes the hooks defined here                        |
 | 6a16        | Marketing, sales operations, and the full S&OP cycle | Entire component. Causal estimation of marketing-mix ROI is E30 and consumes the ground-truth generator defined here |
 | 6a17        | Finance and accounting operations                    | Entire component                                                                                                     |
 | E14         | Tariff and trade-policy scenario engine              | Entire item                                                                                                          |
@@ -35,7 +35,7 @@ Requirements owned elsewhere that this section consumes or extends, listed so th
 explicit and no implementer builds the same thing twice:
 
 | Requirement                                 | Boundary                                                                                                                                                                                                                                                                                  |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|---------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 5 (LSS engine)                              | Every KPI defined here is trended by the LSS engine. This section names the chart type per metric and emits the sample stream; it never implements a control chart                                                                                                                        |
 | 6a2 (supplier network)                      | Supplier reliability profiles, ASNs, and OTIF observations are produced there. `twinflow-procurement` consumes them and adds the buyer-side view                                                                                                                                          |
 | 6a3, 6a6 (outbound, e-commerce)             | Shipment and pack events are produced there. `twinflow-orders` consumes them for order state and perfect-order scoring                                                                                                                                                                    |
@@ -48,14 +48,14 @@ explicit and no implementer builds the same thing twice:
 | E5, E21 (autonomy tiers, decision register) | The append-only decision register schema is a dependency of 6a16 and is pulled forward (see section 8). Multi-agent negotiation stays in E21                                                                                                                                              |
 | E16 (ATP/CTP promising)                     | Promise computation is E16. `twinflow-orders` calls it through a port and owns quoted-versus-actual promise reliability                                                                                                                                                                   |
 | E19 (n-tier mapping)                        | The supplier DAG stays in Phase 6. In-band, `SupplierDagPort` returns unavailable, tier-2 concentration is reported as `unenforced`, and no in-band test asserts a tier-2 number. When E19 lands the same port returns the DAG and the constraint becomes enforceable with no code change |
-| E23 (rostering)                             | The constraint solver is there. This section publishes the labour requirement and absence forecast it consumes, and consumes the roster it produces                                                                                                                                       |
+| E23 (rostering)                             | The constraint solver is there. This section publishes the labor requirement and absence forecast it consumes, and consumes the roster it produces                                                                                                                                        |
 | E26 (accuracy stack)                        | Layers a, b, d, and f are resequenced ahead of this band (section 8.2) because this section's tools and tests exercise them. This section contributes metric definitions and tool schemas; E26 owns layers c, e, and g                                                                    |
 | E27 (agent evaluation harness)              | The harness runner and the eval-suite file format are resequenced ahead of this band. This section contributes eval questions and their ground-truth answers, not the scoring machinery                                                                                                   |
 | E5 (autonomy tiers)                         | The tier enum and the approval gate for mutating tools are resequenced ahead of this band. E5 later adds L3 auto-apply and the guardrail evaluator                                                                                                                                        |
 | E43 (AI security evals)                     | The four indirect prompt-injection fixtures defined here ship as this section's own tool tests now. E43 later adopts them into the red-team suite and adds scoring across the whole tool surface                                                                                          |
 | E30 (causal inference)                      | Promotion lift, cannibalisation, and forward buy are generated here with known ground-truth parameters. E30's pipeline lands before the generator and its scoring lands after it (section 8.3)                                                                                            |
 | E28 (learned surrogate)                     | The surrogate model is there. The S&OP supply review declares a `surrogate` mode that calls it through `CapacityPort` and defaults to the analytic mode, so the cycle runs with or without E28                                                                                            |
-| Chaos scenario framework                    | This section defines and publishes `chaos.scenario_started` and `chaos.scenario_ended` for its own restore drills and business-interruption triggers. The Phase 4 store-and-forward catalogue extends the same schema                                                                     |
+| Chaos scenario framework                    | This section defines and publishes `chaos.scenario_started` and `chaos.scenario_ended` for its own restore drills and business-interruption triggers. The Phase 4 store-and-forward catalog extends the same schema                                                                       |
 | E37 (PLM)                                   | BOM and recipe versioning with effectivity dates is there. Standard-cost roll-up here consumes a single effective revision and gains effectivity handling when E37 lands                                                                                                                  |
 
 ## 2. Packages
@@ -79,7 +79,7 @@ never redeclared. CI walks the import graph, fails on a cycle, and asserts that 
 package's `__all__` is defined in that package.
 
 Per D-10, each core install stays minimal and every heavy dependency ships as an extra. A port whose
-signature would drag a columnar or modelling library in is typed against a narrow structural
+signature would drag a columnar or modeling library in is typed against a narrow structural
 protocol, with the concrete type imported only under `TYPE_CHECKING`. The A1 job in section 7.6
 installs each package alone in a clean environment and runs its example, so the claim is tested.
 
@@ -185,7 +185,7 @@ is stochastic and it is declared as such: drawback refund timing draws from the
 rather than claiming to need none. Duty arithmetic stays reproducible without an `Rng`, and
 `examples/landed_cost_scenarios.py` runs with the drawback program disabled to show that.
 
-`MeioPort` is the seam through which a scenario re-run reaches multi-echelon inventory optimisation
+`MeioPort` is the seam through which a scenario re-run reaches multi-echelon inventory optimization
 (6a8). Its null implementation returns `MeioDelta.unavailable()`, and every consumer renders that as
 "not available" rather than as zero, so a missing planning package can never be read as no impact.
 
@@ -195,7 +195,7 @@ base schedule and three named scenario overlays and prints the re-ranked sourcin
 ### 2.4 `twinflow-workforce`
 
 Purpose: hiring pipeline, onboarding learning curves, skills and certification gating,
-cross-training, attrition, absenteeism prediction, and labour cost accounting.
+cross-training, attrition, absenteeism prediction, and labor cost accounting.
 
 Public API:
 
@@ -207,21 +207,21 @@ from twinflow_workforce.learning import LearningCurve, WrightCurve, Productivity
 from twinflow_workforce.attrition import AttritionHazard, TerminationClassifier, ReplacementCost
 from twinflow_workforce.absence import AbsenceGenerator, AbsencePredictor, AbsenceForecast
 from twinflow_workforce.engagement import ScheduleStabilityIndex, WeekendShiftRate, StrainTrend
-from twinflow_workforce.costing import LabourLedger, HourType, BurdenModel
+from twinflow_workforce.costing import LaborLedger, HourType, BurdenModel
 from twinflow_workforce.ports import StrainPort, RosterPort, DemandPlanPort
 ```
 
 Depends on: `twinflow-kernel`, `twinflow-schemas`. Optional extra `[ml]` adds `scikit-learn` for the
 absence predictor challenger; the baseline predictor has no ML dependency. Per D-04 the challenger
 is constructed with `random_state` derived from the run seed through the RNG tree, with the
-thread count pinned to one and the fitted artefact hashed; the hash is recorded in the provenance
+thread count pinned to one and the fitted artifact hashed; the hash is recorded in the provenance
 sidecar and asserted by `test_absence_challenger_artifact_hash_is_stable`. The challenger reaches
 the simulation only through the `Inference` port, so simulation mode can bind a recorded-response
 adapter and the tape never depends on library-version numerics.
 
-The engagement module is the behavioural measurement 6a14 asks for. It computes schedule stability,
+The engagement module is the behavioral measurement 6a14 asks for. It computes schedule stability,
 weekend shift rate, and strain trend from state the twin already records, and publishes them as
-metric samples for the LSS engine to chart. No survey instrument is modelled anywhere.
+metric samples for the LSS engine to chart. No survey instrument is modeled anywhere.
 
 Standalone example: `examples/crosstrain_payback.py` runs a 12-week horizon with and without a
 cross-training investment under an absenteeism shock and prints coverage, overtime hours, and the
@@ -235,7 +235,7 @@ economics, IEC 62443 zones and conduits, the detection-rule engine, RBAC, and ba
 Public API:
 
 ```python
-from twinflow_itops import ConfigurationItem, CmdbGraph, ServiceCatalogue
+from twinflow_itops import ConfigurationItem, CmdbGraph, ServiceCatalog
 from twinflow_itops.itsm import Incident, Problem, Change, ChangeAdvisoryBoard, ChangeWindowPolicy
 from twinflow_itops.sre import Sli, Slo, ErrorBudget, BurnRateAlert, GoldenSignals, DoraMetrics
 from twinflow_itops.sre import BurnRateTable, derive_burn_rates
@@ -246,7 +246,7 @@ from twinflow_itops.zones import SecurityZone, Conduit, ConduitMonitor, ZoneCros
 from twinflow_itops.detect import DetectionRule, RuleRegistry, RuleEngine, RuleFixture
 from twinflow_itops.correlate import CorrelationRule, CorrelationEngine, CorrelationWindow, Alert
 from twinflow_itops.access import AccessRole, Permission, Grant, AccessDecision, RbacEngine
-from twinflow_itops.backup import BackupSchedule, BackupCatalogue, RestoreDrill, RpoRtoMeasurement
+from twinflow_itops.backup import BackupSchedule, BackupCatalog, RestoreDrill, RpoRtoMeasurement
 from twinflow_itops.ports import TelemetryPort, NetworkTapPort
 from twinflow_kernel.ports import WhatIfPort, GrossProfitRatePort
 ```
@@ -380,14 +380,14 @@ Standalone example: `examples/deductible_vs_control.py` compares a higher deduct
 risk-control capex over 1000 seeded loss draws and prints the TCOR distribution for each with the
 significance test result.
 
-### 2.9 Cross-package artefacts every package in this section contributes
+### 2.9 Cross-package artifacts every package in this section contributes
 
-| Artefact              | Path                                        | Purpose                                                                                             |
-| --------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Artifact              | Path                                        | Purpose                                                                                             |
+|-----------------------|---------------------------------------------|-----------------------------------------------------------------------------------------------------|
 | Event schemas         | `/schemas/<domain>/<event>/v<major>.json`   | C3 registry, additive-only within a major version                                                   |
 | Metric definitions    | `packages/<pkg>/metrics/<pkg>.metrics.yaml` | E26(b) governed semantic layer, merged at load                                                      |
 | Stream manifest       | `packages/<pkg>/seeds.toml`                 | The RNG stream names this package draws from, checked against the `twinflow-rng` registry at import |
-| Finding catalogue     | `packages/<pkg>/findings/catalogue.yaml`    | Finding codes, severity floors, dedupe keys, shelve policy                                          |
+| Finding catalog       | `packages/<pkg>/findings/catalog.yaml`      | Finding codes, severity floors, dedupe keys, shelve policy                                          |
 | Agent tool manifest   | `packages/<pkg>/tools/manifest.yaml`        | Tool name, Pydantic input and output model, required RBAC permission, autonomy tier                 |
 | Config schema         | `/schemas/config/<pkg>.v1.json`             | C5 validation with line-numbered errors                                                             |
 | Posting rule fixtures | `packages/<pkg>/tests/fixtures/postings/`   | One fixture per event type this package emits that has a GL consequence                             |
@@ -402,7 +402,7 @@ instead of a silent reuse of an existing one.
 Process mining over the case notions this section supplies (order, PO, incident, service contact,
 S&OP cycle, claim, close period) runs on `twinflow-procmine`, the Apache-2.0 miner this repository
 implements per D-14. No package here imports an AGPL process mining library, because doing so would
-place the whole work under AGPL and break the dual licence.
+place the whole work under AGPL and break the dual license.
 
 ## 3. Domain model
 
@@ -426,7 +426,7 @@ by a rate, so the rounding contract is stated once here and implemented once in 
 2. Rounding happens exactly once per posted amount, at the point the amount becomes a
    `JournalLine`, a payout, a duty, or a price. Intermediate products stay in `Decimal`. A chain of
    three rates rounds once, not three times.
-3. When a rounded total is split across dimension lines (cost centre, station, SKU, customer,
+3. When a rounded total is split across dimension lines (cost center, station, SKU, customer,
    supplier, channel, lot, scenario), the split uses the largest-remainder method with the dimension
    key as the tie-break, so the lines sum to the total exactly and the allocation is deterministic.
    The residual never lands on an arbitrary line.
@@ -467,7 +467,7 @@ writes `sorted(s)` with the key named in a comment. Float summations over such a
 (cannibalisation conservation, ABC pool totals, variance attribution) sum in sorted key order using
 `math.fsum`, so the result does not depend on dictionary insertion history.
 
-**Storage.** No model in this section carries a filesystem path. Artefacts are addressed by storage
+**Storage.** No model in this section carries a filesystem path. Artifacts are addressed by storage
 key through the `Storage` port, which is what lets the same code run against a local directory, an
 object store, or an in-memory fixture. Section 7.6's C1 lint bans `open(`, `pathlib.Path`,
 `os.path`, and `shutil` in these packages alongside `time`, `random`, and `socket`. Config file
@@ -499,7 +499,7 @@ Four rules make a query result part of a reproducible tape.
 #### Customer
 
 | Field                       | Type                                             | Notes                                                                         |
-| --------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------- |
+|-----------------------------|--------------------------------------------------|-------------------------------------------------------------------------------|
 | `customer_id`               | str                                              | Deterministic                                                                 |
 | `segment`                   | enum `contract` \| `spot` \| `marketplace`       | Drives promise rule and allocation tier                                       |
 | `allocation_tier`           | int 1..5                                         | 1 is highest. Invariant: contract customers have tier <= 3                    |
@@ -509,7 +509,7 @@ Four rules make a query result part of a reproducible tape.
 | `region`                    | str                                              | Feeds transport lane selection                                                |
 | `channel`                   | enum `wholesale` \| `ecommerce` \| `marketplace` | Home channel. An order's channel is drawn per order from the drifting mix     |
 | `satisfaction`              | float 0..1                                       | State, updated by service outcomes                                            |
-| `contract_commitment_units` | int \| None                                      | Volume commitment honoured first under hybrid allocation                      |
+| `contract_commitment_units` | int \| None                                      | Volume commitment honored first under hybrid allocation                       |
 | `annual_baseline_margin`    | Money                                            | Fallback margin used by `BaselineCostToServe` only, never by the ABC path     |
 
 Invariants: `0.0 <= satisfaction <= 1.0`; a customer with `segment == contract` has a non-null
@@ -519,12 +519,12 @@ is emitted.
 `annual_baseline_margin` exists so the customer-lifetime-value calculation is runnable before
 activity-based costing lands. It is read only through `CostToServePort`'s null implementation, and
 `customer.churned` records which implementation produced the margin it used, so a reader can always
-tell a modelled contribution from a fallback (section 5.2).
+tell a modeled contribution from a fallback (section 5.2).
 
 #### SalesOrder
 
 | Field                 | Type                         | Notes                                                               |
-| --------------------- | ---------------------------- | ------------------------------------------------------------------- |
+|-----------------------|------------------------------|---------------------------------------------------------------------|
 | `order_id`            | str                          | Process-mining case id for order-to-cash                            |
 | `customer_id`         | str                          |                                                                     |
 | `channel`             | enum                         | Sampled by `ArrivalProcess` from `ChannelMixPort` shares at capture |
@@ -548,32 +548,32 @@ scheduled receipt. The enum is the same list as `orders.promise.sources` in conf
 validation rule asserts the two are identical so they cannot drift.
 
 Status set: `CAPTURED`, `VALIDATED`, `ON_HOLD`, `PROMISED`, `ALLOCATED`, `PARTIALLY_ALLOCATED`,
-`RELEASED`, `PICKING`, `PACKED`, `STAGED`, `SHIPPED`, `INVOICED`, `CLOSED`, `CANCELLED`,
+`RELEASED`, `PICKING`, `PACKED`, `STAGED`, `SHIPPED`, `INVOICED`, `CLOSED`, `CANCELED`,
 `REJECTED`. Fifteen statuses.
 
 Legal transitions (the only ones the state machine accepts):
 
 ```
-CAPTURED    -> VALIDATED | REJECTED | CANCELLED
-VALIDATED   -> ON_HOLD | PROMISED | CANCELLED
-ON_HOLD     -> VALIDATED | CANCELLED
-PROMISED    -> ALLOCATED | PARTIALLY_ALLOCATED | ON_HOLD | CANCELLED
-PARTIALLY_ALLOCATED -> ALLOCATED | RELEASED | CANCELLED
-ALLOCATED   -> RELEASED | CANCELLED
-RELEASED    -> PICKING | CANCELLED
-PICKING     -> PACKED | CANCELLED
+CAPTURED    -> VALIDATED | REJECTED | CANCELED
+VALIDATED   -> ON_HOLD | PROMISED | CANCELED
+ON_HOLD     -> VALIDATED | CANCELED
+PROMISED    -> ALLOCATED | PARTIALLY_ALLOCATED | ON_HOLD | CANCELED
+PARTIALLY_ALLOCATED -> ALLOCATED | RELEASED | CANCELED
+ALLOCATED   -> RELEASED | CANCELED
+RELEASED    -> PICKING | CANCELED
+PICKING     -> PACKED | CANCELED
 PACKED      -> STAGED
 STAGED      -> SHIPPED
 SHIPPED     -> INVOICED
 INVOICED    -> CLOSED
 ```
 
-Twenty-five legal transitions. `CAPTURED -> CANCELLED` and `VALIDATED -> CANCELLED` are present
+Twenty-five legal transitions. `CAPTURED -> CANCELED` and `VALIDATED -> CANCELED` are present
 because `cancel` is a legal `OrderChangeRequest.type` at any `stage_at_request`, and a request type
 the state machine cannot execute is a contradiction rather than a policy.
 
 Invariant `order_state_machine_legality`: no transition outside this table is ever recorded, and
-`CANCELLED` is unreachable from `PACKED` onward (a cancel after pack becomes a return, routed to
+`CANCELED` is unreachable from `PACKED` onward (a cancel after pack becomes a return, routed to
 6a4, which is exactly why the change-cost model rises at that boundary).
 
 #### OrderLine
@@ -651,14 +651,14 @@ Invariant `perfect_order_bound`: over any population, `perfect_order_rate <= min
 `order_id`, `promise_date`, `breached_at`, `elapsed_days` (recomputed each day until delivery or
 cancellation), `open_at_breach: bool`. The record is what gives ORD-004's u-chart a countable
 exposure: the denominator is order-days open past promise, and the numerator is WISMO contacts. A
-rate with no denominator is not a u-chart, so the denominator is a modelled quantity rather than an
+rate with no denominator is not a u-chart, so the denominator is a modeled quantity rather than an
 assumed constant.
 
 ### 3.2 `twinflow-procurement`
 
 **PurchaseRequisition**: `req_id`, `source: enum reorder_point|manual|project|expedite|spot_buy`,
 `sku`, `qty`, `need_by`, `requester_role`, `cost_center`, `category_id`, `status: enum open|sourced|
-converted|cancelled`, `triggering_event_id` (the reorder signal from the inventory optimiser, or the
+converted|canceled`, `triggering_event_id` (the reorder signal from the inventory optimizer, or the
 supplier slip event that opened the spot-buy question).
 
 **PurchaseOrder**: `po_id` (process-mining case id for procure-to-pay), `supplier_id`, `lines`,
@@ -674,7 +674,7 @@ ACKNOWLEDGED -> PARTIALLY_RECEIVED | RECEIVED
 PARTIALLY_RECEIVED -> PARTIALLY_RECEIVED | RECEIVED
 RECEIVED -> CLOSED
 PENDING_APPROVAL -> REJECTED
-any state before the first receipt -> CANCELLED
+any state before the first receipt -> CANCELED
 ```
 
 `ACKNOWLEDGED -> RECEIVED` is direct, because a single full receipt is the common case and a chain
@@ -683,14 +683,14 @@ happened.
 
 The invoice is not a PO state. `INVOICED`, `MATCHED`, and `PAID` are gone from this list and live on
 `SupplierInvoice` instead, because an invoice can arrive with no PO at all, can arrive before any
-receipt, and can cover lines from several POs. Modelling invoicing as a PO state made three of the
+receipt, and can cover lines from several POs. Modeling invoicing as a PO state made three of the
 declared match exception classes unreachable. The two aggregates are linked by reference, not by a
 shared status field, and a PO can reach `CLOSED` with an unmatched invoice still open against it,
 which is exactly the condition the accrual for goods received not invoiced exists to cover.
 
 Which PO states admit an invoice: `SENT`, `ACKNOWLEDGED`, `PARTIALLY_RECEIVED`, `RECEIVED`, and
 `CLOSED`. An invoice referencing a PO in `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, `REJECTED`, or
-`CANCELLED` is classified `invoice_against_invalid_po` rather than rejected silently.
+`CANCELED` is classified `invoice_against_invalid_po` rather than rejected silently.
 
 **POLine**: `po_line_id`, `sku`, `qty_ordered`, `qty_received`, `qty_invoiced`, `unit_price: Money`,
 `contract_price: Money | None`, `hs_code`, `country_of_origin`, `requested_date`, `confirmed_date`.
@@ -736,7 +736,7 @@ price_correction|receipt_correction|reject`, `handler_id`.
 `award_constraints: AwardConstraints`.
 
 **ScoringCriterion**: `name`, `weight: float`, `direction: enum lower_better|higher_better`,
-`normalisation: enum min_max|z_score|ratio_to_best`, `source: enum bid|scorecard|risk_map`.
+`normalization: enum min_max|z_score|ratio_to_best`, `source: enum bid|scorecard|risk_map`.
 Invariant: weights sum to 1.0 within 1e-9.
 
 **Bid**: `bid_id`, `rfx_id`, `supplier_id`, `price_curve: list[(break_qty, unit_price)]`,
@@ -774,7 +774,7 @@ records a difference against a market index, a budget line, or an announced incr
 those baselines has nothing in the ledger to point at. Calling it a saving and demanding a posting id
 would make the invariant unsatisfiable; calling it an avoidance and demanding event evidence makes it
 checkable. The README limitations section states plainly that only prior-price savings reach the
-P&L, which is the honest version of the claim procurement organisations make.
+P&L, which is the honest version of the claim procurement organizations make.
 
 Invariant `savings_avoidance_disjoint` is unchanged: no event id appears as evidence in both an
 entry with `kind == savings` and an entry with `kind == avoidance`.
@@ -867,7 +867,7 @@ would have been paid on direct import; only the payment date differs.
 `overtime_hours_rolling_4w`, `weekend_shifts_rolling_8w`, `schedule_stability_index`,
 `attrition_hazard` (derived, recomputed weekly).
 
-Invariant `no_work_after_termination`: no labour record exists for a worker with sim-time beyond
+Invariant `no_work_after_termination`: no labor record exists for a worker with sim-time beyond
 `termination_date`.
 
 **JobRole**: `role_id`, `title`, `base_wage`, `burden_pct`, `required_certifications`,
@@ -906,8 +906,8 @@ values and compares hashes.
 `weekend_shift_rate_8w`, `strain_trend_slope`, `overtime_pct_4w`, `sample_count`. Published weekly
 per worker and aggregated per shift and per station.
 
-This is the behavioural engagement measurement 6a14 requires, and it is behavioural precisely
-because every input is a quantity the twin already records from the roster, the labour ledger, and
+This is the behavioral engagement measurement 6a14 requires, and it is behavioral precisely
+because every input is a quantity the twin already records from the roster, the labor ledger, and
 the ergonomics layer. No survey exists in the model. The three leading indicators go on control
 charts (section 7.4), which is what the requirement asks for: engagement trended, not surveyed.
 
@@ -920,7 +920,7 @@ worker's strain index over the trailing eight weeks, in strain units per week, r
 **LearningCurve**: Wright log-linear cumulative-average model.
 `cumulative_average_hours(x) = a * x**b` where `b = ln(learning_rate) / ln(2)`, `a` is the
 first-unit time, and `x` is cumulative units produced. Productivity multiplier at unit `x` is
-`a / marginal_hours(x)` normalised so a fully ramped worker equals 1.0, with a configured
+`a / marginal_hours(x)` normalized so a fully ramped worker equals 1.0, with a configured
 `plateau_units` beyond which the multiplier is clamped. Error rate uses the same functional form
 with its own `error_learning_rate` and floor.
 
@@ -951,14 +951,14 @@ stream before the sim clock starts, following the provisioning rule in
 regretted flag depend on how many workers quit before this one, which is the draw-order hazard that
 section A.3 names.
 
-**ReplacementCost**: `recruiting: Money`, `onboarding_labour: Money`,
+**ReplacementCost**: `recruiting: Money`, `onboarding_labor: Money`,
 `ramp_loss: Money` (the integral of the productivity gap over the ramp period, valued at the
 station's contribution per hour), `backfill_overtime: Money`, `total`.
 
 **AbsenceRecord** and **AbsenceForecast**: per worker per day, `probability`, `predicted: bool`,
 `actual: bool`, `driver_contributions: dict[str, float]`. The forecast is published for E23.
 
-**LabourLedger** entries: `worker_id`, `date`, `station_id`, `activity_id`,
+**LaborLedger** entries: `worker_id`, `date`, `station_id`, `activity_id`,
 `hour_type: enum regular|overtime|double_time|training|idle|absent_paid`, `hours`,
 `rate`, `burden`, `cost`, `charged_to: enum direct|indirect`. Invariant `hours_conservation`:
 per worker per day, ledger hours equal roster hours minus absence hours plus recorded overtime.
@@ -999,7 +999,7 @@ string), `fields: dict[str, str]`, `trace_id | None`, `span_id | None`.
 
 Three derived metrics come from spans and logs and appear in the semantic layer:
 `request_error_rate`, `request_latency_p95_ms`, and `log_error_rate_per_1k_requests`. Golden signals
-in section 5.6 read the same span stream, so the observability claim rests on modelled evidence
+in section 5.6 read the same span stream, so the observability claim rests on modeled evidence
 rather than on a stated intention.
 
 Invariants: `trace_spans_form_a_tree` (every non-root span's parent exists in the same trace and the
@@ -1025,7 +1025,7 @@ Derived: `mtta = acknowledged_at - detected_at`, `mttr = resolved_at - detected_
 
 **Vulnerability**: `vuln_id` (format `TWF-CVE-<year>-<seq>`, deliberately not a real CVE
 identifier), `affected_component`, `affected_version_range`, `cvss_v31_vector`, `base_score`,
-`exploit_probability` (a synthetic EPSS analogue in 0..1), `known_exploited: bool`,
+`exploit_probability` (a synthetic EPSS analog in 0..1), `known_exploited: bool`,
 `published_at`, `patch_available_at`, `remediation: PatchAction`.
 
 **PatchAction**: `vuln_id`, `ci_id`, `requires_window: bool`, `window_minutes`,
@@ -1094,7 +1094,7 @@ zone_partition|broker_outage|store_and_forward|restore_drill`, `target_ci_ids: l
 
 Two consumers in this section: a restore drill is a chaos scenario of kind `restore_drill`
 (section 5.6), and a business-interruption claim reads `downtime_window` to compute indemnified
-hours (section 5.9). The Phase 4 store-and-forward catalogue extends the same schema with the
+hours (section 5.9). The Phase 4 store-and-forward catalog extends the same schema with the
 `store_and_forward` kind and adds no field, which is why the schema is settled here rather than
 invented twice. Injection is deterministic: the schedule of scenario runs is part of the resolved
 config and its hash is in the hashed core (D-01), so a chaos run replays exactly.
@@ -1122,7 +1122,7 @@ sum over promoted `i` of `C[i][j]` is at most 1.0; every transferred unit is rem
 added to `i` in the same period, so units are conserved.
 
 The conservation tolerance is 1e-9 relative, which is above the accumulated rounding of an
-`fsum` over the shipped catalogue and is stated as a tolerance rather than as exactness because the
+`fsum` over the shipped catalog and is stated as a tolerance rather than as exactness because the
 shares are floats. Transferred **units** are integers and their conservation is exact; the 1e-9
 tolerance applies to the share matrix only.
 
@@ -1147,12 +1147,12 @@ than a convenience. One row per `(sku, period)` over the forecast horizon, with 
 `planned_lift_multiplier`, `is_pull_forward_decay_period: bool`, and `halo_source_sku | None`.
 Rows are emitted in `(sku, period)` sorted order.
 
-The frame is built from the promo calendar alone, never from realised demand, so a forecaster
+The frame is built from the promo calendar alone, never from realized demand, so a forecaster
 consuming it cannot leak the outcome it is predicting. Invariant `promo_feature_frame_is_causal`:
 every column for period `t` is computable from the calendar as it stood at the forecast cut-off, and
 a fixture that back-dates a calendar entry past the cut-off fails the check. Without this frame the
-statistical forecaster sees the promotion only as unexplained demand, which is the naive behaviour
-section 5.7 uses as the FVA baseline rather than the shipped behaviour.
+statistical forecaster sees the promotion only as unexplained demand, which is the naive behavior
+section 5.7 uses as the FVA baseline rather than the shipped behavior.
 
 **DemandMultiplier**: `sku`, `period`, `multiplier: float > 0`, `sources: list[(source, factor)]`
 sorted by source name, where `source` is one of `promotion`, `quota_pressure`, `channel_mix`, or
@@ -1199,8 +1199,8 @@ shortfall_units)]`, `constraint_resources: list[resource_id]` sorted by shortfal
 The analytic mode is a rough-cut capacity plan. For each period in the horizon and each resource in
 `resource_set`, required hours are the consensus volume per family multiplied by the family's
 bill-of-resource coefficient, summed over families in sorted family order. Available hours come from
-the three capacity ports: the factory finite schedule (6a9), the DC labour requirement
-(`hr.labour_requirement_published`), and transport capacity (6a7). A resource whose required hours
+the three capacity ports: the factory finite schedule (6a9), the DC labor requirement
+(`hr.labor_requirement_published`), and transport capacity (6a7). A resource whose required hours
 exceed available hours in any period is a gap, and the constraining resource for a period is the one
 with the largest shortfall. Bill-of-resource coefficients live in
 `config/commercial/bill_of_resource.yaml` and carry `provenance: synthetic`.
@@ -1233,7 +1233,7 @@ the horizon.
 **JournalEntry**: `je_id`, `posting_date`, `period_id`, `source_event_id`, `source_event_type`,
 `rule_id`, `lines: list[JournalLine]`, `description`, `reversal_of | None`, `is_accrual: bool`,
 `posted_by`. **JournalLine**: `account_id`, `debit: Money`, `credit: Money`, `dimensions: dict`
-(cost centre, station, sku, customer, supplier, channel, lot, scenario).
+(cost center, station, sku, customer, supplier, channel, lot, scenario).
 
 Invariants: `journal_balances` (sum of debits equals sum of credits, exactly, in integer minor
 units, per entry); `no_negative_amounts` (a line carries a positive debit or a positive credit,
@@ -1251,26 +1251,26 @@ event. Rules live in `posting_rules.yaml` and every rule has at least one fixtur
 
 **StandardCost**: `sku`, `revision_id`, `effective_from`,
 `material_standards: list[(component_sku, std_qty, std_price)]`,
-`labour_standards: list[(operation_id, std_hours, std_rate)]`,
-`variable_oh_rate`, `fixed_oh_rate`, `oh_base: enum labour_hours|machine_hours`,
+`labor_standards: list[(operation_id, std_hours, std_rate)]`,
+`variable_oh_rate`, `fixed_oh_rate`, `oh_base: enum labor_hours|machine_hours`,
 `total_standard_cost`. Roll-up is bottom-up over the BOM and asserts
-`total == sum(material) + sum(labour) + variable_oh + fixed_oh`.
+`total == sum(material) + sum(labor) + variable_oh + fixed_oh`.
 
 **Variance**: `variance_id`, `period_id`, `kind`, `amount: Money`,
-`favourable: bool`, `attribution: list[VarianceAttribution]`,
+`favorable: bool`, `attribution: list[VarianceAttribution]`,
 `causal_class: enum common_cause|assignable|insufficient_data`,
 `control_chart_evidence: FindingRef | None`.
 
 Variance kinds implemented, each with its published algebraic definition:
 
 | Kind                     | Formula                                                                       |
-| ------------------------ | ----------------------------------------------------------------------------- |
+|--------------------------|-------------------------------------------------------------------------------|
 | `material_price` (PPV)   | `(actual_price - standard_price) * actual_qty_purchased`                      |
 | `material_quantity`      | `(actual_qty_used - standard_qty_allowed) * standard_price`                   |
 | `material_mix`           | `sum_i (actual_mix_i - standard_mix_i) * total_actual_qty * standard_price_i` |
 | `material_yield`         | `(total_actual_input - standard_input_for_output) * weighted_standard_price`  |
-| `labour_rate`            | `(actual_rate - standard_rate) * actual_hours`                                |
-| `labour_efficiency`      | `(actual_hours - standard_hours_allowed) * standard_rate`                     |
+| `labor_rate`             | `(actual_rate - standard_rate) * actual_hours`                                |
+| `labor_efficiency`       | `(actual_hours - standard_hours_allowed) * standard_rate`                     |
 | `variable_oh_spending`   | `actual_variable_oh - (actual_hours * standard_variable_rate)`                |
 | `variable_oh_efficiency` | `(actual_hours - standard_hours_allowed) * standard_variable_rate`            |
 | `fixed_oh_budget`        | `actual_fixed_oh - budgeted_fixed_oh`                                         |
@@ -1348,16 +1348,16 @@ income for the period, exactly, in integer minor units.
 **AuthorityMatrix**: rows of
 `(role_id, process, category, basis, max_amount, currency, max_authority_tier)`.
 
-`basis: enum amount|tier` says which dimension the row authorises on, because the three processes
+`basis: enum amount|tier` says which dimension the row authorizes on, because the three processes
 that read this matrix do not all carry a money amount. A PO and a capex request carry a value, so
 their rows use `basis: amount` and resolve against `max_amount`. A change carries no value, so its
 rows use `basis: tier` and resolve against `max_authority_tier`.
 
 Change authority tier is derived, not invented at the point of approval. The mapping is a published
-table in the same config artefact:
+table in the same config artifact:
 
 | `risk_score` band | CI `criticality` 1 to 2 | CI `criticality` 3 to 4 |
-| ----------------- | ----------------------- | ----------------------- |
+|-------------------|-------------------------|-------------------------|
 | 0.00 to 0.29      | tier 1                  | tier 2                  |
 | 0.30 to 0.69      | tier 2                  | tier 3                  |
 | 0.70 to 1.00      | tier 3                  | tier 4                  |
@@ -1368,7 +1368,7 @@ procurement resolves `(role_id, "purchase_order", category)` on amount; finance 
 resolves `(role_id, "change", category)` on tier using the table above. A row whose `basis` does not
 match the resolution rule for its process fails config validation with the row quoted.
 
-Shared config artefact at `/schemas/config/authority_matrix.v1.json`, read by procurement (PO
+Shared config artifact at `/schemas/config/authority_matrix.v1.json`, read by procurement (PO
 approval), IT operations (change approval), and finance (journal and capex approval). No package
 imports another to use it.
 
@@ -1377,7 +1377,7 @@ cross-package conformance test `authority_matrix_interpretation_agrees` loads on
 asks each package's resolver for the minimal approving role over a shared grid of
 `(process, category, amount, risk_score, criticality)` cases, and fails when any two packages
 disagree on the same case or when a package accepts a case its `basis` does not cover. Open
-question 2 covers ownership of the artefact, which is a separate question from this one.
+question 2 covers ownership of the artifact, which is a separate question from this one.
 
 **SodRule**: `rule_id`, `conflicting_permissions: tuple[Permission, Permission]`, `severity`,
 `mitigating_control_id | None`. **Control**: `control_id`, `objective`, `process`,
@@ -1428,7 +1428,7 @@ with `0 <= payout <= applicable_limit <= policy.limit`, and payout monotone non-
 `gross_loss`. Config validation rejects a sublimit greater than the policy limit, quoting both.
 
 **RetainedLoss**: `loss_id`, `claim_id | None`, `period`, `loss_type`, `gross_loss: Money`,
-`recovered: Money`, `retained: Money`, `gl_posting_id`. Every loss the twin generates is recognised
+`recovered: Money`, `retained: Money`, `gl_posting_id`. Every loss the twin generates is recognized
 in the ledger when it occurs, whether or not it is ever claimed, and the recovery is posted
 separately when a claim settles. Invariant `retained_equals_gross_minus_recovered`, exactly, in
 integer minor units.
@@ -1453,7 +1453,7 @@ Every event in this section uses the common envelope defined by the schema regis
 this section relies on:
 
 | Field              | Type                                                        | Notes                                                                                                                                                                      |
-| ------------------ | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `event_id`         | str                                                         | `uuid5(namespace=run_namespace, name=f"{producer_id}:{seq}")`, see below                                                                                                   |
 | `schema`           | str                                                         | `twinflow.<domain>.<event_name>`                                                                                                                                           |
 | `schema_version`   | semver                                                      | Additive-only within a major version                                                                                                                                       |
@@ -1500,7 +1500,7 @@ event named in a published table has a schema file and at least one declared con
 Published:
 
 | Event                                 | Version | Key payload                                                                                               |
-| ------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------- |
+|---------------------------------------|---------|-----------------------------------------------------------------------------------------------------------|
 | `orders.order_captured`               | 1.0.0   | `order_id`, `customer_id`, `channel`, `lines[]`, `requested_ship_date`, `value`                           |
 | `orders.order_validated`              | 1.0.0   | `order_id`, `validations[]`, `passed`                                                                     |
 | `orders.order_rejected`               | 1.0.0   | `order_id`, `reason_code`                                                                                 |
@@ -1541,7 +1541,7 @@ event the section consumed `qms.ncr_raised` and published nothing back, so the l
 out ran one way only.
 
 `customer.churned` carries `clv_margin_source`, one of `abc_cost_to_serve` or `baseline_fallback`,
-so a churn number computed before activity-based costing lands can never be read as a modelled
+so a churn number computed before activity-based costing lands can never be read as a modeled
 contribution (section 5.2).
 
 Consumed: `inventory.availability_snapshot`, `outbound.shipment_confirmed`, `outbound.pick_short`,
@@ -1563,7 +1563,7 @@ those are the two events now consumed.
 Published:
 
 | Event                                   | Version | Key payload                                                                                                                                                                                 |
-| --------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------------------------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `procurement.requisition_created`       | 1.0.0   | `req_id`, `source`, `sku`, `qty`, `need_by`, `triggering_event_id`                                                                                                                          |
 | `procurement.po_created`                | 1.0.0   | `po_id`, `supplier_id`, `lines[]`, `contract_id`, `incoterm`, `value`                                                                                                                       |
 | `procurement.po_approval_requested`     | 1.0.0   | `po_id`, `step_index`, `required_role`, `threshold`                                                                                                                                         |
@@ -1583,7 +1583,7 @@ Published:
 | `procurement.payment_executed`          | 1.0.0   | `payment_id`, `amount`, `discount_taken`, `days_from_invoice`                                                                                                                               |
 | `sourcing.rfx_issued`                   | 1.0.0   | `rfx_id`, `category_id`, `invited_suppliers[]`, `criteria[]`                                                                                                                                |
 | `sourcing.bid_submitted`                | 1.0.0   | `bid_id`, `rfx_id`, `supplier_id`, `price_curve[]`, `lead_time_days`                                                                                                                        |
-| `sourcing.bids_scored`                  | 1.0.0   | `rfx_id`, `scores`, `normalisation`, `ranking[]`                                                                                                                                            |
+| `sourcing.bids_scored`                  | 1.0.0   | `rfx_id`, `scores`, `normalization`, `ranking[]`                                                                                                                                            |
 | `sourcing.award_decided`                | 1.0.0   | `rfx_id`, `awards[]`, `constraint_costs`, `decision_id`                                                                                                                                     |
 | `contract.created`                      | 1.0.0   | `contract_id`, `supplier_id`, `tier_schedule[]`, `commitment`, `end`                                                                                                                        |
 | `contract.tier_achieved`                | 1.0.0   | `contract_id`, `cumulative_volume`, `new_unit_price`                                                                                                                                        |
@@ -1606,7 +1606,7 @@ spot-buy decisions), `gl.journal_posted` (savings reconciliation).
 ### 4.4 `twinflow-trade` (domain `trade`, E14)
 
 | Event                           | Version | Key payload                                                                             |
-| ------------------------------- | ------- | --------------------------------------------------------------------------------------- |
+|---------------------------------|---------|-----------------------------------------------------------------------------------------|
 | `trade.classification_assigned` | 1.0.0   | `sku_id`, `hs_code`, `country_of_origin`, `origin_rule`                                 |
 | `trade.tariff_schedule_loaded`  | 1.0.0   | `schedule_id`, `content_hash`, `row_count`, `effective_from`                            |
 | `trade.scenario_activated`      | 1.0.0   | `scenario_id`, `name`, `deltas[]`, `de_minimis_threshold`                               |
@@ -1626,7 +1626,7 @@ Consumed: `receiving.goods_receipt`, `outbound.shipment_confirmed` (export leg f
 ### 4.5 `twinflow-workforce` (domain `hr`)
 
 | Event                             | Version | Key payload                                                                                                                                                   |
-| --------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------------------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `hr.requisition_opened`           | 1.0.0   | `hr_req_id`, `role_id`, `target_start`, `driver_metric`, `driver_value`                                                                                       |
 | `hr.candidate_stage_changed`      | 1.0.0   | `hr_req_id`, `candidate_id`, `from_stage`, `to_stage`, `days_in_stage`                                                                                        |
 | `hr.offer_accepted`               | 1.0.0   | `hr_req_id`, `candidate_id`, `start_date`, `time_to_fill_days`                                                                                                |
@@ -1643,8 +1643,8 @@ Consumed: `receiving.goods_receipt`, `outbound.shipment_confirmed` (export leg f
 | `hr.overtime_recorded`            | 1.0.0   | `worker_id`, `hours`, `hour_type`, `rolling_4w_total`                                                                                                         |
 | `hr.attrition_risk_scored`        | 1.0.0   | `worker_id`, `hazard`, `driver_contributions`                                                                                                                 |
 | `hr.termination`                  | 1.0.0   | `worker_id`, `reason`, `regretted`, `tenure_days`, `replacement_cost`                                                                                         |
-| `hr.labour_cost_posted`           | 1.0.0   | `period`, `by_station`, `by_hour_type`, `direct`, `indirect`, `total`                                                                                         |
-| `hr.labour_requirement_published` | 1.0.0   | `date`, `half_hourly[]`, `by_station`, `source_forecast_id`                                                                                                   |
+| `hr.labor_cost_posted`            | 1.0.0   | `period`, `by_station`, `by_hour_type`, `direct`, `indirect`, `total`                                                                                         |
+| `hr.labor_requirement_published`  | 1.0.0   | `date`, `half_hourly[]`, `by_station`, `source_forecast_id`                                                                                                   |
 | `hr.engagement_snapshot`          | 1.0.0   | `worker_id`, `period`, `schedule_stability_index`, `weekend_shift_rate_8w`, `strain_trend_slope`, `overtime_pct_4w`, `sample_count`, `shift_id`, `station_id` |
 
 Consumed: `planning.forecast_published`, `ergonomics.strain_updated`, `ergonomics.trir_updated`,
@@ -1653,7 +1653,7 @@ Consumed: `planning.forecast_published`, `ergonomics.strain_updated`, `ergonomic
 ### 4.6 `twinflow-itops` (domains `itops`, `sec`, `chaos`)
 
 | Event                           | Version | Key payload                                                                                                                                                                      |
-| ------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|---------------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `itops.ci_registered`           | 1.0.0   | `ci_id`, `type`, `version`, `zone_id`, `purdue_level`, `depends_on[]`                                                                                                            |
 | `itops.ci_version_changed`      | 1.0.0   | `ci_id`, `from_version`, `to_version`, `chg_id`                                                                                                                                  |
 | `itops.health_sample`           | 1.0.0   | `ci_id`, `signal`, `value`, `window`                                                                                                                                             |
@@ -1703,7 +1703,7 @@ producer and consumer contract test on the first CI run.
 ### 4.7 `twinflow-commercial` (domains `mkt`, `sales`, `npi`, `sop`)
 
 | Event                             | Version | Key payload                                                                                                                                                                                                        |
-| --------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|-----------------------------------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `mkt.promotion_planned`           | 1.0.0   | `promo_id`, `skus[]`, `mechanic`, `depth_pct`, `window`, `planned_lift`, `funding`                                                                                                                                 |
 | `mkt.promotion_started`           | 1.0.0   | `promo_id`, `baseline_units_forecast`                                                                                                                                                                              |
 | `mkt.promotion_ended`             | 1.0.0   | `promo_id`, `realised_units`                                                                                                                                                                                       |
@@ -1730,8 +1730,8 @@ producer and consumer contract test on the first CI run.
 
 Consumed: `planning.forecast_published`, `planning.backtest_scored`,
 `factory.finite_schedule_published`, `transport.capacity_published`,
-`hr.labour_requirement_published`, `fpa.reforecast_published`, `orders.order_captured`
-(actual demand realisation), `governance.decision_logged` (the register).
+`hr.labor_requirement_published`, `fpa.reforecast_published`, `orders.order_captured`
+(actual demand realization), `governance.decision_logged` (the register).
 
 `sop.executive_decision_logged` is mirrored into `governance.decision_logged.v1` using the
 register's own schema so E21 can audit it later without a schema translation.
@@ -1746,7 +1746,7 @@ exactly these three seams, and each one has a schema, a consumer, and a contract
 ### 4.8 `twinflow-finance` (domains `gl`, `ap`, `ar`, `inv`, `cost`, `fpa`, `capex`, `close`, `ctrl`, `fin`)
 
 | Event                          | Version | Key payload                                                                                                                                   |
-| ------------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------|
 | `gl.journal_posted`            | 1.0.0   | `je_id`, `period_id`, `source_event_id`, `rule_id`, `lines[]`                                                                                 |
 | `gl.journal_reversed`          | 1.0.0   | `je_id`, `reversal_of`, `reason`                                                                                                              |
 | `gl.period_opened`             | 1.0.0   | `period_id`, `opened_at`                                                                                                                      |
@@ -1762,8 +1762,8 @@ exactly these three seams, and each one has a schema, a consumer, and a contract
 | `inv.count_completed`          | 1.0.0   | `location`, `sku`, `book_qty`, `physical_qty`, `variance_value`, `rfid_confirmed`                                                             |
 | `inv.adjustment_posted`        | 1.0.0   | `sku`, `qty_delta`, `value_delta`, `reason`, `je_id`                                                                                          |
 | `inv.accuracy_snapshot`        | 1.0.0   | `period`, `location_accuracy`, `absolute_value_accuracy`, `shrink_value`, `rfid_coverage_pct`                                                 |
-| `cost.standard_published`      | 1.0.0   | `sku`, `revision_id`, `material`, `labour`, `variable_oh`, `fixed_oh`, `total`                                                                |
-| `cost.variance_computed`       | 1.0.0   | `variance_id`, `kind`, `amount`, `favourable`, `attribution[]`, `causal_class`, `control_chart_evidence`                                      |
+| `cost.standard_published`      | 1.0.0   | `sku`, `revision_id`, `material`, `labor`, `variable_oh`, `fixed_oh`, `total`                                                                 |
+| `cost.variance_computed`       | 1.0.0   | `variance_id`, `kind`, `amount`, `favorable`, `attribution[]`, `causal_class`, `control_chart_evidence`                                       |
 | `cost.abc_rate_updated`        | 1.0.0   | `pool_id`, `driver`, `pool_cost`, `driver_qty`, `rate`                                                                                        |
 | `cost.cost_to_serve_computed`  | 1.0.0   | `subject`, `subject_id`, `period`, `activity_costs`, `total`, `contribution`                                                                  |
 | `fpa.budget_published`         | 1.0.0   | `budget_id`, `period_range`, `drivers`, `by_account`, `source_plan_id`                                                                        |
@@ -1794,12 +1794,12 @@ profit divided by operating hours in the period, which is the unit a downtime cl
 and the P&L can never disagree about what an hour of downtime was worth.
 
 `fin.statements_generated` carries storage keys, not filesystem paths. The rendered statement
-artefacts are written through `Storage` like every other artefact in this section.
+artifacts are written through `Storage` like every other artifact in this section.
 
 Consumed: every operational event with a financial consequence. The authoritative list is the key
 set of `posting_rules.yaml`, which includes `receiving.goods_receipt`, `production.completion`,
 `production.material_issue`, `production.scrap_recorded`, `outbound.shipment_confirmed`,
-`returns.disposition_completed`, `transport.freight_invoice`, `hr.labour_cost_posted`,
+`returns.disposition_completed`, `transport.freight_invoice`, `hr.labor_cost_posted`,
 `trade.duty_accrued`, `risk.loss_recognised`, `risk.claim_settled`, `risk.premium_rated`,
 `mkt.campaign_spend_posted`, `procurement.three_way_match_evaluated`, and
 `procurement.payment_executed`.
@@ -1807,7 +1807,7 @@ set of `posting_rules.yaml`, which includes `receiving.goods_receipt`, `producti
 ### 4.9 `twinflow-insurance` (domain `risk`, E38)
 
 | Event                     | Version | Key payload                                                                                                                          |
-| ------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+|---------------------------|---------|--------------------------------------------------------------------------------------------------------------------------------------|
 | `risk.policy_bound`       | 1.0.0   | `policy_id`, `coverage`, `limit`, `deductible`, `premium`, `period`                                                                  |
 | `risk.policy_renewed`     | 1.0.0   | `policy_id`, `prior_premium`, `new_premium`, `experience_modifier`                                                                   |
 | `risk.loss_recognised`    | 1.0.0   | `loss_id`, `period`, `loss_type`, `gross_loss`, `trigger_event_ids[]`, `claim_id` (null when never claimed), `peril_tag`             |
@@ -1837,10 +1837,10 @@ component had nothing in the ledger to tie to and `tcor_reconciles_to_gl` could 
 
 Each code is emitted as the standard `finding.raised.v1` with `code`, `severity`,
 `evidence_event_ids`, `suggested_next_tool`, `dedupe_key`, and `shelve_policy`, so the alarm
-rationalisation layer applies uniformly and the findings stream cannot flood.
+rationalization layer applies uniformly and the findings stream cannot flood.
 
 | Code    | Trigger                                                                      | Severity floor | Suggested next tool                 |
-| ------- | ---------------------------------------------------------------------------- | -------------- | ----------------------------------- |
+|---------|------------------------------------------------------------------------------|----------------|-------------------------------------|
 | ORD-001 | Promise reliability p-chart signal                                           | medium         | hypothesis test on before and after |
 | ORD-002 | Backorder aged beyond `backorder_max_age_days`                               | medium         | allocation policy what-if           |
 | ORD-003 | `priority_dominance` violated in an allocation run                           | high           | allocation audit                    |
@@ -1854,7 +1854,7 @@ rationalisation layer applies uniformly and the findings stream cannot flood.
 | PRC-005 | Tier-1 award concentration above `max_share_per_supplier`                    | high           | reverse stress test                 |
 | PRC-006 | Early payment discount missed                                                | low            | payment scheduling review           |
 | PRC-007 | Spot buy taken while the contract supplier could still meet the need-by date | medium         | spend Pareto                        |
-| HR-001  | Attrition hazard concentration by station or shift                           | high           | labour what-if                      |
+| HR-001  | Attrition hazard concentration by station or shift                           | high           | labor what-if                       |
 | HR-002  | Overtime above `overtime_alert_hours` for `n` consecutive weeks              | high           | rostering what-if                   |
 | HR-003  | Certification lapse removes the last eligible worker for a station           | high           | cross-training what-if              |
 | HR-004  | Time-to-productivity I-MR signal                                             | medium         | onboarding review                   |
@@ -1869,7 +1869,7 @@ rationalisation layer applies uniformly and the findings stream cannot flood.
 | IT-007  | Restore drill overdue                                                        | medium         | schedule drill                      |
 | IT-008  | Live grant set contains an unmitigated SOD conflict                          | high           | access review                       |
 | IT-009  | Correlated cross-zone alert raised by `CorrelationEngine`                    | high           | zone containment review             |
-| CMR-001 | Planned promotion lift exceeds modelled servable capacity                    | high           | S&OP reconciliation                 |
+| CMR-001 | Planned promotion lift exceeds modeled servable capacity                     | high           | S&OP reconciliation                 |
 | CMR-002 | A forecast ladder step has negative forecast value added                     | medium         | FVA review                          |
 | CMR-003 | Rep forecast bias sustained beyond tolerance                                 | low            | bias adjustment                     |
 | CMR-004 | S&OP decision latency I-MR signal                                            | low            | cycle retrospective                 |
@@ -1889,7 +1889,7 @@ rationalisation layer applies uniformly and the findings stream cannot flood.
 | INS-004 | A payout bound by a sublimit rather than by the policy limit                 | medium         | coverage gap review                 |
 
 Two of these codes are scoped so they cannot become permanent alarms under the shipped
-configuration, which is the failure mode this catalogue exists to prevent.
+configuration, which is the failure mode this catalog exists to prevent.
 
 ORD-003 fires on a violation of the `priority_dominance` property (section 7.2), not on a raw fill
 comparison between two lines. Under `fair_share` and under the shipped `hybrid` default, a
@@ -1904,7 +1904,7 @@ unavailable, `max_tier2_concentration` is reported as `unenforced`, and no in-ba
 scenario asserts a tier-2 number. When E19 lands, the constraint becomes enforceable and PRC-005
 gains a second trigger clause.
 
-## 5. Behaviour
+## 5. Behavior
 
 ### 5.0 How this section obeys the dual-mode rule
 
@@ -1913,9 +1913,9 @@ directly. Every package receives `Clock`, `Rng`, `Network`, and `Storage` from `
 construction. Three consequences that matter for the implementer:
 
 1. **Every stochastic draw declares a seed namespace.** `seeds.toml` per package lists them, and the
-   RNG tree derives a child stream per namespace, so adding a new draw in the service centre cannot
+   RNG tree derives a child stream per namespace, so adding a new draw in the service center cannot
    perturb the promotion noise stream and break C1's hash check.
-2. **The service centre and the AP exception queue are SimPy resources in both modes.** In
+2. **The service center and the AP exception queue are SimPy resources in both modes.** In
    production mode the same code drives the same queue model; only the arrival source differs
    (simulated failure events versus real events off the broker). The queue mathematics is never
    re-implemented.
@@ -2039,7 +2039,7 @@ never change the invoice price unless `price_treatment` says so.
 **Perfect order.** Evaluated at close, from four independently sourced booleans:
 
 | Component          | Source of truth                                                                   |
-| ------------------ | --------------------------------------------------------------------------------- |
+|--------------------|-----------------------------------------------------------------------------------|
 | Complete           | All lines shipped in full on the first shipment, from outbound events             |
 | On time            | Ship date or delivery date versus promise date, per `perfect_order.on_time_basis` |
 | Damage free        | No damage-coded return and no damage claim linked to the order                    |
@@ -2104,14 +2104,14 @@ ships in two stages, because the activity-based costing model it wants lands eig
 than the churn model that needs it.
 
 | Stage    | Implementation        | `margin_t`                                                               | `clv_margin_source` |
-| -------- | --------------------- | ------------------------------------------------------------------------ | ------------------- |
+|----------|-----------------------|--------------------------------------------------------------------------|---------------------|
 | Slice 4  | `BaselineCostToServe` | `annual_baseline_margin` divided by the periods per year, per customer   | `baseline_fallback` |
 | Slice 22 | `AbcCostToServe`      | Contribution after activity-based cost to serve, per customer per period | `abc_cost_to_serve` |
 
 Wiring the second implementation is a config change, not a code change, and no churn or CLV code
 moves. `customer.churned` carries `clv_margin_source`, so every CLV number in the log says which
 implementation produced the margin behind it, and a reader can never mistake a fallback for a
-modelled contribution. `Customer.annual_baseline_margin` exists only to feed the fallback and is
+modeled contribution. `Customer.annual_baseline_margin` exists only to feed the fallback and is
 read nowhere else.
 
 The agent question "what does it cost us if the top two churn" is answered by summing two
@@ -2122,7 +2122,7 @@ staged delivery and a false claim.
 
 ### 5.3 Procure-to-pay (6a13)
 
-Requisitions arrive from the inventory optimiser's reorder signals, carrying the triggering event id
+Requisitions arrive from the inventory optimizer's reorder signals, carrying the triggering event id
 so the whole chain from a stockout risk to a payment is one traceable thread. PO creation selects
 the contract that covers the category and supplier; if none exists, the buy is flagged for maverick
 evaluation at spend classification time.
@@ -2143,7 +2143,7 @@ evaluates in a fixed order: duplicate detection first (same supplier, same amoun
 within `duplicate_window_days`), then PO existence, then receipt existence, then unit of measure,
 then quantity within tolerance, then price within tolerance, then freight and tax. The first failing
 check determines the exception type, so the exception taxonomy is deterministic rather than
-order-dependent. Exceptions enter a queue staffed by AP handlers modelled the same way as service
+order-dependent. Exceptions enter a queue staffed by AP handlers modeled the same way as service
 agents, which gives match exception cycle time a real queueing explanation and gives the process
 miner a second office process to discover.
 
@@ -2154,7 +2154,7 @@ the hurdle rate. Missed economic discounts raise PRC-006. Payment timing drives 
 forecast.
 
 **Strategic sourcing.** An RFX event issues to invited suppliers, who submit price-volume curves,
-lead times, and capacity. Scoring normalises each criterion per `normalisation`, applies weights, and
+lead times, and capacity. Scoring normalizes each criterion per `normalization`, applies weights, and
 ranks.
 
 The award engine ships two strategies against one interface. `GreedyAwardStrategy` fills by
@@ -2272,8 +2272,8 @@ date, so any test that shows a different total duty has found a bug.
 The tariff engine is the input to three things outside itself, and each one is reached through a
 declared seam rather than an assumption.
 
-| Consumer                             | Seam                                                     | Behaviour when the other side is absent                                          |
-| ------------------------------------ | -------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Consumer                             | Seam                                                     | Behavior when the other side is absent                                           |
+|--------------------------------------|----------------------------------------------------------|----------------------------------------------------------------------------------|
 | Procurement forward-buy and sourcing | `trade.landed_cost_computed`, `trade.scenario_activated` | Procurement's `LandedCostPort` null implementation returns duty zero             |
 | Multi-echelon inventory re-run (6a8) | `MeioPort.rerun(scenario_id, landed_costs) -> MeioDelta` | Returns `MeioDelta.unavailable()`, rendered as "not available" and never as zero |
 | Finance duty variance                | `trade.duty_accrued` through the posting rules           | The duty variance kind reports zero rows rather than a wrong number              |
@@ -2293,7 +2293,7 @@ policy assumption that produced it.
 stage by stage with drawn conversions and dwell times, so time-to-fill is an emergent distribution,
 not a parameter. The consequence the source cares about is that headcount decisions lag demand: a
 peak that needs people in week 40 needs a requisition in week 33, and the twin makes that lag
-visible instead of assuming labour is instantly available.
+visible instead of assuming labor is instantly available.
 
 **Ramp.** A new hire starts at `initial_productivity_ratio` and climbs the Wright curve as cumulative
 units accumulate. Error rate follows its own curve downward. Both feed the physical twin: a station
@@ -2313,7 +2313,7 @@ replications rather than across one lucky seed.
 
 **Attrition.** The hazard is evaluated weekly per worker. Because its drivers are quantities the twin
 already measures, burning the workforce out shows up as regretted turnover with a bill attached:
-recruiting cost, onboarding labour, the ramp-loss integral, and backfill overtime. That is what turns
+recruiting cost, onboarding labor, the ramp-loss integral, and backfill overtime. That is what turns
 workforce care into a P&L argument instead of a slogan.
 
 **Absenteeism.** The generator draws absence from a model whose true coefficients are known. The
@@ -2322,13 +2322,13 @@ curve against a base-rate benchmark. The forecast publishes to E23, and the rost
 returns as `hr.shift_assigned`, closing the loop. When E23 has not landed, a fallback roster
 allocates workers to stations by eligibility and seniority so the workforce package is never blocked.
 
-**Engagement, measured behaviourally.** 6a14 asks for engagement measured behaviourally rather than
+**Engagement, measured behaviorally.** 6a14 asks for engagement measured behaviorally rather than
 by survey, trended on control charts as a leading indicator. No survey instrument exists anywhere in
 the model. `EngagementSnapshot` is published weekly per worker from state the twin already records,
 and aggregated per shift and per station.
 
 | Indicator                  | Computed from                                                            | Chart                 |
-| -------------------------- | ------------------------------------------------------------------------ | --------------------- |
+|----------------------------|--------------------------------------------------------------------------|-----------------------|
 | `schedule_stability_index` | Shift-start changes inside the notice window over shifts worked, 8 weeks | I-MR                  |
 | `weekend_shift_rate_8w`    | Weekend shifts over shifts worked, 8 weeks                               | p-chart               |
 | `strain_trend_slope`       | OLS slope of the strain index over 8 weeks, strain units per week        | I-MR                  |
@@ -2340,8 +2340,8 @@ HR-006 fires on a signal from the first two. The loop closes back on attrition: 
 `schedule_stability_index` and `weekend_shifts_rolling_8w` are drivers in the attrition hazard, so a
 schedule-stability signal is an early warning of the turnover the hazard prices later.
 
-**Labour cost accounting.** Every hour lands in the labour ledger with its hour type and its
-activity, which is what lets ABC allocate labour to orders later and what lets the labour efficiency
+**Labor cost accounting.** Every hour lands in the labor ledger with its hour type and its
+activity, which is what lets ABC allocate labor to orders later and what lets the labor efficiency
 variance drill down to a specific shift.
 
 **The peak season what-if.** Three strategies are priced over the same seeded demand: temps (fast,
@@ -2353,17 +2353,17 @@ verdict on whether the differences are real.
 
 ### 5.6 IT and cybersecurity operations (6a15)
 
-**The twin's own infrastructure is modelled.** Each CI has a service model with a capacity, a queue,
+**The twin's own infrastructure is modeled.** Each CI has a service model with a capacity, a queue,
 and a failure process. Golden signals come from that model in simulation mode and from OpenTelemetry
 in production mode, but the SLI computation is one implementation over `itops.health_sample`.
 
 **Logs and traces.** 6a15 asks for metrics, logs, and traces on every service, and metrics alone
-cannot carry two of the four DORA measures. Every request through a modelled CI produces a `Span`,
+cannot carry two of the four DORA measures. Every request through a modeled CI produces a `Span`,
 spans join into a `TraceSample` with a critical path, and every log line is a `LogRecord` carrying a
 `template_id` and, where one exists, the `trace_id` it belongs to.
 
 Three things become measurable that were previously inferred from ticket timestamps. Lead time for
-changes reads the trace that carries the change's `chg_id` from first commit-analogue event to the
+changes reads the trace that carries the change's `chg_id` from first commit-analog event to the
 span in which the new version first serves a request. Failed deployment recovery time reads the
 first error-free trace after the incident's mitigation span. Request error rate and latency p95 come
 from the span stream rather than from a health sample that already aggregated them away.
@@ -2380,7 +2380,7 @@ alerting uses the multi-window multi-burn-rate pattern published in the Google S
 chapter 5: a fast burn alert on a short window and a long window together, and a slow burn alert on
 longer windows, with both windows required to be in breach so a brief blip does not page. When the
 budget is exhausted, the change policy gate flips: only emergency changes are approved until the
-budget recovers. That gate is a testable behaviour, not a policy document.
+budget recovers. That gate is a testable behavior, not a policy document.
 
 The burn-rate thresholds are derived at config load, never written as literals:
 
@@ -2431,7 +2431,7 @@ vector rather than stored, so the implementation is testable against the publish
 For a vulnerability on a CI that needs a production window, `PatchWindowEvaluator` enumerates
 candidate windows over the next `patch_horizon_days`, calls the twin's what-if engine to price the
 production cost of taking that CI down for `window_minutes` in each window (throughput lost, orders
-at risk, overtime to recover), and computes the modelled breach exposure of waiting.
+at risk, overtime to recover), and computes the modeled breach exposure of waiting.
 
 `ExposureModel` is a distribution, not a scalar, and every step says which it is:
 
@@ -2551,7 +2551,7 @@ exactly the way real ones do. Because the true decomposition is logged, E30's ca
 ground truth to be scored against, which is the point the source makes about promotion effects being
 the textbook case where correlation lies.
 
-A promotion is checked against modelled capacity at planning time. If the planned lift exceeds what
+A promotion is checked against modeled capacity at planning time. If the planned lift exceeds what
 the DC can serve within the SLA, CMR-001 fires before the campaign runs, which is the marketing
 operations failure the source names: the campaign that fills the order book and empties the fill
 rate.
@@ -2560,20 +2560,20 @@ rate.
 becomes partly something the company pulls. Three seams carry that, and none of them is implicit.
 
 | Lever             | Carrier                                                | Consumer                | Effect                                                        |
-| ----------------- | ------------------------------------------------------ | ----------------------- | ------------------------------------------------------------- |
+|-------------------|--------------------------------------------------------|-------------------------|---------------------------------------------------------------|
 | Promotion lift    | `DemandShapingPort`, `mkt.demand_multiplier_published` | `ArrivalProcess` (6a12) | Multiplies the baseline arrival intensity per SKU per period  |
 | Quota pressure    | The same multiplier, source `quota_pressure`           | `ArrivalProcess`        | Adds the intra-period pressure curve to the same multiplier   |
 | Channel mix drift | `ChannelMixPort`, `mkt.channel_mix_published`          | `ArrivalProcess`        | Sets the share vector each order's channel is drawn from      |
 | Promo calendar    | `PromoFeaturePort`, `mkt.promo_features_published`     | Forecaster (6a1)        | Feeds the promo calendar to the forecaster as a feature frame |
 
 `DemandMultiplier` carries its factor decomposition, so an arrival spike is always attributable to
-the levers that caused it. The multiplier applies to intensity, never to realised orders, so the
+the levers that caused it. The multiplier applies to intensity, never to realized orders, so the
 arrival process stays a point process rather than a scaled count and the queueing results downstream
 stay meaningful.
 
 The forecaster coupling matters most and is the one 6a16 states outright: the forecaster must ingest
 the promo calendar as a feature. `PromoFeatureFrame` (section 3.6) is built from the calendar alone
-and never from realised demand, so a forecaster consuming it cannot leak the outcome. The naive rung
+and never from realized demand, so a forecaster consuming it cannot leak the outcome. The naive rung
 of the FVA ladder does not receive the frame and is fooled by the post-promotion dip; the
 statistical rung does receive it and is not. That contrast is what makes the FVA ladder measure
 something rather than restate an assumption.
@@ -2585,7 +2585,7 @@ margin movement with a named cause rather than as unexplained variance.
 
 **Sales pipeline and bias.** Opportunities progress through stages with drawn conversions. Each rep
 submits a forecast equal to the probability-weighted pipeline scaled by their true bias multiplier
-plus noise. The demand planning function measures each rep's realised bias over time and learns whose
+plus noise. The demand planning function measures each rep's realized bias over time and learns whose
 numbers to haircut. The bias multiplier truth is logged so the measurement can be scored.
 
 **Quota effects.** Order arrival intensity within a quota period follows the configured pressure
@@ -2600,13 +2600,13 @@ the cold-start handling is measurable rather than asserted.
 **The S&OP cycle.** Five steps run on the configured monthly calendar, each a process instance with
 start and end events:
 
-1. **Product review.** NPI decisions and rationalisation decisions, published as changes to the
+1. **Product review.** NPI decisions and rationalization decisions, published as changes to the
    active SKU set.
 2. **Demand review.** The statistical forecast, the sales input, and the marketing calendar are
    reconciled into one consensus number. The FVA ladder scores each input's historical contribution,
    so a step that makes the forecast worse is visible as negative FVA.
 3. **Supply review.** Capacity against the consensus, taken from the factory finite schedule, DC
-   labour requirement, and transport capacity. `RoughCutCapacityCheck` (section 3.6) is the
+   labor requirement, and transport capacity. `RoughCutCapacityCheck` (section 3.6) is the
    computation, and `sop.supply_review_mode` selects it: `analytic` is a rough-cut plan over
    bill-of-resource coefficients and is the shipped default, `surrogate` calls E28 through
    `CapacityPort`, and `full_simulation` runs the twin over the horizon. Gaps are identified with
@@ -2636,7 +2636,7 @@ the entry balances exactly.
 A representative slice of the rule set (the full set lives in the file, and each row has a fixture):
 
 | Source event                                                              | Debit                                                            | Credit                                              | Amount basis                                                                 |
-| ------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------- |
+|---------------------------------------------------------------------------|------------------------------------------------------------------|-----------------------------------------------------|------------------------------------------------------------------------------|
 | `receiving.goods_receipt`                                                 | Inventory raw material                                           | GR/IR clearing                                      | PO price times qty received                                                  |
 | `trade.duty_accrued`                                                      | Inventory raw material or duty expense per `duty_capitalisation` | Duty payable                                        | computed duty                                                                |
 | `procurement.three_way_match_evaluated` (matched)                         | GR/IR clearing                                                   | Accounts payable                                    | invoice amount                                                               |
@@ -2644,7 +2644,7 @@ A representative slice of the rule set (the full set lives in the file, and each
 | `production.material_issue`                                               | Work in process                                                  | Inventory raw material                              | standard qty times standard price, usage delta to material quantity variance |
 | `production.completion`                                                   | Finished goods                                                   | Work in process                                     | standard cost of output                                                      |
 | `production.scrap_recorded`                                               | Scrap variance                                                   | Work in process                                     | standard cost at the scrap point                                             |
-| `hr.labour_cost_posted`                                                   | Work in process (direct) or labour expense (indirect)            | Accrued payroll                                     | hours times rate, rate and efficiency deltas to their variance accounts      |
+| `hr.labor_cost_posted`                                                    | Work in process (direct) or labor expense (indirect)             | Accrued payroll                                     | hours times rate, rate and efficiency deltas to their variance accounts      |
 | `outbound.shipment_confirmed`                                             | Cost of goods sold                                               | Finished goods                                      | valuation method                                                             |
 | `orders.order_invoiced`                                                   | Accounts receivable                                              | Revenue and tax payable                             | extended price net of discounts                                              |
 | `transport.freight_invoice`                                               | Freight expense or premium freight expense                       | Accounts payable                                    | carrier invoice, expedite premium isolated                                   |
@@ -2670,14 +2670,14 @@ class of posting-rule mistakes.
 **Standard costing and variance drill-down.** The roll-up produces standard costs from the BOM and
 routing at a single effective revision. During the period, actuals accumulate against standards and
 `VarianceEngine` computes each variance kind from its published formula. Every variance carries an
-attribution list: the specific goods receipts, labour records, scrap events, duty accruals, and
+attribution list: the specific goods receipts, labor records, scrap events, duty accruals, and
 freight invoices that produced it, with signed amounts that sum exactly to the variance. Clicking a
 variance lands on physical events, which is the thesis the source states: every dollar of variance
 has a physical explanation and the system can show it.
 
 **The common-cause gate.** Before a variance appears on the explain list, the engine sends its
 historical series to the LSS engine, which runs an I-MR chart. A point inside the limits with no
-rule firing is labelled `common_cause` and the report says so. Only `assignable` variances are put
+rule firing is labeled `common_cause` and the report says so. Only `assignable` variances are put
 in front of a human. This is the statistical discipline finance reviews lack.
 
 The gate has an acceptance criterion, and the criterion is scoped to what a published source states.
@@ -2722,7 +2722,7 @@ reconcile exactly, which is the test that keeps the narration honest.
 **Capex governance.** An accepted what-if becomes a capex request. Cash flows come from twin
 projections over the same metric definitions used to measure the result later, which is what makes the
 post-investment audit meaningful. NPV, IRR, and both payback measures are computed, the authority
-matrix routes the approval, and at `post_audit_lag_periods` the realised benefit is measured and
+matrix routes the approval, and at `post_audit_lag_periods` the realized benefit is measured and
 compared. The hit rate across all approved capex becomes a KPI of the decision process itself.
 
 **Month-end close.** The close checklist is a task graph with dependencies and owners. Tasks emit
@@ -2746,10 +2746,10 @@ service impact line, which is the language the source says CFOs fund twins in.
 
 ### 5.9 Insurance and risk transfer (E38)
 
-Every loss the twin generates is recognised in the ledger when it happens, through
+Every loss the twin generates is recognized in the ledger when it happens, through
 `risk.loss_recognised`, whether or not it is ever claimed. Insurance recovery is a separate posting
 on settlement. Retained loss is the difference, and it is the largest component of total cost of
-risk in most periods, so recognising the gross loss is what lets `tcor_reconciles_to_gl` hold at
+risk in most periods, so recognizing the gross loss is what lets `tcor_reconciles_to_gl` hold at
 all.
 
 Cargo claims trigger from in-transit telemetry: a shock event above the policy's threshold or a
@@ -2775,7 +2775,7 @@ rate, which is why the claim and the P&L cannot disagree about what an hour of d
 
 Premiums are experience-rated. The modifier is a function of the twin's own loss ratio over the rating
 period and, for workers' compensation, of TRIR from the ergonomics layer. That closes a loop the
-source cares about: a safety programme that reduces TRIR reduces premium, so safety investments and
+source cares about: a safety program that reduces TRIR reduces premium, so safety investments and
 throughput investments argue in the same currency.
 
 The risk transfer what-if compares options over a common seeded loss corpus: raise the deductible,
@@ -2801,7 +2801,7 @@ share substreams under the common random numbers rule in section 5.0, which is w
 replications enough.
 
 | Tool                                | Input                                                          | Output                                                                                                      | Permission                    | Tier |
-| ----------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------- | ---- |
+|-------------------------------------|----------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|-------------------------------|------|
 | `get_order_status`                  | `order_id`                                                     | status, promise, allocation, shipment, perfect order components                                             | `orders:read`                 | L1   |
 | `get_impacted_customers`            | window, optional failure event ids                             | ranked customers with failures, CLV at risk, `clv_margin_source`, recommended contact order                 | `orders:read`, `finance:read` | L1   |
 | `get_service_queue_state`           | none                                                           | queue depth, ASA, service level, occupancy, FCR rate, top blocking data                                     | `service:read`                | L1   |
@@ -2830,7 +2830,7 @@ dock failure, what does it cost us if the top two churn, and in what order do we
 `get_impacted_customers` over the failure window, ranked by CLV at risk with the recommended contact
 order derived from hazard times value, and with `clv_margin_source` stating whether the margin came
 from the ABC model or the baseline fallback. "Gross margin dropped 1.8 points this month: decompose
-it into price, mix, freight, scrap, labour, and tariff, rank by contribution, and tell me which are
+it into price, mix, freight, scrap, labor, and tariff, rank by contribution, and tell me which are
 common cause versus assignable" is `get_variance_decomposition`, which returns the ranked components
 each already carrying its `causal_class` from the control chart gate.
 
@@ -2839,9 +2839,9 @@ each already carrying its `causal_class` from the control chart gate.
 All configuration validates against a published JSON Schema at load with line-numbered,
 suggestion-bearing errors (C5), and `just validate` checks every file without running anything.
 `facility.yaml` carries the operation-shaped keys. Reference data that would bloat it lives in
-sibling catalogue files named in `facility.yaml` under a `catalogs:` block, which keeps A2's
+sibling catalog files named in `facility.yaml` under a `catalogs:` block, which keeps A2's
 bring-your-own-facility promise workable: a reader edits one file to model their building and points
-at catalogues for the rest.
+at catalogs for the rest.
 
 ```yaml
 catalogs:
@@ -2859,7 +2859,7 @@ catalogs:
   rating_tables: config/insurance/rating_tables.yaml
   detections: config/itops/detections/ # Storage prefix, enumerated in key order
   zones: config/itops/zones.yaml
-  service_catalogue: config/itops/service_catalogue.yaml
+  service_catalog: config/itops/service_catalog.yaml
 ```
 
 ### 6.1 `orders`
@@ -2881,7 +2881,7 @@ orders:
     policy: hybrid # enum fair_share | priority | hybrid
     horizon_days: 3 # int 1..30
     run_cadence_hours: 4 # int > 0
-    honour_commitment_first: true # bool, hybrid only
+    honor_commitment_first: true # bool, hybrid only
     tie_break: [order_id] # ordered list of sort keys, last must be a unique key
   backorder:
     fill_policy: priority_then_age # enum fifo_by_created_at | priority_then_age
@@ -3008,28 +3008,28 @@ procurement:
           name: unit_price,
           weight: 0.45,
           direction: lower_better,
-          normalisation: ratio_to_best,
+          normalization: ratio_to_best,
           source: bid,
         }
       - {
           name: lead_time,
           weight: 0.20,
           direction: lower_better,
-          normalisation: min_max,
+          normalization: min_max,
           source: bid,
         }
       - {
           name: quality_ppm,
           weight: 0.20,
           direction: lower_better,
-          normalisation: min_max,
+          normalization: min_max,
           source: scorecard,
         }
       - {
           name: otif,
           weight: 0.15,
           direction: higher_better,
-          normalisation: min_max,
+          normalization: min_max,
           source: scorecard,
         }
     award_constraints:
@@ -3214,7 +3214,7 @@ IP hygiene rule.
 
 ```yaml
 itops:
-  service_catalogue_ref: service_catalogue
+  service_catalog_ref: service_catalog
   zones_ref: zones
   detections_dir: config/itops/detections/
   slos:
@@ -3398,7 +3398,7 @@ commercial:
     pull_forward:
       default_fraction: 0.35 # float 0..1
       decay_periods: 4 # int >= 1
-      decay_ratio: 0.5 # weights are geometric and normalised to sum to 1
+      decay_ratio: 0.5 # weights are geometric and normalized to sum to 1
     cannibalisation_file: config/commercial/cannibalisation.yaml
     serveability_check: true # drives CMR-001
   sales:
@@ -3448,7 +3448,7 @@ commercial:
 Validation rules: cannibalisation matrix rows have a zero diagonal and column sums no greater than
 1.0, and a violating column is quoted with its sum; S&OP calendar days are strictly increasing;
 `fva_ladder` starts with `naive`; `pull_forward.default_fraction` in `[0, 1]`; every promoted SKU in
-the calendar exists in the SKU catalogue and has a declared class in `max_lift_by_class`;
+the calendar exists in the SKU catalog and has a declared class in `max_lift_by_class`;
 `channel_mix.start_shares` sums to 1.0 within 1e-12 and names only declared channels;
 `supply_review_mode: surrogate` is rejected unless E28 is installed, with the missing package named.
 
@@ -3480,7 +3480,7 @@ finance:
       rfid_confirmation: true # the A/B switch for the record accuracy study
   standard_costing:
     revision_source: bom # enum bom | recipe
-    overhead_base: labour_hours # enum labour_hours | machine_hours
+    overhead_base: labor_hours # enum labor_hours | machine_hours
     revalue_on_standard_change: true
     variance_common_cause_gate: true # route every variance through the LSS chart first
   abc:
@@ -3543,8 +3543,8 @@ than a bracket alone. Bisection runs at most `max_iterations` steps and stops wh
 falls below `tolerance_rel` relative to the midpoint. Three outcomes are named rather than left to
 the implementation.
 
-| Situation                                           | Behaviour                                                                                            |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Situation                                           | Behavior                                                                                             |
+|-----------------------------------------------------|------------------------------------------------------------------------------------------------------|
 | No sign change of NPV across the bracket            | Raise `NoIrrInBracket` naming the bracket and both endpoint NPVs; the true rate may lie outside it   |
 | Sign change present, bisection converges            | Return the root; `capex.appraised` carries the final bracket width so the precision is on the record |
 | Sign change present, `max_iterations` reached       | Raise `IrrDidNotConverge` with the final bracket, never a midpoint presented as an answer            |
@@ -3625,7 +3625,7 @@ entity id a draw is subscripted by, following section A.2 of
 order, which is what makes the paired studies of section 5.0 comparable.
 
 | Namespace                             | Used for                                                   | Substream key          |
-| ------------------------------------- | ---------------------------------------------------------- | ---------------------- |
+|---------------------------------------|------------------------------------------------------------|------------------------|
 | `root/orders/arrival`                 | order interarrival, composition, and channel draw          | period                 |
 | `root/orders/service/contacts`        | contact occurrence, delay, and the WISMO hazard            | `caused_by_event_id`   |
 | `root/orders/service/handle`          | handle time, patience, and the skill draw                  | `contact_id`           |
@@ -3638,7 +3638,7 @@ order, which is what makes the paired studies of section 5.0 comparable.
 | `root/procurement/spot_price`         | spot quote and spot supplier quality draw                  | `decision_id`          |
 | `root/trade/drawback`                 | drawback refund processing days                            | `claim_id`             |
 | `root/workforce/pipeline`             | hiring stage conversions and dwell                         | `hr_req_id`            |
-| `root/workforce/absence`              | absence realisation                                        | `worker_id`, date      |
+| `root/workforce/absence`              | absence realization                                        | `worker_id`, date      |
 | `root/workforce/attrition`            | quit draws                                                 | `worker_id`, week      |
 | `root/itops/cve_feed`                 | vulnerability arrival and severity                         | week                   |
 | `root/itops/change_outcome`           | change success or failure                                  | `chg_id`               |
@@ -3672,11 +3672,11 @@ The agent selects metrics rather than writing aggregations, which is what stops 
 rate a second way.
 
 | Package     | Metrics                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | orders      | `perfect_order_rate`, `fill_rate`, `line_fill_rate`, `on_time_ship_rate`, `on_time_delivery_rate`, `promise_reliability`, `promise_reliability_by_source`, `order_cycle_time_hours`, `backorder_aging_days`, `wismo_rate`, `promise_breach_order_days`, `fairness_index`, `contacts_per_100_orders`, `first_contact_resolution_rate`, `average_speed_of_answer_seconds`, `service_level_pct`, `abandonment_rate`, `clv_at_risk`, `churn_rate`, `channel_mix_hhi` |
 | procurement | `purchase_price_variance`, `contract_price_variance`, `market_index_price_variance`, `po_cycle_time_hours`, `supplier_otif_buyer_view`, `first_pass_match_rate`, `match_exception_aging_hours`, `maverick_spend_pct`, `contract_coverage_pct`, `discount_capture_rate`, `cost_savings`, `cost_avoidance`, `spend_by_category`, `spot_buy_share_of_category_spend`, `award_greedy_gap_pct`                                                                        |
 | trade       | `landed_cost_per_unit`, `duty_rate_effective`, `duty_paid`, `drawback_recovered`, `tariff_exposure_by_origin`                                                                                                                                                                                                                                                                                                                                                    |
-| workforce   | `turnover_rate`, `regretted_turnover_rate`, `time_to_fill_days`, `time_to_productivity_days`, `absenteeism_rate`, `labour_cost_per_unit`, `overtime_pct`, `overtime_pct_4w`, `schedule_stability_index`, `weekend_shift_rate_8w`, `strain_trend_slope`, `span_of_control`, `training_hours_per_improvement_point`, `station_coverage_ratio`                                                                                                                      |
+| workforce   | `turnover_rate`, `regretted_turnover_rate`, `time_to_fill_days`, `time_to_productivity_days`, `absenteeism_rate`, `labor_cost_per_unit`, `overtime_pct`, `overtime_pct_4w`, `schedule_stability_index`, `weekend_shift_rate_8w`, `strain_trend_slope`, `span_of_control`, `training_hours_per_improvement_point`, `station_coverage_ratio`                                                                                                                       |
 | itops       | `slo_attainment`, `error_budget_remaining_pct`, `mttd_minutes`, `mttr_minutes`, `change_failure_rate`, `deployment_frequency`, `change_lead_time_hours`, `patch_latency_hours`, `cross_zone_anomaly_rate`, `correlated_alert_rate`, `request_error_rate`, `request_latency_p95_ms`, `log_error_rate_per_1k_requests`, `backup_restore_success_rate`, `measured_rpo_minutes`, `measured_rto_minutes`                                                              |
 | commercial  | `promo_lift`, `incremental_units`, `cannibalisation_units`, `forecast_bias`, `forecast_value_added`, `rep_forecast_bias`, `quota_attainment`, `plan_adherence`, `decision_latency_days`, `one_number_variance`, `demand_multiplier_by_source`                                                                                                                                                                                                                    |
 | finance     | `gross_margin_pct`, `gross_profit_rate_per_hour`, `cost_to_serve`, `contribution_after_cost_to_serve`, `inventory_record_accuracy`, `absolute_value_accuracy`, `shrink_value`, `eando_reserve`, `dio`, `dso`, `dpo`, `cash_to_cash_days`, `working_capital_by_echelon`, `close_cycle_days`, `capex_hit_rate`, `variance_by_kind`                                                                                                                                 |
@@ -3686,7 +3686,7 @@ Three procurement price variances are defined rather than one, because 6a13 asks
 against contract and market, not only against standard cost.
 
 | Metric                        | Baseline                | Expression                                                |
-| ----------------------------- | ----------------------- | --------------------------------------------------------- |
+|-------------------------------|-------------------------|-----------------------------------------------------------|
 | `purchase_price_variance`     | Standard cost           | `(paid_unit_price - standard_price) * qty_received`       |
 | `contract_price_variance`     | `POLine.contract_price` | `(paid_unit_price - contract_price) * qty_received`       |
 | `market_index_price_variance` | Published index quote   | `(paid_unit_price - index_price_at_order) * qty_received` |
@@ -3702,7 +3702,7 @@ chart of accounts cannot witness. `contract_price_variance` is what finally read
 Five tiers per C4, each with a runtime budget enforced in CI.
 
 | Tier                   | Budget for this section | Runs on                           | Contents                                                                               |
-| ---------------------- | ----------------------- | --------------------------------- | -------------------------------------------------------------------------------------- |
+|------------------------|-------------------------|-----------------------------------|----------------------------------------------------------------------------------------|
 | Unit                   | 90 s                    | Every push                        | Pure functions, state machines, formulas, posting rules                                |
 | Property               | 180 s                   | Every push                        | Hypothesis invariants listed in 7.2                                                    |
 | Validation gates, fast | 240 s                   | Every push                        | The gates in 7.3 marked fast: closed-form checks, fixture matrices, arithmetic         |
@@ -3712,7 +3712,7 @@ Five tiers per C4, each with a runtime budget enforced in CI.
 The split exists because the earlier single 240-second budget was not credible and a budget that
 cannot be met is not a budget. Seven gates dominate the cost: VG-FIN-07 charts 100,000 points,
 VG-HR-02 fits 200 logistic replications, VG-HR-04 and VG-HR-05 run batch-means queueing simulations
-at three utilisation levels across 20 seeds, VG-FIN-11 runs 20 long seeded runs, VG-PRC-04 runs a
+at three utilization levels across 20 seeds, VG-FIN-11 runs 20 long seeded runs, VG-PRC-04 runs a
 17-point grid across 20 twin runs, and VG-INS-01 draws 5000 losses. Their measured budgets are
 declared per gate in 7.3, and `test_validation_gate_budget_arithmetic` sums the declared budgets per
 tier and fails when a sum exceeds the tier's ceiling (D-13). A gate that grows past its budget fails
@@ -3746,7 +3746,7 @@ fit the fast tier; a gate too slow for a push job runs nightly and blocks the re
   exactly, and the entry's line order follows `account_id`.
 - IRR solver: a bracket with no sign change raises, a non-converging bracket raises, and a cash flow
   with two sign changes and one root returns that root without raising.
-- Weighted scorecard: each normalisation method against hand-computed values.
+- Weighted scorecard: each normalization method against hand-computed values.
 - Rebate accrual: retrospective and incremental bases against hand-computed schedules at, just below,
   and just above each tier threshold.
 - Learning curve: `cumulative_average_hours` and the derived marginal hours at units 1 through 32.
@@ -3761,7 +3761,7 @@ fit the fast tier; a gate too slow for a push job runs nightly and blocks the re
 - Bass diffusion: adopters per period against the closed form.
 - FVA ladder: stairstep deltas for a fixture set of four forecast series.
 - Journal entry: balance check, no-negative check, closed-period rejection.
-- Every variance formula against a hand-computed fixture with signs and favourability.
+- Every variance formula against a hand-computed fixture with signs and favorability.
 - NPV, IRR, simple and discounted payback for fixture cash flows including a no-root case that must
   raise rather than return.
 - Claim payout: deductible, coinsurance, and limit applied in the correct order for boundary losses.
@@ -3772,7 +3772,7 @@ fit the fast tier; a gate too slow for a push job runs nightly and blocks the re
 Each is named as it appears in the test module so an implementer can find it.
 
 | Invariant                                       | Statement                                                                                                                                                                      |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `order_quantity_conservation`                   | For any sequence of legal order operations, `qty_ordered == qty_allocated + qty_backordered + qty_cancelled` and `qty_shipped <= qty_picked <= qty_allocated` after every step |
 | `order_state_machine_legality`                  | No recorded transition lies outside the transition table                                                                                                                       |
 | `allocation_no_oversell`                        | For any demand and supply vectors and any policy, total allocated per lot never exceeds lot on-hand                                                                            |
@@ -3796,7 +3796,7 @@ Each is named as it appears in the test module so an implementer can find it.
 | `ftz_duty_neutrality`                           | With an unchanged rate, FTZ admission then domestic withdrawal yields the same total duty as direct import                                                                     |
 | `drawback_bounded`                              | Refund is at most duty paid times the refund rate                                                                                                                              |
 | `certification_gating`                          | No assignment exists where the worker lacks a valid certification at that sim-time                                                                                             |
-| `no_work_after_termination`                     | No labour record exists past a termination date                                                                                                                                |
+| `no_work_after_termination`                     | No labor record exists past a termination date                                                                                                                                 |
 | `hours_conservation`                            | Per worker per day, ledger hours equal roster hours minus absence plus overtime                                                                                                |
 | `attrition_hazard_bounded`                      | The hazard lies in (0, 1) for any coefficient and driver values in the declared ranges                                                                                         |
 | `cmdb_acyclic`                                  | The CI dependency graph has no cycle                                                                                                                                           |
@@ -3848,7 +3848,7 @@ This repository is never a reference for itself.
 **Definitional property checks** assert an identity that follows from a definition this section
 states: double entry balances, attributed amounts close, an affine rescaling leaves a ranking
 unchanged. They are real tests and several are the strongest tests in the suite, but they validate
-internal consistency rather than agreement with the world, and they are labelled so.
+internal consistency rather than agreement with the world, and they are labeled so.
 
 **Golden-file regressions** are neither. A golden file detects change; it cannot detect that the
 committed output was wrong on the day it was written. They moved out of this section into 7.6, where
@@ -3868,23 +3868,23 @@ the second case, and open question 15 records why.
 #### Finance and costing
 
 | Gate      | Reference                                                                                                                                                                                                                                | Assertion and tolerance                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VG-FIN-01 | Double-entry identity (definitional)                                                                                                                                                                                                     | Every entry balances exactly in integer minor units. Zero tolerance                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | VG-FIN-02 | Accounting equation (definitional)                                                                                                                                                                                                       | Trial balance closes and assets equal liabilities plus equity at each period close. Zero tolerance                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | VG-FIN-03 | Statement articulation (definitional)                                                                                                                                                                                                    | Net income ties to retained earnings movement; indirect and direct cash flow agree. Zero tolerance                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| VG-FIN-04 | OpenStax, _Principles of Accounting, Volume 2: Managerial Accounting_, Chapter 8 (Standard Costs and Variances). Licence CC BY-NC-SA, verified from the OpenStax book metadata API on 2026-08-09                                         | Direct material price and quantity, direct labour rate and efficiency, variable overhead spending and efficiency, and fixed overhead budget and volume variances reproduce the published worked-example figures. Exact to the cent. The fixture encodes the numeric inputs and the published answers with a citation to the chapter, and reproduces no prose, table, or layout from the book                                                                                                                                                                               |
+| VG-FIN-04 | OpenStax, _Principles of Accounting, Volume 2: Managerial Accounting_, Chapter 8 (Standard Costs and Variances). License CC BY-NC-SA, verified from the OpenStax book metadata API on 2026-08-09                                         | Direct material price and quantity, direct labor rate and efficiency, variable overhead spending and efficiency, and fixed overhead budget and volume variances reproduce the published worked-example figures. Exact to the cent. The fixture encodes the numeric inputs and the published answers with a citation to the chapter, and reproduces no prose, table, or layout from the book                                                                                                                                                                                |
 | VG-FIN-05 | Flexible budget reconciliation (definitional)                                                                                                                                                                                            | The sum of all computed variances equals total actual cost minus total standard cost allowed for actual output. Zero tolerance                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | VG-FIN-06 | Attribution closure (definitional)                                                                                                                                                                                                       | Attributed event contributions sum to the variance. Zero tolerance                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | VG-FIN-07 | NIST/SEMATECH e-Handbook of Statistical Methods, Section 6.3.1 (What are Control Charts?), which publishes the 3-sigma false alarm rate for a normal characteristic as 0.00135 in one direction and 0.0027 in both. Retrieved 2026-08-09 | Configured with `nelson_rules: [rule_1]` and chart limits supplied rather than estimated, over 100,000 seeded in-control variance points the fraction the common-cause gate classifies `assignable` matches 0.0027 to the three significant digits the handbook prints. Noise floor: the binomial standard error at n = 100,000 and p = 0.0027 is 1.6e-4, so the gate asserts the 99 percent binomial interval, which is wider than the published precision. Falsified by an observed rate outside `[0.00228, 0.00312]`                                                    |
 | VG-FIN-08 | Present value definition (definitional), plus `numpy-financial` as an independent implementation at its own precision                                                                                                                    | Two separate assertions. The Decimal evaluation of the definition matches the implementation to zero error at 28 significant digits, which is an identity check between two Decimal evaluations. The float64 cross-check against `numpy-financial` asserts 1e-12 relative agreement, which is the precision float64 can witness. IRR matches a bisection root of the same polynomial to 1e-9 relative on 1000 seeded vectors. Falsified by any vector exceeding either tolerance, or by a two-sign-change cash flow with one real root that raises instead of returning it |
-| VG-FIN-09 | OpenStax, _Principles of Accounting, Volume 1: Financial Accounting_, Chapter 10 (Inventory). Licence CC BY-NC-SA, verified 2026-08-09                                                                                                   | Weighted average and FIFO ending inventory and cost of goods sold reproduce the published worked examples. Exact to the cent. Numeric inputs and answers encoded with a citation, no prose reproduced                                                                                                                                                                                                                                                                                                                                                                      |
-| VG-FIN-10 | OpenStax, _Principles of Accounting, Volume 1: Financial Accounting_, Chapter 11 (Long-Term Assets). Licence CC BY-NC-SA, verified 2026-08-09                                                                                            | Straight line, double declining balance, and units of production depreciation schedules reproduce the published examples. Exact to the cent. Encoded as above                                                                                                                                                                                                                                                                                                                                                                                                              |
+| VG-FIN-09 | OpenStax, _Principles of Accounting, Volume 1: Financial Accounting_, Chapter 10 (Inventory). License CC BY-NC-SA, verified 2026-08-09                                                                                                   | Weighted average and FIFO ending inventory and cost of goods sold reproduce the published worked examples. Exact to the cent. Numeric inputs and answers encoded with a citation, no prose reproduced                                                                                                                                                                                                                                                                                                                                                                      |
+| VG-FIN-10 | OpenStax, _Principles of Accounting, Volume 1: Financial Accounting_, Chapter 11 (Long-Term Assets). License CC BY-NC-SA, verified 2026-08-09                                                                                            | Straight line, double declining balance, and units of production depreciation schedules reproduce the published examples. Exact to the cent. Encoded as above                                                                                                                                                                                                                                                                                                                                                                                                              |
 | VG-FIN-11 | Little, J. D. C. (1961), "A Proof for the Queuing Formula: L = lambda W", _Operations Research_ 9(3), 383-387, doi:10.1287/opre.9.3.383                                                                                                  | Over a long seeded run, mean orders in the pipeline equals arrival rate times mean order cycle time, inside the batch-means 95 percent confidence interval, on at least 16 of 20 declared seeds. 16 is the 0.005 lower quantile of Binomial(20, 0.95), so a correct implementation fails about one run in 390 if the seeds were resampled; the seeds are fixed, so the gate is reproducible and the threshold states the risk it was chosen against. Falsified by 15 or fewer covering seeds                                                                               |
 
 #### Procurement and trade
 
 | Gate      | Reference                                                                                                                            | Assertion and tolerance                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VG-PRC-01 | Fixture matrix (definitional)                                                                                                        | Every three-way match violation class and both sides of every tolerance boundary produce the expected classification. Exact. Falsified by any reachable class the fixture suite cannot produce, which is why the invoice is its own aggregate                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | VG-PRC-02 | Scale invariance (definitional)                                                                                                      | An affine transformation of a criterion's raw scores followed by renormalisation leaves the ranking unchanged, for 1000 generated bid sets                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | VG-PRC-03 | Measured heuristic gap (definitional)                                                                                                | On every fixture with at most `sourcing.exact_award_max_suppliers` suppliers, `AwardGapReport` reports the relative gap between the greedy award and the exact argmax, both totally ordered by `(-score, supplier_id)`. The suite asserts the gap recorded alongside each fixture, including the non-zero one on `greedy_suboptimal.yaml`. It does not assert the gap is zero, because greedy is not optimal under break curves and share caps. Falsified by a gap differing from the recorded value, which flags either a scoring change or a strategy regression                                                                                                                                                         |
@@ -3898,18 +3898,18 @@ the second case, and open question 15 records why.
 #### Workforce
 
 | Gate     | Reference                                                                                                                                                                                                                   | Assertion and tolerance                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VG-HR-01 | Wright, T. P. (1936), "Factors Affecting the Cost of Airplanes", _Journal of the Aeronautical Sciences_ 3(4), 122-128, doi:10.2514/8.155                                                                                    | The cumulative average at units 1, 2, 4, 8, 16, 32 reproduces the doubling sequence `a * x ** (ln(rate)/ln(2))` for the configured learning rate to 1e-12, which is the precision of the closed form in float64. Falsified by any of the six points exceeding it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | VG-HR-02 | Ground-truth recovery (definitional, against the generator's own declared coefficients)                                                                                                                                     | Over 200 replications of a seeded population of 5000 workers, each generator coefficient lies inside the fitted logistic model's 95 percent Wald interval on at least 182 of 200 replications. 182 is the smallest threshold whose false-failure probability under Binomial(200, 0.95) is at or below 0.006: P(X <= 181) = 0.0058, so a correct implementation fails about one run in 172. The fitter is cross-checked against `statsmodels` on the same design matrix to 1e-6 relative on the coefficient vector, which is the agreement an iterative MLE can hold across BLAS backends and library versions; 1e-8 was tighter than the numerical reality. Both libraries run single-threaded with a pinned convergence tolerance. Falsified by 171 or fewer covering replications for any coefficient |
 | VG-HR-03 | Calibration and leakage control (definitional)                                                                                                                                                                              | The absence predictor's Brier score beats the base-rate predictor on held-out seeded data with a paired test at p below 0.01, and the calibration slope lies in [0.9, 1.1]. A null run with all generator coefficients set to zero must NOT beat base rate, which catches leakage                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| VG-HR-04 | Erlang C, as given in Gans, Koole, and Mandelbaum (2003), "Telephone Call Centers: Tutorial, Review, and Research Prospects", _Manufacturing and Service Operations Management_ 5(2), 79-141, doi:10.1287/msom.5.2.79.16071 | Run under `service.validation_profile` (Poisson arrivals, exponential handle times, `c` servers, abandonment disabled, proficiency scaling off), the simulated mean wait matches the Erlang C analytic value inside the batch-means 95 percent confidence interval on at least 16 of 20 declared seeds, at utilisations 0.6, 0.8, and 0.9. Noise floor: the gate computes the batch-means half-width at 30 batches, reports it as a fraction of mean wait at each utilisation, and records it in the capability report. The tolerance is that measured half-width, not a number chosen in advance, which is why the gate can be tightened only by lengthening the run. Falsified by 15 or fewer covering seeds at any utilisation                                                                       |
-| VG-HR-05 | Erlang A, as given in Garnett, Mandelbaum, and Reiman (2002), "Designing a Call Center with Impatient Customers", _Manufacturing and Service Operations Management_ 4(3), 208-227, doi:10.1287/msom.4.3.208.7753            | Under the same profile with exponential patience enabled, the simulated abandonment rate matches the Erlang A analytic value inside the batch-means 95 percent confidence interval on at least 16 of 20 seeds at two utilisation levels. Falsified as above                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| VG-HR-04 | Erlang C, as given in Gans, Koole, and Mandelbaum (2003), "Telephone Call Centers: Tutorial, Review, and Research Prospects", _Manufacturing and Service Operations Management_ 5(2), 79-141, doi:10.1287/msom.5.2.79.16071 | Run under `service.validation_profile` (Poisson arrivals, exponential handle times, `c` servers, abandonment disabled, proficiency scaling off), the simulated mean wait matches the Erlang C analytic value inside the batch-means 95 percent confidence interval on at least 16 of 20 declared seeds, at utilizations 0.6, 0.8, and 0.9. Noise floor: the gate computes the batch-means half-width at 30 batches, reports it as a fraction of mean wait at each utilization, and records it in the capability report. The tolerance is that measured half-width, not a number chosen in advance, which is why the gate can be tightened only by lengthening the run. Falsified by 15 or fewer covering seeds at any utilization                                                                       |
+| VG-HR-05 | Erlang A, as given in Garnett, Mandelbaum, and Reiman (2002), "Designing a Call Center with Impatient Customers", _Manufacturing and Service Operations Management_ 4(3), 208-227, doi:10.1287/msom.4.3.208.7753            | Under the same profile with exponential patience enabled, the simulated abandonment rate matches the Erlang A analytic value inside the batch-means 95 percent confidence interval on at least 16 of 20 seeds at two utilization levels. Falsified as above                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | VG-HR-06 | Engagement measurement (definitional)                                                                                                                                                                                       | `schedule_stability_index`, `weekend_shift_rate_8w`, and `strain_trend_slope` match hand computation on a fixture roster and strain series, each is bounded as declared, and each accumulates its declared points per worker inside the long-horizon profile of 7.5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 #### IT and cyber
 
 | Gate     | Reference                                                                                                                                                                                                                                 | Assertion and tolerance                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VG-IT-01 | FIRST, _Common Vulnerability Scoring System v3.1: Specification Document_, section 7 (Roundup) and section 8.1, plus the published CVSS v3.1 Examples page. Both retrieved 2026-08-09                                                     | Base scores computed from vectors match the published values exactly, including the Roundup rule that returns the smallest number to one decimal place at or above its input. Every worked example on the Examples page is a test case. Falsified by any published example whose score the implementation does not reproduce                                                                                                                                                                                                                                                                                                                                |
 | VG-IT-02 | Google, _The Site Reliability Workbook_, Chapter 5 (Alerting on SLOs), Tables 5-6 and 5-8, retrieved 2026-08-09. Those tables give 2 percent over 1 hour, 5 percent over 6 hours, and 10 percent over 3 days, against a 30-day SLO window | Two assertions. `derive_burn_rates` evaluated at `window_days = 30` reproduces the Workbook's 14.4, 6, and 1 exactly, which validates the derivation against the published pairs. Then, at this section's configured 28-day window, alerts fire and clear exactly at the derived thresholds 13.44, 5.6, and 0.9333 on a fixture SLI series, boundary cases tested on both sides. Falsified by a threshold literal appearing anywhere in config, or by any boundary case firing on the wrong side                                                                                                                                                            |
 | VG-IT-03 | DORA metric definitions (definitional, from the published four key metrics)                                                                                                                                                               | Computed values match hand computation on a fixture change, trace, and incident log. Lead time and failed-deployment recovery time are computed from the span stream, not from ticket timestamps. Exact                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -3923,24 +3923,24 @@ the second case, and open question 15 records why.
 #### Commercial and S&OP
 
 | Gate      | Reference                                                                                                                                                                                                                                | Assertion and tolerance                                                                                                                                                                                                                                                                                                                                                               |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VG-CMR-01 | Unit conservation (definitional)                                                                                                                                                                                                         | Total demand over the promotion window plus the decay window equals baseline plus true incremental, to 1e-9 relative on the share matrix and exactly on integer units. The tolerance is stated rather than claimed exact because the shares are floats, and the `fsum` in sorted key order keeps accumulated error below it                                                           |
 | VG-CMR-02 | Bass, F. M. (1969), "A New Product Growth for Model Consumer Durables", _Management Science_ 15(5), 215-227, doi:10.1287/mnsc.15.5.215                                                                                                   | With stochasticity disabled, the simulated cumulative adoption path matches `F(t) = (1 - exp(-(p+q)t)) / (1 + (q/p) exp(-(p+q)t))` to 1e-10. Falsified by any horizon point exceeding it                                                                                                                                                                                              |
 | VG-CMR-03 | Hyndman, R. J. and Koehler, A. B. (2006), "Another look at measures of forecast accuracy", _International Journal of Forecasting_ 22(4), 679-688, doi:10.1016/j.ijforecast.2006.03.001, for MASE; standard definitions for MAPE and WAPE | Metric implementations match the published formulas on fixture series to 1e-12, and are cross-checked against an independent implementation. Falsified by a fixture series where the two implementations differ beyond the tolerance                                                                                                                                                  |
 | VG-CMR-04 | FVA identity (definitional)                                                                                                                                                                                                              | The stairstep deltas sum to the total accuracy change; the naive rung's FVA against itself is exactly zero; a deliberately degraded rung yields a negative FVA                                                                                                                                                                                                                        |
 | VG-CMR-05 | Quota pressure (definitional, against the generator's own parameters)                                                                                                                                                                    | The measured ratio of last-period-week volume to mean-week volume matches the value implied by the configured `k` and `q` inside the Monte Carlo 95 percent interval on at least 16 of 20 declared seeds. Noise floor: the gate computes and reports the Monte Carlo interval half-width at the shipped run length rather than asserting one. Falsified by 15 or fewer covering seeds |
 | VG-CMR-06 | One-number identity (definitional)                                                                                                                                                                                                       | Consensus, supply commitment, and finance reforecast volumes agree exactly for every horizon period across 50 seeded S&OP cycles, in every supply review mode                                                                                                                                                                                                                         |
-| VG-CMR-07 | Promo feature causality (definitional)                                                                                                                                                                                                   | Every column of `PromoFeatureFrame` for period `t` is computable from the calendar at the cut-off, and a fixture back-dating a calendar entry past the cut-off is rejected. Falsified by a frame column that changes when realised demand changes and the calendar does not                                                                                                           |
+| VG-CMR-07 | Promo feature causality (definitional)                                                                                                                                                                                                   | Every column of `PromoFeatureFrame` for period `t` is computable from the calendar at the cut-off, and a fixture back-dating a calendar entry past the cut-off is rejected. Falsified by a frame column that changes when realized demand changes and the calendar does not                                                                                                           |
 | VG-CMR-08 | Demand shaping decomposition (definitional)                                                                                                                                                                                              | The product of a `DemandMultiplier`'s factors equals its multiplier to 1e-12 relative over 1000 generated lever combinations, the multiplier is clamped at `max_multiplier`, and channel shares stay on the simplex under drift                                                                                                                                                       |
 
 #### Insurance
 
 | Gate      | Reference                                       | Assertion and tolerance                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| --------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------|-------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VG-INS-01 | Indemnity arithmetic (definitional)             | Payout equals `min(applicable_limit, max(0, loss - deductible) * coinsurance)` on 5000 generated losses, where `applicable_limit` is the sublimit `SublimitResolver` selects or the policy limit when no rule matches. Exact to the cent under the section 3 rounding contract. At least 500 of the generated losses match a sublimit rule, so the sublimit path is covered rather than declared. Falsified by any loss whose payout exceeds its applicable limit, or by `binding_constraint` naming a constraint that was not binding |
 | VG-INS-02 | Business interruption arithmetic (definitional) | Indemnified hours equal downtime minus waiting period, capped at the indemnity period, and the loss equals indemnified hours times `rate_per_hour` from `fin.gross_profit_rate`. Exact. Falsified by a claim valued at a rate that does not appear in the ledger for that period                                                                                                                                                                                                                                                       |
 | VG-INS-03 | Monotonicity (definitional)                     | The experience modifier is non-decreasing in loss ratio and in TRIR, and stays inside `modifier_bounds`, over 1000 generated histories                                                                                                                                                                                                                                                                                                                                                                                                 |
-| VG-INS-04 | TCOR reconciliation (definitional)              | Each component ties to its mapped GL accounts for the period. Exact. `retained_losses` ties because `risk.loss_recognised` posts the gross loss and `risk.recovery_posted` posts the recovery; falsified by a period where recognised losses and the mapped accounts differ by any amount                                                                                                                                                                                                                                              |
+| VG-INS-04 | TCOR reconciliation (definitional)              | Each component ties to its mapped GL accounts for the period. Exact. `retained_losses` ties because `risk.loss_recognised` posts the gross loss and `risk.recovery_posted` posts the recovery; falsified by a period where recognized losses and the mapped accounts differ by any amount                                                                                                                                                                                                                                              |
 
 ### 7.4 Control chart assignment per KPI
 
@@ -3957,7 +3957,7 @@ at least the points the row needs. A chart with no profile that can supply its p
 not a diagram.
 
 | Metric                                   | Data type                 | Chart                 | Point cadence           | Points needed | Profile | Notes                                                                                                                                                                          |
-| ---------------------------------------- | ------------------------- | --------------------- | ----------------------- | ------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|------------------------------------------|---------------------------|-----------------------|-------------------------|---------------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `perfect_order_rate`                     | proportion, variable n    | p-chart               | weekly subgroups        | 20            | demo    | weekly subgroups                                                                                                                                                               |
 | `on_time_delivery_rate`                  | proportion                | p-chart               | weekly subgroups        | 20            | demo    |                                                                                                                                                                                |
 | `wismo_rate`                             | count per exposure        | u-chart               | weekly                  | 20            | demo    | per 100 order-days open past promise                                                                                                                                           |
@@ -3973,11 +3973,11 @@ not a diagram.
 | `maverick_spend_pct`                     | proportion                | p-chart               | weekly                  | 20            | demo    |                                                                                                                                                                                |
 | `turnover_rate`                          | proportion of headcount   | p-chart               | monthly                 | 20            | long    | 20 months of sim time; the demo profile charts the points and reports limits as provisional                                                                                    |
 | `absenteeism_rate`                       | proportion                | p-chart               | daily                   | 25            | demo    |                                                                                                                                                                                |
-| `schedule_stability_index`               | continuous, bounded       | I-MR                  | weekly per worker       | 20            | demo    | 6a14's behavioural engagement indicator                                                                                                                                        |
-| `weekend_shift_rate_8w`                  | proportion                | p-chart               | weekly per worker       | 20            | demo    | 6a14's behavioural engagement indicator                                                                                                                                        |
+| `schedule_stability_index`               | continuous, bounded       | I-MR                  | weekly per worker       | 20            | demo    | 6a14's behavioral engagement indicator                                                                                                                                         |
+| `weekend_shift_rate_8w`                  | proportion                | p-chart               | weekly per worker       | 20            | demo    | 6a14's behavioral engagement indicator                                                                                                                                         |
 | `strain_trend_slope`                     | continuous                | I-MR                  | weekly per worker       | 20            | demo    | needs 8 weeks of strain history before the first point                                                                                                                         |
 | `overtime_pct_4w`                        | continuous, right skewed  | I-MR on log transform | weekly per worker       | 20            | demo    |                                                                                                                                                                                |
-| `labour_cost_per_unit`                   | continuous                | I-MR                  | daily                   | 25            | demo    |                                                                                                                                                                                |
+| `labor_cost_per_unit`                    | continuous                | I-MR                  | daily                   | 25            | demo    |                                                                                                                                                                                |
 | `time_to_productivity_days`              | continuous                | I-MR                  | one per hire            | 20            | long    | needs 20 hires, which the demo hiring rate does not reach                                                                                                                      |
 | `mttd_minutes`, `mttr_minutes`           | continuous, right skewed  | I-MR on log transform | one per incident        | 25            | demo    |                                                                                                                                                                                |
 | `change_failure_rate`                    | proportion                | p-chart               | weekly                  | 20            | demo    |                                                                                                                                                                                |
@@ -4005,14 +4005,14 @@ populate is not checkable, and because the sim-time budget is what section 7's t
 spent on.
 
 | Scenario                    | Seed name         | Horizon   | What it proves                                                                                                                                                                                                                                                                                                                                                                            |
-| --------------------------- | ----------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------------------------|-------------------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `dock_failure_to_churn`     | `s_backoffice_01` | 14 days   | A dock door failure delays shipments, generates contacts, degrades satisfaction, churns a customer, and posts the lost margin. Asserts the causal chain from a physical event to a finance number, and the ranked customer callback list                                                                                                                                                  |
 | `allocation_policy_bakeoff` | `s_backoffice_02` | 90 days   | The same shortage under fair share, priority, and hybrid across 20 paired replications. Asserts fill by segment, the Jain fairness index over every demand including zero-fill, and the paired verdict with its effect size and interval                                                                                                                                                  |
 | `visibility_ab`             | `s_backoffice_03` | 90 days   | The same shift at `order_header` and `twin_grounded` visibility, 20 paired replications on common random numbers. Asserts the FCR delta, its paired interval, and that both arms drew identical values from every shared contact substream                                                                                                                                                |
 | `p2p_exception_storm`       | `s_backoffice_04` | 90 days   | A supplier sends malformed invoices for two weeks. Asserts exception queue growth, match rate drop, discount capture loss, DPO movement, and the mined procure-to-pay variant map                                                                                                                                                                                                         |
 | `sourcing_consolidation`    | `s_backoffice_05` | 180 days  | Five suppliers to three. Asserts tier savings, tier-1 concentration, the greedy-versus-exact award gap, resilience cost from a disruption replay, and the recommendation. Tier-2 concentration is reported as `unenforced` and is not asserted, because the E19 supplier DAG is Phase 6                                                                                                   |
 | `tariff_shock_forward_buy`  | `s_backoffice_06` | 180 days  | A rate shock scenario activates with 60 days notice. Asserts landed cost re-ranking, the forward-buy breakeven, the cash impact, and the duty variance in the GL                                                                                                                                                                                                                          |
-| `peak_labour_strategy`      | `s_backoffice_07` | 8 weeks   | Temps versus overtime versus hiring pulse over an eight-week peak, 20 paired replications. Asserts total cost, error rates, attrition, and service level with the paired verdict per strategy pair                                                                                                                                                                                        |
+| `peak_labor_strategy`       | `s_backoffice_07` | 8 weeks   | Temps versus overtime versus hiring pulse over an eight-week peak, 20 paired replications. Asserts total cost, error rates, attrition, and service level with the paired verdict per strategy pair                                                                                                                                                                                        |
 | `certification_cliff`       | `s_backoffice_08` | 90 days   | Two certifications lapse in the same week. Asserts HR-003 fires before the line stops and the cross-training what-if quantifies the prevention                                                                                                                                                                                                                                            |
 | `friday_change_freeze`      | `s_backoffice_09` | 90 days   | The same change stream with and without a Friday freeze, 20 paired replications. Each change draws its outcome from `root/itops/change_outcome` subscripted by `chg_id`, so rescheduling does not desynchronise the arms. Asserts the change failure rate delta, incident count, error budget consumption, and the paired interval                                                        |
 | `critical_cve_window`       | `s_backoffice_10` | 14 days   | A critical vulnerability on the broker with a four-hour patch requirement. Asserts the candidate window costs, the breach exposure curve, and the recommendation, and that the agent answer contains only numbers traceable to query results                                                                                                                                              |
@@ -4020,7 +4020,7 @@ spent on.
 | `promo_that_broke_the_dc`   | `s_backoffice_12` | 90 days   | A 20 percent promotion timed into a capacity peak. Asserts CMR-001 fires at planning time, and the run quantifies overtime, expedite, cannibalisation, forward buy, and margin after all of it, plus the alternative timing recommendation                                                                                                                                                |
 | `sop_cycle_with_scoring`    | `s_backoffice_13` | 3 months  | Three consecutive S&OP cycles. Asserts the one-number identity, the FVA report, the decision packet golden file, and that cycle three scores cycle two's assumptions                                                                                                                                                                                                                      |
 | `month_end_close_kaizen`    | `s_backoffice_14` | 6 months  | The close run before and after task reordering, paired across 20 replications with task durations drawn per `task_id`. Asserts the close cycle time reduction, its paired interval, and that the mined close process matches the checklist graph                                                                                                                                          |
-| `margin_drop_decomposition` | `s_backoffice_15` | 90 days   | Gross margin falls 1.8 points from a mix of tariff, scrap, labour, and freight causes. Asserts the ranked decomposition, the common-cause versus assignable split, and that each assignable component drills to the seeded physical events                                                                                                                                                |
+| `margin_drop_decomposition` | `s_backoffice_15` | 90 days   | Gross margin falls 1.8 points from a mix of tariff, scrap, labor, and freight causes. Asserts the ranked decomposition, the common-cause versus assignable split, and that each assignable component drills to the seeded physical events                                                                                                                                                 |
 | `cargo_claim_to_premium`    | `s_backoffice_16` | 24 months | A cold-chain excursion produces a claim, and the claim history raises next year's premium. Asserts payout arithmetic, TCOR movement, and the risk transfer comparison                                                                                                                                                                                                                     |
 | `sod_violation_caught`      | `s_backoffice_17` | 7 days    | A grant set is changed to create a create-vendor plus approve-payment conflict. Asserts config validation rejects it at load, and that a runtime-injected grant raises IT-008 and FIN-005                                                                                                                                                                                                 |
 | `long_horizon_charts`       | `s_backoffice_18` | 36 months | The low-frequency charts of 7.4 accumulate their declared points. Asserts that `close_cycle_days`, `turnover_rate`, `decision_latency_days`, `forecast_bias`, the working capital series, and `backup_restore_success_rate` each reach at least the points their row needs and each produces limits. This scenario exists so the chart assignments are checkable rather than aspirational |
@@ -4106,11 +4106,11 @@ part that moves, because moving a whole Phase 6 item to satisfy one dependency w
 resequencing by sledgehammer.
 
 | Item                                                                                       | Default position | Moved to                | Why                                                                                                                                                                                                                                                                                                                                                                                         |
-| ------------------------------------------------------------------------------------------ | ---------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------------------------------------------------------------------------------|------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | E16 ATP/CTP order promising                                                                | Phase 6          | Immediately before 6a12 | 6a12's source text requires allocation "against ATP/CTP". The order lifecycle cannot be built without the promise engine it calls. E16 also needs only on-hand, in-transit, scheduled receipts, and the finite scheduler, all of which exist after 3i                                                                                                                                       |
 | E14 tariff and trade-policy scenario engine                                                | Phase 6          | Immediately before 6a13 | Already agreed. 6a13's forward-buy-versus-tariff decision and landed-cost sourcing are named requirements of 6a13, not additions                                                                                                                                                                                                                                                            |
 | E22 financial twin overlay                                                                 | Phase 6          | Immediately after 6a13  | 6a17's source text says it "graduates the financial twin (E22) from an overlay into a functioning finance department", so E22 precedes it. AP terms need procurement and AR terms need orders, so the earliest sound slot is after 6a13. Placing it here also lets 6a14 payroll and 6a15 patch-window costs be quoted in cash from the moment they exist                                    |
-| E23 labour rostering optimisation                                                          | Phase 6          | Immediately before 6a14 | Already agreed. 6a14's absenteeism prediction "feeds the rostering optimizer (E23)", and the skills matrix gates the roster                                                                                                                                                                                                                                                                 |
+| E23 labor rostering optimization                                                           | Phase 6          | Immediately before 6a14 | Already agreed. 6a14's absenteeism prediction "feeds the rostering optimizer (E23)", and the skills matrix gates the roster                                                                                                                                                                                                                                                                 |
 | Decision register (the append-only schema and store from E21, not multi-agent negotiation) | Phase 6          | Immediately before 6a16 | 6a16's executive step ends in "the decision is logged to the governance register". The register is a schema plus an append-only table; E21 later adds role agents and a supervisor on top of it. Splitting the register out is sequencing, not descoping: E21 keeps every remaining part                                                                                                    |
 | E30 causal inference                                                                       | Phase 6          | Immediately before 6a16 | Already agreed. Marketing-mix ROI is "measured honestly by the causal layer (E30)" inside 6a16's own text                                                                                                                                                                                                                                                                                   |
 | E38 insurance and risk transfer                                                            | Phase 6          | Immediately after 6a17  | Cargo telemetry (3h), TRIR (6a10), and gross profit (6a17) all exist at that point, so E38 is close to free there, and the source invites pulling an E item forward when it is nearly free. This is a decision, not a candidacy: E38 ships in-band as slice 24, section 1 owns it entire, sections 3.8, 4.9, and 6.8 are in-band content, and scenario `s_backoffice_16` is an in-band test |
@@ -4124,10 +4124,10 @@ resequencing by sledgehammer.
 
 Each package is delivered in slices so that every phase boundary leaves the repo shippable with the
 five-minute quickstart intact. A slice is only "done" when its tests, its metrics file, its findings
-catalogue, and its standalone example all pass.
+catalog, and its standalone example all pass.
 
 | Order | Slice                        | Contents                                                                                                                                                                                                  | Depends on                                                                           |
-| ----- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+|-------|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
 | 1     | E26 layers a, b, d, f        | Query execution, governed semantic layer, tool schema constraint, grounding checker                                                                                                                       | Historian, schema registry (Phase 0)                                                 |
 | 2     | E27 harness                  | Eval runner and the eval-suite file format                                                                                                                                                                | Slice 1                                                                              |
 | 3     | E16 promise engine           | ATP cascade, CTP fallback, promise reliability tracking by source                                                                                                                                         | Planning (3d), finite scheduler (3i)                                                 |
@@ -4140,8 +4140,8 @@ catalogue, and its standalone example all pass.
 | 10    | 6a13-B sourcing              | RFX, scoring, greedy and exact award strategies, gap report, tier achievement, rebates, renegotiation triggers                                                                                            | Slice 9, supplier scorecards (3e)                                                    |
 | 11    | 6a13-C spend and tactics     | Spend taxonomy, maverick detection, savings and avoidance ledgers, forward buy, spot buy, expedite, EOQ validation                                                                                        | Slices 7, 8, 10                                                                      |
 | 12    | E22 financial overlay        | AP and AR terms, invoice and payment streams, DSO, DPO, DIO, cash to cash, working capital by echelon, cash forecast, and the FP&A stub that publishes `fpa.reforecast_published` from a fixed driver set | Slices 6 and 8                                                                       |
-| 13    | 6a14-A workforce core        | Worker registry, roles, wage table, skills matrix, certifications, eligibility gating, labour ledger, engagement snapshots                                                                                | Ergonomics (6a10) for strain, slice 9 for the contract set the roster prices against |
-| 14    | E23 rostering                | Constraint-solver roster consuming the labour requirement and absence forecast                                                                                                                            | Slice 13                                                                             |
+| 13    | 6a14-A workforce core        | Worker registry, roles, wage table, skills matrix, certifications, eligibility gating, labor ledger, engagement snapshots                                                                                 | Ergonomics (6a10) for strain, slice 9 for the contract set the roster prices against |
+| 14    | E23 rostering                | Constraint-solver roster consuming the labor requirement and absence forecast                                                                                                                             | Slice 13                                                                             |
 | 15    | 6a14-B lifecycle             | Hiring pipeline, learning curves, cross-training, attrition, absence generation and prediction, peak strategies                                                                                           | Slices 13 and 14                                                                     |
 | 16    | 6a15-A ITSM, SRE, telemetry  | CMDB, spans, traces, logs, golden signals, SLOs, derived burn rates, error budgets, incidents, problems, changes, DORA                                                                                    | The twin's own services already exist from P1 onward                                 |
 | 17    | E5 tiers                     | Autonomy tier enum and the approval gate for mutating tools                                                                                                                                               | Slice 16 for the actor identity on the approval event                                |
@@ -4199,16 +4199,16 @@ them is expensive:
 ### 8.5 What this band leaves for Phase 6
 
 | Later item                                    | What this section leaves ready for it                                                                                                                               |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | E18 OT cyberattack drill                      | Zones, conduits, tap, detection engine, incident pipeline, backups with measured restore, error budgets, runbook format                                             |
 | E21 collaborative multi-agent with governance | The decision register, RBAC on every tool, and the S&OP decision packet as the first real decision type                                                             |
 | E19 n-tier illumination                       | `SupplierDagPort`, the award engine's `max_tier2_concentration` constraint hook, and the consolidation what-if that reports it as `unenforced` until the DAG exists |
-| E20 reverse stress testing                    | Service and cash thresholds already defined (SLA penalties, working capital, TCOR) so the optimiser has objectives to break                                         |
+| E20 reverse stress testing                    | Service and cash thresholds already defined (SLA penalties, working capital, TCOR) so the optimizer has objectives to break                                         |
 | E37 PLM                                       | Standard cost roll-up reads a single effective revision; E37 adds effectivity dates, ECO propagation into open POs and standard costs, and revision in genealogy    |
 | E39 ESG and CSRD                              | Social metrics (turnover, training hours) and the GL structure the report aggregates from                                                                           |
 | E40 weather                                   | The absence model already accepts a `weather_index` feature and the promo baseline accepts a weather driver                                                         |
 | E45 AI operations economics                   | The GL, ABC model, and posting rules that absorb a monthly AI P&L as one more cost pool                                                                             |
-| E48 field-grade failure artefacts             | The runbook reference field on `itops.known_error_published` and the CMMS analog linkage                                                                            |
+| E48 field-grade failure artifacts             | The runbook reference field on `itops.known_error_published` and the CMMS analog linkage                                                                            |
 
 ## 9. Open questions
 
@@ -4227,7 +4227,7 @@ inventing an answer here.
 
 2. **Ownership of the authority matrix.** Procurement (PO approval), IT operations (change approval),
    and finance (journal and capex approval) all need it, and A1 forbids cross-package imports. This
-   section treats it as a shared config artefact validated by the config layer with each package
+   section treats it as a shared config artifact validated by the config layer with each package
    reading it independently, and `authority_matrix_interpretation_agrees` proves the three packages
    read it identically. If another section defines a governance package that owns it as code, this
    section consumes that instead. The semantics are settled and tested; the ownership is not.
@@ -4243,7 +4243,7 @@ inventing an answer here.
    that is the intended treatment for purchased-for-resale items, or whether they carry landed-cost
    standards instead, is not stated in the source.
 
-5. **Whether the AP exception queue and the service centre share a staffing model.** Both are staffed
+5. **Whether the AP exception queue and the service center share a staffing model.** Both are staffed
    office queues. 6a12 explicitly makes service agents "a staffed resource with queues, handle times,
    and their own rostering". 6a13 describes AP exceptions as consuming "real AP departments" but does
    not say they are rostered. This section models both as SimPy resources but routes only service
@@ -4269,7 +4269,7 @@ inventing an answer here.
    (unpatched critical, SOD conflict, conduit violation). The relative ordering of a safety finding
    and a security finding at the same nominal severity is not stated anywhere in the source. This
    section assigns severity floors but does not assert a total order across classes. The alarm
-   rationalisation layer needs one, and it must come from an explicit policy config rather than from
+   rationalization layer needs one, and it must come from an explicit policy config rather than from
    an accident of enum ordering.
 
 9. **Which supply review mode the shipped demo profile selects.** The computation is specified:
@@ -4329,7 +4329,7 @@ inventing an answer here.
     in the OpenStax _Principles of Accounting_ volumes. Both volumes are licensed
     CC BY-NC-SA, verified from the OpenStax book metadata API on 2026-08-09, not CC BY as this
     section previously stated. The non-commercial term conflicts with this repository's commercial
-    licence option and the share-alike term would reach a derivative work, so the fixtures encode the
+    license option and the share-alike term would reach a derivative work, so the fixtures encode the
     numeric inputs and the published answers with a citation and reproduce no prose, table, or layout.
     Individual facts and figures are not themselves copyrightable, which is the basis for that
     treatment, but it is the same class of question D-14 settled for PM4Py and it deserves the same

@@ -56,7 +56,7 @@ def _entropy(base_seed: int, replication_index: int) -> np.ndarray:
     varies with it. Four words is also DEFAULT_POOL_SIZE, and numpy pads the
     run entropy up to the pool size only when a spawn key is present, so fixing
     it at four makes that padding branch unreachable and removes a
-    version-sensitive behaviour from the contract.
+    version-sensitive behavior from the contract.
     """
     if not 0 <= base_seed < 2**64:
         raise ValueError(f"base_seed must fit in uint64, got {base_seed}")

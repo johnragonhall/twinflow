@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Licence allowlist gate, the SEC-001 half that reads the resolved tree.
+"""License allowlist gate, the SEC-001 half that reads the resolved tree.
 
     python scripts/checks/license-allowlist-gate.py
 
@@ -39,8 +39,8 @@ _ROW = re.compile(
 )
 
 #: Classifier text maps onto an SPDX id. Only the ids the allowlist names are
-#: listed: an unmapped licence reaches the report as unknown rather than being
-#: guessed at, because guessing is how a refused licence passes.
+#: listed: an unmapped license reaches the report as unknown rather than being
+#: guessed at, because guessing is how a refused license passes.
 _CLASSIFIER_TO_SPDX = {
     "MIT License": "MIT",
     "BSD License": "BSD-3-Clause",
@@ -54,7 +54,7 @@ _CLASSIFIER_TO_SPDX = {
 }
 
 _NORMALISE = {
-    # PyPI metadata spells the Python licence both ways, and the allowlist
+    # PyPI metadata spells the Python license both ways, and the allowlist
     # names one of them.
     "PSF-2.0": "Python-2.0",
     "Apache 2.0": "Apache-2.0",
@@ -153,7 +153,7 @@ def spdx_of(dist: metadata.Distribution) -> str | None:
 def decide(expression: str, placement: str, allowlist: dict[tuple[str, str], str]) -> str | None:
     """Resolve one SPDX expression against the allowlist.
 
-    A licence field is often an expression rather than a bare id: numpy ships
+    A license field is often an expression rather than a bare id: numpy ships
     "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0", and packaging ships
     "Apache-2.0 OR BSD-2-Clause". The two operators mean opposite things to a
     redistributor, so they are resolved rather than pattern-matched:
@@ -218,7 +218,7 @@ def main() -> int:
         placement = RUNTIME if _canonical(name) in runtime else DEV_ONLY
 
         if spdx is None:
-            unknown.append(f"{name}: declares no licence this gate can read")
+            unknown.append(f"{name}: declares no license this gate can read")
             continue
 
         decision = decide(spdx, placement, allowlist)
@@ -230,20 +230,20 @@ def main() -> int:
             unknown.append(f"{name}: {spdx} matches no row, placement {placement.lower()}")
 
     if refused or unknown:
-        sys.stderr.write("\n\033[31mBLOCKED: licence allowlist [SEC-001]\033[0m\n")
+        sys.stderr.write("\n\033[31mBLOCKED: license allowlist [SEC-001]\033[0m\n")
         for line in refused:
             sys.stderr.write(f"  refused  {line}\n")
         for line in unknown:
             sys.stderr.write(f"  unknown  {line}\n")
         sys.stderr.write(
-            "\nThe allowlist is the table in CONTRIBUTING.md. A licence with no row is\n"
+            "\nThe allowlist is the table in CONTRIBUTING.md. A license with no row is\n"
             "a decision nobody has made: add a row with its reasoning, or drop the\n"
             "dependency. Two rows turn on placement, so check the Applies to column.\n"
         )
         return 1
 
     print(
-        f"[licence] {checked} distributions checked against the allowlist, "
+        f"[license] {checked} distributions checked against the allowlist, "
         f"{len(runtime)} of them shipped at run time"
     )
     return 0

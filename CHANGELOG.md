@@ -23,7 +23,7 @@ here freely: the hook only ever adds.
 - validate the plan and prove every idea is placed
 - record the plan as data the build can check
 - assert the log invariants and the release policy
-- enforce the licence allowlist against the resolved tree
+- enforce the license allowlist against the resolved tree
 - open the environment seam and the metric identifier space
 - validate a facility profile and say what to fix
 - publish the schema registry and the compatibility differ

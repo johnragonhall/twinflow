@@ -39,7 +39,7 @@ advisory go out together, and you are credited by whatever name you ask for.
 ## Supported versions
 
 | Version         | Status                                        |
-| --------------- | --------------------------------------------- |
+|-----------------|-----------------------------------------------|
 | `main`          | Supported. Fixes land here first.             |
 | Latest `v*` tag | Supported. Fixes are back-ported from `main`. |
 | Older `v*` tags | Not supported. Upgrade to the latest tag.     |

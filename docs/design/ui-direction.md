@@ -1,6 +1,6 @@
 ---
 title: UI direction for the dashboard and the hosted replay
-description: The build-step ruling, the OKLCH token set with computed contrast, severity encoding beyond colour, flood behaviour, chart forms, motion, and the vendored-asset licence record.
+description: The build-step ruling, the OKLCH token set with computed contrast, severity encoding beyond color, flood behavior, chart forms, motion, and the vendored-asset license record.
 topic_type: concept
 audience: contributors
 ---
@@ -15,9 +15,9 @@ names the contract clause it works inside.
 
 Binding doctrine: `docs/design/DOCTRINE.md`.
 
-Evidence discipline: every claim below about a library, a licence, a browser
+Evidence discipline: every claim below about a library, a license, a browser
 capability, or a published standard was retrieved with `curl` on 2026-08-09 and
-carries its locator and its HTTP status. Section 12 holds the licence record.
+carries its locator and its HTTP status. Section 12 holds the license record.
 Section 15 holds what could not be settled.
 
 Two number classes, kept apart, matching the convention of the contract page. A
@@ -34,7 +34,7 @@ budget gates. It leaves five things open that a reader of the repository judges
 in the first ninety seconds.
 
 | Open question from the contract page                                            | Decided here |
-| ------------------------------------------------------------------------------- | ------------ |
+|---------------------------------------------------------------------------------|--------------|
 | Whether "single-file, no build step" survives contact with a striking interface | Section 2    |
 | What the tokens are, in OKLCH, with contrast computed rather than asserted      | Section 4    |
 | What a reader sees first, second, and third                                     | Section 5    |
@@ -56,10 +56,10 @@ argued away rather than quietly dropped.
 ### 2.2 The three candidates
 
 | Option                             | What it is                                                                                                          | What it buys                                                                                            | What it costs                                                                                                     |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+|------------------------------------|---------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
 | 1. Keep single-file, no build      | Hand-written HTML, modern CSS, vanilla JS, using platform features that did not exist when the rule became folklore | The quickstart never breaks, the shipped source is the tested source, one viewer serves live and replay | About fifty components are hand-written, including a virtualised grid and roving focus                            |
 | 2. Build step, vendored components | React plus a component kit plus a motion library, bundled                                                           | Faster component delivery, a familiar stack on a resume                                                 | The quickstart grows a toolchain, the tested source stops being the shipped source, node enters the runtime story |
-| 3. Split                           | No-build live dashboard, built static replay viewer for Pages                                                       | Each artifact optimised for its host                                                                    | Two viewers to keep in sync, and the artifact most readers see stops being the artifact the repository runs       |
+| 3. Split                           | No-build live dashboard, built static replay viewer for Pages                                                       | Each artifact optimized for its host                                                                    | Two viewers to keep in sync, and the artifact most readers see stops being the artifact the repository runs       |
 
 ### 2.3 The decision
 
@@ -87,7 +87,7 @@ would stop being evidence about the system the repository runs, which
 is the whole reason E1 is worth building.
 
 The true half of option 3 is that the Pages site is a separate deployment with
-different platform capabilities. That half is already honoured. Section 5.2.2 of
+different platform capabilities. That half is already honored. Section 5.2.2 of
 the contract page ships two content security policies, because a static host
 cannot set a response header. Section 5.11.1 loads the query engine lazily
 from the site's own origin. Those are deployment differences, not a second
@@ -146,7 +146,7 @@ Baseline "widely" means the feature has been interoperable across the core
 browser set for at least thirty months by that project's own definition.
 
 | Feature                    | Baseline status | Baseline low date | Baseline high date | Used here for                                                        |
-| -------------------------- | --------------- | ----------------- | ------------------ | -------------------------------------------------------------------- |
+|----------------------------|-----------------|-------------------|--------------------|----------------------------------------------------------------------|
 | `dialog`                   | widely          | 2022-03-14        | 2024-09-14         | Shortcut help, first-run overlay, shelve dialog, focus trap for free |
 | `container-queries`        | widely          | 2023-02-14        | 2025-08-14         | Panels that adapt to their column, not to the viewport               |
 | `subgrid`                  | widely          | 2023-09-15        | 2026-03-15         | Findings row fields aligned across rows without a fixed table        |
@@ -178,14 +178,14 @@ motion. Tier 5 is a real requirement and loses to tiers 1 through 4.
 
 ### 3.2 The disagreements worth recording
 
-| Conflict                   | Position A                                                                                                          | Position B                                                                                              | Winner and why                                                                                                       |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| What leads the eye         | Visual hierarchy work argues for the plan view, because it is the picture and it is what a screenshot sells         | Nielsen visibility of system status and the brief argue for the findings stream and the bottleneck      | B, on tier 4. The plan view is large but sits left and reads recessive. Section 5.4 places it                        |
-| How many things stand out  | The isolation effect allows exactly one differentiated element per region, and says a second one destroys the first | The brief names two centres, the findings stream and the bottleneck                                     | Both, resolved by region. One isolation per container, never two inside one container. Section 5.5                   |
-| Severity colour saturation | Aesthetic usability argues that a saturated palette reads as more competent and tests as more usable                | Control-room practice reserves saturation for the abnormal state                                        | B, on tier 1. A resting screen that is already colourful gives an abnormal colour nothing to say                     |
-| Chart colour authority     | The repository standing rule is OKLCH, generated, never eyeballed                                                   | The `dataviz` method requires a documented, validated categorical palette and forbids invented values   | Both. The validated palette is adopted and expressed in OKLCH. Section 8.2 shows the run                             |
-| Motion budget              | Portfolio instinct wants entrance motion on panels so the demo GIF feels alive                                      | Motion-audit practice frequency-gates continuous and decorative motion off high-frequency work surfaces | B, on tier 3. Motion means change here. Section 9                                                                    |
-| Density                    | Responsive practice wants generous spacing at large sizes                                                           | A control room at a wall display wants more data, not more air                                          | Split by distance. A density multiplier grows spacing with viewing distance, not with pixel count alone. Section 4.5 |
+| Conflict                  | Position A                                                                                                          | Position B                                                                                              | Winner and why                                                                                                       |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| What leads the eye        | Visual hierarchy work argues for the plan view, because it is the picture and it is what a screenshot sells         | Nielsen visibility of system status and the brief argue for the findings stream and the bottleneck      | B, on tier 4. The plan view is large but sits left and reads recessive. Section 5.4 places it                        |
+| How many things stand out | The isolation effect allows exactly one differentiated element per region, and says a second one destroys the first | The brief names two centers, the findings stream and the bottleneck                                     | Both, resolved by region. One isolation per container, never two inside one container. Section 5.5                   |
+| Severity color saturation | Aesthetic usability argues that a saturated palette reads as more competent and tests as more usable                | Control-room practice reserves saturation for the abnormal state                                        | B, on tier 1. A resting screen that is already colorful gives an abnormal color nothing to say                       |
+| Chart color authority     | The repository standing rule is OKLCH, generated, never eyeballed                                                   | The `dataviz` method requires a documented, validated categorical palette and forbids invented values   | Both. The validated palette is adopted and expressed in OKLCH. Section 8.2 shows the run                             |
+| Motion budget             | Portfolio instinct wants entrance motion on panels so the demo GIF feels alive                                      | Motion-audit practice frequency-gates continuous and decorative motion off high-frequency work surfaces | B, on tier 3. Motion means change here. Section 9                                                                    |
+| Density                   | Responsive practice wants generous spacing at large sizes                                                           | A control room at a wall display wants more data, not more air                                          | Split by distance. A density multiplier grows spacing with viewing distance, not with pixel count alone. Section 4.5 |
 
 ### 3.3 Platform guidance, and what was taken from it
 
@@ -200,7 +200,7 @@ factors rather than platform convention.
   exits faster than entrances, and opacity-only changes shortest of all.
   Section 9 states the numbers as choices made here.
 - Reduced motion and increased contrast as operating-system settings a browser
-  surface honours whatever platform it runs on.
+  surface honors whatever platform it runs on.
 
 Nothing about window chrome, title bars, control metrics, or platform iconography
 is taken, because none of it applies to a page served over HTTP.
@@ -212,7 +212,7 @@ is taken, because none of it applies to a page served over HTTP.
 ### 4.1 The look, in one paragraph
 
 An instrument, not a poster. A neutral field at rest, thin strokes, hairline
-rules, tabular numerals, and a single accent hue reserved for focus. Colour
+rules, tabular numerals, and a single accent hue reserved for focus. Color
 enters when something is abnormal, and it leaves when the abnormality clears.
 
 The visual interest comes from density done well. A plan view that is a real
@@ -226,7 +226,7 @@ descending side counts, drawn as inline SVG, doubling as the 3D halo ring
 segment count. It is decoration that carries information, which is the only kind
 this interface has room for.
 
-### 4.2 Why colour is reserved
+### 4.2 Why color is reserved
 
 NUREG-0700 Revision 4, Human-System Interface Design Review Guidelines, published
 January 2026 by the United States Nuclear Regulatory Commission, is a free and
@@ -265,7 +265,7 @@ a pass.
 #### 4.3.1 Light, normal contrast
 
 | Token                | OKLCH                    | sRGB      | Contrast check      | Ratio     |
-| -------------------- | ------------------------ | --------- | ------------------- | --------- |
+|----------------------|--------------------------|-----------|---------------------|-----------|
 | `--tf-bg`            | `oklch(0.985 0.004 250)` | `#F8FAFD` | reference surface   | n/a       |
 | `--tf-bg-raised`     | `oklch(1.000 0.000 250)` | `#FFFFFF` | reference surface   | n/a       |
 | `--tf-bg-sunken`     | `oklch(0.945 0.006 250)` | `#EAEDF1` | reference surface   | n/a       |
@@ -290,7 +290,7 @@ Same key set, every key present. Text pairs reach 9.29 or better, non-text pairs
 4.33 or better.
 
 | Token                | OKLCH                    | sRGB      | Contrast check      | Ratio |
-| -------------------- | ------------------------ | --------- | ------------------- | ----- |
+|----------------------|--------------------------|-----------|---------------------|-------|
 | `--tf-bg`            | `oklch(1.000 0.000 250)` | `#FFFFFF` | reference surface   | n/a   |
 | `--tf-bg-raised`     | `oklch(0.975 0.004 250)` | `#F5F7F9` | reference surface   | n/a   |
 | `--tf-bg-sunken`     | `oklch(0.930 0.008 250)` | `#E4E8ED` | reference surface   | n/a   |
@@ -311,7 +311,7 @@ image from crushing every dark value into the same shadow, and it keeps a bright
 room from turning the screen into a mirror.
 
 | Token                | OKLCH                    | sRGB      | Contrast check      | Ratio     |
-| -------------------- | ------------------------ | --------- | ------------------- | --------- |
+|----------------------|--------------------------|-----------|---------------------|-----------|
 | `--tf-bg`            | `oklch(0.205 0.014 250)` | `#262C33` | reference surface   | n/a       |
 | `--tf-bg-raised`     | `oklch(0.255 0.014 250)` | `#31383F` | reference surface   | n/a       |
 | `--tf-bg-sunken`     | `oklch(0.165 0.014 250)` | `#1D2228` | reference surface   | n/a       |
@@ -330,7 +330,7 @@ room from turning the screen into a mirror.
 #### 4.3.4 Dark, more contrast
 
 | Token                | OKLCH                    | sRGB      | Contrast check      | Ratio |
-| -------------------- | ------------------------ | --------- | ------------------- | ----- |
+|----------------------|--------------------------|-----------|---------------------|-------|
 | `--tf-bg`            | `oklch(0.145 0.012 250)` | `#181D22` | reference surface   | n/a   |
 | `--tf-bg-raised`     | `oklch(0.205 0.012 250)` | `#262C33` | reference surface   | n/a   |
 | `--tf-fg`            | `oklch(0.990 0.004 250)` | `#FBFCFE` | on `--tf-bg`        | 19.23 |
@@ -343,13 +343,13 @@ room from turning the screen into a mirror.
 | `--tf-sev-low`       | `oklch(0.780 0.110 248)` | `#7DBCF7` | on `--tf-bg-raised` | 8.40  |
 | `--tf-sev-info`      | `oklch(0.740 0.020 250)` | `#A3ADB8` | on `--tf-bg-raised` | 7.61  |
 
-#### 4.3.5 The label colour on each severity fill
+#### 4.3.5 The label color on each severity fill
 
 A severity chip carries its text label on the fill, so the pair is a text
 contrast case at 4.5 rather than a non-text case at 3.
 
 | Severity | Light: label token | Light ratio | Dark: label token | Dark ratio |
-| -------- | ------------------ | ----------- | ----------------- | ---------- |
+|----------|--------------------|-------------|-------------------|------------|
 | critical | `--tf-fg-inverse`  | 8.97        | `--tf-fg-inverse` | 5.09       |
 | high     | `--tf-fg-inverse`  | 7.14        | `--tf-fg-inverse` | 8.94       |
 | medium   | `--tf-fg`          | 4.93        | `--tf-fg-inverse` | 12.19      |
@@ -363,22 +363,22 @@ about 0.62 to carry dark text at 4.5. The band between is unusable for a filled
 chip. Amber at usable chroma sits above the band, so it takes dark text, which
 is also what a painted plant floor does.
 
-#### 4.3.6 A lightness ladder, so greyscale still separates
+#### 4.3.6 A lightness ladder, so grayscale still separates
 
 The five severity lightness values are pairwise distinct with a minimum gap of
 0.04 OKLCH lightness in all four token sets. Shape and text carry the ordinal
 meaning, so the ladder is not required to be monotone in rank, and it is not.
 Its job is that a monochrome print or a failing projector still resolves five
-distinct greys.
+distinct grays.
 
 | Token set           | Lightness ladder, ascending                                |
-| ------------------- | ---------------------------------------------------------- |
+|---------------------|------------------------------------------------------------|
 | light.normal        | critical 0.42, high 0.46, low 0.50, info 0.54, medium 0.65 |
 | light.more_contrast | critical 0.36, high 0.40, low 0.44, info 0.48, medium 0.59 |
 | dark.normal         | critical 0.64, info 0.68, low 0.72, high 0.78, medium 0.86 |
 | dark.more_contrast  | critical 0.70, info 0.74, low 0.78, high 0.84, medium 0.92 |
 
-### 4.4 Two colour hazards the dark theme has to answer
+### 4.4 Two color hazards the dark theme has to answer
 
 NUREG-0700 Revision 4 guideline 1.3.8-13, Chromostereopsis, states that
 "Simultaneous presentation of both pure red and pure blue on a dark background
@@ -399,7 +399,7 @@ where avoidable.
 No severity token is green in any set. Green appears only as `--tf-ok`, a device
 health state, and it never shares a row with `--tf-sev-critical`, because a
 device with an open critical finding renders the finding severity and not the
-health colour.
+health color.
 
 ### 4.5 Type, spacing, and density
 
@@ -407,14 +407,14 @@ Type. Inter for the interface and numerals, JetBrains Mono for code, SQL, hashes
 and the tool trace. Both are variable fonts under SIL Open Font License 1.1,
 subset to Latin, digits, and punctuation. Both are embedded as base64 inside
 `index.html`, inside the 60 KB share of the 400 KB file budget that section 5.2
-of the contract page sets aside. Section 12 records both licences.
+of the contract page sets aside. Section 12 records both licenses.
 
 The scale is a fixed ramp rather than a fluid clamp. A fluid scale makes a
 visual-regression golden depend on viewport width, and the golden set in section
 7.5 of the contract page is what keeps this interface honest.
 
 | Step             | Size      | Line height | Use                                          |
-| ---------------- | --------- | ----------- | -------------------------------------------- |
+|------------------|-----------|-------------|----------------------------------------------|
 | `--tf-text-2xs`  | 0.6875rem | 1.0rem      | Axis ticks, badge text, sim-time-ago         |
 | `--tf-text-xs`   | 0.75rem   | 1.125rem    | Table cells, chip labels, tool trace         |
 | `--tf-text-sm`   | 0.8125rem | 1.25rem     | Findings row body, panel toolbars            |
@@ -425,7 +425,7 @@ visual-regression golden depend on viewport width, and the golden set in section
 
 `font-variant-numeric: tabular-nums` applies to table cells, axis ticks, the sim
 clock, and every findings-row numeral, so columns of numbers align and a value
-that changes does not shift its neighbours. It does not apply to the verdict
+that changes does not shift its neighbors. It does not apply to the verdict
 card's headline figure, where equal-width digits make a three-digit number read
 loose at display size.
 
@@ -460,7 +460,7 @@ shadows entirely, so nothing structural depends on one.
 ### 5.1 The first five seconds
 
 A reader who looks at one screenshot has to come away with four facts, in this
-order, from a single vertical scan of the centre column.
+order, from a single vertical scan of the center column.
 
 1. This is synthetic data. The `SYNTHETIC` badge is in the header, is not
    dismissible, and is in every frame of every capture.
@@ -478,7 +478,7 @@ header, at `--tf-fg-muted`, and there is no logo.
 ### 5.2 The ninety-second path
 
 | Second   | What the reader does                                    | What the interface has to make easy                                                                                                     |
-| -------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+|----------|---------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | 0 to 10  | Reads the header and the top of the findings stream     | Severity legible without a legend, synthetic badge unmissable                                                                           |
 | 10 to 25 | Looks at the plan view and finds the bottleneck station | The bottleneck marker is a heavy dashed outline plus the word, visible without hover                                                    |
 | 25 to 45 | Opens one finding                                       | The drawer shows the control chart with the violating points marked by shape and the rule id spelled out                                |
@@ -508,19 +508,19 @@ each ends in evidence rather than in an assertion.
 ### 5.4 The frame
 
 Three columns above 1200 CSS pixels, two below 1200, one below 760. Column
-behaviour is driven by container queries so a panel moved between columns adapts
+behavior is driven by container queries so a panel moved between columns adapts
 to its column rather than to the window.
 
 | Region                                    | Contents                                                                         | Why here                                                     |
-| ----------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+|-------------------------------------------|----------------------------------------------------------------------------------|--------------------------------------------------------------|
 | Header, full width                        | Run identity, synthetic badge, sim clock, speed control, stream health, settings | Persistent facts that frame every other reading              |
 | Safety band, full width, under the header | Open findings of class safety or security, never collapsed, never scrolled away  | Section 6.3                                                  |
 | Left column, about 34 percent             | Plan view, then the fleet table                                                  | The picture, recessive by treatment, present for orientation |
-| Centre column, about 40 percent           | Bottleneck card, then the findings stream, which takes the remaining height      | The two things the brief puts at the centre                  |
+| Center column, about 40 percent           | Bottleneck card, then the findings stream, which takes the remaining height      | The two things the brief puts at the center                  |
 | Right column, about 26 percent            | Agent chat, then the what-if card and the approval strip                         | The narrative surface, read after the state is understood    |
 | Footer strip                              | Audit strip, last five config changes with actor                                 | Present without competing                                    |
 
-At two columns the right column moves under the centre. At one column the order
+At two columns the right column moves under the center. At one column the order
 becomes header, safety band, bottleneck, findings, plan view, fleet, chat. The
 findings stream never drops below the fold on any width, which is the one
 ordering rule that does not bend.
@@ -532,7 +532,7 @@ highlights cancel. The resolution is one isolation per container, and never two
 inside one container.
 
 | Container        | The one isolated element                          | How it is isolated                                                                                           |
-| ---------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+|------------------|---------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
 | Plan view        | The bottleneck station                            | Heavy dashed outline, the word BOTTLENECK, a distinct glyph. Every other station is a hairline rectangle     |
 | Findings stream  | The top-ranked open finding                       | A 3-pixel leading rail in its severity token, plus a raised background step. Rows below carry a 1-pixel rail |
 | Safety band      | Nothing, because the band itself is the isolation | The band exists only when it is non-empty, and its presence is the signal                                    |
@@ -545,30 +545,30 @@ fails on more than one.
 
 ---
 
-## 6. Severity encoding that is not colour alone
+## 6. Severity encoding that is not color alone
 
 ### 6.1 Four channels, all four always present
 
-The contract page section 5.12.1 fixes colour, shape, and text. This page adds
+The contract page section 5.12.1 fixes color, shape, and text. This page adds
 position as a fourth channel and states what each one is for.
 
-| Channel                            | Carries                                              | Fails alone when                                                              |
-| ---------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Text label                         | The exact severity, unambiguously                    | The reader is glancing rather than reading                                    |
-| Shape, by side count 8, 6, 5, 4, 3 | The ordinal, learnably: more sides means more severe | Low vision, small render, or a compressed GIF                                 |
-| Colour                             | Fast pre-attentive grouping                          | Colour vision deficiency, greyscale print, forced colors, a failing projector |
-| Position, the sorted band          | Relative rank against everything else on screen      | The list is filtered or grouped                                               |
+| Channel                            | Carries                                              | Fails alone when                                                             |
+|------------------------------------|------------------------------------------------------|------------------------------------------------------------------------------|
+| Text label                         | The exact severity, unambiguously                    | The reader is glancing rather than reading                                   |
+| Shape, by side count 8, 6, 5, 4, 3 | The ordinal, learnably: more sides means more severe | Low vision, small render, or a compressed GIF                                |
+| Color                              | Fast pre-attentive grouping                          | Color vision deficiency, grayscale print, forced colors, a failing projector |
+| Position, the sorted band          | Relative rank against everything else on screen      | The list is filtered or grouped                                              |
 
 The rule the interface holds is that removing any one channel leaves the severity
 readable. That is what NUREG-0700 guideline 1.3.8-10 asks for and it is stronger
-than WCAG 1.4.1, which only forbids colour as the sole channel.
+than WCAG 1.4.1, which only forbids color as the sole channel.
 
 ### 6.2 What the glyph is
 
 Inline SVG, `role="img"`, a `<title>` equal to the text label, a stroked polygon
 with a filled interior at the severity token, and a stroke at
 `--tf-border-strong` so the shape survives `forced-colors: active` where fills
-are replaced by system colours. No icon font, no emoji. Minimum rendered size 14
+are replaced by system colors. No icon font, no emoji. Minimum rendered size 14
 CSS pixels across the bounding box, which is the size at which an octagon and a
 hexagon are still distinguishable at arm's length on a 1080p projector, a number
 chosen here.
@@ -584,7 +584,7 @@ published; the mapping is a view-model derivation and belongs to the presentatio
 layer.
 
 | Class       | Rank | `kind` values it covers                                                                             |
-| ----------- | ---- | --------------------------------------------------------------------------------------------------- |
+|-------------|------|-----------------------------------------------------------------------------------------------------|
 | safety      | 1    | `safety`                                                                                            |
 | security    | 2    | `security`                                                                                          |
 | quality     | 3    | `spc_violation`, `capability_shortfall`, `msa_failure`, `sop_violation`, `process_mining_deviation` |
@@ -620,17 +620,17 @@ producer's value whatever its class.
 
 ### 6.4 What survives each removal
 
-| Condition                                       | What still works                                                                                                       |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Greyscale print                                 | Glyph shape, text label, sorted position, and five distinct greys from the lightness ladder                            |
-| Protanopia, deuteranopia, tritanopia            | Glyph shape, text label, position. Colour separability is budgeted by `BG-SEP-1` and not claimed as a standards result |
-| `forced-colors: active`                         | Glyph geometry and stroke, text label, position. Fill colour is replaced by the system                                 |
-| 12-frame-per-second GIF at GitHub content width | Text label at the 11-pixel floor `BG-GIF-1` sets, and the glyph at its 14-pixel floor                                  |
-| Screen reader                                   | Text label first in the accessible name, then the class, then the entity, then the rule                                |
+| Condition                                       | What still works                                                                                                      |
+|-------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| Grayscale print                                 | Glyph shape, text label, sorted position, and five distinct grays from the lightness ladder                           |
+| Protanopia, deuteranopia, tritanopia            | Glyph shape, text label, position. Color separability is budgeted by `BG-SEP-1` and not claimed as a standards result |
+| `forced-colors: active`                         | Glyph geometry and stroke, text label, position. Fill color is replaced by the system                                 |
+| 12-frame-per-second GIF at GitHub content width | Text label at the 11-pixel floor `BG-GIF-1` sets, and the glyph at its 14-pixel floor                                 |
+| Screen reader                                   | Text label first in the accessible name, then the class, then the entity, then the rule                               |
 
 ---
 
-## 7. Alarm flood behaviour
+## 7. Alarm flood behavior
 
 ### 7.1 What the interface is defending against
 
@@ -646,7 +646,7 @@ manager already does three of them under different names, and naming the mapping
 is worth more than inventing a vocabulary.
 
 | NUREG-0700 class | The twinflow mechanism                                 | Where the reader sees it                                                             |
-| ---------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+|------------------|--------------------------------------------------------|--------------------------------------------------------------------------------------|
 | Nuisance         | Chatter detection, and suppression by design in config | `CHATTERING` badge with a transition count, and a separate suppressed-by-design list |
 | Redundant        | Dedupe on `AlarmKey` inside the dedupe window          | The `x7` count with a first and last sim time on one row                             |
 | Significance     | Severity rank, class rank, and per-role rate metering  | Sort order, the safety band, and the alarm rate meter                                |
@@ -657,7 +657,7 @@ is worth more than inventing a vocabulary.
 Five states. Each one names its trigger, what changes, and what does not.
 
 | State                | Trigger                                             | What changes                                                                                                                             | What never changes                                          |
-| -------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+|----------------------|-----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
 | Normal               | Role rate below `target_rate_per_10min`             | Nothing. Rows arrive, the newest highlights for one step and settles                                                                     | Ingest counting, `V9` conservation                          |
 | Busy                 | Role rate at or above target, below flood threshold | The rate meter leaves its target band and shows the count. Arrival highlight shortens                                                    | Announcement policy, sort order                             |
 | Flood                | Role rate at or above `flood_threshold_per_10min`   | Banner naming the role and the counts. List switches to server-supplied groups. Assertive announcements stop and a summary replaces them | The safety band, the ungrouped toggle, every count          |
@@ -757,19 +757,19 @@ control away. The safety band renders in full.
 ## 8. Charts
 
 The `dataviz` method was applied before any chart form was chosen, in its stated
-order: form, then colour by job, then validate, then marks, then interaction,
+order: form, then color by job, then validate, then marks, then interaction,
 then the accessibility pass.
 
 ### 8.1 Form by question
 
 | Question the reader has                     | Form                                                                                      | Why not something else                                              |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+|---------------------------------------------|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
 | Is this process in statistical control      | Individuals and moving-range control chart, violations marked by shape                    | A line chart with no limits cannot answer it                        |
 | Can this process meet its specification     | Histogram with specification limits and a fitted curve overlay                            | A capability index alone hides bimodality and truncation            |
 | Which few causes carry most of the findings | Pareto chart, bars descending with a cumulative line on the same axis, indexed to percent | A pie cannot be read in rank order                                  |
 | Where does the value stream lose time       | Value stream map, a horizontal process chain with a value-add and wait timeline beneath   | A bar chart of stage times loses the sequence, which is the point   |
-| Where has the constraint been               | Constraint timeline, a horizontal band chart, one row per station, one band per interval  | A line chart of utilisation does not answer where the constraint is |
-| Is this device trending                     | Sparkline, no axes, one endpoint value labelled                                           | A full chart in a table row is unreadable at 500 rows               |
+| Where has the constraint been               | Constraint timeline, a horizontal band chart, one row per station, one band per interval  | A line chart of utilization does not answer where the constraint is |
+| Is this device trending                     | Sparkline, no axes, one endpoint value labeled                                            | A full chart in a table row is unreadable at 500 rows               |
 | Where am I in the recorded shift            | Scrubber with a chapter track marking findings, agent turns, and constraint shifts        | A bare range input hides the structure of the run                   |
 | What is this one number                     | Stat tile, no plot                                                                        | A one-bar bar chart is the number with extra ink                    |
 
@@ -783,7 +783,7 @@ recorded here rather than shipped quietly.
 
 ### 8.2 The categorical series palette, validated
 
-The repository standing rule is OKLCH and generated colour. The `dataviz` method
+The repository standing rule is OKLCH and generated color. The `dataviz` method
 requires a documented palette validated by its own script rather than values
 chosen by eye. Both hold at once. The method's documented eight-slot categorical
 palette is adopted as the series ramp and converted to OKLCH for declaration. It
@@ -793,7 +793,7 @@ palette file instructs a consumer to do.
 The validator was run on 2026-08-09 against `--tf-bg-raised` in each theme.
 
 | Run                       | Surface   | Lightness band              | Chroma floor                 | Worst adjacent CVD | Worst adjacent normal vision | Contrast                    |
-| ------------------------- | --------- | --------------------------- | ---------------------------- | ------------------ | ---------------------------- | --------------------------- |
+|---------------------------|-----------|-----------------------------|------------------------------|--------------------|------------------------------|-----------------------------|
 | light, adjacent pairs     | `#FFFFFF` | pass, all 8 in 0.43 to 0.77 | pass, all 8 at or above 0.10 | 9.1, protanopia    | 19.6                         | relief required for 3 slots |
 | dark, adjacent pairs      | `#31383F` | pass, all 8 in 0.48 to 0.67 | pass, all 8 at or above 0.10 | 8.4, protanopia    | 19.3                         | relief required for 1 slot  |
 | light, all pairs, first 3 | `#FFFFFF` | pass                        | pass                         | 9.2, deuteranopia  | 24.0                         | relief required for 1 slot  |
@@ -809,10 +809,10 @@ before the palette needs it.
 
 Scatter, bubble, and small-multiple forms carry a hard cap of three series,
 because only the first three slots clear the all-pairs floors. Past three the
-chart facets or folds a tail into "Other". No fourth colour is generated, ever.
+chart facets or folds a tail into "Other". No fourth color is generated, ever.
 
 | Slot | Hue     | Light, OKLCH               | Dark, OKLCH                |
-| ---- | ------- | -------------------------- | -------------------------- |
+|------|---------|----------------------------|----------------------------|
 | 1    | blue    | `oklch(0.575 0.163 255.5)` | `oklch(0.622 0.161 255.1)` |
 | 2    | orange  | `oklch(0.671 0.175 40.6)`  | `oklch(0.622 0.173 40.1)`  |
 | 3    | aqua    | `oklch(0.669 0.141 162.1)` | `oklch(0.621 0.128 163.1)` |
@@ -822,7 +822,7 @@ chart facets or folds a tail into "Other". No fourth colour is generated, ever.
 | 7    | violet  | `oklch(0.433 0.167 283.6)` | `oklch(0.670 0.145 286.8)` |
 | 8    | red     | `oklch(0.623 0.191 24.9)`  | `oklch(0.669 0.159 22.3)`  |
 
-Sequential encoding, for the utilisation heat layer and the ergonomics layer,
+Sequential encoding, for the utilization heat layer and the ergonomics layer,
 takes one hue and steps lightness. The blue ramp runs from
 `oklch(0.905 0.041 252.8)` at the light end to `oklch(0.338 0.103 256.9)` at the
 dark end, thirteen steps. An ordinal use starts no lighter than
@@ -830,11 +830,11 @@ dark end, thirteen steps. An ordinal use starts no lighter than
 2:1.
 
 Diverging encoding, for a counterfactual comparison of two runs, takes blue
-against red with a neutral grey midpoint, `oklch(0.952 0.004 91.4)` on light and
+against red with a neutral gray midpoint, `oklch(0.952 0.004 91.4)` on light and
 `oklch(0.340 0.005 106.7)` on dark. A hue at the midpoint is refused, because the
 midpoint has to read as nothing.
 
-Status colour is reserved and never doubles as a series. The severity tokens in
+Status color is reserved and never doubles as a series. The severity tokens in
 section 4.3 are the status scale here, and a chart series never wears one. Where
 a series genuinely means good or bad, such as a pass rate, it wears the status
 token and no categorical slot is assigned to it.
@@ -847,12 +847,12 @@ both are load-bearing: a control limit, and a specification limit.
 
 The y axis starts at zero for any bar or area form. A line form may use a
 non-zero baseline, and when it does the axis carries an explicit break marker and
-the baseline value is labelled.
+the baseline value is labeled.
 
 A legend is present whenever a chart carries two or more series. A single-series
 chart has no legend box, because the panel heading names the series. At four
-series or fewer the series are also direct-labelled at their endpoint, so
-identity is never colour alone. A number is never printed on every point.
+series or fewer the series are also direct-labeled at their endpoint, so
+identity is never color alone. A number is never printed on every point.
 
 Tooltips add to a chart and never gate it. Every value in every chart is reachable from
 the table equivalent, and keyboard focus on a mark shows the same content hover
@@ -869,7 +869,7 @@ as a state change.
 
 ### 8.4 The four charts that carry the thesis
 
-The control chart. Points as 3-pixel dots on a 1.5-pixel line, centre line
+The control chart. Points as 3-pixel dots on a 1.5-pixel line, center line
 solid at `--tf-fg-muted`, control limits dashed at `--tf-border-strong`,
 specification limits dashed at `--tf-warn` when present. A violating point is
 drawn as a filled square rather than a dot and is ringed with a 2-pixel surface
@@ -910,7 +910,7 @@ gate a motion audit applies to a high-frequency work surface.
 ### 9.2 What moves
 
 | Element                   | Motion                                                                   | Duration                 | Easing                        | Reason it is allowed                                               |
-| ------------------------- | ------------------------------------------------------------------------ | ------------------------ | ----------------------------- | ------------------------------------------------------------------ |
+|---------------------------|--------------------------------------------------------------------------|--------------------------|-------------------------------|--------------------------------------------------------------------|
 | A finding arriving        | Background highlight fades from the severity token to the row background | 400 ms                   | linear                        | It marks the one thing that changed                                |
 | Rank change in the stream | Row translates to its new position                                       | 150 ms                   | decelerate                    | Without it the reader loses the row                                |
 | Panel open or close       | Height and opacity                                                       | 150 ms in, 100 ms out    | decelerate in, accelerate out | Preserves the reader's spatial model                               |
@@ -964,8 +964,8 @@ asks for exactly that exemption. Its announcement rate is capped at one per 3
 seconds like any other assertive region, so the exemption does not become a
 denial of service by another route.
 
-Focus order follows the frame in section 5.4: header, safety band, centre column,
-left column, right column, footer. The centre column comes before the left
+Focus order follows the frame in section 5.4: header, safety band, center column,
+left column, right column, footer. The center column comes before the left
 column in the tab order even though it comes after it visually at three columns.
 That is a deliberate divergence between visual order and DOM order, and it is the
 one place this interface makes that trade. The reason is that a keyboard reader
@@ -978,7 +978,7 @@ roving range covers the rendered head, and moving past the last rendered row
 loads the next page rather than trapping.
 
 Every chart has a table equivalent reachable by a control in the panel toolbar,
-not only from a menu, because that table is the relief channel three chart colours
+not only from a menu, because that table is the relief channel three chart colors
 depend on.
 
 The density override, the theme, the contrast, and the motion preference all live
@@ -989,7 +989,7 @@ Target size is 24 by 24 CSS pixels minimum, including the scrubber thumb, the
 chapter ticks, and the chart hit areas. The chapter ticks are the hardest case,
 because a dense run puts many of them close together. The answer is that a
 tick's hit area is 24 pixels wide while its visual mark is 2 pixels, and
-overlapping hit areas resolve to the nearest tick centre.
+overlapping hit areas resolve to the nearest tick center.
 
 ---
 
@@ -1005,7 +1005,7 @@ differ and each says so on screen rather than pretending.
 
 - The clock is browser-owned, so the speed control moves the reader's playhead
   rather than a simulator.
-- Live-only commands are refused with a labelled message naming the reason.
+- Live-only commands are refused with a labeled message naming the reason.
 - The agent transcript is recorded, and free-text input either matches a recorded
   question or says that it did not.
 - The query panel executes real SQL over the recorded run's Parquet aggregates in
@@ -1016,11 +1016,11 @@ differ and each says so on screen rather than pretending.
 The scrubber is a native `<input type="range">` with `aria-valuetext` carrying
 the formatted sim time, which gives keyboard and screen-reader support without
 a custom widget. Above it sits a chapter track, a hairline rail with a tick per
-finding, agent turn, and constraint shift. Each tick is coloured by its severity
+finding, agent turn, and constraint shift. Each tick is colored by its severity
 token, shaped by its kind, and carries an accessible name.
 
 Seek cost is bounded by the `SEEK-1` algorithm at one keyframe plus one chunk
-whatever the distance travelled, so dragging the scrubber across an eight-hour
+whatever the distance traveled, so dragging the scrubber across an eight-hour
 shift is not a different operation from stepping one frame. While a chunk is in
 flight the viewer shows an explicit buffering state and never stalls silently.
 
@@ -1043,7 +1043,7 @@ Three budgets, and all three are numbers chosen by this repository rather than
 taken from a source.
 
 | Budget              | Value                                                  | What it covers                                          | Existing gate               |
-| ------------------- | ------------------------------------------------------ | ------------------------------------------------------- | --------------------------- |
+|---------------------|--------------------------------------------------------|---------------------------------------------------------|-----------------------------|
 | Viewer file         | 400 KB uncompressed, of which 60 KB is the font subset | `index.html` alone                                      | `T-SIZE-1`                  |
 | First paint payload | 1.2 MB transferred                                     | `index.html` plus manifest plus keyframe 0 plus chunk 0 | `BG-FIRSTPAINT-1`, proposed |
 | Full bundle         | 25 MiB gzipped for an eight-hour shift                 | Every chunk, keyframe, and media file                   | `BG-BUNDLE-1`               |
@@ -1071,50 +1071,50 @@ Every item below carries one of three statuses, and each has a different legal
 consequence.
 
 | Status      | Meaning                                                                         | NOTICE entry | Provenance header                                 |
-| ----------- | ------------------------------------------------------------------------------- | ------------ | ------------------------------------------------- |
-| Vendored    | The file is in the tree, verbatim, under a compatible licence                   | Required     | Required                                          |
-| Adapted     | Compatible licence, in the tree, modified rather than copied                    | Required     | Required, and it states that the file was changed |
-| Inspiration | Incompatible or unverified licence, or incompatible architecture. No code taken | None         | None. The credit lives here only                  |
+|-------------|---------------------------------------------------------------------------------|--------------|---------------------------------------------------|
+| Vendored    | The file is in the tree, verbatim, under a compatible license                   | Required     | Required                                          |
+| Adapted     | Compatible license, in the tree, modified rather than copied                    | Required     | Required, and it states that the file was changed |
+| Inspiration | Incompatible or unverified license, or incompatible architecture. No code taken | None         | None. The credit lives here only                  |
 
 Apache License 2.0 section 4(b) is why Adapted differs from Vendored: a modified
 file has to "carry prominent notices stating that You changed the files".
 Section 4(d) is why the first two need a `NOTICE` entry at all. Both retrieved
 from `https://www.apache.org/licenses/LICENSE-2.0.txt`, HTTP 200, 2026-08-09.
-<!-- docs-lint-ok STE-01 verbatim quotation of the licence text -->
+<!-- docs-lint-ok STE-01 verbatim quotation of the license text -->
 
 Inspiration credits stay out of `NOTICE` on purpose. `NOTICE` describes what the
 distribution contains. Listing a source there whose code is not in the tree would
 state something untrue in the one file whose job is to be accurate about the
 contents.
 
-### 12.2 What the licence rules are, applied outbound
+### 12.2 What the license rules are, applied outbound
 
 twinflow is Apache-2.0 outbound with a commercial option, which is a stricter
 filter than an inbound-only reading gives.
 
-| Inbound licence                         | Ruling here                                                                                                                               |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Inbound license                         | Ruling here                                                                                                                               |
+|-----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
 | MIT, BSD-2, BSD-3, ISC, Apache-2.0, CC0 | Vendorable, with a provenance header and a NOTICE line each                                                                               |
 | MPL-2.0                                 | File-level copyleft. Acceptable as a development dependency. Any shipped file would be a separate per-file decision, and none is proposed |
 | AGPL-3.0, GPL-3.0                       | Not vendorable. Network and strong copyleft would relicense the whole work. Inspiration status only                                       |
-| No licence file, or NOASSERTION         | Not vendorable. No licence means all rights reserved. Inspiration status only                                                             |
+| No license file, or NOASSERTION         | Not vendorable. No license means all rights reserved. Inspiration status only                                                             |
 | Proprietary, non-OSI                    | Not vendorable. Inspiration status only, and only where its terms permit reading                                                          |
 
-Two carve-outs recorded in the prior vendoring passes are honoured here. Fluent
-font and icon assets are not covered by the `microsoft/fluentui` MIT licence and
-are listed under a separate asset licence, so no Fluent font or icon is proposed
+Two carve-outs recorded in the prior vendoring passes are honored here. Fluent
+font and icon assets are not covered by the `microsoft/fluentui` MIT license and
+are listed under a separate asset license, so no Fluent font or icon is proposed
 anywhere in this document. Magic UI Pro is a paid product that exists in no
 public repository, and nothing from it is proposed; only the free MIT registry is
 referenced, and then as inspiration.
 
-### 12.3 The corpus is inspiration by architecture, not by licence
+### 12.3 The corpus is inspiration by architecture, not by license
 
 The seven completed vendoring passes in the owner's private research repository
-cover roughly 550 vendored files, with licences read from LICENSE files at pinned
+cover roughly 550 vendored files, with licenses read from LICENSE files at pinned
 commits rather than assumed. Most of that corpus is MIT and would be vendorable
 under the rules above.
 
-It is still inspiration here, and the reason is architecture rather than licence.
+It is still inspiration here, and the reason is architecture rather than license.
 Every repository in those passes is React plus Tailwind, several assume Next.js,
 and the whole corpus presumes a build step. Section 2 ruled that out. A React
 component cannot be vendored into a single hand-written HTML file, and rewriting
@@ -1129,7 +1129,7 @@ and states worth handling, which is worth recording and costs nothing.
 ### 12.4 Counts
 
 | Category                  | Hand-written | Vendored | Adapted | Total |
-| ------------------------- | ------------ | -------- | ------- | ----- |
+|---------------------------|--------------|----------|---------|-------|
 | Shell and chrome          | 12           | 0        | 0       | 12    |
 | Data display              | 14           | 0        | 0       | 14    |
 | Findings and alarms       | 9            | 0        | 0       | 9     |
@@ -1153,7 +1153,7 @@ the tree.
 ### 12.5 Hand-written elements
 
 | Element                        | Region   | Note                                                     |
-| ------------------------------ | -------- | -------------------------------------------------------- |
+|--------------------------------|----------|----------------------------------------------------------|
 | App shell grid                 | Shell    | Container queries, three to one column                   |
 | Skip link                      | Shell    | First focusable element                                  |
 | Run identity strip             | Shell    | Seed, config hash, profile, mode                         |
@@ -1167,7 +1167,7 @@ the tree.
 | First-run overlay              | Shell    | Focus trapped, remembered                                |
 | Panel frame                    | Shell    | Heading, landmark, toolbar, table toggle, mnemonic badge |
 | Plan view SVG                  | Data     | Stations, edges, levels, presentation attributes only    |
-| Station rectangle              | Data     | Focusable, state glyph, WIP, utilisation bar             |
+| Station rectangle              | Data     | Focusable, state glyph, WIP, utilization bar             |
 | Edge polyline                  | Data     | Flow marker, rate label                                  |
 | Bottleneck marker              | Data     | Dashed outline plus word plus glyph                      |
 | Station detail drawer          | Data     | Opens from plan view or table                            |
@@ -1195,7 +1195,7 @@ the tree.
 | Pareto chart                   | Charts   | Indexed to percent, one axis                             |
 | Value stream map               | Charts   | Generated from the process chain                         |
 | Constraint timeline            | Charts   | Band per interval, click to seek                         |
-| Sparkline                      | Charts   | No axes, one labelled endpoint                           |
+| Sparkline                      | Charts   | No axes, one labeled endpoint                            |
 | Interval mark                  | Charts   | Confidence interval with zero marked                     |
 | Chart legend and tooltip layer | Charts   | Keyboard parity with hover                               |
 | Chat transcript                | Agent    | Roles, sim time, measure cap                             |
@@ -1222,8 +1222,8 @@ the tree.
 Every row carries a provenance header in the file and a line in `NOTICE`, per
 section 12.1. All five are status Vendored.
 
-| Asset                            | Source                               | Version or commit                                               | Licence     | Ships in                     | NOTICE line                                                                                     |
-| -------------------------------- | ------------------------------------ | --------------------------------------------------------------- | ----------- | ---------------------------- | ----------------------------------------------------------------------------------------------- |
+| Asset                            | Source                               | Version or commit                                               | License     | Ships in                     | NOTICE line                                                                                     |
+|----------------------------------|--------------------------------------|-----------------------------------------------------------------|-------------|------------------------------|-------------------------------------------------------------------------------------------------|
 | Inter, variable, subset          | `github.com/rsms/inter`              | tag `v4.1`, commit `e3a3d4c57d5ecc01453a575621882a384c1995a3`   | SIL OFL 1.1 | `index.html`, base64         | `Inter. Copyright (c) 2016 The Inter Project Authors. SIL Open Font License 1.1.`               |
 | JetBrains Mono, variable, subset | `github.com/JetBrains/JetBrainsMono` | tag `v2.304`, commit `cd5227bd1f61dff3bbd6c814ceaf7ffd95e947d9` | SIL OFL 1.1 | `index.html`, base64         | `JetBrains Mono. Copyright 2020 The JetBrains Mono Project Authors. SIL Open Font License 1.1.` |
 | three.js                         | npm `three`                          | `0.185.1`                                                       | MIT         | `twinflow-view3d`, on demand | `three.js. Copyright (c) 2010-2026 three.js authors. MIT License.`                              |
@@ -1242,23 +1242,23 @@ file listing for `@ibm/plex-sans@1.1.0` and `@ibm/plex-mono@2.5.0` on 2026-08-09
 HTTP 200 for both, holds only static weight files. That is why Plex was not
 chosen despite being one repository for two families.
 
-### 12.7 Evaluated, licence verified, and declined
+### 12.7 Evaluated, license verified, and declined
 
 Recording these matters because a reader cannot tell a decision from an oversight
 otherwise.
 
-Each row below has a compatible licence and could be vendored. None is, and the
+Each row below has a compatible license and could be vendored. None is, and the
 reason is stated so a reader can tell a decision from an oversight.
 
-| Candidate              | Licence, verified                                        | Why it is not vendored                                                                                                                                  |
-| ---------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Candidate              | License, verified                                        | Why it is not vendored                                                                                                                                  |
+|------------------------|----------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
 | uPlot                  | MIT                                                      | About 40 KB against a 400 KB file budget, for sparklines and control charts that are roughly eighty lines of SVG path generation                        |
-| Open Props             | MIT                                                      | Ships hex and HSL values. The palette here is generated from OKLCH and gated, so a second ungated colour source would be the one an old browser renders |
+| Open Props             | MIT                                                      | Ships hex and HSL values. The palette here is generated from OKLCH and gated, so a second ungated color source would be the one an old browser renders  |
 | modern-normalize       | MIT                                                      | A 15-line hand reset covers this interface, and the sentence "the only third-party bytes in the file are the font subsets" is worth more than the reset |
 | Lucide icons           | ISC                                                      | The severity set has to be polygons with defined side counts, because the 3D halo reads the side count. No general icon set satisfies that              |
 | shadcn/ui              | MIT                                                      | Presumes React and a build. Section 2.6. Inspiration status instead, per section 12.8                                                                   |
 | Magic UI free registry | MIT                                                      | Same architecture problem, and its continuous-motion components are refused by section 9 whatever the delivery mechanism                                |
-| microsoft/fluentui     | MIT for code, separate asset licence for fonts and icons | Same architecture problem. No Fluent font or icon asset is proposed anywhere, because those assets are outside the MIT grant                            |
+| microsoft/fluentui     | MIT for code, separate asset license for fonts and icons | Same architecture problem. No Fluent font or icon asset is proposed anywhere, because those assets are outside the MIT grant                            |
 
 ### 12.8 Inspiration sources
 
@@ -1272,8 +1272,8 @@ and why, close it, then specify from the description. A specification that would
 let someone build the thing without ever seeing the original took the idea. One
 that reads like a transcription took the expression.
 
-| Source                                                  | Licence, and how it was established                                                                   | Why inspiration rather than vendored                                          | What was taken                                                                                                                                                                                                           |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Source                                                  | License, and how it was established                                                                   | Why inspiration rather than vendored                                          | What was taken                                                                                                                                                                                                           |
+|---------------------------------------------------------|-------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | openstatusHQ/openstatus                                 | AGPL-3.0, read from LICENSE with curl, section 13.1                                                   | Network copyleft would relicense the whole work                               | The idea that a monitoring list wants a typed query language in a command bar, and that a row should open a detail sheet with previous and next navigation rather than a modal                                           |
 | Grafana                                                 | AGPL-3.0, read from LICENSE with curl, section 13.1                                                   | Same                                                                          | The convention that a time range is one control scoping every panel, and that a panel states its own query                                                                                                               |
 | Netdata                                                 | GPL-3.0, read from LICENSE with curl, section 13.1                                                    | Same                                                                          | The idea that a dashboard reporting its own render health is more credible than one that does not, which section 5.3 of the contract page already adopts as the perf overlay                                             |
@@ -1281,19 +1281,19 @@ that reads like a transcription took the expression.
 | Prometheus                                              | Apache-2.0, read from LICENSE with curl, section 13.1                                                 | Compatible, but not an interface library                                      | The convention that a stale series is drawn as absent rather than as a flat line                                                                                                                                         |
 | shadcn-ui/ui                                            | MIT, verified in the prior passes at a pinned commit                                                  | React and a build step                                                        | The inventory of states a serious control handles: hover, focus visible, active, disabled, invalid, loading, and read-only, applied to every element in section 12.5                                                     |
 | Magic UI free registry                                  | MIT, verified in the prior passes at a pinned commit                                                  | React and a build step, and its continuous-motion set is refused by section 9 | A negative finding: which motion patterns to exclude from a work surface                                                                                                                                                 |
-| microsoft/fluentui                                      | MIT for code, assets under a separate licence                                                         | React and a build step, and no asset is usable                                | That an elevation scale needs calibrating per surface rather than applied by taste, and that exits run faster than entrances                                                                                             |
-| The dashboard-cluster passes                            | 59 MIT, 9 with no licence, 7 AGPL-3.0, per the prior record                                           | React and a build step throughout                                             | The set of problems a dense table has to solve: live tailing, column density, sort announcement, row detail, and filter state that survives a reload                                                                     |
-| The definitive-opensource pass                          | 118 MIT, 65 Apache-2.0, 65 AGPL-3.0, 44 GPL-3.0, 5 MPL-2.0, 2 BSD-3, per the prior record             | Mixed licences and mixed architectures                                        | Which device-monitoring surfaces exist at all: connection quality, resource graphs, threshold-coloured series, and hardware info tables                                                                                  |
-| The product-cluster pass                                | 41 MIT, 8 AGPL-3.0, 5 Apache-2.0, 4 CC0, 3 with no licence, per the prior record                      | React and a build step throughout                                             | Two ideas this design uses. That a live event log wants a split list-and-preview rather than a modal, and that a human-in-the-loop gate shows the exact payload before it commits, which is what the approval strip does |
-| Codehagen/Dingify                                       | AGPL-3.0, read from a full-tree licence scan in the prior pass                                        | Network copyleft                                                              | The only realtime monitoring dashboard in the whole corpus. What was taken is the shape of an event-feed surface, nothing else                                                                                           |
-| The four no-licence repositories in the product cluster | No licence file anywhere in tree, confirmed by a full-tree scan                                       | No licence means all rights reserved                                          | Nothing beyond the observation that a status vocabulary belongs in one place shared by rows, badges, and headers, rather than per panel                                                                                  |
+| microsoft/fluentui                                      | MIT for code, assets under a separate license                                                         | React and a build step, and no asset is usable                                | That an elevation scale needs calibrating per surface rather than applied by taste, and that exits run faster than entrances                                                                                             |
+| The dashboard-cluster passes                            | 59 MIT, 9 with no license, 7 AGPL-3.0, per the prior record                                           | React and a build step throughout                                             | The set of problems a dense table has to solve: live tailing, column density, sort announcement, row detail, and filter state that survives a reload                                                                     |
+| The definitive-opensource pass                          | 118 MIT, 65 Apache-2.0, 65 AGPL-3.0, 44 GPL-3.0, 5 MPL-2.0, 2 BSD-3, per the prior record             | Mixed licenses and mixed architectures                                        | Which device-monitoring surfaces exist at all: connection quality, resource graphs, threshold-colored series, and hardware info tables                                                                                   |
+| The product-cluster pass                                | 41 MIT, 8 AGPL-3.0, 5 Apache-2.0, 4 CC0, 3 with no license, per the prior record                      | React and a build step throughout                                             | Two ideas this design uses. That a live event log wants a split list-and-preview rather than a modal, and that a human-in-the-loop gate shows the exact payload before it commits, which is what the approval strip does |
+| Codehagen/Dingify                                       | AGPL-3.0, read from a full-tree license scan in the prior pass                                        | Network copyleft                                                              | The only realtime monitoring dashboard in the whole corpus. What was taken is the shape of an event-feed surface, nothing else                                                                                           |
+| The four no-license repositories in the product cluster | No license file anywhere in tree, confirmed by a full-tree scan                                       | No license means all rights reserved                                          | Nothing beyond the observation that a status vocabulary belongs in one place shared by rows, badges, and headers, rather than per panel                                                                                  |
 | Fluent toast architecture                               | MIT for code, per the prior pass. Fluent font and icon assets are outside that grant and none is used | React and a build step                                                        | Announcement politeness, and pause while the reader is engaged. Both applied in section 7.5                                                                                                                              |
 | Accessible combobox pattern                             | Not a repository. A published authoring pattern                                                       | Not code                                                                      | Active descendant, so DOM focus stays put while the announced position moves. Applied in section 7.5                                                                                                                     |
-| Aceternity UI                                           | Proprietary, verified with curl, section 13.2                                                         | Its terms forbid redistributing source files                                  | Nothing. Its catalogue is landing-page motion, which section 9 refuses on a work surface                                                                                                                                 |
+| Aceternity UI                                           | Proprietary, verified with curl, section 13.2                                                         | Its terms forbid redistributing source files                                  | Nothing. Its catalog is landing-page motion, which section 9 refuses on a work surface                                                                                                                                   |
 | Hover.dev                                               | Proprietary, verified with curl, section 13.2                                                         | Its terms are internally inconsistent for a public repository, per OQ-17      | Nothing, for the same reason                                                                                                                                                                                             |
 
 Two of those rows deserve their own sentence. The prior research recorded that
-individual component licences for Aceternity UI and Hover.dev had never been
+individual component licenses for Aceternity UI and Hover.dev had never been
 verified. They are verified now, in section 13.2, and both turn out to forbid
 what a public Apache-2.0 repository does by definition. Neither contributes
 anything to this design, so the verification changes nothing except that the
@@ -1301,14 +1301,14 @@ question is now closed.
 
 ---
 
-## 13. Licence record
+## 13. License record
 
 ### 13.1 Everything verified, with locator and status
 
-Every row retrieved with `curl` on 2026-08-09. No summarising fetcher was used.
+Every row retrieved with `curl` on 2026-08-09. No summarizing fetcher was used.
 
 | Subject                       | Locator                                                                        | HTTP | Result                                             |
-| ----------------------------- | ------------------------------------------------------------------------------ | ---- | -------------------------------------------------- |
+|-------------------------------|--------------------------------------------------------------------------------|------|----------------------------------------------------|
 | openstatusHQ/openstatus       | `https://raw.githubusercontent.com/openstatusHQ/openstatus/main/LICENSE`       | 200  | GNU Affero General Public License, Version 3       |
 | grafana/grafana               | `https://raw.githubusercontent.com/grafana/grafana/main/LICENSE`               | 200  | GNU Affero General Public License, Version 3       |
 | netdata/netdata               | `https://raw.githubusercontent.com/netdata/netdata/master/LICENSE`             | 200  | GNU General Public License, Version 3              |
@@ -1342,8 +1342,8 @@ Every row retrieved with `curl` on 2026-08-09. No summarising fetcher was used.
 ### 13.2 The two the prior research left unverified
 
 | Subject       | Locator                             | HTTP | What the page says                                                                                                                                                                                                                                              |
-| ------------- | ----------------------------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Aceternity UI | `https://ui.aceternity.com/licence` | 200  | "The Aceternity License provides you with an ongoing, non-exclusive, worldwide license to use the digital work"; prohibited uses include "Re-distribution: You cannot re-distribute the Item as a stock image or its source files, regardless of modifications" |
+|---------------|-------------------------------------|------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Aceternity UI | `https://ui.aceternity.com/license` | 200  | "The Aceternity License provides you with an ongoing, non-exclusive, worldwide license to use the digital work"; prohibited uses include "Re-distribution: You cannot re-distribute the Item as a stock image or its source files, regardless of modifications" |
 | Hover.dev     | `https://www.hover.dev/license`     | 200  | Permitted list includes "Use of components for open source projects"; the same page states "Components subject to copyright and may not be redistributed without the written consent of Hover.dev"                                                              |
 
 Both are unavailable to this repository. Aceternity is unambiguous: publishing a
@@ -1351,12 +1351,12 @@ component's source in a public repository is redistributing source files.
 Hover.dev is internally inconsistent, since permitting open-source use and
 forbidding redistribution without written consent cannot both hold for a public
 repository, and an ambiguous grant is not a grant. OQ-17 records the
-ambiguity rather than resolving it in this project's favour.
+ambiguity rather than resolving it in this project's favor.
 
-### 13.3 Non-licence sources
+### 13.3 Non-license sources
 
 | Subject                          | Locator                                                                  | HTTP     | What was read                                                                                                        |
-| -------------------------------- | ------------------------------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------- |
+|----------------------------------|--------------------------------------------------------------------------|----------|----------------------------------------------------------------------------------------------------------------------|
 | NUREG-0700 Revision 4            | `https://www.nrc.gov/docs/ML2602/ML26022A094.pdf`                        | 200      | 5,043,444 bytes, 622 pages. Guidelines 1.3.8-10, 1.3.8-12, 1.3.8-13, 4.1.2-1, 4.1.2-2, 4.1.3-1, 4.1.3-2 read as text |
 | NUREG-0700 publication record    | `https://www.nrc.gov/reading-rm/doc-collections/nuregs/staff/sr0700/r4/` | 200      | Manuscript completed August 2025, published January 2026                                                             |
 | Baseline status, twelve features | `https://api.webstatus.dev/v1/features/<id>`                             | 200 each | Section 2.7                                                                                                          |
@@ -1372,7 +1372,7 @@ build on an id described anywhere and defined nowhere. Six ids are proposed here
 and none of them is real until it has a row in that page's tables.
 
 | Proposed id         | Class      | What it would assert                                                                                                                                                                         |
-| ------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|---------------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `T-PROGRESSIVE-1`   | unit       | With `popover`, `view-transitions`, and `light-dark` stubbed out, every panel still renders and every control still works                                                                    |
 | `T-ISOLATION-1`     | unit       | At most one element carries the isolation class inside any one container, over a random `ViewState`                                                                                          |
 | `P-CLASS-ORDER`     | property   | The rendered severity of a row always equals the producer's value, and the sort key orders by class before severity                                                                          |
@@ -1385,7 +1385,7 @@ and none of them is real until it has a row in that page's tables.
 
 ## 15. Open questions
 
-**OQ-17. Whether Hover.dev's licence permits open-source use.** Its licence page
+**OQ-17. Whether Hover.dev's license permits open-source use.** Its license page
 lists "Use of components for open source projects" as permitted and also states
 that components "may not be redistributed without the written consent of
 Hover.dev". A public Apache-2.0 repository does both at once. Settling it needs
@@ -1397,7 +1397,7 @@ The 14 CSS pixel floor in section 6.2 was chosen here from the requirement that
 an octagon and a hexagon stay distinguishable at projector distance. No source
 this document could retrieve gives a minimum angular size for polygon
 discrimination at a stated viewing distance. If one exists the floor moves to it.
-This is the shape-channel counterpart to the existing OQ-15 on colour separation.
+This is the shape-channel counterpart to the existing OQ-15 on color separation.
 
 **OQ-19. Whether the class ordering belongs in the view or in the alarm manager.**
 Section 6.3 derives `finding_class` in the presentation layer from the existing
@@ -1407,7 +1407,7 @@ ordering testable server-side and would put safety ranking inside the brick a
 controls engineer adopts alone. The second is probably right and it costs a
 schema field, so it is an owner decision rather than an implementer one.
 
-**OQ-20. Whether the centre-column-before-left-column focus order is the right
+**OQ-20. Whether the center-column-before-left-column focus order is the right
 trade.** Section 10 puts the findings stream ahead of the plan view in the tab
 order while the plan view sits left visually. WCAG 2.4.3 asks for a focus order
 that preserves meaning and operability, and a keyboard reader reaching the
@@ -1429,11 +1429,11 @@ the 2D dashboard. The contract page's OQ-5 already asks the same question for th
 `twinflow-view3d` ever needs a shader pipeline that hand-written WebGL2 makes
 unreasonable. Nothing in section 2 forecloses either answer.
 
-**OQ-23. Whether a published source states the colour-for-exception convention.**
-Section 4.1 argues that a resting screen should be neutral so that colour carries
+**OQ-23. Whether a published source states the color-for-exception convention.**
+Section 4.1 argues that a resting screen should be neutral so that color carries
 information when it appears. NUREG-0700 Revision 4 supports the redundancy rule
 and the red-green and chromostereopsis rules, and it was read. It does not state
-the colour-for-exception convention in those words in the sections read here. The
+the color-for-exception convention in those words in the sections read here. The
 convention is attributed to this document's reasoning, not to a source, until one
 is found and read.
 

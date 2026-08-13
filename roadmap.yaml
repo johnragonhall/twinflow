@@ -1960,7 +1960,7 @@ work_packages:
     release: v1.1.0
     status: planned
   - id: WP-P6-W1-03
-    title: "Distil the plant language model to tier one"
+    title: "Distill the plant language model to tier one"
     phase: P6-W1
     wave: 3
     covers:

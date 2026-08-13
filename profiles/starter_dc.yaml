@@ -7,7 +7,7 @@
 version: "1"
 
 facility:
-  name: Starter distribution centre
+  name: Starter distribution center
   # An IANA zone rather than an offset. Shift calendars and tariff dates need a
   # real calendar, and a run crossing a DST boundary must not record a night
   # shift as 25 hours long.

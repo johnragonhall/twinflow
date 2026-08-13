@@ -22,7 +22,7 @@ contribute after it. The mechanism is in [section 7](#7-how-to-sign).
 ## 1. Definitions
 
 | Term         | Meaning                                                                                                                                         |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
 | You          | The copyright owner who signs, or the legal entity authorized to sign for that owner.                                                           |
 | Maintainer   | John Ragon Hall, the copyright holder named in [NOTICE](NOTICE).                                                                                |
 | The project  | twinflow, at `https://github.com/johnragonhall/twinflow`.                                                                                       |
@@ -142,7 +142,7 @@ three checks on every pull request. A pull request that fails any of the three
 does not merge.
 
 | Step name           | What passes                                                                                                                     |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+|---------------------|---------------------------------------------------------------------------------------------------------------------------------|
 | `Line shape`        | Every list line inside section 8 matches the regular expression above, case sensitive.                                          |
 | `Signature present` | A signatory line names the pull request author's handle, compared without regard to case.                                       |
 | `Trailer present`   | Every commit on your branch that is not on the base branch, and is not a merge, carries a `Signed-off-by` trailer with a value. |

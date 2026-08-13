@@ -14,7 +14,7 @@ yours and what comes back.
 ## Where to ask
 
 | You want to                                                          | Go here                                                                                                         |
-| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+|----------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | Ask how something works, or why it is designed that way              | [Discussions](https://github.com/johnragonhall/twinflow/discussions)                                            |
 | Report something that behaves differently from the docs or the tests | [Open a bug report](https://github.com/johnragonhall/twinflow/issues/new?template=bug_report.yml)               |
 | Propose a capability or a change to an existing module               | [Open a feature request](https://github.com/johnragonhall/twinflow/issues/new?template=feature_request.yml)     |

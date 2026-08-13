@@ -29,21 +29,21 @@ never a passing gate. That is D-11 condition 5 applied to this section's own pro
 Requirement numbers owned in full by this section:
 
 | Number | Requirement                                                                                                                                                                                                  | Where covered       |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
+|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|
 | C4     | Test tiers: fast unit, property-based invariant suite, seeded end-to-end scenarios with golden-file comparison of the capability report, VSM, and financial statements, each tier with a runtime budget      | 5.3, 7.1, 7.2, 7.3  |
 | C6     | Versioned historian migrations, config upgrader command, CHANGELOG compatibility table stating which recorded runs and configs each release loads                                                            | 2.3, 5.6, 6.4, 7.6  |
 | C7     | SECURITY.md with private disclosure channel, supported versions, threat-model note for the MCP/REST surface documenting the SQL/Python sandbox boundary                                                      | 5.8                 |
 | C8     | CONTRIBUTING.md, code of conduct, one-paragraph governance note                                                                                                                                              | 5.9                 |
 | C9     | Semver policy across package APIs, REST/MCP contracts, event schemas, facility.yaml; lockstep versions across bricks; automated releases that tag, changelog, build, and publish every brick to PyPI from CI | 5.10, 5.11          |
 | C10    | uv workspace, justfile as single task entry point, CI matrix over Python versions plus the Rust agent, path-filtered jobs, stated CI wall-time budget                                                        | 5.1, 5.2, 5.4       |
-| C11    | pip-audit / cargo-audit in CI, licence allowlist compatible with the outbound licence, SBOM per release, model and dataset licences recorded in the E25 dataset cards                                        | 5.12, 6.5, 7.7      |
+| C11    | pip-audit / cargo-audit in CI, license allowlist compatible with the outbound license, SBOM per release, model and dataset licenses recorded in the E25 dataset cards                                        | 5.12, 6.5, 7.7      |
 | A4     | Published scaling evidence: load-test harness, reproducible device-vs-throughput-vs-latency curves on stated hardware, documented backpressure, honest knee of the curve                                     | 2.4, 5.13, 6.6, 7.8 |
 | A5     | ADOPTION.md as a consulting maturity model mapping Industry 3.0-to-5.0 stages to module adoption order and each stage's payback                                                                              | 5.14, 6.7           |
 
 Requirement fragments owned here that live inside other numbered items:
 
 | Fragment                                                                                                                                  | Source                                                                                | Where covered             |
-| ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------- |
+|-------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|---------------------------|
 | The VAL-GATE registry as a first-class CI artifact; no phase closes until its statistics validate against their named published reference | Component 5 validation requirement, plus the constraints paragraph's phase discipline | 2.1, 5.5, 7.4             |
 | Nondeterminism CI lint banning time / random / socket calls outside the kernel package, with an annotation escape hatch                   | Locked architecture decision backing C1                                               | 2.5, 5.7, 7.5             |
 | Repeated-run hash check asserting determinism                                                                                             | C1                                                                                    | 5.7, 7.5                  |
@@ -55,16 +55,16 @@ Requirement fragments owned here that live inside other numbered items:
 | GitHub Issues used as the public face of ROADMAP.md                                                                                       | Quality-bar paragraph, constraints paragraph                                          | 5.16                      |
 | A natural commit history that tells the story of the build                                                                                | Quality-bar paragraph                                                                 | 5.17, 5.18                |
 | Git hooks (inherited private-monorepo conventions, adapted)                                                                               | Author's inherited tooling                                                            | 5.17                      |
-| GitHub Actions CI running tests and lint; conventional commits; Apache-2.0 licence with a commercial option and a contributor agreement   | Constraints paragraph                                                                 | 5.4, 5.17                 |
+| GitHub Actions CI running tests and lint; conventional commits; Apache-2.0 license with a commercial option and a contributor agreement   | Constraints paragraph                                                                 | 5.4, 5.17                 |
 | Passing CI badge, five-minute quickstart intact every phase                                                                               | Quality-bar paragraph, constraints paragraph                                          | 5.4, 7.3                  |
 | Release tag creation, so all four C9 verbs (tag, changelog, build, publish) are automated                                                 | C9                                                                                    | 5.11, 7.6                 |
 | Comment judge: the nine comment rules, their CI equivalent, and their hook test                                                           | Author's inherited tooling                                                            | 5.17, 5.19, 7.11          |
 | Dashboard accessibility gate wired into CI                                                                                                | C12 (dashboard section owns the implementation)                                       | 5.4 job `a11y`            |
-| Model and dataset licence fields inside dataset cards                                                                                     | E25 (data-products section owns the card content)                                     | 6.5, 7.7                  |
+| Model and dataset license fields inside dataset cards                                                                                     | E25 (data-products section owns the card content)                                     | 6.5, 7.7                  |
 | Agent eval suite and AI red-team suite scored in CI next to each other                                                                    | E27, E43 (agent section owns the suites)                                              | 5.4 nightly               |
 | Public-repo CI policy override resolving the private-monorepo conflict                                                                    | Explicit brief instruction                                                            | 5.0                       |
 | Fully local, no cloud account, one optional environment variable for a hosted model                                                       | Constraints paragraph                                                                 | 5.4 job `quickstart`, 7.3 |
-| The outbound licence forces the process-mining engine to be built here rather than imported (D-14)                                        | C11 read against the locked process-mining decision                                   | 5.12, 7.7, 9              |
+| The outbound license forces the process-mining engine to be built here rather than imported (D-14)                                        | C11 read against the locked process-mining decision                                   | 5.12, 7.7, 9              |
 | Fully synthetic data, zero client or employer artifacts, enforced rather than promised                                                    | Constraints paragraph, IP hygiene rule                                                | 5.17, 7.11                |
 
 Requirement numbers referenced but owned elsewhere: C1 (kernel section owns the splittable RNG and
@@ -144,7 +144,7 @@ D-02 requires of a legal wall-clock read.
 ### 2.2 `twinflow-testkit`
 
 Purpose: the C4 tier machinery. Hypothesis strategies over twinflow's own data shapes, the named
-invariant predicates, the golden-file comparator with declared normalisers, and the tier budget
+invariant predicates, the golden-file comparator with declared normalizers, and the tier budget
 plugin.
 
 Public API:
@@ -192,15 +192,15 @@ invariants.order_state_machine(order_events, table)             -> None | raises
 invariants.alarm_floor(findings, shelved)                       -> None | raises
 invariants.finding_provenance(findings, event_index)            -> None | raises
 
-invariants.CATALOGUE: Mapping[str, Callable]   # INV id -> predicate, exactly 24 entries
+invariants.CATALOG: Mapping[str, Callable]   # INV id -> predicate, exactly 24 entries
 
 strategies.facility_configs(profile="micro"|"3pl"|"enterprise") -> SearchStrategy
 strategies.event_streams(kinds=..., horizon=...)                -> SearchStrategy
 strategies.lot_graphs(depth=..., fanout=...)                    -> SearchStrategy
 strategies.measurement_studies(parts=..., operators=..., trials=...) -> SearchStrategy
 
-golden.compare(actual: Path, expected: Path, normaliser: str, tolerance: Tolerance) -> Diff
-golden.update(actual: Path, expected: Path, normaliser: str, reason: str) -> None
+golden.compare(actual: Path, expected: Path, normalizer: str, tolerance: Tolerance) -> Diff
+golden.update(actual: Path, expected: Path, normalizer: str, reason: str) -> None
 golden.register_normaliser(name: str, fn: Callable[[bytes], bytes]) -> None
 
 budgets.tier(name) -> TierSpec       # marker, budget_s, hard_fail_ratio, scope
@@ -210,15 +210,15 @@ budgets.tier(name) -> TierSpec       # marker, budget_s, hard_fail_ratio, scope
 `twinflow-schemas`, the leaf schema package, and re-exported by testkit. Per D-09 the owning
 package is `twinflow-schemas` and testkit imports rather than redeclares them.
 
-CLI: `twinflow-testkit golden-diff <actual> <expected> --normaliser capability_report`.
+CLI: `twinflow-testkit golden-diff <actual> <expected> --normalizer capability_report`.
 
 Core dependencies: `hypothesis`, `pytest`, `pydantic`, `twinflow-schemas`. No extras.
 
-Test-dependency licence note. Hypothesis publishes `license_expression: MPL-2.0` at version
+Test-dependency license note. Hypothesis publishes `license_expression: MPL-2.0` at version
 6.165.2, read from the Python Package Index JSON API at
 `https://pypi.org/pypi/hypothesis/json` on 2026-08-09, HTTP 200. MPL-2.0 is file-level copyleft,
 it sits in the `allow` list in 6.5, and it enters the product only as a test and development <!-- docs-lint-ok STE-TERM-WORD allow is the literal key name in licenses.allow.toml -->
-dependency. The licence policy permits the library C4 names, and LIC-GATE-01 checks that rather
+dependency. The license policy permits the library C4 names, and LIC-GATE-01 checks that rather
 than assuming it.
 
 Timing note: the tier budget plugin measures per-test duration with `time.perf_counter`, which
@@ -349,23 +349,23 @@ Repo-local scripts that are not library code and have no adoption story:
 
 ### 3.1 ValGate
 
-| Field                   | Type                          | Notes                                                          |
-| ----------------------- | ----------------------------- | -------------------------------------------------------------- |
-| `id`                    | str                           | Pattern `VAL-[A-Z]{2,8}-\d{3}`. Immutable once published.      |
-| `title`                 | str                           | One line, states what is being validated against what.         |
-| `gate_class`            | GateClass                     | `REFERENCE`, `GROUND_TRUTH`, or `META`.                        |
-| `requirement_ids`       | list[str]                     | Component / E / C / A numbers this gate proves. Non-empty.     |
-| `phase`                 | str                           | Phase id from `phases.yaml`.                                   |
-| `reference`             | Reference or SelfReference    | Required. `None` is a registration error.                      |
-| `external_anchor`       | Reference, optional           | Required when `gate_class` is `GROUND_TRUTH`. See D-11 below.  |
-| `tolerance`             | Tolerance                     | Required.                                                      |
-| `noise_floor`           | NoiseFloor, optional          | Required when the measured quantity is stochastic.             |
-| `falsifies_on`          | str                           | Non-empty prose naming the observation that fails this gate.   |
-| `dataset`               | Path, optional                | Fixture under `tests/fixtures/reference/` for REFERENCE gates. |
-| `status`                | GateStatus                    | Set at run time. See the status enum below.                    |
-| `measured` / `expected` | dict[str, float]              | Keyed by the quantity name.                                    |
-| `deviation`             | dict[str, float]              | Computed by the tolerance kind.                                |
-| `duration_s`            | float                         | For the tier budget report.                                    |
+| Field                   | Type                       | Notes                                                          |
+|-------------------------|----------------------------|----------------------------------------------------------------|
+| `id`                    | str                        | Pattern `VAL-[A-Z]{2,8}-\d{3}`. Immutable once published.      |
+| `title`                 | str                        | One line, states what is being validated against what.         |
+| `gate_class`            | GateClass                  | `REFERENCE`, `GROUND_TRUTH`, or `META`.                        |
+| `requirement_ids`       | list[str]                  | Component / E / C / A numbers this gate proves. Non-empty.     |
+| `phase`                 | str                        | Phase id from `phases.yaml`.                                   |
+| `reference`             | Reference or SelfReference | Required. `None` is a registration error.                      |
+| `external_anchor`       | Reference, optional        | Required when `gate_class` is `GROUND_TRUTH`. See D-11 below.  |
+| `tolerance`             | Tolerance                  | Required.                                                      |
+| `noise_floor`           | NoiseFloor, optional       | Required when the measured quantity is stochastic.             |
+| `falsifies_on`          | str                        | Non-empty prose naming the observation that fails this gate.   |
+| `dataset`               | Path, optional             | Fixture under `tests/fixtures/reference/` for REFERENCE gates. |
+| `status`                | GateStatus                 | Set at run time. See the status enum below.                    |
+| `measured` / `expected` | dict[str, float]           | Keyed by the quantity name.                                    |
+| `deviation`             | dict[str, float]           | Computed by the tolerance kind.                                |
+| `duration_s`            | float                      | For the tier budget report.                                    |
 
 `GateStatus` is `PASS`, `FAIL`, `ERROR`, `SKIP`, or `PENDING_REFERENCE`. The last value exists
 because D-11 condition 5 forbids recording a statistic with no valid external reference as a
@@ -402,7 +402,7 @@ Invariants:
 - INV-VG-08: `tolerance` is never tighter than the printed precision of the value it checks. A
   REFERENCE gate records `expected_precision` per quantity (the number of decimal places or
   significant digits the source prints) and registration fails if the tolerance implies more
-  digits than the source published. This is D-11 condition 2, mechanised.
+  digits than the source published. This is D-11 condition 2, mechanized.
 
 ### 3.2 Reference and SelfReference
 
@@ -434,7 +434,7 @@ encoded and cited without bulk redistribution.
 precisions. Where it is set, its entry overrides `value` for that quantity name, and INV-VG-08
 checks each quantity against its own `printed_precision`. The individuals-chart gate in 5.5 is the
 worked case: the cited page prints the upper and lower limits to four decimal places and the
-centre line to two, so a single tolerance cannot be right for all three.
+center line to two, so a single tolerance cannot be right for all three.
 
 `kind` is one of:
 
@@ -504,13 +504,13 @@ Invariant INV-TT-02: measured wall time for a tier <= `budget_s * hard_fail_rati
 
 ### 3.7 GoldenArtifact
 
-`GoldenArtifact(id, path, producer, normaliser, comparator, tolerance, owning_requirement)`.
+`GoldenArtifact(id, path, producer, normalizer, comparator, tolerance, owning_requirement)`.
 
-Invariant INV-GA-01: `normalise(normalise(x)) == normalise(x)`.
+Invariant INV-GA-01: `normalize(normalize(x)) == normalize(x)`.
 
-Invariant INV-GA-02: normalising two runs that differ only in the declared volatile field set
+Invariant INV-GA-02: normalizing two runs that differ only in the declared volatile field set
 yields byte-identical output. The volatile field set is exactly the provenance sidecar defined by
-D-01, enumerated here so the normaliser and the manifest carve-out cannot drift apart:
+D-01, enumerated here so the normalizer and the manifest carve-out cannot drift apart:
 `started_wall_utc`, `finished_wall_utc`, git sha and dirty flag, platform fingerprint, package
 versions, host name, container digests, the clock compression factor, absolute paths, and the
 twinflow version string. That list and the `run.manifest.sidecar.v1` field list in section 4 are
@@ -520,13 +520,13 @@ paragraphs against each other.
 `run_id` is deliberately absent from that list. Per D-01 it is derived from the hashed core, so
 two identical runs produce the same `run_id` and it is a stable field rather than a volatile one.
 A `run_id` that differed between two identical runs would be a determinism defect, and the
-golden comparator must fail rather than normalise it away. INV-GA-03 states the same rule from the
+golden comparator must fail rather than normalize it away. INV-GA-03 states the same rule from the
 other side.
 
 Invariant INV-GA-03: no identifier that the determinism contract requires to be stable appears in
-any normaliser's volatile set. The set of stable identifiers is read from the run manifest schema,
+any normalizer's volatile set. The set of stable identifiers is read from the run manifest schema,
 so adding a volatile-looking field to the manifest hashed core cannot silently make it
-normalisable. 7.4 has a fixture normaliser that tries to strip `run_id` and asserts the
+normalizable. 7.4 has a fixture normalizer that tries to strip `run_id` and asserts the
 registration fails.
 
 ### 3.8 Migration and CompatibilityRow
@@ -547,8 +547,8 @@ that the upgrader converts to the current version and that then validates.
 `LicensePolicy(allow: list[SPDX], review: list[SPDX], deny: list[SPDX], exceptions: list[LicenseException])`, <!-- docs-lint-ok STE-TERM-WORD allow is a field name in the policy model -->
 `LicenseException(package, version_spec, license, justification, approved_by, expires: date, linkage: "runtime"|"build"|"test"|"optional-extra")`.
 
-Invariant INV-LP-01: no dependency resolves to a licence in `deny` without an unexpired exception.
-Invariant INV-LP-02: an exception with `linkage == "runtime"` and a copyleft licence is refused by
+Invariant INV-LP-01: no dependency resolves to a license in `deny` without an unexpired exception.
+Invariant INV-LP-02: an exception with `linkage == "runtime"` and a copyleft license is refused by
 the policy loader itself, so an expiring exception can never be the only thing standing between an
 Apache-2.0 repo and a copyleft runtime dependency.
 Invariant INV-LP-03: every exception has `expires` within 180 days of `approved_by` date.
@@ -594,7 +594,7 @@ running the A2 profiles, not from any engagement.
 Invariant INV-MS-03: a stage's `prerequisites` are stages of a lower or equal `level` with a
 strictly lower `order`. Two stages may share a maturity level, because Industry 3.0 covers both an
 uninstrumented operation and an instrumented one that nobody acts on; what may never happen is a
-prerequisite that does not strictly precede its dependant. Skipping is described in
+prerequisite that does not strictly precede its dependent. Skipping is described in
 `failure_mode`, never silently permitted.
 
 Invariant INV-MS-04: every payback formula is dimensionally consistent. The renderer evaluates the
@@ -655,18 +655,18 @@ named `test_runtime_events_carry_no_wall_derived_field` asserts the carve-out ov
 `schemas/events/`, so the split cannot regress silently.
 
 | Name                          | Version | Direction          | Shape (fields)                                                                                                                                                                                                                  | Consumed by                                                     |
-| ----------------------------- | ------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+|-------------------------------|---------|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
 | `repo.val_gate.result`        | v1      | produced           | `run_id, gate_id, gate_class, phase, requirement_ids, status, measured{}, expected{}, deviation{}, tolerance{kind,value}, reference{name,section,url,retrieved,rights}, dataset, duration_s, git_sha, platform, python_version` | val-gates CI job, docs macro, badge endpoint, phase-closure job |
 | `repo.ci.tier_summary`        | v1      | produced           | `run_id, tier_id, tests_run, passed, failed, skipped, wall_s, budget_s, over_budget: bool, slowest[{nodeid,duration_s}]`                                                                                                        | ci-budget job, docs macro                                       |
 | `repo.ci.run_summary`         | v1      | produced           | `run_id, workflow, event, git_sha, jobs[{name,conclusion,duration_s}], total_wall_s, billable_s`                                                                                                                                | ci-budget job, docs macro                                       |
 | `repo.loadtest.sample`        | v1      | produced           | as `LoadSample` in 3.10 plus `hardware_profile, topology, broker, seed, container_digests{}`                                                                                                                                    | historian, LSS engine control charts, scaling report            |
 | `repo.loadtest.summary`       | v1      | produced           | `run_id, hardware_profile, topology, samples_ref, knee{criterion,device_count,achieved_eps,binding_resource}, baseline_ref, regression_pct`                                                                                     | A4-GATE-01, README macro, ADOPTION.md macro                     |
-| `repo.golden.diff`            | v1      | produced           | `run_id, artifact_id, path, normaliser, changed: bool, first_divergence{line,field}, numeric_deltas[]`                                                                                                                          | e2e-golden job, PR annotation                                   |
+| `repo.golden.diff`            | v1      | produced           | `run_id, artifact_id, path, normalizer, changed: bool, first_divergence{line,field}, numeric_deltas[]`                                                                                                                          | e2e-golden job, PR annotation                                   |
 | `historian.migration.applied` | v1      | produced (runtime) | `producer_id, seq, migration_id, kind, from_version, to_version, checksum, backend, rows_touched, sim_time_at_apply, operator`; `wall_time_at_apply` and `duration_s` are written to the provenance sidecar, not to this record | historian audit trail, 6a11 audit-trail integrity, compat table |
 | `config.upgraded`             | v1      | produced (runtime) | `producer_id, seq, kind, path_hash, from_version, to_version, applied[{migration_id,description}], before_hash, after_hash, tool_version`                                                                                       | run manifest, replay reproducibility, compat table              |
 | `repo.dataset_card`           | v1      | co-owned with E25  | this section requires `license (SPDX), license_url, redistributable, model_licenses[{model,base_model,license,source_url}], generation_seed, twinflow_version, config_hash, container_digests`                                  | LIC-GATE-02, release bundle                                     |
 | `run.manifest.core`           | v1      | consumed           | requires `run_id, seed, config_hash, schema_snapshot_hash, scenario, mode, tick_rate, horizon, warmup, fault_schedule_hash`. This is D-01's hashed core and it is what `run_started` carries                                    | determinism gate, golden comparison, replay                     |
-| `run.manifest.sidecar`        | v1      | consumed           | requires `run_id, started_wall_utc, finished_wall_utc, git_sha, git_dirty, platform, python_version, package_versions{}, host, container_digests{}, clock_compression`. Written to `manifest.json`, never into the hashed tape  | release notes, golden normaliser volatile set, provenance       |
+| `run.manifest.sidecar`        | v1      | consumed           | requires `run_id, started_wall_utc, finished_wall_utc, git_sha, git_dirty, platform, python_version, package_versions{}, host, container_digests{}, clock_compression`. Written to `manifest.json`, never into the hashed tape  | release notes, golden normalizer volatile set, provenance       |
 | `finding`                     | v1      | consumed           | this section reads `severity` and `shelved` to assert INV-ALARM-01 in the property tier                                                                                                                                         | property tier                                                   |
 | `gl.posting`                  | v1      | consumed           | this section reads `debit, credit, account, period` to assert INV-LEDGER-01/02                                                                                                                                                  | property tier, financial-statement golden                       |
 | `genealogy.edge`              | v1      | consumed           | reads `parent_lot, child_lot, quantity, transform` to assert INV-GEN-01/02 and INV-CARBON-01                                                                                                                                    | property tier                                                   |
@@ -675,7 +675,7 @@ named `test_runtime_events_carry_no_wall_derived_field` asserts the carve-out ov
 seed, config hash, schema snapshot hash, scenario, and mode, rendered as `run_` plus 26 Crockford
 base32 characters. It is not a UUID, which is why TFD002's ban on `uuid.uuid4` costs this section
 nothing. Two identical runs produce the same `run_id`, so it is neither a determinism leak nor an
-unnormalised golden diff, and INV-GA-03 forbids any normaliser from stripping it. In production
+unnormalised golden diff, and INV-GA-03 forbids any normalizer from stripping it. In production
 mode, where a run is not required to be reproducible, `run_id` is a UUIDv7 produced inside the
 kernel behind the RNG interface.
 
@@ -687,7 +687,7 @@ and fails on any of those. Before the first release tag the baseline is empty, t
 INV-RM-01. Removing anything requires a major bump, which by C9 is a lockstep major across every
 brick.
 
-## 5. Behaviour
+## 5. Behavior
 
 ### 5.0 Policy override: this repo pushes to origin and uses GitHub-hosted CI
 
@@ -700,7 +700,7 @@ The author's private monorepo carries two rules that must not travel to twinflow
 Both rules exist because that repo is private, where GitHub Actions minutes are metered and macOS
 minutes bill at ten times the Linux rate, and because the owner controls origin pushes there.
 
-twinflow is public and Apache-2.0, with a separately negotiated commercial licence available. The
+twinflow is public and Apache-2.0, with a separately negotiated commercial license available. The
 quality bar in the source needs a passing CI badge, a natural commit history, tagged releases with
 a CHANGELOG per phase, GitHub Issues as the public face of ROADMAP.md, a docs site, and a hosted
 replay demo (E1) that anyone can open without installing anything. Not one of those exists without
@@ -749,7 +749,7 @@ Fork-PR safety policy, which is the risk that replaces the cost risk on a public
   naming the human-readable version. `actionlint` and `zizmor` run in the `static` job and fail on
   unpinned actions, on `pull_request_target` with a checkout of the PR head, and on script
   injection through `${{ github.event.* }}` in a `run:` block.
-- Anything needing write access on a fork PR (labelling, the golden-diff comment) uses the
+- Anything needing write access on a fork PR (labeling, the golden-diff comment) uses the
   `workflow_run` pattern with the untrusted output passed as an artifact, never interpolated into
   a shell.
 
@@ -790,7 +790,7 @@ twinflow/
     twinflow-schemas/           # /schemas registry loader (schemas section)
     twinflow-config/            # C5 loader (config section)
     twinflow-twin/  twinflow-sensors/  twinflow-uns/  twinflow-fleet/
-    twinflow-lss/  twinflow-procmine/  twinflow-forecast/  twinflow-optimise/
+    twinflow-lss/  twinflow-procmine/  twinflow-forecast/  twinflow-optimize/
     twinflow-agent/  twinflow-historian/  twinflow-dashboard/  twinflow-cli/
     twinflow-valgate/  twinflow-testkit/  twinflow-migrate/
     twinflow-loadtest/  twinflow-repolint/
@@ -843,7 +843,7 @@ just phase-close P2   # assert gates green, then flip status in phases.yaml
 just golden-update    # regenerate goldens, print the diff, need a reason
 just determinism      # DET-GATE-01/02
 just contracts        # C3 producer/consumer + schema-additivity diff
-just audit            # pip-audit, cargo-audit, cargo-deny, licence allowlist
+just audit            # pip-audit, cargo-audit, cargo-deny, license allowlist
 just sbom             # CycloneDX for python + rust
 just docs             # mkdocs serve
 just docs-build       # mkdocs build --strict
@@ -880,13 +880,13 @@ and states that "Use of the standard GitHub-hosted runners is free and unlimited
 repositories" (read from `https://docs.github.com/en/actions/reference/runners/github-hosted-runners`
 on 2026-08-09, HTTP 200).
 
-| Tier       | Marker                  | Budget | Hard fail at | Parallelism | Scope                                                                                                 |
-| ---------- | ----------------------- | ------ | ------------ | ----------- | ----------------------------------------------------------------------------------------------------- |
-| 0 static   | (not pytest)            | 180 s  | 1.0x         | n/a         | format, lint, types, repolint, schema additivity, config validation, workflow lint                    |
-| 1 unit     | `@pytest.mark.unit`     | 120 s  | 1.25x        | `-n auto`   | pure functions, no I/O, no broker, virtual clock only, no test over 200 ms                            |
-| 2 property | `@pytest.mark.property` | 420 s  | 1.25x        | `-n auto`   | Hypothesis invariants over generated configs, event streams, lot graphs                               |
-| 3 e2e      | `@pytest.mark.e2e`      | 420 s  | 1.2x         | `-n 4`      | seeded scenarios in simulation mode, golden comparison. The compose run lives in `quickstart`         |
-| 4 nightly  | `@pytest.mark.nightly`  | 1800 s | 1.1x         | `-n auto`   | soak and chaos catalogue, per OS-and-Python cell. Load curves and agent scorecards have own workflows |
+| Tier       | Marker                  | Budget | Hard fail at | Parallelism | Scope                                                                                               |
+|------------|-------------------------|--------|--------------|-------------|-----------------------------------------------------------------------------------------------------|
+| 0 static   | (not pytest)            | 180 s  | 1.0x         | n/a         | format, lint, types, repolint, schema additivity, config validation, workflow lint                  |
+| 1 unit     | `@pytest.mark.unit`     | 120 s  | 1.25x        | `-n auto`   | pure functions, no I/O, no broker, virtual clock only, no test over 200 ms                          |
+| 2 property | `@pytest.mark.property` | 420 s  | 1.25x        | `-n auto`   | Hypothesis invariants over generated configs, event streams, lot graphs                             |
+| 3 e2e      | `@pytest.mark.e2e`      | 420 s  | 1.2x         | `-n 4`      | seeded scenarios in simulation mode, golden comparison. The compose run lives in `quickstart`       |
+| 4 nightly  | `@pytest.mark.nightly`  | 1800 s | 1.1x         | `-n auto`   | soak and chaos catalog, per OS-and-Python cell. Load curves and agent scorecards have own workflows |
 
 Tiers 2 and 3 are budgeted at 420 s each, and the garage-tier `docker compose` run sits in the
 dedicated `quickstart` job rather than inside tier 3. Three reasons, all arithmetic against
@@ -939,7 +939,7 @@ always an accidental I/O test.
 
 Tier 2 detail, the twenty-four named invariants. Each is a Hypothesis property with a stated
 generator and a stated shrink target, and each is a `twinflow-testkit` predicate listed in
-`invariants.CATALOGUE`. These are the actual invariants, not categories:
+`invariants.CATALOG`. These are the actual invariants, not categories:
 
 - INV-MASS-01 material conservation. For any generated facility config and any seeded run to a
   random horizon: `units_received == units_putaway + units_in_wip + units_scrapped + units_in_returns_hold + units_shipped - units_restocked_from_returns`, evaluated at every event boundary, exactly, in integer units. Generator: `strategies.facility_configs()` crossed with `strategies.event_streams()`. Shrinks to the smallest station count that breaks it.
@@ -957,14 +957,14 @@ generator and a stated shrink target, and each is a `twinflow-testkit` predicate
 - INV-CLOCK-03 clock-drift bookkeeping. A device with injected clock drift still emits monotone device-local timestamps, and the historian's recorded `sim_time` remains monotone after the drift correction is applied.
 - INV-DET-01 determinism. Same seed plus same config yields the same event-log hash on the same platform and pinned dependency set, which is the byte-identical tier in D-05. Property form: for a generated config and a generated seed, two runs in separate processes hash equal. The repository's own test harness runs the two processes and passes the two digests to `invariants.digest_equality`, so the testkit predicate stays a comparison over records and the brick never imports a twinflow engine.
 - INV-NET-01 delivery idempotence. Under any injected combination of partition, latency, reorder, and duplicate delivery from the simulation-mode network, the consumer's applied set equals the producer's sent set after reconnect and replay. This is the property form of 6c.
-- INV-SCHEMA-01 round-trip. Every event record serialises and deserialises to an equal value, and a consumer pinned to schema major N reads a payload produced at any minor version of N.
+- INV-SCHEMA-01 round-trip. Every event record serializes and deserialises to an equal value, and a consumer pinned to schema major N reads a payload produced at any minor version of N.
 - INV-QUEUE-01 work conservation. Every task that enters a resource queue leaves it or is accounted as WIP at the horizon. No task is silently dropped.
 - INV-SPC-01 affine invariance. For I-MR and Xbar-R, transforming the data by `x -> a*x + b` with `a > 0` yields the same set of rule violations and limits transformed identically. The LSS engine computes both chart results; the testkit predicate compares the two result records, so this invariant does not make `twinflow-testkit` depend on `twinflow-lss`.
 - INV-CAP-01 capability ordering. `Cpk <= Cp` always, with equality only when the process mean sits at the spec midpoint. Same for `Ppk <= Pp`. Again a predicate over a computed capability record, not over the engine that produced it.
 - INV-ENERGY-01 energy partition. Total energy equals the sum over assets, and per asset the idle and running partitions are exhaustive and disjoint.
 - INV-CARBON-01 carbon conservation (E17). Inherited kgCO2e is conserved through genealogy splits within 1e-9 relative.
 - INV-ORDER-01 order state machine. Only transitions declared in the state table occur, and every order at the horizon sits in a terminal or a named exception state.
-- INV-ALARM-01 alarm floor. Alarm rationalisation never shelves or dedupes away a finding at or above the safety severity floor. Generated finding storms of arbitrary composition still surface every safety finding.
+- INV-ALARM-01 alarm floor. Alarm rationalization never shelves or dedupes away a finding at or above the safety severity floor. Generated finding storms of arbitrary composition still surface every safety finding.
 - INV-FIND-01 finding provenance. Every finding carries a non-empty evidence window that resolves to real events in the historian.
 
 Hypothesis configuration, chosen so a pull-request run is a function of its inputs and nothing
@@ -989,10 +989,10 @@ and printed at the top of the log, and `database=None` for the same reason. `PRO
 asserts that two `ci`-profile sessions at the same commit and seed execute the same example set,
 which is the observation that would fail if either of the first two choices regressed.
 
-Tier 3 detail, the golden files. Three golden artifact families, each with a declared normaliser:
+Tier 3 detail, the golden files. Three golden artifact families, each with a declared normalizer:
 
-| Golden id            | Producer                                       | Path                                                 | Normaliser                                                                                                                                                                                                                       | Comparator                                                    |
-| -------------------- | ---------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Golden id            | Producer                                       | Path                                                 | Normalizer                                                                                                                                                                                                                       | Comparator                                                    |
+|----------------------|------------------------------------------------|------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
 | `GOLD-CAP-<profile>` | `twinflow report capability --window ...`      | `tests/goldens/capability/<profile>.json` and `.txt` | `capability_report`: strip wall-clock, host, version, absolute paths; canonical JSON with sorted keys; floats to 12 significant digits; the HTML is reduced to a text projection of headings, table cells, and chart data series | field-wise, numeric fields relative 1e-9, string fields exact |
 | `GOLD-VSM-<profile>` | `twinflow report vsm --state {current,future}` | `tests/goldens/vsm/<profile>.json` and `.svg.norm`   | `vsm`: JSON canonicalised; the SVG reduced to an ordered list of (element type, class, text, numeric attributes rounded to 3 dp) so layout jitter does not fail the test but a moved station does                                | field-wise, numeric relative 1e-9                             |
 | `GOLD-FIN-<profile>` | `twinflow report financials --period ...`      | `tests/goldens/financials/<profile>/{pl,bs,cf}.csv`  | `financials`: integer minor currency units only, sorted by account code, period stamps replaced by ordinal index                                                                                                                 | exact equality, since money is integer                        |
@@ -1005,11 +1005,11 @@ it.
 Each family declares the release at which it first exists, because a golden for an artifact the
 code cannot yet produce is a failing test rather than a placeholder:
 
-| Golden family | First produced at | Waiting on                                     | Profiles at that point |
-| ------------- | ----------------- | ---------------------------------------------- | ---------------------- |
-| `GOLD-CAP`    | v0.1.0            | the capability report stub                     | `micro`                |
-| `GOLD-VSM`    | v0.6.0            | P3c process mining and the generated VSM       | all three              |
-| `GOLD-FIN`    | v0.20.0           | 6a17's event-driven general ledger             | all three              |
+| Golden family | First produced at | Waiting on                               | Profiles at that point |
+|---------------|-------------------|------------------------------------------|------------------------|
+| `GOLD-CAP`    | v0.1.0            | the capability report stub               | `micro`                |
+| `GOLD-VSM`    | v0.6.0            | P3c process mining and the generated VSM | all three              |
+| `GOLD-FIN`    | v0.20.0           | 6a17's event-driven general ledger       | all three              |
 
 `GOLD-CAP` widens from `micro` to all three profiles at v0.4.0, when the 3pl and enterprise
 profiles are complete. The golden tier itself and its comparator exist from Phase 1; what grows is
@@ -1017,14 +1017,14 @@ the artifact set the tier compares. `tests/goldens/manifest.yaml` carries a `fir
 field per family and the tier-3 runner skips a family whose release has not arrived, reporting
 `SKIP (not produced until v0.20.0)` rather than passing silently.
 
-The normaliser volatile field set in the table above is the D-01 provenance sidecar, enumerated in
+The normalizer volatile field set in the table above is the D-01 provenance sidecar, enumerated in
 3.7. `run_id` is not in it and cannot be added, per INV-GA-03.
 
 Golden update flow: `just golden-update` regenerates, prints the diff, and refuses to write unless
 `--reason "..."` is given. The reason is written into `tests/goldens/manifest.yaml` next to the
 artifact. A CI check `GOLDEN-GATE-01` fails any PR whose diff touches `tests/goldens/**` unless
 the commit body contains a `GOLDEN` section heading (the commit-msg vocabulary already supports
-ALL-CAPS headings) explaining the behavioural change. Silent golden churn is how a golden suite
+ALL-CAPS headings) explaining the behavioral change. Silent golden churn is how a golden suite
 stops meaning anything.
 
 ### 5.4 CI workflows, matrix, path filters, and wall-time budget (C10)
@@ -1036,23 +1036,23 @@ Workflow inventory. Every workflow declares `concurrency: group: ${{ github.work
 `changes` job runs `dorny/paths-filter` and outputs booleans consumed by every downstream job's
 `if:`. Filters, naming the jobs exactly as the job table below names them:
 
-| Filter      | Paths                                      | Jobs unlocked                                              |
-| ----------- | ------------------------------------------ | ---------------------------------------------------------- |
-| `python`    | `packages/**`, `pyproject.toml`, `uv.lock` | `unit`, `property`, `e2e-golden`, `determinism`, `rust`\*  |
-| `rust`      | `crates/**`, `Cargo.toml`, `Cargo.lock`    | `rust`                                                     |
-| `schemas`   | `schemas/**`                               | `contracts`, `unit`                                        |
-| `dashboard` | `packages/twinflow-dashboard/**`           | `a11y`, `e2e-golden`                                       |
-| `docs`      | `docs/**`, `mkdocs.yml`, `*.md`            | `docs`                                                     |
-| `workflows` | `.github/**`                               | `static`                                                   |
-| `config`    | `*.yaml`, `*.toml`, `profiles/**`          | `static`, `e2e-golden`                                     |
-| `goldens`   | `tests/goldens/**`                         | `e2e-golden`                                               |
+| Filter      | Paths                                      | Jobs unlocked                                             |
+|-------------|--------------------------------------------|-----------------------------------------------------------|
+| `python`    | `packages/**`, `pyproject.toml`, `uv.lock` | `unit`, `property`, `e2e-golden`, `determinism`, `rust`\* |
+| `rust`      | `crates/**`, `Cargo.toml`, `Cargo.lock`    | `rust`                                                    |
+| `schemas`   | `schemas/**`                               | `contracts`, `unit`                                       |
+| `dashboard` | `packages/twinflow-dashboard/**`           | `a11y`, `e2e-golden`                                      |
+| `docs`      | `docs/**`, `mkdocs.yml`, `*.md`            | `docs`                                                    |
+| `workflows` | `.github/**`                               | `static`                                                  |
+| `config`    | `*.yaml`, `*.toml`, `profiles/**`          | `static`, `e2e-golden`                                    |
+| `goldens`   | `tests/goldens/**`                         | `e2e-golden`                                              |
 
 The asterisk on `rust` marks the one cross-language case: a change under `packages/**` that
 touches the shared event schemas also unlocks `rust`, because the device agent encodes them.
 
 Five jobs carry no path filter and run on every pull request: `static`, `val-gates`, `ci-budget`,
 `quickstart`, and `all-green`. `val-gates` and `ci-budget` are unconditional because the `docs`
-job downloads their artifacts, and a `needs:` on a skipped job skips the dependant, which would
+job downloads their artifacts, and a `needs:` on a skipped job skips the dependent, which would
 silently drop the rule that every number in the docs comes from a CI artifact. `quickstart` is
 unconditional because the source makes the five-minute quickstart a requirement of every phase,
 not of every diff. GOLDEN-GATE-01 runs inside `e2e-golden` rather than as a job of its own.
@@ -1060,7 +1060,7 @@ not of every diff. GOLDEN-GATE-01 runs inside `e2e-golden` rather than as a job 
 Jobs, with per-job budget:
 
 | Job           | Matrix                                           | Budget         | Contents                                                                                                                                                                                                                                                                                                                                                             |
-| ------------- | ------------------------------------------------ | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|---------------|--------------------------------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `static`      | py3.12, ubuntu                                   | 4 min          | `ruff format --check`, `ruff check`, `ty check` (mypy fallback), `twinflow-repolint check`, humaniser gate on the diff, comment judge, `yamllint`, `taplo check`, `codespell`, `actionlint`, `zizmor`, `twinflow config validate` on every A2 profile present at this phase, TASK-GATE-01, PROFILE-GATE-01, PROV-GATE-01, IP-GATE-01, CHANGELOG-GATE-01, SEC-GATE-02 |
 | `unit`        | py 3.11 / 3.12 / 3.13 x ubuntu; py3.12 x windows | 4 min per cell | tier 1                                                                                                                                                                                                                                                                                                                                                               |
 | `property`    | py3.12 x ubuntu                                  | 10 min         | tier 2, profile `ci`, fixed hypothesis seed, example database disabled                                                                                                                                                                                                                                                                                               |
@@ -1073,7 +1073,7 @@ Jobs, with per-job budget:
 | `docs`        | py3.12                                           | 4 min          | `needs: [val-gates, ci-budget]`, downloads their artifacts, then `mkdocs build --strict`, README example extraction and execution (README-GATE-01), ARCHITECTURE.md table structural check (DOC-GATE-04)                                                                                                                                                             |
 | `quickstart`  | ubuntu                                           | 6 min          | the README five-minute quickstart executed verbatim from a clean checkout with no credentials in the environment, timed; fails if it exceeds 300 s, if any documented step errors, or if any process opens an outbound connection off the compose network                                                                                                            |
 | `ci-budget`   | ubuntu                                           | 1 min          | BUDGET-GATE-01 and BUDGET-GATE-02: reads the run's job durations, compares to this table, checks the budget arithmetic, fails on breach                                                                                                                                                                                                                              |
-| `all-green`   | ubuntu                                           | 10 s           | `if: always()` plus `needs:` every job; fails when any dependency's `result` is `failure` or `cancelled`, and passes when it is `success` or `skipped`                                                                                                                                                                                                               |
+| `all-green`   | ubuntu                                           | 10 s           | `if: always()` plus `needs:` every job; fails when any dependency's `result` is `failure` or `canceled`, and passes when it is `success` or `skipped`                                                                                                                                                                                                                |
 
 `all-green` is the single required status check in branch protection. It carries `if: always()`
 because a job with a skipped dependency is itself skipped by default, which would turn the
@@ -1118,7 +1118,7 @@ minutes and proves nothing extra. When a macro references a key that no download
 provides, it renders `not yet measured` and the build passes on a pull request and fails on a
 release build, which is the split that lets Phase 0 exist before any measurement does.
 
-_The a11y job by phase._ The job is in the matrix from Phase 1 and its behaviour is defined at
+_The a11y job by phase._ The job is in the matrix from Phase 1 and its behavior is defined at
 every point, rather than left to the reader. From Phase 1 to Phase 4 it runs axe-core against the
 dashboard served from a static fixture state, uploads the violation report, and never fails the
 build; the job's own conclusion is `success` with the report attached. From v0.3.0 it serves the
@@ -1141,20 +1141,20 @@ Dockerfile digests.
 **`nightly.yml`** on `schedule: cron "0 3 * * *"` and `workflow_dispatch`. Workflow budget 370
 minutes, budgeted per matrix cell because nine cells cannot share one job budget:
 
-| Cell or job          | Count | Budget per cell | Contents                                                                                              |
-| -------------------- | ----- | --------------- | ----------------------------------------------------------------------------------------------------- |
-| tier 4 matrix        | 9     | 35 min          | ubuntu, windows, macos x py 3.11 / 3.12 / 3.13; soak and the chaos catalogue; Hypothesis `thorough`   |
-| `det-cross-platform` | 1     | 15 min          | DET-GATE-03 across the three operating systems, reporting observed divergence                         |
-| `rust-xtensa`        | 1     | 12 min          | `espup` install then `cargo check --target xtensa-esp32-none-elf --features esp32`                    |
-| `links`              | 1     | 10 min          | `lychee` external link check, DOC-GATE-02, per-domain rate-limit allowlist                            |
-| `fleet-compliance`   | 1     | 10 min          | the E48 fleet configuration-compliance audit                                                          |
+| Cell or job          | Count | Budget per cell | Contents                                                                                          |
+|----------------------|-------|-----------------|---------------------------------------------------------------------------------------------------|
+| tier 4 matrix        | 9     | 35 min          | ubuntu, windows, macos x py 3.11 / 3.12 / 3.13; soak and the chaos catalog; Hypothesis `thorough` |
+| `det-cross-platform` | 1     | 15 min          | DET-GATE-03 across the three operating systems, reporting observed divergence                     |
+| `rust-xtensa`        | 1     | 12 min          | `espup` install then `cargo check --target xtensa-esp32-none-elf --features esp32`                |
+| `links`              | 1     | 10 min          | `lychee` external link check, DOC-GATE-02, per-domain rate-limit allowlist                        |
+| `fleet-compliance`   | 1     | 10 min          | the E48 fleet configuration-compliance audit                                                      |
 
 The per-cell budget is 35 minutes rather than 30 because tier 4's 1800 s budget times its 1.1
 hard-fail ratio plus the 45 s setup reserve is 2025 s, and BUDGET-GATE-02 rule 2 refuses a job
 budget below that. The workflow budget of 370 minutes is the sum in rule 3, which is
 9 x 35 + 15 + 12 + 10 + 10 = 362 minutes, with 8 minutes of headroom.
 
-The chaos catalogue in the tier-4 cells covers broker kill, partition, clock drift, and the botched
+The chaos catalog in the tier-4 cells covers broker kill, partition, clock drift, and the botched
 firmware push (E44).
 
 Two workloads that used to sit inside `nightly.yml` have their own scheduled workflows, because
@@ -1169,7 +1169,7 @@ each has a budget the nightly cannot absorb and a cadence the nightly does not n
   `artifacts/ci/agent-scorecard.json`. Separate because its cost tracks model latency rather than
   this repository's code, so a slow provider must not consume the nightly's budget.
 
-A failure in any of the three opens an Issue labelled `ci:nightly` containing the run link, the
+A failure in any of the three opens an Issue labeled `ci:nightly` containing the run link, the
 failing job, and any falsifying example.
 
 **`security.yml`** on `pull_request`, `push: main`, and `schedule: cron "0 5 * * 1"`. `pip-audit`
@@ -1273,7 +1273,7 @@ from twinflow.valgate import val_gate, Reference, Tolerance, GateClass, record_m
         kind="absolute",
         value=1e-4,
         applies_to=["UCL", "CL", "LCL"],
-        per_quantity={"CL": 1e-2},      # the page prints the centre line to two decimals
+        per_quantity={"CL": 1e-2},      # the page prints the center line to two decimals
     ),
     falsifies_on=(
         "UCL or LCL differs from the published value by more than 1e-4, "
@@ -1297,7 +1297,7 @@ The arithmetic checks: `3 * 1.8778 / 1.128 = 4.99414`, and `50.81 +/- 4.99414` r
 printed limits.
 
 The tolerance is `absolute 1e-4` on the limits rather than `relative 1e-6`, because the source
-prints UCL and LCL to four decimal places. It relaxes to `1e-2` on the centre line, because the
+prints UCL and LCL to four decimal places. It relaxes to `1e-2` on the center line, because the
 source prints that to two. D-11 condition 2 forbids checking to more digits than the source
 published, and INV-VG-08 refuses the registration if any quantity's tolerance implies more digits
 than its `printed_precision` entry. A single tight number across all three quantities would look
@@ -1338,7 +1338,7 @@ CI artifacts produced by the `val-gates` job:
   registry table of every statistic, its reference, and its tolerance is browsable on the docs
   site. A CI check fails if the committed file differs from the regenerated one.
 
-Phase-closure rule, mechanised. `phases.yaml` lists per phase the gate ids that must pass. The
+Phase-closure rule, mechanized. `phases.yaml` lists per phase the gate ids that must pass. The
 `phase-closure` job asserts INV-PH-01 through INV-PH-05. Closing a phase is a pull request that
 flips `status: open` to `status: closed`; that pull request fails unless every listed gate exists
 and its last run passed. This is the literal implementation of "no phase closes until its
@@ -1357,7 +1357,7 @@ so both are marked `rights: public-domain` and `redistributable: true`. Minitab 
 examples and the AIAG manual's example are marked `redistributable: false`, encoded as the numeric
 data only, and cited by edition and page.
 
-Seed gate catalogue. The LSS section owns the full catalogue; this section owns the registry
+Seed gate catalog. The LSS section owns the full catalog; this section owns the registry
 contract and seeds it with the gates the validation source map makes mandatory. Every one names a
 leaf locator that resolves to one page, per INV-VG-01, and the NIST/SEMATECH locators below were
 read from the chapter 6 and chapter 7 detailed tables of contents at
@@ -1367,25 +1367,25 @@ read from the chapter 6 and chapter 7 detailed tables of contents at
 Deterministic gates, where the measured quantity is arithmetic over a fixed dataset and the only
 tolerance question is the source's printed precision:
 
-| Gate         | Validates                                                                                              | Reference                                                                                     | Tolerance                                                                                                        |
-| ------------ | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| VAL-NUM-001  | Mean and standard deviation on `PiDigits`, `Lottery`, `Lew`, `Michelso`, `NumAcc1..4`                  | NIST StRD, Univariate Summary Statistics, per-dataset certified value page                    | `lre >= 12` on NumAcc1, whose certified mean and sd are exact by construction; `lre >= 7` on NumAcc3 and NumAcc4 |
-| VAL-NUM-002  | One-way ANOVA F statistic and between/within mean squares on `SiRstv`, `AtmWtAg`, `SmLs01`, `SmLs09`   | NIST StRD, Analysis of Variance, per-dataset certified value page                             | `lre >= 8` on the low-difficulty sets, `lre >= 5` on `SmLs09`                                                    |
-| VAL-NUM-003  | Linear regression coefficients and residual sd on `Norris`, `Pontius`, `Filip`                         | NIST StRD, Linear Regression, per-dataset certified value page                                | `lre >= 7` via the QR path; the report also records the normal-equations path's LRE on `Filip` as a note         |
-| VAL-NUM-004  | Nonlinear regression parameters on `Misra1a`, `Chwirut2`, `MGH09`                                      | NIST StRD, Nonlinear Regression, per-dataset certified value page                             | `lre >= 5` from both the certified start and the far start                                                       |
-| VAL-SPC-001  | Xbar and R chart limits, worked example                                                                | NIST/SEMATECH e-Handbook 6.3.2.1 Shewhart X-bar and R and S Control Charts                    | per quantity, from `printed_precision`; the gate lists a tolerance for every quantity it checks                  |
-| VAL-SPC-004  | I-MR chart limits                                                                                      | NIST/SEMATECH e-Handbook 6.3.2.2 Individuals Control Charts                                   | `absolute 1e-4` on UCL and LCL, `absolute 1e-2` on the centre line, as worked above                              |
-| VAL-SPC-006  | p-chart limits and the variable-sample-size case                                                       | NIST/SEMATECH e-Handbook 6.3.3.2 Proportions Control Charts                                   | per quantity, from `printed_precision`                                                                           |
-| VAL-SPC-008  | EWMA chart limits and the smoothing recursion                                                          | NIST/SEMATECH e-Handbook 6.3.2.4 EWMA Control Charts                                          | per quantity, from `printed_precision`                                                                           |
-| VAL-SPC-010  | Hotelling T2 control limits, subgroup-average case                                                     | NIST/SEMATECH e-Handbook 6.5.4.3.1 T2 Chart for Subgroup Averages, Phase I                    | per quantity, from `printed_precision`                                                                           |
-| VAL-CAP-001  | Cp, Cpk, Pp, Ppk, sigma level, DPMO on the worked example                                              | NIST/SEMATECH e-Handbook 6.1.6 What is Process Capability?                                    | per quantity, from `printed_precision`                                                                           |
-| VAL-ACC-001  | Acceptance sampling OC curve points and plan selection                                                 | NIST/SEMATECH e-Handbook 6.2.3.2 Choosing a Sampling Plan with a given OC Curve               | per quantity, from `printed_precision`                                                                           |
-| VAL-MSA-001  | Gage R and R ANOVA table and %GRR with `errorTerm="repeatability"`                                     | AIAG Measurement Systems Analysis manual, 4th edition, worked example; see note below         | `absolute 0.1` percentage point on %Contribution and %StudyVar; `relative 1e-4` on mean squares                  |
-| VAL-MSA-002  | The same study with `errorTerm="interaction"` (operator x part interaction)                            | Minitab's published Gage R and R documentation example, and R package `SixSigma` 0.11.1       | same tolerances                                                                                                  |
-| VAL-MSA-003  | The default error term is documented, and switching it moves %GRR in the direction both sources imply  | both of the above                                                                             | direction assertion, no numeric tolerance                                                                        |
-| VAL-HYP-001  | Two-sample t and one-way ANOVA statistics and p-values                                                 | NIST/SEMATECH e-Handbook 7.3.1 and 7.4.3.4                                                    | per quantity, from `printed_precision`                                                                           |
-| VAL-HYP-003  | Rank-sum statistic and p-value for the two-sample nonparametric comparison                             | NIST/SEMATECH e-Handbook 7.3.5 Do two arbitrary processes have the same central tendency?     | per quantity, from `printed_precision`                                                                           |
-| VAL-PM-001   | Token-replay fitness of the designed model against a log that model generated is 1.0                   | GROUND_TRUTH construction; anchor is the fitness definition in Rozinat and van der Aalst 2008 | `absolute 1e-9`, since the quantity is an exact ratio of token counts                                            |
+| Gate        | Validates                                                                                             | Reference                                                                                     | Tolerance                                                                                                        |
+|-------------|-------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| VAL-NUM-001 | Mean and standard deviation on `PiDigits`, `Lottery`, `Lew`, `Michelso`, `NumAcc1..4`                 | NIST StRD, Univariate Summary Statistics, per-dataset certified value page                    | `lre >= 12` on NumAcc1, whose certified mean and sd are exact by construction; `lre >= 7` on NumAcc3 and NumAcc4 |
+| VAL-NUM-002 | One-way ANOVA F statistic and between/within mean squares on `SiRstv`, `AtmWtAg`, `SmLs01`, `SmLs09`  | NIST StRD, Analysis of Variance, per-dataset certified value page                             | `lre >= 8` on the low-difficulty sets, `lre >= 5` on `SmLs09`                                                    |
+| VAL-NUM-003 | Linear regression coefficients and residual sd on `Norris`, `Pontius`, `Filip`                        | NIST StRD, Linear Regression, per-dataset certified value page                                | `lre >= 7` via the QR path; the report also records the normal-equations path's LRE on `Filip` as a note         |
+| VAL-NUM-004 | Nonlinear regression parameters on `Misra1a`, `Chwirut2`, `MGH09`                                     | NIST StRD, Nonlinear Regression, per-dataset certified value page                             | `lre >= 5` from both the certified start and the far start                                                       |
+| VAL-SPC-001 | Xbar and R chart limits, worked example                                                               | NIST/SEMATECH e-Handbook 6.3.2.1 Shewhart X-bar and R and S Control Charts                    | per quantity, from `printed_precision`; the gate lists a tolerance for every quantity it checks                  |
+| VAL-SPC-004 | I-MR chart limits                                                                                     | NIST/SEMATECH e-Handbook 6.3.2.2 Individuals Control Charts                                   | `absolute 1e-4` on UCL and LCL, `absolute 1e-2` on the center line, as worked above                              |
+| VAL-SPC-006 | p-chart limits and the variable-sample-size case                                                      | NIST/SEMATECH e-Handbook 6.3.3.2 Proportions Control Charts                                   | per quantity, from `printed_precision`                                                                           |
+| VAL-SPC-008 | EWMA chart limits and the smoothing recursion                                                         | NIST/SEMATECH e-Handbook 6.3.2.4 EWMA Control Charts                                          | per quantity, from `printed_precision`                                                                           |
+| VAL-SPC-010 | Hotelling T2 control limits, subgroup-average case                                                    | NIST/SEMATECH e-Handbook 6.5.4.3.1 T2 Chart for Subgroup Averages, Phase I                    | per quantity, from `printed_precision`                                                                           |
+| VAL-CAP-001 | Cp, Cpk, Pp, Ppk, sigma level, DPMO on the worked example                                             | NIST/SEMATECH e-Handbook 6.1.6 What is Process Capability?                                    | per quantity, from `printed_precision`                                                                           |
+| VAL-ACC-001 | Acceptance sampling OC curve points and plan selection                                                | NIST/SEMATECH e-Handbook 6.2.3.2 Choosing a Sampling Plan with a given OC Curve               | per quantity, from `printed_precision`                                                                           |
+| VAL-MSA-001 | Gage R and R ANOVA table and %GRR with `errorTerm="repeatability"`                                    | AIAG Measurement Systems Analysis manual, 4th edition, worked example; see note below         | `absolute 0.1` percentage point on %Contribution and %StudyVar; `relative 1e-4` on mean squares                  |
+| VAL-MSA-002 | The same study with `errorTerm="interaction"` (operator x part interaction)                           | Minitab's published Gage R and R documentation example, and R package `SixSigma` 0.11.1       | same tolerances                                                                                                  |
+| VAL-MSA-003 | The default error term is documented, and switching it moves %GRR in the direction both sources imply | both of the above                                                                             | direction assertion, no numeric tolerance                                                                        |
+| VAL-HYP-001 | Two-sample t and one-way ANOVA statistics and p-values                                                | NIST/SEMATECH e-Handbook 7.3.1 and 7.4.3.4                                                    | per quantity, from `printed_precision`                                                                           |
+| VAL-HYP-003 | Rank-sum statistic and p-value for the two-sample nonparametric comparison                            | NIST/SEMATECH e-Handbook 7.3.5 Do two arbitrary processes have the same central tendency?     | per quantity, from `printed_precision`                                                                           |
+| VAL-PM-001  | Token-replay fitness of the designed model against a log that model generated is 1.0                  | GROUND_TRUTH construction; anchor is the fitness definition in Rozinat and van der Aalst 2008 | `absolute 1e-9`, since the quantity is an exact ratio of token counts                                            |
 
 Note on VAL-MSA-001 and VAL-MSA-002. The AIAG manual is sold, not served, so its worked example
 was not retrieved for this document and the claim that it contains one is attributed to AIAG
@@ -1402,7 +1402,7 @@ arithmetic that produced it, and what would falsify it. INV-VG-07 refuses regist
 tolerance falls below the floor:
 
 | Gate           | Nominal and replicates                         | Noise floor                                                             | Tolerance                | Falsifies on                                                                                   |
-| -------------- | ---------------------------------------------- | ----------------------------------------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------- |
+|----------------|------------------------------------------------|-------------------------------------------------------------------------|--------------------------|------------------------------------------------------------------------------------------------|
 | VAL-MSA-004    | interval coverage 0.90, 500 seeded replicates  | binomial, `3 * sqrt(0.90 * 0.10 / 500) = 0.0402`                        | `coverage 0.05`          | observed coverage outside 0.85 to 0.95                                                         |
 | VAL-HYP-002    | routing error rate 0.02, 500 seeded datasets   | binomial, `3 * sqrt(0.02 * 0.98 / 500) = 0.0188`                        | `absolute 0.019`         | more than 19 of the 500 datasets routed to the wrong test                                      |
 | VAL-FCST-001   | AutoARIMA coefficient recovery, 100 replicates | replicate standard deviation, measured by the committed calibration run | `relative 0.05`          | the measured floor exceeding 0.05, which fails registration, or a coefficient outside the band |
@@ -1415,7 +1415,7 @@ External anchors for the GROUND_TRUTH rows, so none of them rests on this reposi
 condition 1). All four were confirmed through the Crossref REST API on 2026-08-09, HTTP 200:
 
 | Gate           | Anchor                                                                                                                                                                                                                                                             |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VAL-PM-001     | Rozinat and van der Aalst, "Conformance checking of processes based on monitoring real behavior", Information Systems 33(1), 64-95, 2008, DOI 10.1016/j.is.2007.07.001                                                                                             |
 | VAL-PM-002     | Leemans, Fahland, and van der Aalst, "Discovering Block-Structured Process Models from Event Logs, A Constructive Approach", LNCS 7927, 311-329, 2013, DOI 10.1007/978-3-642-38697-8_17, plus the development-only oracle of 5.12 as an independent implementation |
 | VAL-FCST-002   | Lei, G'Sell, Rinaldo, Tibshirani, and Wasserman, "Distribution-Free Predictive Inference for Regression", Journal of the American Statistical Association 113(523), 1094-1111, 2018, DOI 10.1080/01621459.2017.1307116                                             |
@@ -1472,7 +1472,7 @@ CHANGELOG compatibility table, generated by `twinflow-migrate compat-table` into
 `docs/compatibility.md` and inlined into each release's CHANGELOG section:
 
 | Release | facility.yaml | sensor catalog | event schema major | historian schema | run bundle | reads runs from | reads configs from |
-| ------- | ------------- | -------------- | ------------------ | ---------------- | ---------- | --------------- | ------------------ |
+|---------|---------------|----------------|--------------------|------------------|------------|-----------------|--------------------|
 | v0.4.0  | 0.4           | 0.3            | 1                  | 0007             | 2          | v0.2.0+         | v0.1.0+            |
 
 `reads runs from` means: a run bundle recorded by that release opens in this release, proven by a
@@ -1487,7 +1487,7 @@ upgrader converts a config from that release and the result validates. MIG-GATE-
 `import numpy.random as r` are caught.
 
 | Rule   | Bans                                                                                                                                                                                     | Rationale                                                                                                |
-| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
 | TFD001 | `time.time`, `time.monotonic`, `time.perf_counter`, `time.time_ns`, `datetime.now`, `datetime.utcnow`, `datetime.today`, `date.today`, `pandas.Timestamp.now`, `numpy.datetime64("now")` | wall clock outside the CLOCK interface breaks C2 and makes runs unreproducible                           |
 | TFD002 | `random.*` module functions, `numpy.random` legacy globals (`seed`, `rand`, `randn`, `choice`, `permutation`), `secrets.*`, `uuid.uuid1`, `uuid.uuid4`, `os.urandom`                     | unseeded entropy breaks C1's splittable-RNG contract                                                     |
 | TFD003 | `socket.*`, `requests.*`, `urllib.request.*`, `http.client.*`, `httpx.Client()` construction, `subprocess.*`                                                                             | raw network and process calls bypass the NETWORK interface, so partitions and latency cannot be injected |
@@ -1512,12 +1512,12 @@ _Measurement boundary._ Four allowances, and no fifth, because A4 and C4 measure
 construction. This is the complete set INV-RL-03 compares `repolint.toml` against, held literally
 in a unit test so that widening it is a reviewed edit rather than a quiet one:
 
-| Rule   | Path glob                        | Justification                                                            | Owning requirement |
-| ------ | -------------------------------- | ------------------------------------------------------------------------ | ------------------ |
-| TFD001 | `packages/twinflow-valgate/**`   | `GateResult.duration_s` for the gate report                              | component 5        |
-| TFD001 | `packages/twinflow-testkit/**`   | per-test duration for the tier budget report                             | C4                 |
-| TFD001 | `packages/twinflow-loadtest/**`  | end-to-end latency is a wall-time quantity by definition                 | A4                 |
-| TFD003 | `packages/twinflow-loadtest/**`  | the harness drives a real broker over a real socket in production mode   | A4                 |
+| Rule   | Path glob                       | Justification                                                          | Owning requirement |
+|--------|---------------------------------|------------------------------------------------------------------------|--------------------|
+| TFD001 | `packages/twinflow-valgate/**`  | `GateResult.duration_s` for the gate report                            | component 5        |
+| TFD001 | `packages/twinflow-testkit/**`  | per-test duration for the tier budget report                           | C4                 |
+| TFD001 | `packages/twinflow-loadtest/**` | end-to-end latency is a wall-time quantity by definition               | A4                 |
+| TFD003 | `packages/twinflow-loadtest/**` | the harness drives a real broker over a real socket in production mode | A4                 |
 
 Every allowance carries a non-empty `justification` and an `owning_requirement` that resolves
 (INV-RL-04). Allowances are not counted against `max_escapes`, because they are declared centrally
@@ -1546,7 +1546,7 @@ tier it can prove:
 - DET-GATE-02, the same tier across a Python minor. Assert the digest is equal across Python 3.11
   and 3.12 on the same operating system and architecture. Falsifies on the two digests differing.
 - DET-GATE-03 (nightly), the value-equivalent tier. Across ubuntu, windows, and macos, assert that
-  the business events are identical under the documented normalisation, and for continuous fields
+  the business events are identical under the documented normalization, and for continuous fields
   report the observed maximum relative divergence rather than asserting a number chosen in
   advance. D-05 sets that rule: the gate reports what it measured, and the tolerance it compares
   against is the one derived from the previous measured divergence and committed in
@@ -1641,16 +1641,16 @@ every payload must be refused or contained.
 `CONTRIBUTING.md` covers: `just bootstrap` and the two-step hook install (the tracked shell hooks
 plus `pre-commit install`), the test tiers and which one to run when, the commit convention with
 examples, the golden update flow and its required commit heading, the VAL-GATE rule (a statistical
-change without a gate is not mergeable), the licence allowlist and what to do when a dependency is
+change without a gate is not mergeable), the license allowlist and what to do when a dependency is
 denied, the synthetic-data rule (contributions must contain no employer or client artifacts, and
 all data must be generated), the contributor agreement and how to sign it, the pull request
 checklist, and the label taxonomy.
 
-Inbound licence: a contributor licence agreement in `CLA.md`, not inbound-equals-outbound. The
-owner has overridden the original MIT-and-DCO requirement: the outbound licence is Apache-2.0
-plus a separately negotiated commercial licence, and a dual licence only holds if one party can
+Inbound license: a contributor license agreement in `CLA.md`, not inbound-equals-outbound. The
+owner has overridden the original MIT-and-DCO requirement: the outbound license is Apache-2.0
+plus a separately negotiated commercial license, and a dual license only holds if one party can
 relicense the whole work, which a DCO does not grant. `CLA.md` grants the maintainer a
-relicensing-capable copyright and patent licence while the contributor keeps their copyright.
+relicensing-capable copyright and patent license while the contributor keeps their copyright.
 Signing is two mechanical steps enforced in CI: a signatory line added to `CLA.md` matching
 `^- @[A-Za-z0-9-]{1,39} [0-9]{4}-[0-9]{2}-[0-9]{2}$`, and a `Signed-off-by` trailer on every
 commit (`git commit -s`), so the existing DCO check keeps its job as the trailer half of the
@@ -1662,7 +1662,7 @@ Governance, one paragraph in `CONTRIBUTING.md` and expanded in `GOVERNANCE.md`: 
 maintainer holds release authority. Roadmap additions are accepted as entries in `roadmap.yaml`
 with a requirement number, a phase, dependencies, and a rationale; they are then reordered into a
 phase by the maintainer. Nothing is ever removed from the roadmap, which is project policy, not a
-preference, and is enforced by INV-RM-01. Issues labelled `good-first-issue` must name the file,
+preference, and is enforced by INV-RM-01. Issues labeled `good-first-issue` must name the file,
 the test to add, and the acceptance check, or the label is removed.
 
 Label taxonomy: `phase:P0` through `phase:P6`, `req:C4` style requirement labels, `brick:lss`
@@ -1686,13 +1686,13 @@ contents of `VERSION`. Lockstep across bricks, as C9 needs.
 Five contract surfaces, each with an explicit rule for what constitutes a major, minor, and patch
 change:
 
-| Surface                                           | Major (breaking)                                                                                                      | Minor (additive)                                                                 | Patch                                         |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------- |
-| Python package APIs                               | remove or rename a public name, change a required parameter, narrow a return type, change a documented exception type | add a function, class, keyword argument with a default, or optional return field | fix behaviour that contradicted the docstring |
-| REST / GraphQL (A6)                               | remove or rename a route, field, or enum value; change a field's type; add a required request field                   | add a route, add an optional request field, add a response field                 | fix a wrong value                             |
-| MCP tool contracts (E2)                           | remove or rename a tool, remove an output field, add a required input                                                 | add a tool, add an optional input, add an output field                           | fix a wrong value                             |
-| Event schemas (C3)                                | remove a field, retype a field, remove an enum value, add a required field                                            | add an optional field with a default, add an enum value                          | fix a description                             |
-| facility.yaml, sensor catalog, metrics layer (C5) | remove a key, retype a key, add a required key without a migration, change a default in a way that changes results    | add an optional key, add a value to an enum, add a migration                     | fix validation messages                       |
+| Surface                                           | Major (breaking)                                                                                                      | Minor (additive)                                                                 | Patch                                        |
+|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|----------------------------------------------|
+| Python package APIs                               | remove or rename a public name, change a required parameter, narrow a return type, change a documented exception type | add a function, class, keyword argument with a default, or optional return field | fix behavior that contradicted the docstring |
+| REST / GraphQL (A6)                               | remove or rename a route, field, or enum value; change a field's type; add a required request field                   | add a route, add an optional request field, add a response field                 | fix a wrong value                            |
+| MCP tool contracts (E2)                           | remove or rename a tool, remove an output field, add a required input                                                 | add a tool, add an optional input, add an output field                           | fix a wrong value                            |
+| Event schemas (C3)                                | remove a field, retype a field, remove an enum value, add a required field                                            | add an optional field with a default, add an enum value                          | fix a description                            |
+| facility.yaml, sensor catalog, metrics layer (C5) | remove a key, retype a key, add a required key without a migration, change a default in a way that changes results    | add an optional key, add a value to an enum, add a migration                     | fix validation messages                      |
 
 Deprecation policy: a public name marked deprecated emits a `DeprecationWarning` naming the
 replacement and the version in which it will be removed, survives at least two minor releases, and
@@ -1706,7 +1706,7 @@ surface above exists, is documented, and has a snapshot test. Phase 6's E-tier m
 Phase-to-version map, which is also the CHANGELOG's section structure:
 
 | Version            | Phase closed                                                  |
-| ------------------ | ------------------------------------------------------------- |
+|--------------------|---------------------------------------------------------------|
 | v0.1.0             | P1 walking skeleton                                           |
 | v0.2.0             | P2 LSS engine with reference-validated tests                  |
 | v0.3.0             | E1 hosted replay demo (pulled forward)                        |
@@ -1741,7 +1741,7 @@ hand-edited; the only manual step is `just release-prepare <version>`, which pro
 request.
 
 CI check `CHANGELOG-GATE-01`: a pull request touching `packages/**` must also touch
-`CHANGELOG.md`, unless labelled `no-changelog`.
+`CHANGELOG.md`, unless labeled `no-changelog`.
 
 Publishing. `release.yml` publishes every brick to PyPI using Trusted Publishing, so no API token
 exists in the repository. Each brick's metadata carries its own description, its own README as the
@@ -1760,17 +1760,17 @@ measured numbers that changed.
 Auditing. `pip-audit --strict` runs against the full workspace resolution exported from `uv.lock`
 including every extra, on pull requests, on main, and weekly. `cargo audit` and
 `cargo deny check advisories bans sources licenses` cover the Rust crate. A new advisory on the
-weekly schedule opens an Issue labelled `security`; a new advisory on a pull request fails it.
+weekly schedule opens an Issue labeled `security`; a new advisory on a pull request fails it.
 
-The source states the allowlist as "MIT-compatible". The outbound licence was overridden from MIT
-to Apache-2.0 plus a separately negotiated commercial licence (5.9), so the allowlist below is
+The source states the allowlist as "MIT-compatible". The outbound license was overridden from MIT
+to Apache-2.0 plus a separately negotiated commercial license (5.9), so the allowlist below is
 stated as Apache-2.0-compatible. The substitution is recorded here rather than made silently,
 because it is the reader's only clue that the two documents disagree on purpose. For the
-permissive licences in the `allow` list the two readings select the same set; the difference bites <!-- docs-lint-ok STE-TERM-WORD allow is the literal key name in licenses.allow.toml -->
+permissive licenses in the `allow` list the two readings select the same set; the difference bites <!-- docs-lint-ok STE-TERM-WORD allow is the literal key name in licenses.allow.toml -->
 only on patent-clause interaction, which is why `Apache-2.0 WITH LLVM-exception` is enumerated
 rather than assumed.
 
-Licence allowlist. `licenses.allow.toml` defines three lists by SPDX identifier, using the current <!-- docs-lint-ok STE-TERM-WORD literal filename -->
+License allowlist. `licenses.allow.toml` defines three lists by SPDX identifier, using the current <!-- docs-lint-ok STE-TERM-WORD literal filename -->
 identifiers from SPDX License List 3.28.0 (read from `https://spdx.org/licenses/licenses.json` on
 2026-08-09, HTTP 200):
 
@@ -1778,36 +1778,36 @@ identifiers from SPDX License List 3.28.0 (read from `https://spdx.org/licenses/
   `Unlicense`, `CC0-1.0`, `BSL-1.0`, `Zlib`, `MPL-2.0` (file-level copyleft, acceptable for an
   unmodified dependency), and the expression `Apache-2.0 WITH LLVM-exception`, whose exception
   identifier is in the SPDX exceptions list of the same version.
-- `review`: `LGPL-2.1-or-later`, `LGPL-3.0-or-later`, `EPL-2.0`, `CDDL-1.1`, any dual licence
-  needing an election, and any package resolving to `UNKNOWN`. A `review` licence needs an
+- `review`: `LGPL-2.1-or-later`, `LGPL-3.0-or-later`, `EPL-2.0`, `CDDL-1.1`, any dual license
+  needing an election, and any package resolving to `UNKNOWN`. A `review` license needs an
   exception entry with a justification, an approver, an expiry date within 180 days, and a stated
   linkage.
 - `deny`: `GPL-2.0-only`, `GPL-2.0-or-later`, `GPL-3.0-only`, `GPL-3.0-or-later`,
   `AGPL-3.0-only`, `AGPL-3.0-or-later`, `SSPL-1.0`, `BUSL-1.1`, the `CC-BY-NC` family
-  (`CC-BY-NC-4.0`, `CC-BY-NC-SA-4.0`, `CC-BY-NC-ND-4.0`), and no licence at all. The bare forms
+  (`CC-BY-NC-4.0`, `CC-BY-NC-SA-4.0`, `CC-BY-NC-ND-4.0`), and no license at all. The bare forms
   `GPL-2.0`, `GPL-3.0`, and `AGPL-3.0` are deprecated identifiers in SPDX 3.28.0, so the policy
   loader accepts them on input, maps each to its `-only` and `-or-later` pair, and prints the
   rewrite. Without the map the policy silently fails to match a dependency that declares the old
-  spelling, which is the worst outcome available: a denied licence that no gate reports.
-- `deny_riders`: `Commons-Clause`. This is a licence rider rather than a licence, and it has no
-  SPDX licence identifier, so it cannot live in `deny` without breaking the rule that every entry
-  parses as an SPDX identifier. It is matched by substring against the raw licence text field
+  spelling, which is the worst outcome available: a denied license that no gate reports.
+- `deny_riders`: `Commons-Clause`. This is a license rider rather than a license, and it has no
+  SPDX license identifier, so it cannot live in `deny` without breaking the rule that every entry
+  parses as an SPDX identifier. It is matched by substring against the raw license text field
   instead, and the loader says which mechanism fired.
 
 INV-LP-02 makes a copyleft runtime dependency unrepresentable: the policy loader refuses an
-exception whose `linkage == "runtime"` and whose licence is copyleft, so the only path for such a
+exception whose `linkage == "runtime"` and whose license is copyleft, so the only path for such a
 library is an optional extra in a brick that documents it, or removal. LIC-GATE-01 runs
-`uv pip licenses` style resolution plus `cargo deny check licenses` and fails on any denied licence
-or expired exception. The full resolved licence inventory is written to
+`uv pip licenses` style resolution plus `cargo deny check licenses` and fails on any denied license
+or expired exception. The full resolved license inventory is written to
 `artifacts/ci/licenses.json`, attached to each release, and rendered into `docs/licenses.md`.
 
 Process mining against this policy, resolved by D-14. The Python Package Index reports PM4Py at
-version 2.7.23.3 with the licence field `AGPL 3.0` (read from `https://pypi.org/pypi/pm4py/json`
+version 2.7.23.3 with the license field `AGPL 3.0` (read from `https://pypi.org/pypi/pm4py/json`
 on 2026-08-09, HTTP 200). The policy loader maps that field to the `AGPL-3.0-only` and
 `AGPL-3.0-or-later` pair, both of which sit in `deny`, and INV-LP-02 makes a runtime exception for
 either unrepresentable. Section 13 of the AGPL triggers on network interaction, and this project
 serves a dashboard, an MCP server, and an HTTP API, so importing the library at runtime would
-place the whole work under AGPL and break the Apache-2.0 and commercial dual licence.
+place the whole work under AGPL and break the Apache-2.0 and commercial dual license.
 
 The ruling is that `twinflow-procmine` is written here, under Apache-2.0. It implements the
 directly-follows graph, the inductive miner, token-based replay, alignment-based conformance as A
@@ -1825,7 +1825,7 @@ wheel and never reachable from a served surface. Three checks hold that line:
 - LIC-GATE-03b: no built wheel or sdist declares the oracle in its dependency metadata, checked
   against the artifacts `uv build --all-packages` produced rather than against `pyproject.toml`.
 - LIC-GATE-03c: the oracle's exception entry has `linkage = "test"` and an unexpired approval, and
-  the loader refuses any other linkage for a licence in `deny`.
+  the loader refuses any other linkage for a license in `deny`.
 
 Each fails the release rather than warning. Whether a development-only AGPL oracle is acceptable
 at all is a legal question rather than an engineering one, and D-14 says it needs the owner's own
@@ -1836,15 +1836,15 @@ SBOM. `cyclonedx-py` produces a CycloneDX 1.6 JSON SBOM per Python artifact;
 SBOM-GATE-01 fails the release if any SBOM is missing a `licenses` entry for a component, or if
 the component set differs from the resolved lock.
 
-Model and dataset licences (C11 into E25). The dataset card schema `schemas/artifacts/dataset_card.v1.json`
+Model and dataset licenses (C11 into E25). The dataset card schema `schemas/artifacts/dataset_card.v1.json`
 needs `license` (SPDX, in the `allow` list), `license_url`, `redistributable`, <!-- docs-lint-ok STE-TERM-WORD allow is the literal key name in licenses.allow.toml -->
 `generation_seed`, `twinflow_version`, `config_hash`, `container_digests`, `ground_truth_labels`,
 `intended_use`, `known_limitations`, and `model_licenses` (for cards describing a dataset produced
-by or intended for a specific model, each entry naming the model, its base model, its licence, and
+by or intended for a specific model, each entry naming the model, its base model, its license, and
 its source URL). LIC-GATE-02 validates every card in `datasets/` against the schema and fails if
 `license` is outside the allowlist. twinflow's own emitted datasets carry a single project-wide
-licence decision (see open question 10). No model weights are committed; weights are fetched at
-run time by a loader that records the SHA-256 and asserts the licence against the allowlist before
+license decision (see open question 10). No model weights are committed; weights are fetched at
+run time by a loader that records the SHA-256 and asserts the license against the allowlist before
 use, so an E32 fine-tune cannot silently inherit a non-redistributable base model.
 
 Update policy. Dependabot runs weekly, grouped: one pull request for Python patch updates, one for
@@ -1877,8 +1877,8 @@ the reproduction command is printed under the chart.
 
 Backpressure, documented as a chain with a named policy and a named metric at each stage:
 
-| Stage                                | Policy                                                                    | Metric                                                          | Behaviour at saturation                                                                                              |
-| ------------------------------------ | ------------------------------------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Stage                                | Policy                                                                    | Metric                                                          | Behavior at saturation                                                                                               |
+|--------------------------------------|---------------------------------------------------------------------------|-----------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | Device store-and-forward buffer (6c) | ring buffer, drop-oldest above `buffer_max_bytes`, with a dropped counter | `twinflow_device_buffer_bytes`, `twinflow_device_dropped_total` | the device keeps publishing its newest data and reports the gap; the fleet-health layer raises a finding             |
 | MQTT QoS 1 inflight window           | block the publisher at `max_inflight`                                     | `twinflow_device_inflight`                                      | device publish blocks, which is visible as a rising buffer rather than silent loss                                   |
 | Broker queue                         | EMQX per-session message queue with its own overload protection           | broker metrics scraped into the historian                       | broker sheds and reports; the harness records it                                                                     |
@@ -1922,17 +1922,17 @@ Six stages, each with an entry test, the bricks to adopt, the deployment tier (A
 model, the prerequisite stage, and the failure mode of skipping ahead.
 
 | Stage | Level | Name                         | Entry test (you are here if)                                                                    | Adopt first                                                                               | Tier                 |
-| ----- | ----- | ---------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------- |
-| S0    | 3.0   | Paper and clipboard          | cycle times are estimated, not measured; the last process study was a stopwatch and a clipboard | `twinflow-sensors` catalogue and `twinflow-historian`                                     | garage               |
+|-------|-------|------------------------------|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|----------------------|
+| S0    | 3.0   | Paper and clipboard          | cycle times are estimated, not measured; the last process study was a stopwatch and a clipboard | `twinflow-sensors` catalog and `twinflow-historian`                                       | garage               |
 | S1    | 3.0   | Instrumented                 | data is collected but nobody judges it; dashboards exist and no one acts on them                | `twinflow-lss`, then `twinflow-procmine`                                                  | garage               |
 | S2    | 3.5   | Connected                    | systems talk but through point-to-point integrations; there is no namespace                     | `twinflow-uns`, `twinflow-fleet`                                                          | growth               |
-| S3    | 4.0   | Modelled                     | you can answer what happened but not what would happen                                          | `twinflow-twin`, the what-if engine                                                       | growth               |
-| S4    | 4.5   | Predictive and optimised     | you can answer what would happen but you choose by judgement                                    | `twinflow-forecast`, `twinflow-optimise`, MEIO                                            | growth or enterprise |
-| S5    | 5.0   | Autonomous and human-centric | the machine layer is optimised and the human and sustainability layers are still unmeasured     | `twinflow-agent` with the accuracy stack, ergonomics and workforce layers, carbon and ESG | enterprise           |
+| S3    | 4.0   | Modeled                      | you can answer what happened but not what would happen                                          | `twinflow-twin`, the what-if engine                                                       | growth               |
+| S4    | 4.5   | Predictive and optimized     | you can answer what would happen but you choose by judgement                                    | `twinflow-forecast`, `twinflow-optimize`, MEIO                                            | growth or enterprise |
+| S5    | 5.0   | Autonomous and human-centric | the machine layer is optimized and the human and sustainability layers are still unmeasured     | `twinflow-agent` with the accuracy stack, ergonomics and workforce layers, carbon and ESG | enterprise           |
 
 Each stage's payback model is a named formula with named inputs, not a claim:
 
-- S0: value of a credible baseline. `payback_months = implementation_cost / (baseline_error_pct * annual_labour_cost * improvement_capture_rate)`, where `baseline_error_pct` comes from the MSA study the stage recommends running first. The honest statement: this stage produces no direct saving, it produces the ability to measure one, and skipping it means every later number rests on estimates.
+- S0: value of a credible baseline. `payback_months = implementation_cost / (baseline_error_pct * annual_labor_cost * improvement_capture_rate)`, where `baseline_error_pct` comes from the MSA study the stage recommends running first. The honest statement: this stage produces no direct saving, it produces the ability to measure one, and skipping it means every later number rests on estimates.
 - S1: findings-driven scrap and rework reduction. Inputs: finding rate by severity from the LSS engine on the reader's own data, current COPQ split, and the historical capture rate.
 - S2: unplanned downtime avoided, driven by mean time to detect. Inputs: MTTD before and after, downtime cost per hour, failure frequency.
 - S3: capex decisions defended before spend. Inputs: the avoided cost of one wrong capacity decision, measured on the shipped profiles as the delta between the naive choice and the twin-ranked choice.
@@ -1940,7 +1940,7 @@ Each stage's payback model is a named formula with named inputs, not a claim:
 - S5: decision latency, injury cost avoided, and AI cost per answered question, from the E45 unit economics.
 
 Every payback number printed in ADOPTION.md is computed by the twin on the three A2 profiles and
-is labelled synthetic in the same sentence. INV-MS-02 enforces the disclaimer. This is not
+is labeled synthetic in the same sentence. INV-MS-02 enforces the disclaimer. This is not
 decorative caution: an adoption document on a public portfolio repo that implies client results
 would violate the repo's own IP hygiene rule.
 
@@ -1989,7 +1989,7 @@ published to the same Pages site under `/replay/`, so one Pages deployment serve
 demo, and the README's first three lines link the replay.
 
 Badges in the README, all of them earned by a job: CI status, VAL-GATES count (shields endpoint
-reading the published `val-gates-badge.json`), PyPI version, Python versions, licence, docs,
+reading the published `val-gates-badge.json`), PyPI version, Python versions, license, docs,
 OpenSSF Scorecard.
 
 ### 5.16 ROADMAP.md, GitHub Issues, and the never-delete rule
@@ -2020,11 +2020,11 @@ same one the build actually follows.
 
 Installed by `just hooks`, which runs `tools/hooks/install.sh`. The install copies hooks into
 `.git/hooks` rather than setting `core.hooksPath`, so machine-local hooks survive, which is the
-inherited behaviour and the reason for it. A second step, `pre-commit install`, installs the
+inherited behavior and the reason for it. A second step, `pre-commit install`, installs the
 framework-managed hooks (ruff, taplo, yamllint, codespell). CONTRIBUTING.md states both steps.
 
-| Hook                 | Behaviour                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Change from the private monorepo                                                                                                                                                                                                                                                                                                                                   |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Hook                 | Behavior                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Change from the private monorepo                                                                                                                                                                                                                                                                                                                                   |
+|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `prepare-commit-msg` | strips AI attribution from the message: any `Co-Authored-By` trailer naming an agent or its vendor, any generated-with footer an agent tool appends, and the robot emoji. The patterns live in `tools/hooks/attribution-patterns.txt` rather than in this table, so the hook and its test read one list and this document does not have to restate strings that a prose gate then flags                                                                                                                                                                                                                  | unchanged, and the rationale strengthens: this repository's commit history is a portfolio artifact that a hiring manager may read, and the source explicitly asks for a natural commit history that tells the story of the build                                                                                                                                   |
 | `commit-msg`         | subject matches the conventional-commit pattern held in `tools/hooks/commit-subject.regex`, whose type set is feat, fix, refactor, test, docs, chore, and perf, whose scope matches `[a-z0-9_-]+`, and whose description starts with a lowercase letter, a digit, or a space. The pattern lives in a file rather than in this table because a regular expression full of alternation bars cannot be written inside a Markdown cell. Any multi-line body carries at least one standalone ALL-CAPS section heading drawn from the approved vocabulary, and git's leftover `# Conflicts:` block is rejected | vocabulary extended with `GOLDEN` (golden-file changes, required by GOLDEN-GATE-01) and `VALIDATION` (a VAL-GATE added or a tolerance changed); the scope is validated against the set of directory names under `packages/` and `crates/` plus a fixed extra set (`ci`, `docs`, `schemas`, `hooks`, `release`, `roadmap`, `deps`), so a typo'd scope fails locally |
 | `pre-commit`         | humaniser gate (em and en dashes anywhere, curly quotes and emoji in source, prose `--` in comments), comment judge (the nine comment rules plus fuzzy prose patterns, failing open when the CLI is absent), `ruff format --check` and `ruff check` on staged Python, `rustfmt --check` on staged Rust, `twinflow-repolint check` on staged package files, `gitleaks protect --staged`, and the IP-hygiene scan                                                                                                                                                                                          | adds repolint, gitleaks, and the IP-hygiene scan; drops the multi-session commit fence, which solved a problem specific to the private repo's concurrent-agent setup                                                                                                                                                                                               |
@@ -2032,7 +2032,7 @@ framework-managed hooks (ruff, taplo, yamllint, codespell). CONTRIBUTING.md stat
 | `pre-push`           | runs `tools/ci-local.sh` (the fast lane), skipping the compile-heavy checks when the tree is dirty and saying so rather than reporting a false pass                                                                                                                                                                                                                                                                                                                                                                                                                                                      | reframed from a CI-cost guard to a latency guard; the runner-busy check is removed because there is no self-hosted runner here                                                                                                                                                                                                                                     |
 | `post-merge`         | prunes a linked worktree once its branch merges and its tree is clean                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | unchanged                                                                                                                                                                                                                                                                                                                                                          |
 
-New hook behaviour unique to twinflow, the IP-hygiene scan (`tools/ip_hygiene.py`, run from
+New hook behavior unique to twinflow, the IP-hygiene scan (`tools/ip_hygiene.py`, run from
 `pre-commit` and again in `pre-push`): it scans staged added lines against a denylist of client and
 employer names held in `.ip-denylist`. That file is gitignored and never committed, because
 committing a list of client names to a public repository defeats its own purpose;
@@ -2064,7 +2064,7 @@ Commit discipline, stated because the history is an artifact:
 `tools/ci-local.sh` mirrors the pull-request job set, skipping any check whose tool is missing with
 a printed note, and ending with a pass/fail/skip summary. Modes: default fast (format, lint,
 repolint, humaniser, unit), `--full` (adds property, e2e, goldens, val-gates, determinism, rust),
-`--security` (adds pip-audit, cargo-audit, gitleaks, semgrep, licence allowlist). It calls the same
+`--security` (adds pip-audit, cargo-audit, gitleaks, semgrep, license allowlist). It calls the same
 `just` recipes CI calls. Its purpose here is latency, not cost: a 90 second local failure beats an
 8 minute CI failure, and `pre-push` runs the fast mode automatically.
 
@@ -2184,7 +2184,7 @@ match the `Phase` model in 3.4 exactly, so a reader can move between the two wit
 version: 1
 milestones:
   - id: E9
-    title: Optimisation engine over twin configurations
+    title: Optimization engine over twin configurations
     requirement_ids: [E9]
     phase: P6
     order: 900
@@ -2202,7 +2202,7 @@ Validation: ids unique and stable; `depends_on` resolves; `phase` exists in `pha
 The upgrader reads a `schema_version` key at the root of each config kind:
 
 | File                          | Key              | Type                 | Validation                                                                                                        |
-| ----------------------------- | ---------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------- |
+|-------------------------------|------------------|----------------------|-------------------------------------------------------------------------------------------------------------------|
 | `facility.yaml`               | `schema_version` | string `MAJOR.MINOR` | must be a version the upgrader knows; unknown versions fail with the list of known versions and the nearest match |
 | `sensors/catalog.yaml`        | `schema_version` | string               | same                                                                                                              |
 | `metrics/semantic_layer.yaml` | `schema_version` | string               | same                                                                                                              |
@@ -2225,8 +2225,8 @@ deny   = ["GPL-2.0-only", "GPL-2.0-or-later", "GPL-3.0-only", "GPL-3.0-or-later"
           "AGPL-3.0-only", "AGPL-3.0-or-later", "SSPL-1.0", "BUSL-1.1",
           "CC-BY-NC-4.0", "CC-BY-NC-SA-4.0", "CC-BY-NC-ND-4.0"]
 
-# Riders, not licences. These have no SPDX licence id, so they are matched
-# against the raw licence text rather than parsed.
+# Riders, not licenses. These have no SPDX license id, so they are matched
+# against the raw license text rather than parsed.
 deny_riders = ["Commons-Clause"]
 
 # Deprecated ids that upstream metadata still uses, mapped on load and printed.
@@ -2250,11 +2250,11 @@ expires     = "2027-02-05"
 emitted_dataset_license = "CC-BY-4.0"   # see open question 10
 ```
 
-Validation: every entry in `allow`, `review`, and `deny` parses as an SPDX licence identifier or <!-- docs-lint-ok STE-TERM-WORD allow is the literal key name in licenses.allow.toml -->
+Validation: every entry in `allow`, `review`, and `deny` parses as an SPDX license identifier or <!-- docs-lint-ok STE-TERM-WORD allow is the literal key name in licenses.allow.toml -->
 expression against the list version named in `spdx_list_version`; a deprecated identifier is
 rewritten through `deprecated_aliases` and the rewrite is printed; `deny_riders` entries are
 matched as substrings and never parsed; a package cannot appear in two lists; `expires` is within
-180 days of `approved_on`; `linkage = "runtime"` with a copyleft licence is refused by the loader
+180 days of `approved_on`; `linkage = "runtime"` with a copyleft license is refused by the loader
 (INV-LP-02). The identifiers above were checked against SPDX License List 3.28.0 on 2026-08-09,
 where `Commons-Clause` is absent and `LLVM-exception` appears in the companion exceptions list.
 
@@ -2352,19 +2352,19 @@ nobody trusts.
 
 ### 7.2 Property-based invariants (tier 2)
 
-The twenty-four named invariants in 5.3 are the suite, matching `invariants.CATALOGUE`, which
+The twenty-four named invariants in 5.3 are the suite, matching `invariants.CATALOG`, which
 INV-TT-01's companion test asserts holds exactly twenty-four entries. Each is implemented in
 `packages/twinflow-testkit/src/twinflow/testkit/invariants.py` and exercised from
 `tests/property/test_<invariant>.py` against generated inputs. Additional properties owned by this
 section's own machinery:
 
-- PROP-GOLD-01 normaliser idempotence: `normalise(normalise(x)) == normalise(x)` for every
-  registered normaliser over generated artifact bytes.
+- PROP-GOLD-01 normalizer idempotence: `normalize(normalize(x)) == normalize(x)` for every
+  registered normalizer over generated artifact bytes.
 - PROP-GOLD-02 volatility blindness: for a generated artifact, injecting any combination of
   wall-clock timestamps, host names, absolute paths, and version strings into the declared volatile
-  fields leaves the normalised bytes unchanged.
+  fields leaves the normalized bytes unchanged.
 - PROP-GOLD-03 sensitivity: changing any non-volatile numeric field by more than the comparator's
-  tolerance always produces a diff. A normaliser that hides real changes is worse than none.
+  tolerance always produces a diff. A normalizer that hides real changes is worse than none.
 - PROP-CFG-01 upgrade totality: for every pair of registered config versions `i < j`, upgrading a
   generated valid `i` document to `j` yields a document that validates against the `j` schema.
 - PROP-CFG-02 upgrade idempotence: upgrading a document already at the terminal version is a
@@ -2375,8 +2375,8 @@ section's own machinery:
   never turns a PASS into a FAIL.
 - PROP-RL-01 escape accounting: for a generated file with `k` annotated escapes, the reported
   escape count is exactly `k` and the violation count is zero.
-- PROP-LIC-01 policy totality: for a generated dependency set with licences drawn from the union
-  of the three lists, the policy decision is exactly one of `allow`, `review`, or `deny`, and no licence <!-- docs-lint-ok STE-TERM-WORD the three list names in licenses.allow.toml -->
+- PROP-LIC-01 policy totality: for a generated dependency set with licenses drawn from the union
+  of the three lists, the policy decision is exactly one of `allow`, `review`, or `deny`, and no license <!-- docs-lint-ok STE-TERM-WORD the three list names in licenses.allow.toml -->
   is unclassified.
 
 ### 7.3 Seeded end-to-end scenarios (tier 3)
@@ -2432,7 +2432,7 @@ request and prove nothing the first run did not.
   asserts that each defect makes at least one REFERENCE gate fail. A validation suite that passes
   against a broken implementation is the failure this gate exists to catch, and it is checked on
   every run, not once. The mutation-adequacy idea it applies is DeMillo, Lipton, and Sayward's,
-  "Hints on Test Data Selection: Help for the Practicing Programmer", Computer 11(4), 34-41, 1978,
+  "Hints on Test Data Selection: Help for the Practicing Programr", Computer 11(4), 34-41, 1978,
   DOI 10.1109/C-M.1978.218136, confirmed through the Crossref REST API on 2026-08-09, HTTP 200.
   The criterion is a mutation score of 1.0 over the declared mutant set, and the falsification is
   one surviving mutant.
@@ -2467,7 +2467,7 @@ request and prove nothing the first run did not.
 
 ### 7.7 Dependency hygiene tests
 
-- LIC-GATE-01 against a fixture resolution containing one denied licence asserts a non-zero exit
+- LIC-GATE-01 against a fixture resolution containing one denied license asserts a non-zero exit
   and the package name in the message. A second fixture, with an expired exception, asserts the
   same.
 - INV-LP-02: a fixture policy declaring a runtime copyleft exception fails to load.
@@ -2475,9 +2475,9 @@ request and prove nothing the first run did not.
   through `deprecated_aliases` to the `AGPL-3.0-only` and `AGPL-3.0-or-later` pair, is denied, and
   the printed message names both the input string and the rewrite. Without this test the policy
   would silently fail to match the exact string PM4Py publishes.
-- Rider matching: a fixture dependency whose licence text contains `Commons-Clause` is denied by
+- Rider matching: a fixture dependency whose license text contains `Commons-Clause` is denied by
   `deny_riders`, and the message says the rider mechanism fired rather than the SPDX one.
-- LIC-GATE-02: a dataset card missing `license`, or carrying a licence outside the allowlist, or
+- LIC-GATE-02: a dataset card missing `license`, or carrying a license outside the allowlist, or
   missing `model_licenses` when it declares a model-produced dataset, fails validation.
 - LIC-GATE-03a: a fixture package whose source imports the process-mining oracle fails, including
   the aliased-import form, since the check is over the AST rather than over the text.
@@ -2487,7 +2487,7 @@ request and prove nothing the first run did not.
   fails to load, and only `test` is accepted.
 - SBOM-GATE-01: an SBOM whose component set differs from the resolved lock fails; a component with
   no `licenses` entry fails.
-- A test asserts the model-weight loader refuses a weight file whose recorded licence is not in the
+- A test asserts the model-weight loader refuses a weight file whose recorded license is not in the
   allowlist, and refuses one whose SHA-256 does not match.
 
 ### 7.8 Load-test harness tests
@@ -2545,7 +2545,7 @@ Shell and Python tests under `tests/hooks/`:
   approved vocabulary including `GOLDEN` and `VALIDATION`, scope validation against the package
   set, and the `# Conflicts:` rejection.
 - `test_humanizer_gate.py`: one case per pattern, the `humanizer-allow` token, the excluded paths,
-  and the added-lines-only behaviour.
+  and the added-lines-only behavior.
 - `test_post_commit_guard.sh`: builds a throwaway repository with a fake remote, asserts the
   changelog amend runs on an unpushed commit and refuses on a commit contained in a remote branch.
 - `test_ip_hygiene.py`: a fixture denylist containing placeholder tokens blocks a staged file
@@ -2561,11 +2561,11 @@ reference-validated badge total, and none is ever cited as validation of a twinf
 each one does carry is the published idea it applies and the observation that would falsify it,
 because D-12 makes an undescribable failure condition a defect rather than a style choice.
 
-| Gate          | Class | Asserts                                                                                                | Idea applied                                                                      | Falsifies on                                                      |
-| ------------- | ----- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| VAL-META-001  | META  | every declared mutation of a statistical implementation fails at least one REFERENCE gate              | mutation adequacy, DeMillo, Lipton, and Sayward 1978, DOI 10.1109/C-M.1978.218136 | one surviving mutant in the declared set                          |
-| VAL-META-002  | META  | every REFERENCE gate flips to FAIL when its expected value moves by twice that quantity's tolerance    | the same mutation-adequacy argument, applied to tolerances                        | a REFERENCE gate that still passes at twice its own tolerance     |
-| VAL-REPRO-001 | META  | the published scaling curve regenerates from the committed seed, container digests, and profile        | reproducibility of a measurement, not a claim about performance                   | a regenerated knee outside the measured band of 5.13              |
+| Gate          | Class | Asserts                                                                                             | Idea applied                                                                      | Falsifies on                                                  |
+|---------------|-------|-----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|---------------------------------------------------------------|
+| VAL-META-001  | META  | every declared mutation of a statistical implementation fails at least one REFERENCE gate           | mutation adequacy, DeMillo, Lipton, and Sayward 1978, DOI 10.1109/C-M.1978.218136 | one surviving mutant in the declared set                      |
+| VAL-META-002  | META  | every REFERENCE gate flips to FAIL when its expected value moves by twice that quantity's tolerance | the same mutation-adequacy argument, applied to tolerances                        | a REFERENCE gate that still passes at twice its own tolerance |
+| VAL-REPRO-001 | META  | the published scaling curve regenerates from the committed seed, container digests, and profile     | reproducibility of a measurement, not a claim about performance                   | a regenerated knee outside the measured band of 5.13          |
 
 VAL-REPRO-001 is a META gate rather than a GROUND_TRUTH one, because a gate whose reference is
 this repository's own committed baseline fails D-11 condition 1. What it proves is that the harness
@@ -2577,31 +2577,31 @@ file holds a measurement the gate reports rather than blocks, exactly as A4-GATE
 
 Every gate this section owns, in one place, so a reader can find what blocks what:
 
-| Gate                                  | Blocks                                | Job                            |
-| ------------------------------------- | ------------------------------------- | ------------------------------ |
-| DET-GATE-01 / 02                      | merge, release                        | `determinism`                  |
-| DET-GATE-03                           | nightly, on business-event mismatch   | `nightly.yml`                  |
-| MIG-GATE-01 / 02                      | release                               | `release.yml`, `e2e-golden`    |
-| DOC-GATE-01 / 03 / 04 / 05            | merge                                 | `static`, `docs`               |
-| README-GATE-01                        | merge                                 | `docs`                         |
-| DOC-GATE-02                           | nightly report only                   | `nightly.yml`                  |
-| LIC-GATE-01 / 02                      | merge, release                        | `security.yml`                 |
-| LIC-GATE-03a / 03b / 03c              | merge, release                        | `security.yml`, `release.yml`  |
-| SBOM-GATE-01                          | release                               | `release.yml`                  |
-| A4-GATE-01                            | weekly load run, release              | `loadtest.yml`, `release.yml`  |
-| BUDGET-GATE-01 / 02                   | merge                                 | `ci-budget`                    |
-| PHASE-GATE-01                         | phase closure, release                | `phase-closure`, `release.yml` |
-| PROV-GATE-01                          | merge                                 | `static`                       |
-| IP-GATE-01                            | merge                                 | `static`                       |
-| SCHEMA-GATE-01                        | merge                                 | `contracts`                    |
-| GOLDEN-GATE-01                        | merge                                 | `e2e-golden`                   |
-| SEC-GATE-01 / 02 / 03                 | merge                                 | `static`, `security.yml`       |
-| CHANGELOG-GATE-01                     | merge                                 | `static`                       |
-| TASK-GATE-01                          | merge                                 | `static`                       |
-| PROFILE-GATE-01                       | merge                                 | `static`                       |
-| QUICKSTART-GATE-01                    | merge                                 | `quickstart`                   |
-| every VAL-REFERENCE and GROUND_TRUTH  | phase closure, release                | `val-gates`                    |
-| every VAL-META                        | merge, phase closure, release         | `val-gates`                    |
+| Gate                                 | Blocks                              | Job                            |
+|--------------------------------------|-------------------------------------|--------------------------------|
+| DET-GATE-01 / 02                     | merge, release                      | `determinism`                  |
+| DET-GATE-03                          | nightly, on business-event mismatch | `nightly.yml`                  |
+| MIG-GATE-01 / 02                     | release                             | `release.yml`, `e2e-golden`    |
+| DOC-GATE-01 / 03 / 04 / 05           | merge                               | `static`, `docs`               |
+| README-GATE-01                       | merge                               | `docs`                         |
+| DOC-GATE-02                          | nightly report only                 | `nightly.yml`                  |
+| LIC-GATE-01 / 02                     | merge, release                      | `security.yml`                 |
+| LIC-GATE-03a / 03b / 03c             | merge, release                      | `security.yml`, `release.yml`  |
+| SBOM-GATE-01                         | release                             | `release.yml`                  |
+| A4-GATE-01                           | weekly load run, release            | `loadtest.yml`, `release.yml`  |
+| BUDGET-GATE-01 / 02                  | merge                               | `ci-budget`                    |
+| PHASE-GATE-01                        | phase closure, release              | `phase-closure`, `release.yml` |
+| PROV-GATE-01                         | merge                               | `static`                       |
+| IP-GATE-01                           | merge                               | `static`                       |
+| SCHEMA-GATE-01                       | merge                               | `contracts`                    |
+| GOLDEN-GATE-01                       | merge                               | `e2e-golden`                   |
+| SEC-GATE-01 / 02 / 03                | merge                               | `static`, `security.yml`       |
+| CHANGELOG-GATE-01                    | merge                               | `static`                       |
+| TASK-GATE-01                         | merge                               | `static`                       |
+| PROFILE-GATE-01                      | merge                               | `static`                       |
+| QUICKSTART-GATE-01                   | merge                               | `quickstart`                   |
+| every VAL-REFERENCE and GROUND_TRUTH | phase closure, release              | `val-gates`                    |
+| every VAL-META                       | merge, phase closure, release       | `val-gates`                    |
 
 Two gates in that list block nothing today and say so rather than pretending otherwise.
 A4-GATE-01 and VAL-REPRO-001 report until `benchmarks/repeatability.json` holds a measured band
@@ -2620,14 +2620,14 @@ registry, `phases.yaml` and `roadmap.yaml` with the Issues sync, `licenses.allow
 `SECURITY.md` with the sandbox boundary written as a design contract, `CONTRIBUTING.md`,
 `CODE_OF_CONDUCT.md`, `GOVERNANCE.md`, the semver policy document, the CHANGELOG scaffold, the
 Apache-2.0 `LICENSE`, `NOTICE`, `LICENSING.md`, `CLA.md`, `ci.yml` with `static`, `unit`,
-`ci-budget`, `quickstart`, and `all-green`, and branch protection. The licence policy lands
+`ci-budget`, `quickstart`, and `all-green`, and branch protection. The license policy lands
 complete, including the `deny_riders` list, the deprecated-identifier map, and LIC-GATE-03a to
 03c, because the process-mining decision of D-14 is what the policy is for and a policy that
 arrives after the dependency it exists to refuse has already lost.
 
 Why here: a repository whose first two hundred commits predate the commit-msg hook has a history
 that can only be fixed by rewriting it, and the history is one of the artifacts a reader judges.
-The licence allowlist must exist before the first dependency is added, or the first denied licence
+The license allowlist must exist before the first dependency is added, or the first denied license
 is already in the lockfile and removing it is a refactor. The VAL-GATE registry must exist before
 Phase 2 writes its first gate, or every Phase 2 gate lands as an ordinary test and the registry
 becomes a retrofit that no longer proves the phase-closure rule was ever enforced. The
@@ -2650,7 +2650,7 @@ determinism tiers rather than the stronger one alone, per D-05. Tag `v0.1.0`.
 
 Why here: the tier machinery must be present before the suite grows, because retrofitting markers
 onto several hundred existing tests is tedious and gets skipped. The first golden is written when
-there is one artifact to freeze, so the normaliser design is validated on a small case. The
+there is one artifact to freeze, so the normalizer design is validated on a small case. The
 cross-platform gate starts measuring in the same phase it starts running, so that by the time a
 tolerance is set there is a record of divergence to set it from.
 
@@ -2676,7 +2676,7 @@ measured number.
 identity config migration, so the first real migration is not also the first use of the tool. The
 compatibility table starts, with `v0.2.0` as the earliest supported run format. `twinflow-loadtest`
 ships and publishes its first curve on `ref-gh` and `ref-a`, because a device count only becomes a
-meaningful axis once the catalogue has breadth. The repeatability run lands in the same phase and
+meaningful axis once the catalog has breadth. The repeatability run lands in the same phase and
 before the first published curve, since A4-GATE-01's band is measured from it and a curve
 published without a band is a number nobody can regress against. ADOPTION.md's first version lands
 at Phase 3 close, when sensors, historian, LSS, and process mining exist, so the maturity model
@@ -2714,7 +2714,7 @@ E43's red-team suite joins the nightly scorecard next to E27's accuracy evals.
 ### Ordering rationale in one line each
 
 - Hooks and lint before code, because both are retrofits otherwise.
-- Licence policy before the first dependency, because D-14's ruling is only cheap while the
+- License policy before the first dependency, because D-14's ruling is only cheap while the
   lockfile is empty.
 - Registry before the first statistic, because the phase-closure rule must have been true from the
   first gate for it to mean anything.
@@ -2735,12 +2735,12 @@ statistics whose external reference does not yet exist. None has an answer inven
 D-11 condition 5 none of them is recorded anywhere else as a passing gate.
 
 1. **The legal read on a development-only AGPL oracle.** The engineering question is closed. The
-   Python Package Index reports PM4Py 2.7.23.3 with the licence field `AGPL 3.0`, the policy denies
+   Python Package Index reports PM4Py 2.7.23.3 with the license field `AGPL 3.0`, the policy denies
    both members of that family at runtime, and D-14 rules that `twinflow-procmine` is written here
    under Apache-2.0 rather than wrapping a copyleft engine. What stays open is narrower and is not
    an engineering call: whether keeping PM4Py as a development-only conformance oracle, compared
    against in CI, never distributed in a wheel and never reachable from a served surface, is
-   acceptable to the owner's own reading of the AGPL. LIC-GATE-03a, 03b, and 03c mechanise the
+   acceptable to the owner's own reading of the AGPL. LIC-GATE-03a, 03b, and 03c mechanize the
    boundary that reading would rely on, so the checks exist either way. If the answer is no, the
    oracle is dropped, VAL-PM-002 keeps the published algorithm of Leemans, Fahland, and van der
    Aalst as its only anchor, and the gate says so. The capability does not change under either
@@ -2805,8 +2805,8 @@ D-11 condition 5 none of them is recorded anywhere else as a passing gate.
    specification is not client data and can be named exactly, which strengthens reproducibility.
    Confirm whether to name the exact CPU model or describe it by class.
 
-10. **Licence for twinflow's emitted synthetic datasets (E25).** Code is Apache-2.0. Data conventionally
-    ships as CC-BY-4.0 or CC0. The dataset card schema requires a licence from the allowlist, and
+10. **License for twinflow's emitted synthetic datasets (E25).** Code is Apache-2.0. Data conventionally
+    ships as CC-BY-4.0 or CC0. The dataset card schema requires a license from the allowlist, and
     the allowlist file carries an `emitted_dataset_license` key that must be set. The choice affects
     whether a third party can redistribute a twinflow-generated benchmark corpus, which is the
     whole point of E25 as a data product.
@@ -2824,7 +2824,7 @@ D-11 condition 5 none of them is recorded anywhere else as a passing gate.
 
 13. **Reference for the standard-cost variance formulas (6a17).** The variance decomposition
     closure invariant (INV-LEDGER-04) is self-referential and testable, but the individual variance
-    formulas (buying price, labour efficiency, overhead absorption, material usage) need a named
+    formulas (buying price, labor efficiency, overhead absorption, material usage) need a named
     published reference the way the SPC statistics do. A public-domain or freely citable
     cost-accounting source needs identifying before the 6a17 gates are written. Without one those
     gates fall to GROUND_TRUTH class with no external anchor, which INV-VG-02 records as

@@ -1,6 +1,6 @@
 ---
 title: "Process twin, automation and robotics, slotting, and the what-if engine"
-description: Implementation contract for the discrete-event twin, its automation layer, slotting, the what-if and replay engine, twin-to-reality sync, and four optimisation capabilities.
+description: Implementation contract for the discrete-event twin, its automation layer, slotting, the what-if and replay engine, twin-to-reality sync, and four optimization capabilities.
 topic_type: reference
 audience: contributors
 ---
@@ -15,22 +15,22 @@ Status: design contract. An implementer builds from this with TDD and does not n
 
 This section is the implementation contract for the discrete-event process twin, the automation and
 robotics layer inside it, the slotting layer, the what-if experiment engine, and the twin-to-reality
-sync connector. It also owns the four optimisation and learning capabilities that sit on top of the
+sync connector. It also owns the four optimization and learning capabilities that sit on top of the
 twin.
 
 ### 1.1 Requirements covered in full
 
 | Requirement                | Source text (abbreviated)                                                                                                                                                                                                                                                                                                                                                                                                                           | Covered in                                       |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| **1**                      | Process twin: DES of receiving and putaway (trucks, dock doors, unload, scan, convey, sort, putaway) with realistic variability; parameters in one config file; computes takt, cycle times, WIP, utilisation, OEE; identifies the bottleneck; produces a value-stream summary                                                                                                                                                                       | 2.1, 3.1 to 3.4, 5.1 to 5.5, 6.1, 7              |
+|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|
+| **1**                      | Process twin: DES of receiving and putaway (trucks, dock doors, unload, scan, convey, sort, putaway) with realistic variability; parameters in one config file; computes takt, cycle times, WIP, utilization, OEE; identifies the bottleneck; produces a value-stream summary                                                                                                                                                                       | 2.1, 3.1 to 3.4, 5.1 to 5.5, 6.1, 7              |
 | **1b**                     | AGV/AMR fleet (task allocation, traffic and deadlock management, battery and charging, congestion as measurable bottleneck source); robotic palletiser cell (cycle time distributions, jam and fault modes, recovery time); ASRS with crane scheduling; conveyor sortation with divert logic; slotting on velocity, cube, affinity, ergonomics; automation what-ifs answered with throughput, cost, energy and operator deltas plus the LSS verdict | 2.2, 2.3, 3.5 to 3.9, 5.6 to 5.11, 6.2 to 6.4, 7 |
 | **6**                      | Bi-directional twin/reality sync: twin recalibrates from telemetry, divergence is itself a finding, accepted what-ifs flow back as config                                                                                                                                                                                                                                                                                                           | 2.5, 3.12, 5.14 to 5.16, 6.6                     |
 | **7 (what-if parts only)** | `run_whatif(config_change)` and `compare_scenarios` ranked by throughput gained per dollar, producing an investment-roadmap table                                                                                                                                                                                                                                                                                                                   | 2.4, 5.12, 5.13, 6.5                             |
 | **E4**                     | Event-sourced replay and counterfactuals: replay the historian event log through a modified config; time-travel debugging of any finding                                                                                                                                                                                                                                                                                                            | 2.4, 5.13, 7.5                                   |
 | **E5**                     | Autonomy tiers L1 advise, L2 recommend with approval, L3 auto-apply within guardrails; approved what-if flows back through the bi-directional connector; audit trail of who or what changed the line and why                                                                                                                                                                                                                                        | 2.5, 3.13, 4.6, 5.17                             |
-| **E9**                     | Optimisation engine: search over twin configurations under a cost budget, feeding the scenario-ranking table                                                                                                                                                                                                                                                                                                                                        | 2.6, 5.18, 7.6                                   |
+| **E9**                     | Optimization engine: search over twin configurations under a cost budget, feeding the scenario-ranking table                                                                                                                                                                                                                                                                                                                                        | 2.6, 5.18, 7.6                                   |
 | **E11**                    | Learning-based AGV dispatch benchmarked honestly against the rule-based dispatcher on identical scenarios, comparison table published either way                                                                                                                                                                                                                                                                                                    | 2.7, 5.19, 7.7                                   |
-| **E12**                    | Yard and dock scheduling optimisation: truck arrival slotting and dock-door assignment optimised against the twin                                                                                                                                                                                                                                                                                                                                   | 2.6, 5.20, 7.8                                   |
+| **E12**                    | Yard and dock scheduling optimization: truck arrival slotting and dock-door assignment optimized against the twin                                                                                                                                                                                                                                                                                                                                   | 2.6, 5.20, 7.8                                   |
 | **E28**                    | Neural twin surrogate for millisecond approximate what-ifs, always validated against the full sim with the error distribution published; agent searches with the surrogate, confirms winners with the sim                                                                                                                                                                                                                                           | 2.8, 5.21, 7.9                                   |
 
 Engineering-craft and adoption requirements this section is bound by and contributes to, owned
@@ -43,15 +43,15 @@ deployment tiers (5.3).
 ### 1.2 Interfaces consumed but not owned here
 
 | Interface                       | Owner        | Needed by this section from | Fallback when absent                                        |
-| ------------------------------- | ------------ | --------------------------- | ----------------------------------------------------------- |
+|---------------------------------|--------------|-----------------------------|-------------------------------------------------------------|
 | Operator model, fatigue index   | E6           | P3b                         | `OperatorProvider` null implementation, constant capability |
 | Energy KPIs per resource        | E7           | P3b                         | `energy_delta` reported as null with a stated reason        |
 | Ergonomic score (NIOSH, RULA)   | 6a10         | P3b                         | `ergonomic_provider: proxy_v1`, formula in 3.9              |
 | Findings, hypothesis tests, SPC | 5 (LSS)      | P2                          | Comparison ships without `lss_verdict`, flagged as such     |
-| Alarm rationalisation           | 5 (LSS)      | P3                          | Divergence findings are not deduped; 5.15 states the risk   |
+| Alarm rationalization           | 5 (LSS)      | P3                          | Divergence findings are not deduped; 5.15 states the risk   |
 | Telemetry, device faults        | 2 and 2b     | P3                          | Calibration and divergence do not run                       |
 | Order streams and affinity      | 6a3 and 6a6  | P3e                         | Synthetic order-line generator, 9 Q4                        |
-| Labour roster                   | E23          | P6                          | `LabourProfileProvider` null implementation, 5.20           |
+| Labor roster                    | E23          | P6                          | `LaborProfileProvider` null implementation, 5.20            |
 | Synthetic scenario corpora      | E25          | before E11                  | RL curriculum runs on the three A2 profiles only            |
 | Replay viewer                   | E1           | after P2                    | Not needed to run the twin                                  |
 | Financial twin, NPV and capex   | 6a17 and E22 | P6                          | Ranking table carries payback and annualised cost only      |
@@ -64,20 +64,20 @@ restatement, because every brick below imports another brick's Python objects.
 
 Grounds: an event is the right contract between processes and the wrong contract inside one process.
 A dispatch decision happens thousands of times per simulated hour inside a single SimPy environment,
-and routing it through a serialised schema would make the twin slower than the operation it models.
+and routing it through a serialized schema would make the twin slower than the operation it models.
 The extension is narrow: cross-brick communication is by versioned schema'd event from `/schemas`
 (C3), or by one of the published protocol classes listed below.
 
-| Protocol                | Owning package        | Method surface                                                | Consumers                          |
-| ----------------------- | --------------------- | ------------------------------------------------------------- | ---------------------------------- |
-| `ResourceProvider`      | `twinflow-twin`       | `register(TwinModel, Facility) -> None`                       | automation, upstream factory (3i)  |
-| `OperatorProvider`      | `twinflow-twin`       | `capability(operator_id, sim_ts) -> OperatorCapability`       | twin, E6                           |
-| `StateView`             | `twinflow-twin`       | Declared read-only field set, 2.1                             | automation, dispatch-rl, optimize  |
-| `DispatchPolicy`        | `twinflow-automation` | `assign(tasks, fleet, state) -> list[Assignment]`             | dispatch-rl, optimize              |
-| `RoutingPolicy`         | `twinflow-automation` | `route(amr, origin, dest, state) -> Route`                    | dispatch-rl, research competitors  |
-| `Evaluator`             | `twinflow-optimize`   | `evaluate(config) -> ObjectiveVector`                         | surrogate                          |
-| `SurrogateModel`        | `twinflow-surrogate`  | `fit`, `predict`, `predict_interval`                          | optimize                           |
-| `LabourProfileProvider` | `twinflow-optimize`   | `profile(window) -> list[LabourInterval]`                     | E12, E23                           |
+| Protocol               | Owning package        | Method surface                                          | Consumers                         |
+|------------------------|-----------------------|---------------------------------------------------------|-----------------------------------|
+| `ResourceProvider`     | `twinflow-twin`       | `register(TwinModel, Facility) -> None`                 | automation, upstream factory (3i) |
+| `OperatorProvider`     | `twinflow-twin`       | `capability(operator_id, sim_ts) -> OperatorCapability` | twin, E6                          |
+| `StateView`            | `twinflow-twin`       | Declared read-only field set, 2.1                       | automation, dispatch-rl, optimize |
+| `DispatchPolicy`       | `twinflow-automation` | `assign(tasks, fleet, state) -> list[Assignment]`       | dispatch-rl, optimize             |
+| `RoutingPolicy`        | `twinflow-automation` | `route(amr, origin, dest, state) -> Route`              | dispatch-rl, research competitors |
+| `Evaluator`            | `twinflow-optimize`   | `evaluate(config) -> ObjectiveVector`                   | surrogate                         |
+| `SurrogateModel`       | `twinflow-surrogate`  | `fit`, `predict`, `predict_interval`                    | optimize                          |
+| `LaborProfileProvider` | `twinflow-optimize`   | `profile(window) -> list[LaborInterval]`                | E12, E23                          |
 
 The list lives in `/schemas/protocols/twinflow-protocols.v1.yaml` beside the event schemas: one
 entry per protocol, carrying the method names, the parameter and return type names, and a semver.
@@ -88,20 +88,20 @@ the failure mode the rule exists to stop.
 
 ### 1.4 Doctrine rulings applied
 
-| Ruling | Applied as                                                                                              | Where                  |
-| ------ | ------------------------------------------------------------------------------------------------------- | ---------------------- |
-| D-01   | Run identity is the kernel's hashed core plus an unhashed provenance sidecar                            | 4.1, 5.2               |
-| D-02   | Every wall-clock measurement leaves the tape for the metrics sink or the provenance sidecar             | 4.9, 5.2, 5.6, 5.20    |
-| D-03   | No collection whose iteration order reaches an event, a hash or a branch is a `set`                     | 3.1 to 3.3, 3.9, 5.2   |
-| D-04   | CP-SAT runs on a deterministic budget; learned inference runs through the `Inference` port              | 5.19, 5.20             |
-| D-05   | Byte-identical on a pinned platform, value-equivalent across platforms with a measured tolerance        | 5.2, 7.4               |
-| D-06   | The Rust agent's stream contract is the fleet section's; its boundary with this one is 9 Q19            | 9                      |
-| D-07   | The envelope is the kernel's; the canonical order is `(twinflowsimts, twinflowproducerid, twinflowseq)` | 4                      |
-| D-08   | The live telemetry subscriber binds `Network`; analytics fan-out binds `EventBus`                       | 2.5, 4, 5.3            |
-| D-09   | Run identity and run completion are kernel-owned events; this section publishes neither                 | 2, 4, 4.1              |
-| D-11   | Every gate names an external reference, a tolerance, a noise floor and a falsifier                      | 7.4                    |
-| D-12   | Every test names the observation that fails it, and no test asserts a tautology                         | 5.3, 7.1 to 7.9        |
-| D-13   | Every gate's repetition count carries an asserted runtime budget                                        | 7.4, 7.10              |
+| Ruling | Applied as                                                                                              | Where                |
+|--------|---------------------------------------------------------------------------------------------------------|----------------------|
+| D-01   | Run identity is the kernel's hashed core plus an unhashed provenance sidecar                            | 4.1, 5.2             |
+| D-02   | Every wall-clock measurement leaves the tape for the metrics sink or the provenance sidecar             | 4.9, 5.2, 5.6, 5.20  |
+| D-03   | No collection whose iteration order reaches an event, a hash or a branch is a `set`                     | 3.1 to 3.3, 3.9, 5.2 |
+| D-04   | CP-SAT runs on a deterministic budget; learned inference runs through the `Inference` port              | 5.19, 5.20           |
+| D-05   | Byte-identical on a pinned platform, value-equivalent across platforms with a measured tolerance        | 5.2, 7.4             |
+| D-06   | The Rust agent's stream contract is the fleet section's; its boundary with this one is 9 Q19            | 9                    |
+| D-07   | The envelope is the kernel's; the canonical order is `(twinflowsimts, twinflowproducerid, twinflowseq)` | 4                    |
+| D-08   | The live telemetry subscriber binds `Network`; analytics fan-out binds `EventBus`                       | 2.5, 4, 5.3          |
+| D-09   | Run identity and run completion are kernel-owned events; this section publishes neither                 | 2, 4, 4.1            |
+| D-11   | Every gate names an external reference, a tolerance, a noise floor and a falsifier                      | 7.4                  |
+| D-12   | Every test names the observation that fails it, and no test asserts a tautology                         | 5.3, 7.1 to 7.9      |
+| D-13   | Every gate's repetition count carries an asserted runtime budget                                        | 7.4, 7.10            |
 
 Nothing in this section is deferred or optional. Where an item lands later than another, section 8
 gives the dependency reason.
@@ -129,7 +129,7 @@ reader who wants only a warehouse DES with Lean metrics takes this brick.
 
 Runtime dependencies: `twinflow-kernel`, `twinflow-schemas`, `simpy` (4.1.2, MIT), `pydantic`,
 `numpy`, `pyyaml`, `duckdb` (1.5.5, MIT, metric queries), `deltalake` (1.6.2, Apache-2.0, event log
-writer, optional extra `[historian]`). Versions and licences are the verified values recorded in the
+writer, optional extra `[historian]`). Versions and licenses are the verified values recorded in the
 repository's dependency ledger.
 
 Public API:
@@ -142,9 +142,9 @@ from twinflow.twin import (
     TwinRun,             # one execution: run_id, seed, mode, event log handle
     run,                 # (facility, *, seed, horizon, mode, log) -> TwinRun
     EventTape,           # append-only writer/reader of twin.* events
-    TwinSnapshot,        # serialisable full state at a sim instant
+    TwinSnapshot,        # serializable full state at a sim instant
     MetricEngine,        # windowed KPI computation over an event log
-    WindowMetrics,       # takt, cycle time, WIP, utilisation, OEE, throughput
+    WindowMetrics,       # takt, cycle time, WIP, utilization, OEE, throughput
     BottleneckReport,    # three detectors plus agreement flag
     ValueStreamSummary,  # per-station ladder, VA/NVA, PCE
     StateView,           # read-only observation of live model state
@@ -155,7 +155,7 @@ from twinflow.twin import (
 The event log this section writes is the run's `events.ndjson`, and `EventTape` is the writer and
 reader for it. The prose below calls the file the event log and never calls it anything else.
 
-`StateView` matters: it is the only object a dispatcher, an optimiser, or an RL policy may read. Its
+`StateView` matters: it is the only object a dispatcher, an optimizer, or an RL policy may read. Its
 field set is declared as a frozen allowlist in `twinflow/twin/state_view.py`, and every field is a
 quantity a real WMS would hold at that instant. The deny list is explicit: no pending event queue,
 no RNG state, no fault schedule, no arrival time that has not yet happened, no ground-truth
@@ -198,7 +198,7 @@ brick depends on automation and not the reverse.
 ### 2.3 `twinflow-slotting`
 
 Purpose: decide which SKU lives in which slot, on velocity, cube, affinity and ergonomics; measure
-travel-distance and picks-per-hour deltas; compute re-slot labour payback. Installable alone: a
+travel-distance and picks-per-hour deltas; compute re-slot labor payback. Installable alone: a
 consultant who wants only a slotting engine takes this brick and feeds it a CSV.
 
 Runtime dependencies: `twinflow-schemas`, `numpy`, `scipy` (`linear_sum_assignment`), `pandas`.
@@ -217,7 +217,7 @@ from twinflow.slotting import (
     plan_slotting,           # (SlotGrid, list[SkuProfile], SlottingObjective) -> SlottingPlan
     coi_baseline,            # Heskett cube-per-order-index ordering, the reference optimum
     evaluate_plan,           # (SlottingPlan, DemandWindow) -> SlottingMetrics
-    reslot_payback,          # (SlottingPlan, LabourRates) -> PaybackReport
+    reslot_payback,          # (SlottingPlan, LaborRates) -> PaybackReport
 )
 ```
 
@@ -242,7 +242,7 @@ from twinflow.scenario import (
     CostModel, annualised_cost, capital_recovery_factor,
     replay,                  # exact | patched | to_event
     ExogenousTrace,
-    ChangeProposal,          # the E5 artefact a scenario result can become
+    ChangeProposal,          # the E5 artifact a scenario result can become
 )
 ```
 
@@ -295,7 +295,7 @@ from twinflow.optimize import (
     run_study,                        # -> StudyResult (best, pareto_front, trials)
     StudyResult, ParetoFront,
     YardProblem, DockAssignment, AppointmentSlot,
-    LabourProfileProvider, CalendarLabourProfile,   # protocol plus shipped null implementation
+    LaborProfileProvider, CalendarLaborProfile,   # protocol plus shipped null implementation
     solve_yard,                       # -> YardPlan
     YardPlan, plan_realisability,     # executes the plan on the twin, compares
 )
@@ -312,7 +312,7 @@ Runtime dependencies: `twinflow-automation`, `twinflow-scenario`, `gymnasium`,
 
 Applying D-04, the policy never calls `torch` from inside the simulation loop. It calls the kernel
 `Inference` port, which binds `TorchInference` in training and benchmark mode and
-`RecordedInference` in replay mode. The settings and the recorded artefact hash are in 5.19.
+`RecordedInference` in replay mode. The settings and the recorded artifact hash are in 5.19.
 
 Public API:
 
@@ -464,7 +464,7 @@ load, D-03). Owned by `catalog/skus.yaml`, read by the twin and the slotting bri
 
 **`ResourceState`** (per station, per machine, per AMR): a time-stamped state trace over
 `{RUNNING, IDLE_NO_WORK, IDLE_BLOCKED, IDLE_STARVED, SETUP, DOWN_UNPLANNED, DOWN_PLANNED, CHARGING,
-TRAVEL_LOADED, TRAVEL_EMPTY, WAITING_TRAFFIC}`. This trace is the single source for utilisation, OEE,
+TRAVEL_LOADED, TRAVEL_EMPTY, WAITING_TRAFFIC}`. This trace is the single source for utilization, OEE,
 the six-big-losses classification, and the blocking and starving bottleneck detector. It is written
 to the event log, not held only in memory, so E4 replay and E1's viewer can reconstruct it.
 
@@ -484,7 +484,7 @@ returning constant capability so `twinflow-twin` installs and runs alone (A1).
 **`WindowMetrics`**: `run_id`, `window_start_s`, `window_end_s`, `takt_s`,
 `throughput_units`, `throughput_per_hour`, `flow_time_s: Distribution` (p50/p90/p95/max),
 `station_cycle_time_s: dict[station_id, Distribution]`, `wip_time_weighted_mean`,
-`wip_max`, `utilisation: dict[resource_id, float]`,
+`wip_max`, `utilization: dict[resource_id, float]`,
 `oee: dict[resource_id, OeeBreakdown]`, `six_big_losses: dict[resource_id, LossBreakdown]`,
 `energy_kwh`, `energy_per_pallet_kwh`, `little_law_residual_pct`.
 
@@ -545,8 +545,8 @@ Invariants:
   to 1e-9.
 - INV-AMR-01: under the reservation protocol no two AMRs hold overlapping time windows on the same
   node, and no two hold opposing windows on the same one-way edge.
-- INV-AMR-04: every task is completed, cancelled or reassigned exactly once; the count of
-  `task.assigned` minus `task.completed` minus `task.cancelled` minus `task.reassigned` is zero at
+- INV-AMR-04: every task is completed, canceled or reassigned exactly once; the count of
+  `task.assigned` minus `task.completed` minus `task.canceled` minus `task.reassigned` is zero at
   end of run.
 
 **`Task`**: `task_id`, `kind: Literal["move_pallet","replenish","return_empty","charge"]`,
@@ -592,7 +592,7 @@ Travel is Chebyshev: horizontal and vertical motion run at the same time, so tra
 larger of the two leg times. This is the standard unit-load AS/RS assumption and the assumption
 behind the Bozer and White travel-time model that VAL-GATE-ASRS-01 checks against.
 
-**`CraneScheduler`**: policies `FCFS`, `NEAREST_NEIGHBOUR`, `DUAL_COMMAND_PAIRING`,
+**`CraneScheduler`**: policies `FCFS`, `NEAREST_NEIGHBOR`, `DUAL_COMMAND_PAIRING`,
 `SHORTEST_LEG_FIRST`. Dual command pairing takes a storage request and a retrieval request and
 sequences them into one cycle when both are queued.
 
@@ -612,7 +612,7 @@ in the addressed slot. INV-ASRS-02, occupied slot count equals stored pallet cou
 
 `Sorter.failure` is present for the same reason `Amr.failure_modes` is: requirement 1b asks for
 failure modes on every automation resource, and a missort rate is a quality defect, not a failure.
-The shipped catalogue declares `induct_belt_stall`, `divert_actuator_stuck` and
+The shipped catalog declares `induct_belt_stall`, `divert_actuator_stuck` and
 `chute_full_backpressure`, each with a `telemetry_signature_ref`.
 
 **`DivertDecision`**: computed at `decision_point_offset_m` from `pallet.destination_chute`, which in
@@ -640,7 +640,7 @@ cannot occupy two chutes; the count balance closes per window.
 supplied by the synthetic order-line generator described in section 9 Q4.
 
 **`SlottingObjective`**: weighted terms plus hard constraints. Cube is a term, not only a
-feasibility test, because the source lists it as one of the four optimisation dimensions.
+feasibility test, because the source lists it as one of the four optimization dimensions.
 
 ```
 slots_required(sku) = ceil( days_of_supply * picks_per_day * units_per_pick
@@ -648,7 +648,7 @@ slots_required(sku) = ceil( days_of_supply * picks_per_day * units_per_pick
 
 mean_travel(sku)    = mean over the slots assigned to sku of travel_distance_m(slot)
 
-minimise  w_travel  * sum_over_skus( picks_per_day * 2 * mean_travel(sku) )
+minimize  w_travel  * sum_over_skus( picks_per_day * 2 * mean_travel(sku) )
         + w_replen  * sum_over_skus( replenishments_per_day * 2 * mean_travel(sku) )
         + w_affinity* sum_over_pairs( lift(i,j) * distance(slot_i, slot_j) )
         + w_ergo    * sum_over_skus( picks_per_day * ergonomic_risk(sku, slot) )
@@ -703,15 +703,15 @@ the headline demo of 5.13 a valid scenario rather than an aspiration.
 `notes`.
 
 **`ScenarioCost`**: `capex_usd`, `install_usd`, `life_years`, `salvage_usd`,
-`opex_annual_usd` (excludes labour by definition), `labour_delta_fte` (signed; negative removes
+`opex_annual_usd` (excludes labor by definition), `labor_delta_fte` (signed; negative removes
 staff), `assumption_source: str` (free text, printed in the table so every dollar in the ranking
 traces to a stated assumption).
 
-Labour appears exactly once in the cost model, through `labour_delta_fte` priced at
-`costs.labour_rate_usd_per_hour` times `costs.annual_hours_per_fte` times
-`costs.labour_burden_multiplier`. `opex_annual_usd` carries energy, maintenance and consumables and
-nothing else. The split is stated in both places because a cost model that declares a labour field
-and prices labour inside opex is either carrying a dead field or double counting, and a reader
+Labor appears exactly once in the cost model, through `labor_delta_fte` priced at
+`costs.labor_rate_usd_per_hour` times `costs.annual_hours_per_fte` times
+`costs.labor_burden_multiplier`. `opex_annual_usd` carries energy, maintenance and consumables and
+nothing else. The split is stated in both places because a cost model that declares a labor field
+and prices labor inside opex is either carrying a dead field or double counting, and a reader
 cannot tell which from the numbers alone.
 
 **`RankedOption`**: `scenario_id`, `label`, `throughput_delta_units_per_year`,
@@ -725,11 +725,11 @@ cannot tell which from the numbers alone.
 **`AppointmentSlot`**: `slot_id`, `window_start_s`, `window_end_s`, `door_id | None`.
 
 **`YardProblem`**: `trucks: list[TruckArrivalRequest]`, `doors: list[DoorCapability]`,
-`labour_profile: list[LabourInterval]`, `objective_weights`, `hard_windows`,
+`labor_profile: list[LaborInterval]`, `objective_weights`, `hard_windows`,
 `crossdock_links: list[CrossdockLink]` (empty until Phase 3g, see 8).
 
-**`LabourInterval`**: `start_s`, `end_s`, `fte: float`. Supplied by a `LabourProfileProvider`. The
-shipped implementation is `CalendarLabourProfile`, which reads shift patterns and headcount from
+**`LaborInterval`**: `start_s`, `end_s`, `fte: float`. Supplied by a `LaborProfileProvider`. The
+shipped implementation is `CalendarLaborProfile`, which reads shift patterns and headcount from
 `calendars.yaml`, so E12 runs before E23 exists. When E23 lands it registers a provider that reads
 `roster.v1` and the yard solver changes not at all.
 
@@ -806,14 +806,14 @@ event name a past-tense verb phrase. Phase 0 registers the domain `twin`. This s
 domains to `schemas/registry.yaml`, each with an owning package, because the registry is the only
 place a domain may come from.
 
-| Domain       | Owning package         | First phase | Reason it is not a sub-name of `twin`                              |
-| ------------ | ---------------------- | ----------- | ------------------------------------------------------------------ |
-| `automation` | `twinflow-automation`  | P3b         | The bricks install separately, and one subject has one owner       |
-| `slotting`   | `twinflow-slotting`    | P3b         | A reader who takes only the slotting brick still gets its subjects |
-| `scenario`   | `twinflow-scenario`    | P2b         | Scenario subjects are consumed by the agent and the dashboard      |
-| `optimize`   | `twinflow-optimize`    | P6          | E9 and E12 share a brick and a subject domain                      |
-| `sync`       | `twinflow-sync`        | P3          | Calibration and divergence are component 6, not the twin           |
-| `autonomy`   | `twinflow-sync`        | P6          | E5's audit trail is a separate contract from calibration           |
+| Domain       | Owning package        | First phase | Reason it is not a sub-name of `twin`                              |
+|--------------|-----------------------|-------------|--------------------------------------------------------------------|
+| `automation` | `twinflow-automation` | P3b         | The bricks install separately, and one subject has one owner       |
+| `slotting`   | `twinflow-slotting`   | P3b         | A reader who takes only the slotting brick still gets its subjects |
+| `scenario`   | `twinflow-scenario`   | P2b         | Scenario subjects are consumed by the agent and the dashboard      |
+| `optimize`   | `twinflow-optimize`   | P6          | E9 and E12 share a brick and a subject domain                      |
+| `sync`       | `twinflow-sync`       | P3          | Calibration and divergence are component 6, not the twin           |
+| `autonomy`   | `twinflow-sync`       | P6          | E5's audit trail is a separate contract from calibration           |
 
 `twinflow-surrogate` publishes under `optimize`, because a surrogate prediction is an evaluation
 result and splitting it from `optimize.trial_completed` would make the two impossible to join.
@@ -826,10 +826,10 @@ rather than drifting.
 ### 4.1 Published by `twinflow-twin`
 
 | Subject                               | Version | Key payload fields                                                                                  | Purpose                                                            |
-| ------------------------------------- | ------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+|---------------------------------------|---------|-----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
 | `twinflow.twin.model_built`           | v1      | `facility_hash`, `station_count`, `resource_count`, `stream_names`, `tick_hz`, `ergonomic_provider` | What the twin built from the config, for a reader diffing two runs |
 | `twinflow.twin.truck_arrived`         | v1      | `truck_id`, `carrier_id`, `scheduled_arrival_s`, `readiness_s`, `manifest_lines`, `appointment_id`  | Exogenous, and 5.13 replays it verbatim                            |
-| `twinflow.twin.truck_departed`        | v1      | `truck_id`, `dwell_s`, `detention_minutes`, `door_id`                                               | Yard KPI and E12's realised objective                              |
+| `twinflow.twin.truck_departed`        | v1      | `truck_id`, `dwell_s`, `detention_minutes`, `door_id`                                               | Yard KPI and E12's realized objective                              |
 | `twinflow.twin.door_assigned`         | v1      | `truck_id`, `door_id`, `wait_s`, `assigner: "policy" or "yard_plan"`, `plan_id`                     | E12 execution trace                                                |
 | `twinflow.twin.pallet_created`        | v1      | `pallet_id`, `lot_id`, `sku_id`, `qty_units`, `cube_m3`, `weight_kg`, `source_truck_id`             | Case creation for process mining                                   |
 | `twinflow.twin.pallet_scanned`        | v1      | `pallet_id`, `scan_point_id`, `outcome`, `reads`, `identity_source`, `dwell_s`                      | The `SCANNED` transition of 3.2, and INV-TWIN-10's evidence        |
@@ -838,7 +838,7 @@ rather than drifting.
 | `twinflow.twin.activity_aborted`      | v1      | `case_id`, `activity`, `reason_code`                                                                | Rework and exception paths                                         |
 | `twinflow.twin.pallet_moved`          | v1      | `pallet_id`, `from: LocationRef`, `to: LocationRef`, `distance_m`, `mover_id`                       | Travel accounting                                                  |
 | `twinflow.twin.pallet_scrapped`       | v1      | `pallet_id`, `reason_code`, `qty_units`                                                             | Conservation ledger, INV-TWIN-01                                   |
-| `twinflow.twin.resource_state`        | v1      | `resource_id`, `state`, `previous_state`, `duration_s`, `loss_class`                                | Utilisation, OEE, six big losses                                   |
+| `twinflow.twin.resource_state`        | v1      | `resource_id`, `state`, `previous_state`, `duration_s`, `loss_class`                                | Utilization, OEE, six big losses                                   |
 | `twinflow.twin.resource_failed`       | v1      | `resource_id`, `failure_mode`, `telemetry_signature_ref`, `expected_ttr_s`                          | Feeds PdM and the CMMS queue (6b)                                  |
 | `twinflow.twin.resource_repaired`     | v1      | `resource_id`, `failure_mode`, `ttr_s`, `parts_used`                                                | Closes the failure record                                          |
 | `twinflow.twin.wip_sampled`           | v1      | `zone_id`, `station_id`, `units`, `queue_units`                                                     | Time-weighted WIP, sampled at config cadence and at every change   |
@@ -847,14 +847,14 @@ rather than drifting.
 | `twinflow.twin.vss_generated`         | v1      | full `ValueStreamSummary`                                                                           | Phase 3c VSM renderer input                                        |
 
 `twinflow.twin.model_built` carries `facility_hash` and not `code_version`. Package versions live in
-`RunProvenance` in `manifest.json` (D-01), so a release that changes no behaviour does not invalidate
+`RunProvenance` in `manifest.json` (D-01), so a release that changes no behavior does not invalidate
 a golden hash. A version string inside a hashed payload makes every release a golden-file rewrite,
 which is the outcome 5.2's stream discipline exists to avoid.
 
 ### 4.2 Published by `twinflow-automation`
 
 | Subject                                     | Version | Key payload fields                                                                                     |
-| ------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------ |
+|---------------------------------------------|---------|--------------------------------------------------------------------------------------------------------|
 | `twinflow.automation.amr_task_created`      | v1      | `task_id`, `kind`, `origin_node`, `dest_node`, `due_time_s`, `priority`                                |
 | `twinflow.automation.amr_task_assigned`     | v1      | `task_id`, `amr_id`, `policy_id`, `candidates_considered`, `inference_steps`, `reason_code`            |
 | `twinflow.automation.amr_task_completed`    | v1      | `task_id`, `amr_id`, `travel_empty_m`, `travel_loaded_m`, `wait_traffic_s`, `energy_kwh`, `lateness_s` |
@@ -884,24 +884,24 @@ variable rather than a count.
 ### 4.3 Published by `twinflow-slotting`
 
 | Subject                              | Version | Key payload fields                                                                                                                                                   |
-| ------------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `twinflow.slotting.plan_proposed`    | v1      | `plan_id`, `solver_used`, `objective_value`, `terms_breakdown`, `moves`, `predicted_travel_delta_m_per_day`, `predicted_picks_per_hour_delta`, `constraints_binding` |
 | `twinflow.slotting.plan_evaluated`   | v1      | `plan_id`, `measured_travel_delta_m_per_day`, `measured_picks_per_hour_delta`, `ci95_low`, `ci95_high`, `measurement_run_ids`                                        |
-| `twinflow.slotting.move_planned`     | v1      | `plan_id`, `sku_id`, `from_slot`, `to_slot`, `units`, `labour_minutes`, `equipment`                                                                                  |
-| `twinflow.slotting.payback_computed` | v1      | `plan_id`, `move_labour_hours`, `move_cost_usd`, `savings_usd_per_year`, `payback_days`, `assumptions`                                                               |
+| `twinflow.slotting.move_planned`     | v1      | `plan_id`, `sku_id`, `from_slot`, `to_slot`, `units`, `labor_minutes`, `equipment`                                                                                   |
+| `twinflow.slotting.payback_computed` | v1      | `plan_id`, `move_labor_hours`, `move_cost_usd`, `savings_usd_per_year`, `payback_days`, `assumptions`                                                                |
 
 `solver_used` is in the payload because 5.10 offers three solvers and a plan whose provenance is
 hidden cannot be argued with.
 
 ### 4.4 Published by `twinflow-scenario`
 
-| Subject                                | Version | Key payload fields                                                                                                        |
-| -------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `twinflow.scenario.run_started`        | v1      | `scenario_id`, `replication_index`, `patch_hash`, `base_kind: "facility" or "run_id" or "snapshot"`, `exogenous_boundary` |
-| `twinflow.scenario.run_completed`      | v1      | `scenario_id`, `replication_index`, `kpis`, `child_run_id`, `crn_integrity`                                               |
-| `twinflow.scenario.compare_completed`  | v1      | `comparison_id`, `baseline_scenario_id`, `ranked: list[RankedOption]`, `method`, `replications`, `alpha`, `test_chosen`   |
-| `twinflow.scenario.replay_started`     | v1      | `source_run_id`, `mode: "exact" or "to_event" or "patched"`, `patch_hash`, `exogenous_boundary`                           |
-| `twinflow.scenario.replay_completed`   | v1      | `source_run_id`, `mode`, `divergence_point_sim_ts`, `hash_match: bool`, `synthesised_devices`                             |
+| Subject                               | Version | Key payload fields                                                                                                        |
+|---------------------------------------|---------|---------------------------------------------------------------------------------------------------------------------------|
+| `twinflow.scenario.run_started`       | v1      | `scenario_id`, `replication_index`, `patch_hash`, `base_kind: "facility" or "run_id" or "snapshot"`, `exogenous_boundary` |
+| `twinflow.scenario.run_completed`     | v1      | `scenario_id`, `replication_index`, `kpis`, `child_run_id`, `crn_integrity`                                               |
+| `twinflow.scenario.compare_completed` | v1      | `comparison_id`, `baseline_scenario_id`, `ranked: list[RankedOption]`, `method`, `replications`, `alpha`, `test_chosen`   |
+| `twinflow.scenario.replay_started`    | v1      | `source_run_id`, `mode: "exact" or "to_event" or "patched"`, `patch_hash`, `exogenous_boundary`                           |
+| `twinflow.scenario.replay_completed`  | v1      | `source_run_id`, `mode`, `divergence_point_sim_ts`, `hash_match: bool`, `synthesised_devices`                             |
 
 `crn_integrity` is the per-stream draw-count record the variability section defines. It rides on
 the scenario event rather than being recomputed downstream, because the LSS engine's assumption
@@ -909,27 +909,27 @@ checker picks the paired or the unpaired test from it and needs to state which a
 
 ### 4.5 Published by `twinflow-optimize`, `twinflow-dispatch-rl`, and `twinflow-surrogate`
 
-| Subject                                     | Version | Key payload fields                                                                                                                       |
-| ------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `twinflow.optimize.trial_completed`         | v1      | `study_id`, `trial_number`, `params`, `objectives`, `constraints`, `pruned: bool`, `evaluator: "twin" or "surrogate"`                    |
-| `twinflow.optimize.study_completed`         | v1      | `study_id`, `best_trials`, `pareto_front`, `sampler`, `stream_name`, `budget_usd`, `execution: "sequential" or "replayed"`               |
-| `twinflow.optimize.yard_plan_generated`     | v1      | full `YardPlan`                                                                                                                          |
-| `twinflow.optimize.yard_plan_checked`       | v1      | `plan_id`, `predicted_makespan_s`, `simulated_makespan_s`, `gap_pct`, `requantiled: bool`, `duration_quantile_used`                      |
-| `twinflow.optimize.dispatch_benchmarked`    | v1      | `policies`, `seed_set_id`, `metrics_per_policy`, `paired_test`, `effect_size`, `holm_adjusted`, `winner`, `published_table_uri`          |
-| `twinflow.optimize.surrogate_validated`     | v1      | `model_id`, `n_holdout`, `error_quantiles`, `interval_coverage`, `top_k_agreement`, `kendall_tau`, `in_domain_rate`, `baseline_model_id` |
-| `twinflow.optimize.surrogate_predicted`     | v1      | `model_id`, `encoder_version`, `config_hash`, `predicted`, `interval`, `in_domain: bool`, `confirmed_by_run_id`                          |
+| Subject                                  | Version | Key payload fields                                                                                                                       |
+|------------------------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `twinflow.optimize.trial_completed`      | v1      | `study_id`, `trial_number`, `params`, `objectives`, `constraints`, `pruned: bool`, `evaluator: "twin" or "surrogate"`                    |
+| `twinflow.optimize.study_completed`      | v1      | `study_id`, `best_trials`, `pareto_front`, `sampler`, `stream_name`, `budget_usd`, `execution: "sequential" or "replayed"`               |
+| `twinflow.optimize.yard_plan_generated`  | v1      | full `YardPlan`                                                                                                                          |
+| `twinflow.optimize.yard_plan_checked`    | v1      | `plan_id`, `predicted_makespan_s`, `simulated_makespan_s`, `gap_pct`, `requantiled: bool`, `duration_quantile_used`                      |
+| `twinflow.optimize.dispatch_benchmarked` | v1      | `policies`, `seed_set_id`, `metrics_per_policy`, `paired_test`, `effect_size`, `holm_adjusted`, `winner`, `published_table_uri`          |
+| `twinflow.optimize.surrogate_validated`  | v1      | `model_id`, `n_holdout`, `error_quantiles`, `interval_coverage`, `top_k_agreement`, `kendall_tau`, `in_domain_rate`, `baseline_model_id` |
+| `twinflow.optimize.surrogate_predicted`  | v1      | `model_id`, `encoder_version`, `config_hash`, `predicted`, `interval`, `in_domain: bool`, `confirmed_by_run_id`                          |
 
 ### 4.6 Published by `twinflow-sync`
 
-| Subject                                | Version | Key payload fields                                                                                                        |
-| -------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `twinflow.sync.calibration_completed`  | v1      | `estimates: list[ParameterEstimate]`, `accepted_count`, `rejected_count`, `config_version_before`, `config_version_after` |
-| `twinflow.sync.divergence_observed`    | v1      | full `DivergenceSignal`, plus `late_arrival_suppressed` and `suppression_window_s`                                        |
-| `twinflow.autonomy.change_proposed`    | v1      | `ChangeRequest` without approvals, plus `Actor`                                                                           |
-| `twinflow.autonomy.change_approved`    | v1      | `change_id`, `approvals: list[Approval]`, `audit_entry_hash`                                                              |
-| `twinflow.autonomy.change_rejected`    | v1      | `change_id`, `guardrail_failed`, `evaluated_values`, `audit_entry_hash`                                                   |
-| `twinflow.autonomy.change_applied`     | v1      | `change_id`, `patch`, `config_hash_before`, `config_hash_after`, `audit_entry_hash`                                       |
-| `twinflow.autonomy.change_reverted`    | v1      | `change_id`, `rollback_trigger_fired`, `restored_config_version`, `audit_entry_hash`                                      |
+| Subject                               | Version | Key payload fields                                                                                                        |
+|---------------------------------------|---------|---------------------------------------------------------------------------------------------------------------------------|
+| `twinflow.sync.calibration_completed` | v1      | `estimates: list[ParameterEstimate]`, `accepted_count`, `rejected_count`, `config_version_before`, `config_version_after` |
+| `twinflow.sync.divergence_observed`   | v1      | full `DivergenceSignal`, plus `late_arrival_suppressed` and `suppression_window_s`                                        |
+| `twinflow.autonomy.change_proposed`   | v1      | `ChangeRequest` without approvals, plus `Actor`                                                                           |
+| `twinflow.autonomy.change_approved`   | v1      | `change_id`, `approvals: list[Approval]`, `audit_entry_hash`                                                              |
+| `twinflow.autonomy.change_rejected`   | v1      | `change_id`, `guardrail_failed`, `evaluated_values`, `audit_entry_hash`                                                   |
+| `twinflow.autonomy.change_applied`    | v1      | `change_id`, `patch`, `config_hash_before`, `config_hash_after`, `audit_entry_hash`                                       |
+| `twinflow.autonomy.change_reverted`   | v1      | `change_id`, `rollback_trigger_fired`, `restored_config_version`, `audit_entry_hash`                                      |
 
 Every autonomy subject carries `audit_entry_hash`, which is the link into the `AuditChain` of 3.13.
 A reader who has the event log alone can walk the chain without the sidecar, and
@@ -937,24 +937,24 @@ A reader who has the event log alone can walk the chain without the sidecar, and
 
 ### 4.7 Consumed
 
-| Subject                                | Owner             | Used for                                                                | Behaviour when absent                                     |
-| -------------------------------------- | ----------------- | ----------------------------------------------------------------------- | --------------------------------------------------------- |
-| `twinflow.telemetry.sensor_reading`    | component 2       | Calibration, divergence, congestion cross-check                         | Calibration and divergence do not run, and say so         |
-| `twinflow.lss.finding`                 | component 5 (LSS) | Scenario verdicts, autonomy evidence, alarm rationalisation routing     | `lss_verdict` is null and the caveat names the reason     |
-| `twinflow.lss.hypothesis_result`       | component 5       | `RankedOption.lss_verdict` and `significant`                            | Ranking falls back to the effect-size order with a caveat |
-| `twinflow.forecast.horizon_issued`     | 6a                | Yard scheduling demand input, slotting velocity refresh                 | `arrivals.mode: forecast_driven` is a config error        |
-| `twinflow.order.line_released`         | 6a3 and 6a6       | Affinity matrix, pick velocity                                          | The synthetic order-line generator of 9 Q4 supplies it    |
-| `twinflow.workforce.roster_published`  | E23               | Labour profile for E12                                                  | `CalendarLabourProfile` supplies it from `calendars.yaml` |
-| `twinflow.workforce.ergonomics_scored` | 6a10              | Slotting `ergonomic_risk`, operator impact in what-ifs                  | `proxy_v1` of 3.9, stamped on every report                |
-| `twinflow.energy.window_measured`      | E7                | Energy deltas in `RankedOption`                                         | `energy_delta_kwh_per_year` is null with a stated reason  |
-| `twinflow.fleet.device_health`         | component 3       | Failure injection realism, PdM-driven scenarios                         | Faults come from the fault schedule only                  |
+| Subject                                | Owner             | Used for                                                            | Behavior when absent                                      |
+|----------------------------------------|-------------------|---------------------------------------------------------------------|-----------------------------------------------------------|
+| `twinflow.telemetry.sensor_reading`    | component 2       | Calibration, divergence, congestion cross-check                     | Calibration and divergence do not run, and say so         |
+| `twinflow.lss.finding`                 | component 5 (LSS) | Scenario verdicts, autonomy evidence, alarm rationalization routing | `lss_verdict` is null and the caveat names the reason     |
+| `twinflow.lss.hypothesis_result`       | component 5       | `RankedOption.lss_verdict` and `significant`                        | Ranking falls back to the effect-size order with a caveat |
+| `twinflow.forecast.horizon_issued`     | 6a                | Yard scheduling demand input, slotting velocity refresh             | `arrivals.mode: forecast_driven` is a config error        |
+| `twinflow.order.line_released`         | 6a3 and 6a6       | Affinity matrix, pick velocity                                      | The synthetic order-line generator of 9 Q4 supplies it    |
+| `twinflow.workforce.roster_published`  | E23               | Labor profile for E12                                               | `CalendarLaborProfile` supplies it from `calendars.yaml`  |
+| `twinflow.workforce.ergonomics_scored` | 6a10              | Slotting `ergonomic_risk`, operator impact in what-ifs              | `proxy_v1` of 3.9, stamped on every report                |
+| `twinflow.energy.window_measured`      | E7                | Energy deltas in `RankedOption`                                     | `energy_delta_kwh_per_year` is null with a stated reason  |
+| `twinflow.fleet.device_health`         | component 3       | Failure injection realism, PdM-driven scenarios                     | Faults come from the fault schedule only                  |
 
 Two of the domains above, `workforce` and `energy`, are not in the Phase 0 domain list. Their
 owning sections register them, and their rows in `schemas/registry.yaml` carry `status: reserved`
 with an empty producer list until those sections land. A consumer of a reserved subject takes the
 fallback in the last column, which is why that column exists.
 
-Every row's absent-behaviour column is asserted by a test. Section 7.1 names
+Every row's absent-behavior column is asserted by a test. Section 7.1 names
 `test_missing_consumed_subject_degrades_as_declared`, which loads each brick with the producing
 package uninstalled and asserts the declared fallback rather than an exception.
 
@@ -978,14 +978,14 @@ than code: `catalog/devices.yaml` carries an `attaches_to` field naming a twin r
 device publishes its readings under the resource's topic. The twin's obligation is to make the
 attachment resolvable and to expose the physical quantity the device reads.
 
-| Automation resource | Parameters a device may attach to                                     | Consuming layer                     |
-| ------------------- | --------------------------------------------------------------------- | ----------------------------------- |
-| `Amr`               | `soc`, `speed_mps`, `motor_current_a`, `drive_temp_c`, `vibration_g`  | PdM trending, energy KPIs (E7)      |
-| `PalletiserCell`    | `cycle_time_s`, `motor_torque_nm`, `motor_current_a`, `jam_state`     | PdM, jam-signature detection        |
-| `StackerCrane`      | `position_m`, `motor_current_a`, `drive_temp_c`, `cycle_count`        | PdM, ASRS availability              |
-| `ConveyorSegment`   | `belt_speed_mps`, `motor_current_a`, `bearing_temp_c`, `vibration_g`  | PdM, the six-big-losses attribution |
-| `Sorter`            | `induct_rate_units_per_min`, `divert_actuations`, `chute_full_state`  | Missort findings, CV cross-check    |
-| `ScanPoint`         | `reads_per_pass`, `read_rate_pct`, `rssi_dbm`                         | Read-rate charts, E46               |
+| Automation resource | Parameters a device may attach to                                    | Consuming layer                     |
+|---------------------|----------------------------------------------------------------------|-------------------------------------|
+| `Amr`               | `soc`, `speed_mps`, `motor_current_a`, `drive_temp_c`, `vibration_g` | PdM trending, energy KPIs (E7)      |
+| `PalletiserCell`    | `cycle_time_s`, `motor_torque_nm`, `motor_current_a`, `jam_state`    | PdM, jam-signature detection        |
+| `StackerCrane`      | `position_m`, `motor_current_a`, `drive_temp_c`, `cycle_count`       | PdM, ASRS availability              |
+| `ConveyorSegment`   | `belt_speed_mps`, `motor_current_a`, `bearing_temp_c`, `vibration_g` | PdM, the six-big-losses attribution |
+| `Sorter`            | `induct_rate_units_per_min`, `divert_actuations`, `chute_full_state` | Missort findings, CV cross-check    |
+| `ScanPoint`         | `reads_per_pass`, `read_rate_pct`, `rssi_dbm`                        | Read-rate charts, E46               |
 
 Two invariants make the seam checkable. INV-TWIN-11: every `uns_equipment` slug in the facility
 document is unique within its zone, and the concatenated topic is unique across the facility.
@@ -1000,11 +1000,11 @@ pacer, the observability exporter, and operator-facing log lines. None of those 
 event payload, the hashed log, or a control decision. Three quantities that a naive design puts in
 the tape are named here so the rule has teeth.
 
-| Quantity                       | Where it goes instead                                                               | Deterministic substitute in the tape          |
-| ------------------------------ | ----------------------------------------------------------------------------------- | --------------------------------------------- |
-| Run wall duration              | `RunProvenance.started_wall_utc` and `finished_wall_utc`                            | `twinflowsimts` of the last event             |
-| Dispatch decision wall latency | `MetricsSink` series `dispatch.decision.latency`, keyed by `run_id` and `policy_id` | `candidates_considered`, `inference_steps`    |
-| Solver wall duration           | `MetricsSink` series `yard.solve.wall`, keyed by `run_id` and `plan_id`             | `deterministic_time_used`, `branches_used`    |
+| Quantity                       | Where it goes instead                                                               | Deterministic substitute in the tape       |
+|--------------------------------|-------------------------------------------------------------------------------------|--------------------------------------------|
+| Run wall duration              | `RunProvenance.started_wall_utc` and `finished_wall_utc`                            | `twinflowsimts` of the last event          |
+| Dispatch decision wall latency | `MetricsSink` series `dispatch.decision.latency`, keyed by `run_id` and `policy_id` | `candidates_considered`, `inference_steps` |
+| Solver wall duration           | `MetricsSink` series `yard.solve.wall`, keyed by `run_id` and `plan_id`             | `deterministic_time_used`, `branches_used` |
 
 The metrics series are joined to a run by `run_id` when a benchmark table is rendered, so compute
 cost stays visible next to benefit without steering the simulation. Section 7.1 names
@@ -1015,7 +1015,7 @@ that reintroduces the defect fails at authoring time.
 
 ---
 
-## 5. Behaviour
+## 5. Behavior
 
 ### 5.1 The model in one paragraph
 
@@ -1024,12 +1024,12 @@ kernel `Clock`. Trucks are generated by an arrival process, claim a `DockDoor` (
 `simpy.PriorityResource` of capacity 1), and are unloaded into pallets, which then flow as SimPy
 processes through the stations declared in `facility.yaml`. Each station is a `simpy.Resource`, or a
 `simpy.PriorityResource` where `Station.priority_discipline` says `priority`, with an optional
-buffer modelled as a `simpy.Store` of bounded capacity. Every state change of every resource and
+buffer modeled as a `simpy.Store` of bounded capacity. Every state change of every resource and
 every pallet is appended to the `EventTape`. The metric engine never reads model internals: it reads
 the tape. That separation is what lets E4 replay, E1's browser viewer, and process mining consume
 exactly the same bytes the live dashboard does.
 
-SimPy is version 4.1.2 under the MIT licence, the version and licence the repository's dependency
+SimPy is version 4.1.2 under the MIT license, the version and license the repository's dependency
 ledger records from the package index.
 
 ### 5.2 Determinism, clock, and tie-breaking (C1, C2)
@@ -1044,27 +1044,27 @@ for byte. No component in this section constructs a generator. The streams this 
 declared in the registry and listed here so a reader can find every source of randomness in one
 place.
 
-| Stream name                                    | Drawn by | Quantity                                     |
-| ---------------------------------------------- | -------- | -------------------------------------------- |
-| `twin.receiving.unload_duration`               | 5.1      | Unload service time per pallet               |
-| `twin.station.{station_id}.service`            | 5.1      | Station service time                         |
-| `twin.station.{station_id}.failure`            | 5.1      | Time to failure and time to repair           |
-| `twin.routing.{station_id}.successor`          | 5.1      | Probabilistic routing choice                 |
-| `twin.autoid.{scan_point_id}.read`             | 5.9      | Read outcome at a scan point                 |
-| `twin.amr.{amr_id}.task_travel`                | 5.6      | Travel-time multiplier                       |
-| `twin.amr.{amr_id}.transfer_dwell`             | 5.6      | Pick and drop dwell                          |
-| `twin.amr.{amr_id}.charge_efficiency`          | 5.6      | Charge efficiency multiplier                 |
-| `twin.amr.{amr_id}.failure`                    | 5.6      | Failure mode selection and repair duration   |
-| `twin.palletiser.{cell_id}.cycle`              | 5.7      | Per-case cycle time                          |
-| `twin.palletiser.{cell_id}.jam`                | 5.7      | Jam occurrence, type, and clear duration     |
-| `twin.asrs.{aisle_id}.cycle_multiplier`        | 5.8      | Crane control jitter                         |
-| `twin.asrs.{aisle_id}.exception`               | 5.8      | Pick-face exception                          |
-| `twin.conveyor.{segment_id}.speed_multiplier`  | 5.9      | Realised belt speed                          |
-| `twin.sortation.{sorter_id}.divert`            | 5.9      | Divert success and recirculation count       |
-| `twin.slotting.anneal`                         | 5.10     | Simulated-annealing proposals and acceptance |
-| `twin.optimize.sampler`                        | 5.18     | The Optuna sampler's own randomness          |
-| `twin.yard.cpsat`                              | 5.20     | The CP-SAT solver seed of 5.20               |
-| `twin.optimize.explore`                        | 5.21     | The surrogate exploration quota of 5.21      |
+| Stream name                                   | Drawn by | Quantity                                     |
+|-----------------------------------------------|----------|----------------------------------------------|
+| `twin.receiving.unload_duration`              | 5.1      | Unload service time per pallet               |
+| `twin.station.{station_id}.service`           | 5.1      | Station service time                         |
+| `twin.station.{station_id}.failure`           | 5.1      | Time to failure and time to repair           |
+| `twin.routing.{station_id}.successor`         | 5.1      | Probabilistic routing choice                 |
+| `twin.autoid.{scan_point_id}.read`            | 5.9      | Read outcome at a scan point                 |
+| `twin.amr.{amr_id}.task_travel`               | 5.6      | Travel-time multiplier                       |
+| `twin.amr.{amr_id}.transfer_dwell`            | 5.6      | Pick and drop dwell                          |
+| `twin.amr.{amr_id}.charge_efficiency`         | 5.6      | Charge efficiency multiplier                 |
+| `twin.amr.{amr_id}.failure`                   | 5.6      | Failure mode selection and repair duration   |
+| `twin.palletiser.{cell_id}.cycle`             | 5.7      | Per-case cycle time                          |
+| `twin.palletiser.{cell_id}.jam`               | 5.7      | Jam occurrence, type, and clear duration     |
+| `twin.asrs.{aisle_id}.cycle_multiplier`       | 5.8      | Crane control jitter                         |
+| `twin.asrs.{aisle_id}.exception`              | 5.8      | Pick-face exception                          |
+| `twin.conveyor.{segment_id}.speed_multiplier` | 5.9      | Realized belt speed                          |
+| `twin.sortation.{sorter_id}.divert`           | 5.9      | Divert success and recirculation count       |
+| `twin.slotting.anneal`                        | 5.10     | Simulated-annealing proposals and acceptance |
+| `twin.optimize.sampler`                       | 5.18     | The Optuna sampler's own randomness          |
+| `twin.yard.cpsat`                             | 5.20     | The CP-SAT solver seed of 5.20               |
+| `twin.optimize.explore`                       | 5.21     | The surrogate exploration quota of 5.21      |
 
 Four of them are easy to miss because the drawing component does not look stochastic. The annealer
 in 5.10, the Optuna sampler in 5.18, the CP-SAT solver in 5.20, and the exploration quota in 5.21
@@ -1106,10 +1106,10 @@ and must be argued into the hash rather than accidentally landing there.
 
 **Two tiers of determinism.** Applying D-05, the claim is stated at two strengths and never at one.
 
-| Tier             | Guarantee                                                                 | Gate                                                                                      |
-| ---------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Byte-identical   | Same seed, same config, same platform, same pinned dependency set         | `state_hash` equality, VAL-GATE-DET-01                                                    |
-| Value-equivalent | Same seed and same config across the platforms of the C10 matrix          | Business events identical, continuous fields within a measured tolerance, VAL-GATE-DET-02 |
+| Tier             | Guarantee                                                         | Gate                                                                                      |
+|------------------|-------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| Byte-identical   | Same seed, same config, same platform, same pinned dependency set | `state_hash` equality, VAL-GATE-DET-01                                                    |
+| Value-equivalent | Same seed and same config across the platforms of the C10 matrix  | Business events identical, continuous fields within a measured tolerance, VAL-GATE-DET-02 |
 
 The reason the stronger claim does not hold across platforms is specific and worth stating.
 Lognormal and gamma sampling go through `log`, `exp`, and `erfinv`, whose numpy implementations are
@@ -1136,11 +1136,11 @@ is appended or in what order, which the kernel gate `test_pacing_does_not_change
 
 ### 5.3 Production mode versus simulation mode
 
-In production mode the twin runs as a container in the DMZ segment, subscribes to normalised
+In production mode the twin runs as a container in the DMZ segment, subscribes to normalized
 telemetry through the kernel `Network` port, and maintains a live model instance. What-if instances
 never run in the live process. `ExperimentEngine` forks them into a worker pool, a
 `concurrent.futures.ProcessPoolExecutor` at garage and growth tiers and a job queue at enterprise
-tier, each worker holding its own virtual clock. A forked instance is initialised either from
+tier, each worker holding its own virtual clock. A forked instance is initialized either from
 `facility.yaml` at t0, which is a cold what-if, or from a `TwinSnapshot` taken from the live model,
 which is a warm what-if. Warm what-ifs are how the agent answers what to do for the rest of a shift.
 
@@ -1152,9 +1152,9 @@ make identical asserts a tautology.
 ### 5.4 Metric computation
 
 All metrics are computed by SQL over the tape in DuckDB, from views defined once in
-`packages/twinflow-twin/sql/`. DuckDB is version 1.5.5 under the MIT licence. This matters for
+`packages/twinflow-twin/sql/`. DuckDB is version 1.5.5 under the MIT license. This matters for
 E26(b): the governed SQL expression the metric engine uses is the one the agent's semantic layer
-references, so the agent cannot compute utilisation differently from the dashboard.
+references, so the agent cannot compute utilization differently from the dashboard.
 
 Definitions, stated so an implementer has no room to guess:
 
@@ -1188,7 +1188,7 @@ Definitions, stated so an implementer has no room to guess:
 The residual is reported alongside `L`, `lambda`, and `W`, and it is suppressed with a stated reason
 when `L` falls below `metrics.little_law_min_l` (default 1.0). Dividing by a value that approaches
 zero in a lightly loaded window produces a large residual from a correct simulation, and a
-self-check that fires on correct behaviour trains a reader to ignore it.
+self-check that fires on correct behavior trains a reader to ignore it.
 
 Warm-up and confidence intervals: the metric engine builds Welch's graphical procedure to pick the
 truncation point, configured as `metrics.warmup: {policy: "welch", window: int, replications: int}`
@@ -1201,11 +1201,11 @@ intervals. The batch size is chosen so the lag-1 autocorrelation of batch means 
 
 Three detectors run on every window, and the report publishes all three.
 
-| Detector              | Rule                                                                                                                   | What it catches that the others miss                            |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Utilisation           | Rank resources by `busy_time / available_time`                                                                         | Nothing the others miss; it is what most readers expect         |
-| Active period         | Rank by the length of the uninterrupted active period covering each instant, per Roser, Nakano, and Tanaka             | Bottlenecks that utilisation hides behind blocking and starving |
-| Blocking and starving | Rank by `blocked_downstream_time + starved_upstream_time`, attributed to the neighbour that caused it                  | Points at the constraint rather than at its victim              |
+| Detector              | Rule                                                                                                       | What it catches that the others miss                            |
+|-----------------------|------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| Utilization           | Rank resources by `busy_time / available_time`                                                             | Nothing the others miss; it is what most readers expect         |
+| Active period         | Rank by the length of the uninterrupted active period covering each instant, per Roser, Nakano, and Tanaka | Bottlenecks that utilization hides behind blocking and starving |
+| Blocking and starving | Rank by `blocked_downstream_time + starved_upstream_time`, attributed to the neighbor that caused it       | Points at the constraint rather than at its victim              |
 
 The active-period method comes from Roser, C., Nakano, M., and Tanaka, M., "A practical bottleneck
 detection method", Proceeding of the 2001 Winter Simulation Conference, volume 2, pages 949 to 953,
@@ -1227,7 +1227,7 @@ active-period method, and raises a `twinflow.lss.finding` of type `BOTTLENECK_DI
 severity `info` with the three rankings as evidence. A shifting bottleneck is an operational fact,
 not a defect.
 
-### 5.6 AMR fleet behaviour
+### 5.6 AMR fleet behavior
 
 **Task allocation.** A `TaskPool` holds released tasks. On every dispatch trigger, which is a task
 release, an AMR becoming free, or the timer at `automation.amr_fleet.dispatch.tick_s`, the
@@ -1261,15 +1261,15 @@ jam_density_per_m = 1 / (vehicle_length_m + min_following_gap_m)
 ```
 
 The form is the linear speed-density relation Greenshields fitted to observed highway traffic in
-1935, restated in the normalised units a warehouse aisle needs. His primary text states it directly:
+1935, restated in the normalized units a warehouse aisle needs. His primary text states it directly:
 "The plotted points shown in Figure 5, seem to represent a straight line relationship between speed <!-- docs-lint-ok STE-01 verbatim quotation of Greenshields 1935 -->
 and density per mile", with the fitted relation `S = F' - m * D'` and a slope of 0.221 for the
 section reported. The reference is Greenshields, B.D., Bibbins, J.R., Channing, W.S., and Miller,
 H.H., "A study of traffic capacity", Highway Research Board Proceedings, volume 14, part 1, pages
 448 to 477, 1935, retrieved 2026-08-09 with HTTP 200 from
 `onlinepubs.trb.org/Onlinepubs/hrbproceedings/14/14P1-023.pdf`. That file is a scan of the 1935
-printing read through optical character recognition, and the quotation above normalises two
-scanning artefacts in the words "points" and "line". The relation, the slope, and the free speed
+printing read through optical character recognition, and the quotation above normalizes two
+scanning artifacts in the words "points" and "line". The relation, the slope, and the free speed
 were read from the same pages and are not reconstructions.
 
 Two claims must be kept apart. The relation's form is published and VAL-GATE-CONG-01 checks that the
@@ -1313,7 +1313,7 @@ open question exists rather than a gate that would pass either way.
 Battery state of health degrades under `variability.amr.soh_degradation` and is consumed by the PdM
 layer. The twin models the drain and the charge; it does not model cell chemistry.
 
-### 5.7 Palletiser cell behaviour
+### 5.7 Palletiser cell behavior
 
 Cases arrive on the infeed and the cell builds pallets per `PalletPattern`, a list of layer patterns
 with case counts and orientations. Per-case cycle time is drawn from `variability.palletiser.cycle`;
@@ -1339,7 +1339,7 @@ Depalletiser mode is the same machine with inverted material flow and its own pa
 failure mode, `unknown_pattern`, which needs manual help and draws from
 `variability.depalletiser.cycle`.
 
-### 5.8 ASRS behaviour
+### 5.8 ASRS behavior
 
 The crane serves a queue of storage and retrieval commands under the configured scheduler. Travel
 time between two points is Chebyshev, meaning horizontal and vertical motion run at the same time
@@ -1353,7 +1353,7 @@ t = max( leg_time(dx, v_h, a_h), leg_time(dy, v_v, a_v) )
 distance is too short to reach top speed. Control jitter is a multiplier drawn from
 `variability.asrs.cycle_multiplier`. Single command is I/O point to slot to I/O point. Dual command
 is I/O point to storage slot to retrieval slot to I/O point. `DUAL_COMMAND_PAIRING` pairs a queued
-storage with the queued retrieval that minimises the interleaving leg, subject to a maximum wait so
+storage with the queued retrieval that minimizes the interleaving leg, subject to a maximum wait so
 retrievals are not starved.
 
 Slot selection under `random` draws uniformly from free slots, under `class_based` draws from the
@@ -1363,22 +1363,22 @@ property the bottleneck detector will find.
 
 The Chebyshev assumption is the one behind the travel-time model VAL-GATE-ASRS-01 checks, so the
 kinematics and the gate agree by construction rather than by coincidence. Section 9 Q6 records the
-tension between the gate's randomised-storage assumption and the slotting layer's dedicated
+tension between the gate's randomized-storage assumption and the slotting layer's dedicated
 storage.
 
-### 5.9 Conveyor and sortation behaviour
+### 5.9 Conveyor and sortation behavior
 
-Conveyor segments are modelled at the unit level with position tracking, not as a delay. A segment
+Conveyor segments are modeled at the unit level with position tracking, not as a delay. A segment
 holds units with a minimum gap. An accumulating segment lets units close up when the downstream is
 blocked; a non-accumulating one blocks upstream at once. The throughput ceiling of a segment is
 `speed_mps / (unit_length_m + min_gap_m)` units per second, and 7.1 asserts the simulated ceiling
-matches that arithmetic exactly for a saturated segment. Realised belt speed varies under
+matches that arithmetic exactly for a saturated segment. Realized belt speed varies under
 `variability.conveyor.speed_multiplier`.
 
 Identity at induct comes from the `ScanPoint` named by `Sorter.read_dependency`. The scan point
 draws its read outcome from the 2b read model and, once E46 lands, from the read-zone geometry, so
 the twin never invents a read probability of its own. A no-read takes the `missort_on_no_read` path.
-This is the chain that makes the source's named receiving step, the RFID portal, a modelled element
+This is the chain that makes the source's named receiving step, the RFID portal, a modeled element
 rather than a word in a diagram: a portal is a `ScanPoint`, its read outcome is a device-level
 draw, and a failed read at the portal becomes a divert failure downstream.
 
@@ -1392,16 +1392,16 @@ the CV throughput counter of component 4.
 INV-SORT-01: every inducted unit leaves through exactly one chute or the reject lane, no unit
 occupies two chutes, and the count balance closes per window.
 
-### 5.10 Slotting behaviour
+### 5.10 Slotting behavior
 
 `plan_slotting` solves the assignment. Three solvers are selected by problem size, and the solver
 used is written into `twinflow.slotting.plan_proposed` so no report hides which one ran.
 
-| Solver               | When it runs                                                 | What it gives                                                     |
-| -------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------- |
-| Exact assignment     | The objective is separable, meaning `w_affinity` is zero     | A provably optimal SKU-to-slot assignment                         |
-| Cube-per-order index | Single-command, dedicated storage, independent demand        | The closed-form reference optimum and the gate target             |
-| Local search         | The affinity term makes the problem quadratic                | An improvement over the exact seed, with both objectives reported |
+| Solver               | When it runs                                             | What it gives                                                     |
+|----------------------|----------------------------------------------------------|-------------------------------------------------------------------|
+| Exact assignment     | The objective is separable, meaning `w_affinity` is zero | A provably optimal SKU-to-slot assignment                         |
+| Cube-per-order index | Single-command, dedicated storage, independent demand    | The closed-form reference optimum and the gate target             |
+| Local search         | The affinity term makes the problem quadratic            | An improvement over the exact seed, with both objectives reported |
 
 Exact assignment uses `scipy.optimize.linear_sum_assignment`. Local search is simulated annealing
 over pairwise swaps, seeded from the exact assignment, drawing proposals and acceptance decisions
@@ -1412,9 +1412,9 @@ from the declared stream `twin.slotting.anneal` and no other source. Naming the 
 proposed plan over the same demand window under common random numbers and reports the measured
 travel-distance delta and picks-per-hour delta with confidence intervals, which is what the source
 asks for when it says the deltas are measured by the twin. `reslot_payback` costs the moves as
-`labour_minutes = move_distance_m / walk_speed_mps / 60 + handling_time_minutes`, prices them at the
-labour rate plus equipment time, and computes payback days from the measured savings rather than the
-modelled ones.
+`labor_minutes = move_distance_m / walk_speed_mps / 60 + handling_time_minutes`, prices them at the
+labor rate plus equipment time, and computes payback days from the measured savings rather than the
+modeled ones.
 
 Re-slotting for a new demand mix is a first-class named scenario,
 `scenarios/reslot_new_demand_mix.yaml`, which takes a demand-mix patch, recomputes velocities,
@@ -1422,14 +1422,14 @@ replans, evaluates, and produces the payback report.
 
 ### 5.11 Automation what-ifs
 
-The three the source names ship as worked scenarios, each parameterised so a reader can change the
+The three the source names ship as worked scenarios, each parameterized so a reader can change the
 numbers.
 
-| Scenario file                                | Patch                                                                | Cost fields it must carry                                               |
-| -------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `scenarios/replace_forklifts_with_amrs.yaml` | Remove two forklift operator resources, add three AMRs and a charger | `capex_usd`, `install_usd`, `opex_annual_usd`, `labour_delta_fte` of -2 |
-| `scenarios/second_palletiser_cell.yaml`      | Add a cell and split the infeed                                      | `capex_usd`, `install_usd`, `opex_annual_usd`                           |
-| `scenarios/asrs_crane_speed_plus_20.yaml`    | Raise `horizontal_speed_mps` and `vertical_speed_mps` by 20 percent  | `capex_usd` of the drive upgrade, `life_years`                          |
+| Scenario file                                | Patch                                                                | Cost fields it must carry                                              |
+|----------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
+| `scenarios/replace_forklifts_with_amrs.yaml` | Remove two forklift operator resources, add three AMRs and a charger | `capex_usd`, `install_usd`, `opex_annual_usd`, `labor_delta_fte` of -2 |
+| `scenarios/second_palletiser_cell.yaml`      | Add a cell and split the infeed                                      | `capex_usd`, `install_usd`, `opex_annual_usd`                          |
+| `scenarios/asrs_crane_speed_plus_20.yaml`    | Raise `horizontal_speed_mps` and `vertical_speed_mps` by 20 percent  | `capex_usd` of the drive upgrade, `life_years`                         |
 
 Each returns throughput, cost, energy, and operator-impact deltas plus the LSS verdict. Operator
 impact comes from E6 as an `OperatorImpact` carrying `utilisation_by_operator`, `peak_utilisation`,
@@ -1456,7 +1456,7 @@ rather than a zero. Silence is honest and a fabricated zero is not.
 collection step sorts. `ScenarioResult.replications` is sorted by `replication_index` ascending
 before any statistic is computed, and `ComparisonTable.rows` is sorted by `scenario_id` as a byte
 string before ranking. INV-SCN-04 asserts that a run with the worker pool size set to 1, 2, and 8
-produces byte-identical `ScenarioResult` serialisations. Per-tape determinism is not enough on its
+produces byte-identical `ScenarioResult` serializations. Per-tape determinism is not enough on its
 own: a correct set of tapes assembled in completion order still gives two different comparison
 tables from one seed.
 
@@ -1473,16 +1473,16 @@ so the pairing has to be checked rather than assumed.
 ```
 annualised_cost_usd = (capex_usd + install_usd - salvage_usd / (1 + r)^life) * CRF(r, life)
                       + opex_annual_usd
-                      + labour_delta_fte * costs.labour_rate_usd_per_hour
+                      + labor_delta_fte * costs.labor_rate_usd_per_hour
                                          * costs.annual_hours_per_fte
-                                         * costs.labour_burden_multiplier
+                                         * costs.labor_burden_multiplier
 CRF(r, n) = r * (1 + r)^n / ((1 + r)^n - 1)
 annual_net_saving_usd = -annualised_cost_usd
 ```
 
-Labour enters exactly once, through `labour_delta_fte`, and `opex_annual_usd` carries energy,
+Labor enters exactly once, through `labor_delta_fte`, and `opex_annual_usd` carries energy,
 maintenance, and consumables and nothing else. Section 3.10 states the split on the entity, and
-`test_labour_is_not_double_counted` asserts that raising `labour_delta_fte` by one changes
+`test_labor_is_not_double_counted` asserts that raising `labor_delta_fte` by one changes
 `annualised_cost_usd` by exactly the priced amount and changes nothing else.
 
 The ratio `throughput_delta_units_per_year / annualised_cost_usd` is undefined or sign-flipping when
@@ -1491,17 +1491,17 @@ removing two operators can make the annualised cost negative. Ordering is instea
 three buckets, and `RankBucket` is a field on `RankedOption` rather than an implicit consequence of
 a sort.
 
-| Bucket             | Membership                                                              | Ordered by                                | `throughput_per_dollar` |
-| ------------------ | ----------------------------------------------------------------------- | ----------------------------------------- | ----------------------- |
-| `PAYS_FOR_ITSELF`  | `annualised_cost_usd <= 0` and the throughput delta is not negative     | `annual_net_saving_usd` descending        | null, with a caveat     |
-| `COSTS_MONEY`      | `annualised_cost_usd > 0`                                               | `throughput_per_dollar` descending        | the computed ratio      |
-| `NOT_WORTH_IT`     | The throughput delta is negative and `annualised_cost_usd > 0`          | `annualised_cost_usd` ascending           | null, with a caveat     |
+| Bucket            | Membership                                                          | Ordered by                         | `throughput_per_dollar` |
+|-------------------|---------------------------------------------------------------------|------------------------------------|-------------------------|
+| `PAYS_FOR_ITSELF` | `annualised_cost_usd <= 0` and the throughput delta is not negative | `annual_net_saving_usd` descending | null, with a caveat     |
+| `COSTS_MONEY`     | `annualised_cost_usd > 0`                                           | `throughput_per_dollar` descending | the computed ratio      |
+| `NOT_WORTH_IT`    | The throughput delta is negative and `annualised_cost_usd > 0`      | `annualised_cost_usd` ascending    | null, with a caveat     |
 
 Buckets print in that order. Inside `COSTS_MONEY`, options whose throughput delta is significant at
 `alpha` come before options that are not, and each of the latter carries the caveat
 `delta not statistically distinguishable from zero at alpha=<a> with n=<n> replications`. Ties break
 on lower `annualised_cost_usd`. Options dominated on the Pareto front over throughput, cost, energy,
-and peak operator utilisation are flagged `pareto_dominated: true` and stay in the table rather than
+and peak operator utilization are flagged `pareto_dominated: true` and stay in the table rather than
 disappearing, because a reader's first question is why something is missing.
 
 The table renders to Markdown and HTML with a footnote per row naming `assumption_source`,
@@ -1526,7 +1526,7 @@ a finding fired.
 
 Exogenous by default, meaning replayed verbatim from the source run: truck readiness times and
 manifests, order arrivals and lines, supplier lot quality outcomes, injected device faults and chaos
-events, weather state (E40), absenteeism draws (6a14), and demand realisations.
+events, weather state (E40), absenteeism draws (6a14), and demand realizations.
 
 Endogenous, meaning re-simulated: everything the facility does, including which door a truck gets,
 which AMR takes a task, station service times, queueing, sortation outcomes, and storage assignment.
@@ -1578,7 +1578,7 @@ cost:
   life_years: 7
   salvage_usd: 0
   opex_annual_usd: 900
-  labour_delta_fte: 0
+  labor_delta_fte: 0
   assumption_source: "Portal capex from the shipped capex_catalog entry rfid_portal_4antenna"
 ```
 
@@ -1614,22 +1614,22 @@ true physics live in `catalog/sensors.yaml` and `ground_truth/reality_offsets.ya
 `twinflow-sync` declares neither as a dependency. A CI import lint asserts that no module under
 `twinflow.sync` or `twinflow.twin` imports the ground-truth loader, and a runtime capability check
 raises when the path is opened. INV-SYNC-01 covers both halves. Without this rule, calibration,
-measurement system analysis, and divergence are all theatre.
+measurement system analysis, and divergence are all theater.
 
 ### 5.15 Divergence as a finding
 
 `DivergenceMonitor` tracks a declared list of paired signals, twin-predicted against
 reality-observed: throughput per window, per-station cycle time at the median and the 90th
 percentile, WIP, dock queue length, AMR task completion rate, sorter divert rate, and energy per
-pallet. For each it computes the standardised residual against the twin's predictive distribution,
+pallet. For each it computes the standardized residual against the twin's predictive distribution,
 obtained from the replication ensemble rather than from a point prediction, then runs an EWMA with
 `sync.ewma_lambda`, default 0.2, and a two-sided CUSUM. Crossing the control limit appends
 `twinflow.sync.divergence_observed`, which the LSS engine wraps as a finding with
 `finding_type = "TWIN_DIVERGENCE"` and a severity from the residual magnitude and the business
 impact of the signal.
 
-Divergence findings pass through the same alarm rationalisation path as every other finding, which
-is dedupe by signal and window, severity ranking, and shelving. Alarm rationalisation is owned by
+Divergence findings pass through the same alarm rationalization path as every other finding, which
+is dedupe by signal and window, severity ranking, and shelving. Alarm rationalization is owned by
 the LSS section and is needed here from P3; 1.2 records it as an interface consumed and not owned,
 with the fallback that divergence findings are not deduped and this subsection states the risk. A
 model that goes badly wrong without deduplication produces a flood rather than one escalating
@@ -1637,7 +1637,7 @@ finding.
 
 The suggested next tool is `recalibrate` when the divergence is a level shift with no change point
 in the inputs, and `investigate_assignable_cause` when a change point coincides with an input
-change. That chaining is the Black Belt behaviour the LSS section specifies.
+change. That chaining is the Black Belt behavior the LSS section specifies.
 
 **The known false positive between P3 and P4.** Store-and-forward is component 6c and lands at P4.
 Between P3 and P4 the monitor has no late-arrival window, so a replayed telemetry burst after a
@@ -1707,7 +1707,7 @@ and, for agent actors, the model id and prompt hash. `twinflow autonomy audit --
 chain and reproduces the current config. The demo shows the chain rendered as a table answering who
 or what changed the line, when, why, on what evidence, and what happened next.
 
-### 5.18 Optimisation engine (E9)
+### 5.18 Optimization engine (E9)
 
 A study is declared in `experiments/*.study.yaml`: the search space, each parameter a JSON Pointer
 plus a distribution of `int`, `float`, `log_float`, or `categorical`; the objectives with name,
@@ -1715,13 +1715,13 @@ direction, and weight; the constraints `budget_usd`, `max_peak_operator_utilisat
 `max_energy_kwh_per_pallet`; the sampler; the pruner; and the evaluation protocol of replications
 per trial, horizon, and warm-up.
 
-`run_study` builds an Optuna study, version 4.9.0 under the MIT licence. The sampler is
+`run_study` builds an Optuna study, version 4.9.0 under the MIT license. The sampler is
 `TPESampler` seeded from the declared stream `twin.optimize.sampler`, or `GPSampler` for expensive
 low-dimensional spaces, or `NSGAIISampler` or `MOTPESampler` for multi-objective studies. Pruning
 uses `HyperbandPruner` over replications, so a trial clearly worse after 5 of 30 replications stops.
 Each trial is evaluated with `TwinEvaluator`, or with `SurrogateEvaluator` followed by full-sim
 confirmation of the top k when `evaluator: surrogate`. Budget constraints use Optuna's constrained
-optimisation support so infeasible trials inform the sampler rather than being dropped in silence.
+optimization support so infeasible trials inform the sampler rather than being dropped in silence.
 
 Output is a `StudyResult` with the best trial, the Pareto front for multi-objective studies, and
 every trial's parameters and objectives. The Pareto front converts directly into a `ScenarioSet` and
@@ -1764,7 +1764,7 @@ a pinned policy-weights hash. In replay mode the port binds `RecordedInference`,
 recorded response cassette, so a replayed run reproduces the recorded decisions without re-running
 the network. The weights hash and the torch version are recorded in `RunProvenance`, and a change to
 either invalidates the golden files for the RL scenarios. `twinflow.optimize.dispatch_benchmarked`
-carries the weights hash so a published table names the artefact it came from.
+carries the weights hash so a published table names the artifact it came from.
 
 **Observation parity.** The honest-benchmark claim rests entirely on the learned policy seeing no
 more than the rule-based one, and a claim with no test is a slogan. `StateView` declares a frozen
@@ -1778,11 +1778,11 @@ of `StateView` and that a fault injected in the future does not change the curre
 committed, and never used in training. Training and evaluation seed sets are disjoint by
 construction and `test_train_and_eval_seed_sets_are_disjoint` asserts the intersection is empty.
 Every policy runs the identical seed set under common random numbers. The metrics are tasks
-completed per hour, mean and 95th-percentile task lateness, empty travel metres per task, energy per
+completed per hour, mean and 95th-percentile task lateness, empty travel meters per task, energy per
 task, traffic wait per task, deadlock events, and decision latency taken from the `MetricsSink`
 series of 4.9. The statistics are a paired Wilcoxon signed-rank test per metric through the LSS
 engine, with the Hodges-Lehmann effect size and confidence interval and a Holm correction across the
-metric family. Generalisation is measured by repeating the benchmark on the two facility profiles
+metric family. Generalization is measured by repeating the benchmark on the two facility profiles
 the policy was not trained on (A2) and reporting them separately; a policy that wins only on its
 training facility is reported as such. The table is published in `docs/benchmarks/dispatch.md` and
 in the README whatever the outcome. When the heuristic wins, the README says the heuristic wins and
@@ -1792,24 +1792,24 @@ by how much, and the RL code stays.
 
 `YardProblem` is solved with CP-SAT from OR-Tools. The model has one `IntervalVar` per truck, whose
 start lies within its arrival window and whose duration comes from the manifest and the door's
-unload rate; `AddNoOverlap` per door; `AddCumulative` over the labour profile; and
+unload rate; `AddNoOverlap` per door; `AddCumulative` over the labor profile; and
 `AddAllowedAssignments` for door capability, so a refrigerated trailer cannot take a
 non-refrigerated door.
 
-The objective is a weighted sum of detention cost, labour overtime hours, total truck dwell, and
+The objective is a weighted sum of detention cost, labor overtime hours, total truck dwell, and
 door changeover count, with the weights in `yard.yaml`.
 
 **Deterministic bounding.** Applying D-04, a solve whose plan the twin executes is bounded by a
 deterministic budget and never by wall time. The settings are fixed and the brick refuses to hand a
 plan to the twin when any of them is missing.
 
-| Setting                      | Value                                     | Reason                                                                  |
-| ---------------------------- | ----------------------------------------- | ----------------------------------------------------------------------- |
-| `max_deterministic_time`     | `yard.max_deterministic_time`             | A machine-speed-independent budget, which a wall-clock deadline is not  |
-| `num_search_workers`         | 1                                         | Multi-threaded search returns a machine-dependent incumbent             |
-| `random_seed`                | Derived from the stream `twin.yard.cpsat` | The solver's own randomness joins the run's seed tree                   |
-| `max_branches`               | `yard.max_branches`                       | A second deterministic cap, so a pathological instance still terminates |
-| Wall-clock cap               | `yard.max_solve_wall_s`, raises on breach | A safety net that fails loudly rather than returning a different plan   |
+| Setting                  | Value                                     | Reason                                                                  |
+|--------------------------|-------------------------------------------|-------------------------------------------------------------------------|
+| `max_deterministic_time` | `yard.max_deterministic_time`             | A machine-speed-independent budget, which a wall-clock deadline is not  |
+| `num_search_workers`     | 1                                         | Multi-threaded search returns a machine-dependent incumbent             |
+| `random_seed`            | Derived from the stream `twin.yard.cpsat` | The solver's own randomness joins the run's seed tree                   |
+| `max_branches`           | `yard.max_branches`                       | A second deterministic cap, so a pathological instance still terminates |
+| Wall-clock cap           | `yard.max_solve_wall_s`, raises on breach | A safety net that fails loudly rather than returning a different plan   |
 
 `YardPlan` records `deterministic_time_used`, `branches_used`, and `solver_status`. It carries no
 wall-clock field, because the plan steers the simulation and anything inside it is hashed. The
@@ -1824,8 +1824,8 @@ adds missed connections to the objective. Section 8 splits E12 into the two piec
 the base model lands before P3g because cross-docking needs it, and the extension lands with P3g
 because it needs cross-docking.
 
-**Labour.** `YardProblem.labour_profile` comes from a `LabourProfileProvider`. The shipped
-`CalendarLabourProfile` reads shift patterns and headcount from `calendars.yaml`, so E12 runs before
+**Labor.** `YardProblem.labor_profile` comes from a `LaborProfileProvider`. The shipped
+`CalendarLaborProfile` reads shift patterns and headcount from `calendars.yaml`, so E12 runs before
 E23 exists. When E23 lands it registers a provider reading `twinflow.workforce.roster_published`,
 and the yard solver changes not at all.
 
@@ -1847,8 +1847,8 @@ one-hot with a declared vocabulary so the encoding is stable across versions, an
 version is stamped on every prediction.
 
 The targets are the KPI vector `compare_scenarios` needs: throughput per day, flow time at the
-median and 95th percentile, peak WIP, utilisation of the top three resources, energy per pallet, and
-peak operator utilisation.
+median and 95th percentile, peak WIP, utilization of the top three resources, energy per pallet, and
+peak operator utilization.
 
 The corpus is every trial from every Optuna study, every scenario replication, and a space-filling
 design over the declared envelope run specifically for training. `build_corpus` deduplicates by
@@ -1902,69 +1902,69 @@ The source says parameters live in one config file, and A2 says the entire opera
 and gives the rule that decides where a parameter goes. Hiding a split behind a diagram is how a
 reader ends up guessing.
 
-| File                       | Holds                                                                 | Test that decides                                           |
-| -------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `facility.yaml`            | Everything that describes this building and its equipment             | Would a different building change it? Then it lives here    |
-| `catalog/*.yaml`           | Reusable equipment and item definitions shared across buildings       | Would two buildings share the identical entry? Then catalog |
-| `costs.yaml`               | Money: rates, prices, discount rate, capex catalog                    | Is it denominated in currency?                              |
-| `calendars.yaml`           | Shift patterns, breaks, holidays, headcount by interval               | Is it a time pattern rather than a physical fact?           |
-| `sync.yaml`                | Calibration and divergence policy                                     | Does it govern how the twin learns from reality?            |
-| `autonomy.yaml`            | Tiers, approvers, guardrails, L3 whitelist                            | Does it govern what may be written back?                    |
-| `yard.yaml`                | E12 solver settings and objective weights                             | Does it configure a solver rather than the building?        |
-| `benchmark.yaml`           | Held-out seed sets, replication counts, published-table paths         | Does it configure an experiment rather than an operation?   |
-| `scenarios/*.yaml`         | One what-if each                                                      | Is it a change to the building rather than the building?    |
-| `experiments/*.study.yaml` | One optimisation study each                                           | Is it a search over changes?                                |
+| File                       | Holds                                                           | Test that decides                                           |
+|----------------------------|-----------------------------------------------------------------|-------------------------------------------------------------|
+| `facility.yaml`            | Everything that describes this building and its equipment       | Would a different building change it? Then it lives here    |
+| `catalog/*.yaml`           | Reusable equipment and item definitions shared across buildings | Would two buildings share the identical entry? Then catalog |
+| `costs.yaml`               | Money: rates, prices, discount rate, capex catalog              | Is it denominated in currency?                              |
+| `calendars.yaml`           | Shift patterns, breaks, holidays, headcount by interval         | Is it a time pattern rather than a physical fact?           |
+| `sync.yaml`                | Calibration and divergence policy                               | Does it govern how the twin learns from reality?            |
+| `autonomy.yaml`            | Tiers, approvers, guardrails, L3 whitelist                      | Does it govern what may be written back?                    |
+| `yard.yaml`                | E12 solver settings and objective weights                       | Does it configure a solver rather than the building?        |
+| `benchmark.yaml`           | Held-out seed sets, replication counts, published-table paths   | Does it configure an experiment rather than an operation?   |
+| `scenarios/*.yaml`         | One what-if each                                                | Is it a change to the building rather than the building?    |
+| `experiments/*.study.yaml` | One optimization study each                                     | Is it a search over changes?                                |
 
 `facility.yaml` remains the single document that defines the operation, and A2's promise holds:
-modelling a different building is editing `facility.yaml` and the catalogs it references. The other
+modeling a different building is editing `facility.yaml` and the catalogs it references. The other
 files configure the machinery that studies the building, and none of them changes what the building
 is. `twinflow config explain <key>` prints which file set a key and why that file owns it, which
 turns the rule above from prose into a command a reader can run.
 
 ### 6.1 `facility.yaml`, twin core keys
 
-| Key                                   | Type                    | Validation                                                                                        |
-| ------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
-| `schema_version`                      | semver string           | Must match a supported major                                                                      |
-| `facility.facility_id`                | slug                    | `^[a-z0-9-]{3,40}$`, unique                                                                       |
-| `facility.tick_ns`                    | int                     | Power of 10 from 1e3 to 1e9, default 1e6                                                          |
-| `facility.calendar_id`                | ref                     | Must resolve in `calendars.yaml`                                                                  |
-| `zones[].zone_id`                     | slug                    | Unique                                                                                            |
-| `zones[].kind`                        | enum                    | See 3.1                                                                                           |
-| `zones[].polygon_m`                   | list of 2-tuples        | At least 3 points, a simple polygon, non-self-intersecting                                        |
-| `zones[].isa95_area`                  | string                  | Non-empty when any device attaches to a resource in the zone                                      |
-| `zones[].uns_path`                    | string                  | Enterprise, site, and area segments, no leading or trailing slash                                 |
-| `zones[].travel_length_m`             | float                   | `> 0` when the zone contains travel-graph edges; the denominator of 5.6's density                 |
-| `dock_doors[].door_id`                | slug                    | Unique                                                                                            |
-| `dock_doors[].modes`                  | list of enum            | Non-empty, sorted at load, no duplicates                                                          |
-| `dock_doors[].restraint_time_s`       | DistributionSpec        | Support strictly positive                                                                         |
-| `scan_points[].scan_point_id`         | slug                    | Unique; exactly one of `door_id` or `station_id` is set                                           |
-| `scan_points[].device_ref`            | ref                     | Must resolve in the component 2 fleet config                                                      |
-| `scan_points[].read_model_ref`        | ref                     | Must resolve in the 2b sensor catalog                                                             |
-| `scan_points[].on_no_read`            | enum                    | `manual_key`, `recirculate`, or `reject_lane`                                                     |
-| `stations[].station_id`               | slug                    | Unique                                                                                            |
-| `stations[].capacity`                 | int                     | `>= 1`                                                                                            |
-| `stations[].priority_discipline`      | enum                    | `fifo` or `priority`; selects the SimPy resource class in 5.1; no default                         |
-| `stations[].service_time`             | DistributionSpec        | Support strictly positive, mean finite                                                            |
-| `stations[].ideal_cycle_time_s`       | float                   | `> 0` and `<=` the 1st percentile of `service_time`; the error names the violated bound           |
-| `stations[].buffer_capacity`          | int or null             | `>= 0`; null means unbounded, which warns because unbounded buffers hide bottlenecks              |
-| `stations[].successors[].probability` | float                   | Sum to 1.0 within 1e-9 per station                                                                |
-| `stations[].failure`                  | FailureSpec             | `mtbf_s > 0`, `mttr` support positive                                                             |
-| `arrivals.mode`                       | enum                    | `schedule`, `poisson`, `trace`, or `forecast_driven`                                              |
-| `arrivals.rate_per_hour`              | float or hourly profile | `> 0`; a profile has length 24                                                                    |
-| `arrivals.trace_uri`                  | path                    | Needed when `mode: trace`; the file must exist                                                    |
-| `metrics.window_s`                    | int                     | `>= 60`, divides the horizon                                                                      |
-| `metrics.warmup`                      | object                  | `policy: welch`, `fixed`, or `none`; `none` warns and names the risk                              |
-| `metrics.oee_convention`              | enum                    | `nakajima` or `semi_e79`; no default, must be chosen                                              |
-| `metrics.minor_stop_threshold_s`      | float                   | `> 0`, default 300                                                                                |
-| `metrics.startup_window_s`            | float                   | `>= 0`, default 600; the six-big-losses startup-rejects window of 5.4                             |
-| `metrics.demand_units_per_day`        | int or null             | Needed when no ERP stub is present, else null; the only demand-override key                       |
-| `metrics.batch_autocorr_threshold`    | float                   | 0 to 1, default 0.1                                                                               |
-| `metrics.little_law_min_l`            | float                   | `> 0`, default 1.0; below this the residual is suppressed with a reason                           |
-| `distributions.catalog_uri`           | path                    | Must resolve; the file's `catalog_version` is pinned and recorded in the run manifest             |
-| `distributions.min_empirical_samples` | int                     | `>= 2`, default 30; the floor for an `empirical` DistributionSpec                                 |
-| `scheduling.priority_classes`         | map                     | Every producer id present, integers unique; the tie-break of 5.2                                  |
-| `historian.snapshot_interval_s`       | int                     | `>= metrics.window_s`; the snapshot cadence 5.13 replays from                                     |
+| Key                                   | Type                    | Validation                                                                              |
+|---------------------------------------|-------------------------|-----------------------------------------------------------------------------------------|
+| `schema_version`                      | semver string           | Must match a supported major                                                            |
+| `facility.facility_id`                | slug                    | `^[a-z0-9-]{3,40}$`, unique                                                             |
+| `facility.tick_ns`                    | int                     | Power of 10 from 1e3 to 1e9, default 1e6                                                |
+| `facility.calendar_id`                | ref                     | Must resolve in `calendars.yaml`                                                        |
+| `zones[].zone_id`                     | slug                    | Unique                                                                                  |
+| `zones[].kind`                        | enum                    | See 3.1                                                                                 |
+| `zones[].polygon_m`                   | list of 2-tuples        | At least 3 points, a simple polygon, non-self-intersecting                              |
+| `zones[].isa95_area`                  | string                  | Non-empty when any device attaches to a resource in the zone                            |
+| `zones[].uns_path`                    | string                  | Enterprise, site, and area segments, no leading or trailing slash                       |
+| `zones[].travel_length_m`             | float                   | `> 0` when the zone contains travel-graph edges; the denominator of 5.6's density       |
+| `dock_doors[].door_id`                | slug                    | Unique                                                                                  |
+| `dock_doors[].modes`                  | list of enum            | Non-empty, sorted at load, no duplicates                                                |
+| `dock_doors[].restraint_time_s`       | DistributionSpec        | Support strictly positive                                                               |
+| `scan_points[].scan_point_id`         | slug                    | Unique; exactly one of `door_id` or `station_id` is set                                 |
+| `scan_points[].device_ref`            | ref                     | Must resolve in the component 2 fleet config                                            |
+| `scan_points[].read_model_ref`        | ref                     | Must resolve in the 2b sensor catalog                                                   |
+| `scan_points[].on_no_read`            | enum                    | `manual_key`, `recirculate`, or `reject_lane`                                           |
+| `stations[].station_id`               | slug                    | Unique                                                                                  |
+| `stations[].capacity`                 | int                     | `>= 1`                                                                                  |
+| `stations[].priority_discipline`      | enum                    | `fifo` or `priority`; selects the SimPy resource class in 5.1; no default               |
+| `stations[].service_time`             | DistributionSpec        | Support strictly positive, mean finite                                                  |
+| `stations[].ideal_cycle_time_s`       | float                   | `> 0` and `<=` the 1st percentile of `service_time`; the error names the violated bound |
+| `stations[].buffer_capacity`          | int or null             | `>= 0`; null means unbounded, which warns because unbounded buffers hide bottlenecks    |
+| `stations[].successors[].probability` | float                   | Sum to 1.0 within 1e-9 per station                                                      |
+| `stations[].failure`                  | FailureSpec             | `mtbf_s > 0`, `mttr` support positive                                                   |
+| `arrivals.mode`                       | enum                    | `schedule`, `poisson`, `trace`, or `forecast_driven`                                    |
+| `arrivals.rate_per_hour`              | float or hourly profile | `> 0`; a profile has length 24                                                          |
+| `arrivals.trace_uri`                  | path                    | Needed when `mode: trace`; the file must exist                                          |
+| `metrics.window_s`                    | int                     | `>= 60`, divides the horizon                                                            |
+| `metrics.warmup`                      | object                  | `policy: welch`, `fixed`, or `none`; `none` warns and names the risk                    |
+| `metrics.oee_convention`              | enum                    | `nakajima` or `semi_e79`; no default, must be chosen                                    |
+| `metrics.minor_stop_threshold_s`      | float                   | `> 0`, default 300                                                                      |
+| `metrics.startup_window_s`            | float                   | `>= 0`, default 600; the six-big-losses startup-rejects window of 5.4                   |
+| `metrics.demand_units_per_day`        | int or null             | Needed when no ERP stub is present, else null; the only demand-override key             |
+| `metrics.batch_autocorr_threshold`    | float                   | 0 to 1, default 0.1                                                                     |
+| `metrics.little_law_min_l`            | float                   | `> 0`, default 1.0; below this the residual is suppressed with a reason                 |
+| `distributions.catalog_uri`           | path                    | Must resolve; the file's `catalog_version` is pinned and recorded in the run manifest   |
+| `distributions.min_empirical_samples` | int                     | `>= 2`, default 30; the floor for an `empirical` DistributionSpec                       |
+| `scheduling.priority_classes`         | map                     | Every producer id present, integers unique; the tie-break of 5.2                        |
+| `historian.snapshot_interval_s`       | int                     | `>= metrics.window_s`; the snapshot cadence 5.13 replays from                           |
 
 `DistributionSpec` is a tagged union: `{dist: "lognormal", mean_s, cv}`, `{dist: "gamma", shape,
 scale_s}`, `{dist: "triangular", min_s, mode_s, max_s}`, `{dist: "empirical", samples_uri}`, and
@@ -1979,69 +1979,69 @@ every `telemetry_signature_ref` resolves in the sensor catalog.
 
 ### 6.2 `facility.yaml`, automation keys
 
-| Key                                                  | Type   | Validation                                                                                                                       |
-| ---------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `automation.amr_fleet.enabled`                       | bool   |                                                                                                                                  |
-| `automation.amr_fleet.vehicles[]`                    | list   | Each with `amr_id` and a `model_id` resolving in `catalog/amr_models.yaml`                                                       |
-| `automation.amr_fleet.dispatch.policy`               | string | A registered `DispatchPolicy` id; an unknown id lists the registered ones                                                        |
-| `automation.amr_fleet.dispatch.tick_s`               | float  | `> 0`, default 1.0                                                                                                               |
-| `automation.amr_fleet.charging.policy`               | enum   | `threshold`, `opportunity`, or `swap`                                                                                            |
-| `automation.amr_fleet.charging.soc_dispatch_floor`   | float  | 0 to 1, strictly below `soc_target`                                                                                              |
-| `automation.amr_fleet.charging.soc_target`           | float  | 0 to 1                                                                                                                           |
-| `automation.amr_fleet.charging.cc_cutoff_soc`        | float  | 0 to 1, strictly above `soc_dispatch_floor`; the phase boundary of 5.6                                                           |
-| `automation.amr_fleet.chargers[]`                    | list   | `charger_id`, a `node_id` resolving on the travel graph, `power_kw > 0`                                                          |
-| `automation.travel_graph.source`                     | enum   | `derived` from zone polygons and the aisle spec, or `file`                                                                       |
-| `automation.travel_graph.aisles[]`                   | list   | `width_m > 0`, `one_way` bool; connectivity is checked and the load fails naming the unreachable nodes                           |
-| `automation.travel_graph.vehicle_length_m`           | float  | `> 0`; a jam-density input in 5.6                                                                                                |
-| `automation.travel_graph.min_following_gap_m`        | float  | `>= 0`; the other jam-density input                                                                                              |
-| `automation.traffic.congestion_k`                    | float  | `>= 0`, default 0.35; carries no external reference, see 9 Q14                                                                   |
-| `automation.traffic.min_speed_ratio`                 | float  | 0 to 1, default 0.25; carries no external reference, see 9 Q14                                                                   |
-| `automation.traffic.replan_delay_s`                  | float  | `> 0`                                                                                                                            |
-| `automation.traffic.deadlock_check_s`                | float  | `> 0`                                                                                                                            |
-| `automation.palletisers[]`                           | list   | `cell_id`, a `pattern_id` resolving in `catalog/pallet_patterns.yaml`                                                            |
-| `automation.asrs[]`                                  | list   | `bays >= 1`, `levels >= 1`, speeds `> 0`, a `storage_policy` enum; `class_boundaries` needed and monotone when `class_based`     |
-| `automation.conveyors[]`                             | list   | `speed_mps > 0`, `min_gap_m >= 0`, `capacity_units >= 1`                                                                         |
-| `automation.sorters[]`                               | list   | `induct_rate_units_per_min > 0`, every `chutes[].chute_id` unique                                                                |
-| `automation.sorters[].read_dependency`               | ref    | Resolves to a `scan_points[].scan_point_id`, not to a device id                                                                  |
-| `automation.sorters[].max_passes`                    | int    | `>= 1`, default 3                                                                                                                |
-| `automation.uns.line`                                | string | The line segment of the topic built in 4.8; non-empty when any resource carries `uns_equipment`                                  |
+| Key                                                | Type   | Validation                                                                                                                   |
+|----------------------------------------------------|--------|------------------------------------------------------------------------------------------------------------------------------|
+| `automation.amr_fleet.enabled`                     | bool   |                                                                                                                              |
+| `automation.amr_fleet.vehicles[]`                  | list   | Each with `amr_id` and a `model_id` resolving in `catalog/amr_models.yaml`                                                   |
+| `automation.amr_fleet.dispatch.policy`             | string | A registered `DispatchPolicy` id; an unknown id lists the registered ones                                                    |
+| `automation.amr_fleet.dispatch.tick_s`             | float  | `> 0`, default 1.0                                                                                                           |
+| `automation.amr_fleet.charging.policy`             | enum   | `threshold`, `opportunity`, or `swap`                                                                                        |
+| `automation.amr_fleet.charging.soc_dispatch_floor` | float  | 0 to 1, strictly below `soc_target`                                                                                          |
+| `automation.amr_fleet.charging.soc_target`         | float  | 0 to 1                                                                                                                       |
+| `automation.amr_fleet.charging.cc_cutoff_soc`      | float  | 0 to 1, strictly above `soc_dispatch_floor`; the phase boundary of 5.6                                                       |
+| `automation.amr_fleet.chargers[]`                  | list   | `charger_id`, a `node_id` resolving on the travel graph, `power_kw > 0`                                                      |
+| `automation.travel_graph.source`                   | enum   | `derived` from zone polygons and the aisle spec, or `file`                                                                   |
+| `automation.travel_graph.aisles[]`                 | list   | `width_m > 0`, `one_way` bool; connectivity is checked and the load fails naming the unreachable nodes                       |
+| `automation.travel_graph.vehicle_length_m`         | float  | `> 0`; a jam-density input in 5.6                                                                                            |
+| `automation.travel_graph.min_following_gap_m`      | float  | `>= 0`; the other jam-density input                                                                                          |
+| `automation.traffic.congestion_k`                  | float  | `>= 0`, default 0.35; carries no external reference, see 9 Q14                                                               |
+| `automation.traffic.min_speed_ratio`               | float  | 0 to 1, default 0.25; carries no external reference, see 9 Q14                                                               |
+| `automation.traffic.replan_delay_s`                | float  | `> 0`                                                                                                                        |
+| `automation.traffic.deadlock_check_s`              | float  | `> 0`                                                                                                                        |
+| `automation.palletisers[]`                         | list   | `cell_id`, a `pattern_id` resolving in `catalog/pallet_patterns.yaml`                                                        |
+| `automation.asrs[]`                                | list   | `bays >= 1`, `levels >= 1`, speeds `> 0`, a `storage_policy` enum; `class_boundaries` needed and monotone when `class_based` |
+| `automation.conveyors[]`                           | list   | `speed_mps > 0`, `min_gap_m >= 0`, `capacity_units >= 1`                                                                     |
+| `automation.sorters[]`                             | list   | `induct_rate_units_per_min > 0`, every `chutes[].chute_id` unique                                                            |
+| `automation.sorters[].read_dependency`             | ref    | Resolves to a `scan_points[].scan_point_id`, not to a device id                                                              |
+| `automation.sorters[].max_passes`                  | int    | `>= 1`, default 3                                                                                                            |
+| `automation.uns.line`                              | string | The line segment of the topic built in 4.8; non-empty when any resource carries `uns_equipment`                              |
 
 Jam rates, cycle-time families, and every other stochastic parameter are not keys here. They live in
 the distribution catalog that `distributions.catalog_uri` points at, which is the single source of
 truth named in 6.0 and in `docs/design/variability-and-faults.md` section B.1. Two homes for one
-number is the defect this repository exists to criticise.
+number is the defect this repository exists to criticize.
 
 ### 6.3 `facility.yaml`, slotting keys
 
-| Key                                | Type    | Validation                                                                                                                                |
-| ---------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `slotting.enabled`                 | bool    |                                                                                                                                           |
-| `slotting.storage_mode`            | enum    | `dedicated`, `random`, or `class_based`                                                                                                   |
-| `slotting.objective.w_travel`      | float   | `>= 0`                                                                                                                                    |
-| `slotting.objective.w_replen`      | float   | `>= 0`                                                                                                                                    |
-| `slotting.objective.w_affinity`    | float   | `>= 0`; a positive value needs an affinity source, else the load fails                                                                    |
-| `slotting.objective.w_ergo`        | float   | `>= 0`                                                                                                                                    |
-| `slotting.objective.normalise`     | enum    | `none`, `zscore`, or `range`; needed when more than one weight is non-zero, because summing raw metres and risk indices is meaningless    |
-| `slotting.ergonomic_provider`      | enum    | `proxy_v1`, `niosh`, or `rula`; the latter two need `twinflow-ergonomics` installed                                                       |
-| `slotting.golden_zone_m`           | 2-tuple | `0 <= low < high`, default `[0.75, 1.40]`                                                                                                 |
-| `slotting.golden_zone_scale_m`     | float   | `> 0`, default 0.50; the denominator of `proxy_v1` in 3.9                                                                                 |
-| `slotting.solver`                  | enum    | `auto`, `exact`, `coi`, or `local_search`                                                                                                 |
-| `slotting.local_search.iterations` | int     | `> 0`                                                                                                                                     |
-| `slotting.replan_cadence`          | enum    | `manual`, `daily`, `weekly`, or `on_demand_mix_shift`                                                                                     |
-| `slotting.max_moves_per_replan`    | int     | `>= 0`; 0 means propose only                                                                                                              |
-| `slotting.affinity_source`         | enum    | `order_lines`, `synthetic`, or `none`                                                                                                     |
+| Key                                | Type    | Validation                                                                                                                             |
+|------------------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------|
+| `slotting.enabled`                 | bool    |                                                                                                                                        |
+| `slotting.storage_mode`            | enum    | `dedicated`, `random`, or `class_based`                                                                                                |
+| `slotting.objective.w_travel`      | float   | `>= 0`                                                                                                                                 |
+| `slotting.objective.w_replen`      | float   | `>= 0`                                                                                                                                 |
+| `slotting.objective.w_affinity`    | float   | `>= 0`; a positive value needs an affinity source, else the load fails                                                                 |
+| `slotting.objective.w_ergo`        | float   | `>= 0`                                                                                                                                 |
+| `slotting.objective.normalize`     | enum    | `none`, `zscore`, or `range`; needed when more than one weight is non-zero, because summing raw meters and risk indices is meaningless |
+| `slotting.ergonomic_provider`      | enum    | `proxy_v1`, `niosh`, or `rula`; the latter two need `twinflow-ergonomics` installed                                                    |
+| `slotting.golden_zone_m`           | 2-tuple | `0 <= low < high`, default `[0.75, 1.40]`                                                                                              |
+| `slotting.golden_zone_scale_m`     | float   | `> 0`, default 0.50; the denominator of `proxy_v1` in 3.9                                                                              |
+| `slotting.solver`                  | enum    | `auto`, `exact`, `coi`, or `local_search`                                                                                              |
+| `slotting.local_search.iterations` | int     | `> 0`                                                                                                                                  |
+| `slotting.replan_cadence`          | enum    | `manual`, `daily`, `weekly`, or `on_demand_mix_shift`                                                                                  |
+| `slotting.max_moves_per_replan`    | int     | `>= 0`; 0 means propose only                                                                                                           |
+| `slotting.affinity_source`         | enum    | `order_lines`, `synthetic`, or `none`                                                                                                  |
 
 ### 6.4 `costs.yaml`
 
-Keys: `labour_rate_usd_per_hour` by role, `annual_hours_per_fte`, `labour_burden_multiplier`,
+Keys: `labor_rate_usd_per_hour` by role, `annual_hours_per_fte`, `labor_burden_multiplier`,
 `energy_price_usd_per_kwh`, `discount_rate` between 0 and 1 exclusive, `default_life_years`,
 `maintenance_pct_of_capex_per_year`, `detention_usd_per_hour`, `overtime_multiplier`, and a
 `capex_catalog` mapping equipment model ids to acquisition and install cost.
 
 Validation: the discount rate is strictly between 0 and 1, because a zero rate makes the capital
 recovery factor undefined at the limit and the error says so; every cost is non-negative; and every
-equipment id a scenario references resolves. `annual_hours_per_fte` and `labour_burden_multiplier`
-are here rather than in `facility.yaml` because 5.12's cost model prices `labour_delta_fte` with
+equipment id a scenario references resolves. `annual_hours_per_fte` and `labor_burden_multiplier`
+are here rather than in `facility.yaml` because 5.12's cost model prices `labor_delta_fte` with
 them, and the money rule of 6.0 puts money in one file.
 
 ### 6.5 `scenarios/*.yaml` and `experiments/*.study.yaml`
@@ -2058,15 +2058,15 @@ assumption is rejected rather than printed.
 The patchable allowlist is declared in the facility schema with the `x-patchable` annotation, and
 the paths it covers are listed here so a scenario author does not have to read the schema.
 
-| Patchable path prefix              | Why it is patchable                                                             |
-| ---------------------------------- | ------------------------------------------------------------------------------- |
-| `/facility/scan_points/`           | The headline demo adds a portal (5.13)                                          |
-| `/facility/stations/`              | Capacity, service time, staffing, and buffer what-ifs                           |
-| `/facility/dock_doors/`            | Door count and mode what-ifs                                                    |
-| `/facility/automation/`            | Every 1b what-if in 5.11                                                        |
-| `/facility/slotting/`              | Re-slotting and objective-weight what-ifs                                       |
-| `/facility/arrivals/`              | Demand and appointment what-ifs, which trigger 5.13's boundary rule             |
-| `/facility/metrics/`               | Window and warm-up what-ifs, which change measurement rather than the operation |
+| Patchable path prefix    | Why it is patchable                                                             |
+|--------------------------|---------------------------------------------------------------------------------|
+| `/facility/scan_points/` | The headline demo adds a portal (5.13)                                          |
+| `/facility/stations/`    | Capacity, service time, staffing, and buffer what-ifs                           |
+| `/facility/dock_doors/`  | Door count and mode what-ifs                                                    |
+| `/facility/automation/`  | Every 1b what-if in 5.11                                                        |
+| `/facility/slotting/`    | Re-slotting and objective-weight what-ifs                                       |
+| `/facility/arrivals/`    | Demand and appointment what-ifs, which trigger 5.13's boundary rule             |
+| `/facility/metrics/`     | Window and warm-up what-ifs, which change measurement rather than the operation |
 
 Everything else is non-patchable, and `facility.facility_id`, `facility.tick_ns`, and
 `schema_version` are named in the schema as such so the error message can say why.
@@ -2106,30 +2106,30 @@ auto-apply by accident.
 
 `yard.yaml` configures E12's solver and objective. Nothing here describes the building.
 
-| Key                                 | Type  | Validation                                                                        |
-| ----------------------------------- | ----- | --------------------------------------------------------------------------------- |
-| `yard.max_deterministic_time`       | float | `> 0`; the CP-SAT deterministic budget of 5.20                                    |
-| `yard.max_branches`                 | int   | `> 0`; the second deterministic cap                                               |
-| `yard.max_solve_wall_s`             | float | `> 0`; the safety net that raises rather than returning a different incumbent     |
-| `yard.realisability_tolerance_pct`  | float | `> 0`, default 10; the re-solve trigger of 5.20                                   |
-| `yard.duration_quantile`            | float | 0 to 1 exclusive, default 0.7; used on re-solve                                   |
-| `yard.objective.w_detention`        | float | `>= 0`                                                                            |
-| `yard.objective.w_overtime`         | float | `>= 0`                                                                            |
-| `yard.objective.w_dwell`            | float | `>= 0`                                                                            |
-| `yard.objective.w_changeover`       | float | `>= 0`                                                                            |
-| `yard.objective.w_missed_crossdock` | float | `>= 0`; must be 0 until `crossdock_links` is non-empty, else the load fails       |
-| `yard.labour_provider`              | enum  | `calendar` or `roster`; `roster` needs E23 installed                              |
+| Key                                 | Type  | Validation                                                                    |
+|-------------------------------------|-------|-------------------------------------------------------------------------------|
+| `yard.max_deterministic_time`       | float | `> 0`; the CP-SAT deterministic budget of 5.20                                |
+| `yard.max_branches`                 | int   | `> 0`; the second deterministic cap                                           |
+| `yard.max_solve_wall_s`             | float | `> 0`; the safety net that raises rather than returning a different incumbent |
+| `yard.realisability_tolerance_pct`  | float | `> 0`, default 10; the re-solve trigger of 5.20                               |
+| `yard.duration_quantile`            | float | 0 to 1 exclusive, default 0.7; used on re-solve                               |
+| `yard.objective.w_detention`        | float | `>= 0`                                                                        |
+| `yard.objective.w_overtime`         | float | `>= 0`                                                                        |
+| `yard.objective.w_dwell`            | float | `>= 0`                                                                        |
+| `yard.objective.w_changeover`       | float | `>= 0`                                                                        |
+| `yard.objective.w_missed_crossdock` | float | `>= 0`; must be 0 until `crossdock_links` is non-empty, else the load fails   |
+| `yard.labor_provider`               | enum  | `calendar` or `roster`; `roster` needs E23 installed                          |
 
 `benchmark.yaml` configures experiments, not operations.
 
-| Key                               | Type   | Validation                                                                             |
-| --------------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| `benchmark.n_seeds`               | int    | `>= 30`, default 200; the held-out seed count of 5.19                                  |
-| `benchmark.seed_set_uri`          | path   | Must exist and be committed; the file is content-hashed into the published table       |
-| `benchmark.training_seed_set_uri` | path   | Must exist; the intersection with the held-out set must be empty                       |
-| `benchmark.published_table_uri`   | path   | Default `docs/benchmarks/dispatch.md`; CI fails when the file is missing or stale      |
-| `benchmark.surrogate_holdout_n`   | int    | `>= 100`, default 500; the held-out batch of 5.21                                      |
-| `benchmark.coverage_reps`         | int    | `>= 100`, default 400; the repetition count VAL-GATE-QUEUE-02's interval is derived at |
+| Key                               | Type | Validation                                                                             |
+|-----------------------------------|------|----------------------------------------------------------------------------------------|
+| `benchmark.n_seeds`               | int  | `>= 30`, default 200; the held-out seed count of 5.19                                  |
+| `benchmark.seed_set_uri`          | path | Must exist and be committed; the file is content-hashed into the published table       |
+| `benchmark.training_seed_set_uri` | path | Must exist; the intersection with the held-out set must be empty                       |
+| `benchmark.published_table_uri`   | path | Default `docs/benchmarks/dispatch.md`; CI fails when the file is missing or stale      |
+| `benchmark.surrogate_holdout_n`   | int  | `>= 100`, default 500; the held-out batch of 5.21                                      |
+| `benchmark.coverage_reps`         | int  | `>= 100`, default 400; the repetition count VAL-GATE-QUEUE-02's interval is derived at |
 
 ### 6.8 Every key in this section resolves to a row
 
@@ -2158,40 +2158,40 @@ condition cannot be described is deleted and replaced rather than kept as decora
 Per package, with the usual coverage of parsers, validators, and formulas. The ones that are easy
 to get wrong, and the ones that hold a rule in this document, are named.
 
-| Test                                                   | Asserts                                                                                                                       | Fails when                                                              |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `test_crf_matches_closed_form`                         | `capital_recovery_factor(r, n) * ((1+r)^n - 1) / (r * (1+r)^n) == 1` to 1e-12 over a grid of r and n                          | The identity fails for any grid point                                   |
-| `test_conveyor_throughput_ceiling`                     | `speed_mps / (unit_length_m + min_gap_m)` equals the simulated maximum induct rate for a saturated segment                    | The simulated ceiling differs by more than one unit per hour            |
-| `test_trapezoidal_travel_profile`                      | Crane travel below the accelerate-plus-decelerate distance uses the triangular branch, and the branches agree at the boundary | The two branches disagree at the boundary distance                      |
-| `test_charge_curve_integral_matches_closed_form`       | Simulated charge time equals the analytic integral of the declared two-phase curve to 1e-9                                    | The integral and the simulation disagree                                |
-| `test_oee_both_conventions`                            | One equipment log yields the two documented OEE values and neither convention is defaulted                                    | A convention is silently chosen, or the two agree when they must not    |
-| `test_patch_rejects_non_patchable_path`                | A patch touching `facility.facility_id` fails at parse with the path named                                                    | The patch parses, or the message omits the path                         |
-| `test_exogenous_boundary_conflict_detected`            | A patch changing appointments without redeclaring the truck-arrival boundary raises, naming the stream                        | The run starts, or the message omits the stream                         |
-| `test_guardrail_rejects_out_of_bounds`                 | Every guardrail field independently blocks a change                                                                           | Any single field can be violated without a rejection                    |
-| `test_forged_approval_is_rejected`                     | An `Approval` whose signature covers a different `change_hash` fails `verify_audit_chain`                                     | The chain checks out, or the failure index is wrong                     |
-| `test_out_of_scope_approval_is_rejected`               | A valid signature from a key whose `authority_scope` does not cover the patched path is rejected                              | The change is applied                                                   |
-| `test_slotting_infeasible_when_cube_exceeds_all_slots` | An infeasibility report naming the SKU and the binding constraint, not an exception                                           | An exception is raised, or the report omits the constraint              |
-| `test_two_skus_equal_picks_unequal_cube_order_by_cube` | The bulkier SKU never gets the strictly nearer mean travel                                                                    | The bulkier SKU is placed nearer                                        |
-| `test_simultaneous_events_order_canonically`           | 200 events at one tick from four producers, across 50 insertion shuffles, give one tape order                                 | Any shuffle produces a different order                                  |
-| `test_every_draw_site_has_a_registered_stream`         | Every sampler call site in these eight packages resolves to a registry entry                                                  | A generator is constructed outside the registry                         |
-| `test_no_wall_clock_field_in_any_declared_payload`     | No schema this section owns carries a wall-clock property outside the three sinks of 4.9                                      | A new payload property matches the wall-clock naming convention         |
-| `test_no_set_typed_field_in_the_domain_model`          | No Pydantic model in these packages carries a `set` annotation                                                                | A `set` annotation appears                                              |
-| `test_protocol_surface_matches_declaration`            | Every runtime protocol signature matches `/schemas/protocols/twinflow-protocols.v1.yaml`                                      | A method name, parameter, or return type drifts                         |
-| `test_labour_is_not_double_counted`                    | A one-FTE change moves `annualised_cost_usd` by exactly the priced amount and moves nothing else                              | `opex_annual_usd` also moves, or the delta is wrong                     |
-| `test_missing_consumed_subject_degrades_as_declared`   | Each row of 4.7 behaves as its fallback column says with the producer uninstalled                                             | An exception is raised, or a zero is reported instead of a null         |
-| `test_train_and_eval_seed_sets_are_disjoint`           | The held-out and training seed sets share no element                                                                          | The intersection is non-empty                                           |
-| `test_uns_topic_is_unique_per_facility`                | INV-TWIN-11, concatenated topics are unique                                                                                   | Two resources build the same topic                                      |
-| `test_device_attachment_resolves`                      | INV-TWIN-12, every `attaches_to` resolves to a resource and a declared parameter                                              | A dangling attachment loads without an error                            |
+| Test                                                   | Asserts                                                                                                                       | Fails when                                                           |
+|--------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| `test_crf_matches_closed_form`                         | `capital_recovery_factor(r, n) * ((1+r)^n - 1) / (r * (1+r)^n) == 1` to 1e-12 over a grid of r and n                          | The identity fails for any grid point                                |
+| `test_conveyor_throughput_ceiling`                     | `speed_mps / (unit_length_m + min_gap_m)` equals the simulated maximum induct rate for a saturated segment                    | The simulated ceiling differs by more than one unit per hour         |
+| `test_trapezoidal_travel_profile`                      | Crane travel below the accelerate-plus-decelerate distance uses the triangular branch, and the branches agree at the boundary | The two branches disagree at the boundary distance                   |
+| `test_charge_curve_integral_matches_closed_form`       | Simulated charge time equals the analytic integral of the declared two-phase curve to 1e-9                                    | The integral and the simulation disagree                             |
+| `test_oee_both_conventions`                            | One equipment log yields the two documented OEE values and neither convention is defaulted                                    | A convention is silently chosen, or the two agree when they must not |
+| `test_patch_rejects_non_patchable_path`                | A patch touching `facility.facility_id` fails at parse with the path named                                                    | The patch parses, or the message omits the path                      |
+| `test_exogenous_boundary_conflict_detected`            | A patch changing appointments without redeclaring the truck-arrival boundary raises, naming the stream                        | The run starts, or the message omits the stream                      |
+| `test_guardrail_rejects_out_of_bounds`                 | Every guardrail field independently blocks a change                                                                           | Any single field can be violated without a rejection                 |
+| `test_forged_approval_is_rejected`                     | An `Approval` whose signature covers a different `change_hash` fails `verify_audit_chain`                                     | The chain checks out, or the failure index is wrong                  |
+| `test_out_of_scope_approval_is_rejected`               | A valid signature from a key whose `authority_scope` does not cover the patched path is rejected                              | The change is applied                                                |
+| `test_slotting_infeasible_when_cube_exceeds_all_slots` | An infeasibility report naming the SKU and the binding constraint, not an exception                                           | An exception is raised, or the report omits the constraint           |
+| `test_two_skus_equal_picks_unequal_cube_order_by_cube` | The bulkier SKU never gets the strictly nearer mean travel                                                                    | The bulkier SKU is placed nearer                                     |
+| `test_simultaneous_events_order_canonically`           | 200 events at one tick from four producers, across 50 insertion shuffles, give one tape order                                 | Any shuffle produces a different order                               |
+| `test_every_draw_site_has_a_registered_stream`         | Every sampler call site in these eight packages resolves to a registry entry                                                  | A generator is constructed outside the registry                      |
+| `test_no_wall_clock_field_in_any_declared_payload`     | No schema this section owns carries a wall-clock property outside the three sinks of 4.9                                      | A new payload property matches the wall-clock naming convention      |
+| `test_no_set_typed_field_in_the_domain_model`          | No Pydantic model in these packages carries a `set` annotation                                                                | A `set` annotation appears                                           |
+| `test_protocol_surface_matches_declaration`            | Every runtime protocol signature matches `/schemas/protocols/twinflow-protocols.v1.yaml`                                      | A method name, parameter, or return type drifts                      |
+| `test_labor_is_not_double_counted`                     | A one-FTE change moves `annualised_cost_usd` by exactly the priced amount and moves nothing else                              | `opex_annual_usd` also moves, or the delta is wrong                  |
+| `test_missing_consumed_subject_degrades_as_declared`   | Each row of 4.7 behaves as its fallback column says with the producer uninstalled                                             | An exception is raised, or a zero is reported instead of a null      |
+| `test_train_and_eval_seed_sets_are_disjoint`           | The held-out and training seed sets share no element                                                                          | The intersection is non-empty                                        |
+| `test_uns_topic_is_unique_per_facility`                | INV-TWIN-11, concatenated topics are unique                                                                                   | Two resources build the same topic                                   |
+| `test_device_attachment_resolves`                      | INV-TWIN-12, every `attaches_to` resolves to a resource and a declared parameter                                              | A dangling attachment loads without an error                         |
 
 ### 7.2 Tier 2, property-based invariants
 
 Each property generates facilities, demand profiles, and fault schedules from a constrained
 strategy, runs a short horizon, and asserts the invariant. Hypothesis is version 6.165.2 under
-MPL-2.0, which the dependency ledger records; the licence question that raises for the allowlist is
+MPL-2.0, which the dependency ledger records; the license question that raises for the allowlist is
 the repository's to settle and is recorded in the ledger rather than here.
 
 | ID          | Invariant                                                                                                                                      |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+|-------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | INV-TWIN-01 | Material conservation: `units_received == units_in_system + units_putaway + units_scrapped` at every event boundary                            |
 | INV-TWIN-02 | Monotone clock: tape `twinflowsimts` non-decreasing, and `twinflowseq` dense per `(run_id, producer_id)`                                       |
 | INV-TWIN-03 | Little's Law holds inside the batch-means interval, under the stationarity precondition stated below                                           |
@@ -2207,7 +2207,7 @@ the repository's to settle and is recorded in the ledger rather than here.
 | INV-AMR-01  | Node and one-way-edge exclusivity under the reservation protocol                                                                               |
 | INV-AMR-02  | SOC in [0,1], non-increasing while not charging, energy ledger closes to 1e-9                                                                  |
 | INV-AMR-03  | Wait-for graph acyclic at every decision point                                                                                                 |
-| INV-AMR-04  | Task conservation: assigned equals completed plus cancelled plus reassigned                                                                    |
+| INV-AMR-04  | Task conservation: assigned equals completed plus canceled plus reassigned                                                                     |
 | INV-ASRS-01 | One crane per aisle, and a retrieval returns the pallet stored in the addressed slot                                                           |
 | INV-ASRS-02 | Occupied slot count equals stored pallet count                                                                                                 |
 | INV-SORT-01 | Every inducted unit leaves through exactly one chute or the reject lane, and counts balance                                                    |
@@ -2218,7 +2218,7 @@ the repository's to settle and is recorded in the ledger rather than here.
 | INV-SCN-01  | Null-patch identity: an empty patch replay reproduces `state_hash`                                                                             |
 | INV-SCN-02  | Exogenous trace fidelity: replayed exogenous events match the source in count and sim time                                                     |
 | INV-SCN-03  | Common random numbers pairing: two arms with the same seed have identical exogenous streams and matching draw counts                           |
-| INV-SCN-04  | Replication ordering: worker pool sizes 1, 2, and 8 give byte-identical `ScenarioResult` serialisations                                        |
+| INV-SCN-04  | Replication ordering: worker pool sizes 1, 2, and 8 give byte-identical `ScenarioResult` serializations                                        |
 | INV-AUT-01  | Guardrail containment: no applied change lies outside declared bounds, and L3 never touches a non-whitelisted path                             |
 | INV-AUT-02  | Audit completeness: replaying the chain reproduces the current config hash with no gaps                                                        |
 | INV-AUT-03  | Approval validity: every entry carries a verifying signature from a registered key whose scope covers the patched path                         |
@@ -2244,7 +2244,7 @@ Each scenario runs against every A2 profile that declares the subsystem it exerc
 `WindowMetrics`, `BottleneckReport`, `ValueStreamSummary`, and the tape hash, and diffs.
 
 | ID         | Scenario                                                                        | Asserts                                                                                                                                        |
-| ---------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------|---------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | SCN-E2E-01 | `baseline_shift`, 8 simulated hours                                             | Golden metrics, tape hash, and the runtime budget of 7.10                                                                                      |
 | SCN-E2E-02 | `second_portal_dock3` counterfactual on a recorded run                          | A paired comparison is produced, and null-patch identity holds on the same run                                                                 |
 | SCN-E2E-03 | `replace_forklifts_with_amrs`                                                   | Throughput, cost, energy, and operator-impact fields are populated or explicitly null with a reason, and the option lands in `PAYS_FOR_ITSELF` |
@@ -2284,28 +2284,28 @@ their falsification conditions and are marked as such rather than being given a 
 not mean anything.
 
 | Gate                 | External published reference                                                                                                                                                                                                                                                                                                                                                                                                                                              | Assertion and tolerance                                                                                                                                                                                                                                                                                                                                      | Noise floor and falsification                                                                                                                                                                                                                                                                                    |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | VAL-GATE-QUEUE-01    | Little, J.D.C. (1961), "A Proof for the Queuing Formula: L = lambda W", Operations Research 9(3), 383-387, DOI 10.1287/opre.9.3.383                                                                                                                                                                                                                                                                                                                                       | On an M/M/1 twin configuration at offered load 0.7, `lambda * W` lies inside the batch-means 95 percent confidence interval for `L`, over 30 replications                                                                                                                                                                                                    | The interval half-width is the noise floor and is reported. Falsified when `lambda * W` lies outside the interval in more than 2 of 30 replications                                                                                                                                                              |
 | VAL-GATE-QUEUE-02    | Gross, D., Shortle, J.F., Thompson, J.M., and Harris, C.M., Fundamentals of Queueing Theory, 5th edition, Wiley 2018, DOI 10.1002/9781119453765, M/M/1 chapter                                                                                                                                                                                                                                                                                                            | Coverage: over `benchmark.coverage_reps` (400) seeded repetitions at offered load 0.7, the count of repetitions whose batch-means 95 percent interval covers the analytic `L` lies in the exact binomial acceptance region [365, 392]                                                                                                                        | The region is derived from Binomial(400, 0.95) at 0.001 per tail, so a correct build fails about 12 times in 10,000 runs. Falsified when the count lands outside [365, 392]                                                                                                                                      |
 | VAL-GATE-QUEUE-02b   | Same reference, M/M/1 closed forms                                                                                                                                                                                                                                                                                                                                                                                                                                        | Point accuracy: for offered load in {0.5, 0.7, 0.9}, simulated `L = rho/(1-rho)` and `Wq = rho/(mu*(1-rho))` within 3 percent over 30 replications                                                                                                                                                                                                           | The 3 percent tolerance is set above the measured batch-means half-width at load 0.9, which the fixture records. Falsified when any load's point estimate falls outside                                                                                                                                          |
 | VAL-GATE-QUEUE-03    | Same reference, M/G/1 chapter, the Pollaczek-Khinchine formula                                                                                                                                                                                                                                                                                                                                                                                                            | With deterministic and with lognormal service, simulated `Wq = lambda*E[S^2] / (2*(1-rho))` within 3 percent                                                                                                                                                                                                                                                 | Tolerance set above the measured half-width for the lognormal case, which is the wider of the two. Falsified when either service law falls outside                                                                                                                                                               |
 | VAL-GATE-QUEUE-04    | Same reference, M/M/c chapter, the Erlang C formula                                                                                                                                                                                                                                                                                                                                                                                                                       | A dock-door bank with c in {2, 4, 8}: the simulated probability of waiting matches Erlang C within 2 percent                                                                                                                                                                                                                                                 | Tolerance set above the measured binomial standard error of the waiting proportion at c = 8. Falsified when any c falls outside                                                                                                                                                                                  |
 | VAL-GATE-QUEUE-05    | Jackson, J.R. (1957), "Networks of Waiting Lines", Operations Research 5(4), 518-521, DOI 10.1287/opre.5.4.518                                                                                                                                                                                                                                                                                                                                                            | For an open Jackson network with known routing, per-station arrival rates match the traffic equations within 1 percent, and `by_utilisation` names `argmax(lambda_i / mu_i)` as the bottleneck                                                                                                                                                               | Tolerance set above the measured standard error of the per-station rate estimate. Falsified when a rate falls outside, or when the ranking names a different station                                                                                                                                             |
-| VAL-GATE-ASRS-01     | Bozer, Y.A. and White, J.A. (1984), "Travel-Time Models for Automated Storage/Retrieval Systems", IIE Transactions 16(4), 329-338, DOI 10.1080/07408178408975252                                                                                                                                                                                                                                                                                                          | Under randomised storage with Chebyshev travel, normalised expected single-command time matches `E[SC] = 1 + b^2/3` and dual-command time matches `E[DC] = 4/3 + b^2/2 - b^3/30`, for shape factor b in {0.25, 0.5, 0.75, 1.0}, to 1 percent, 100,000 cycles                                                                                                 | Noise floor is the standard error over 100,000 cycles, which the fixture records and which is far below 1 percent. Falsified when any b falls outside, or when the two forms cross                                                                                                                               |
-| VAL-GATE-SLOT-01     | Malmborg, C.J. and Bhaskaran, K. (1990), "A revised proof of optimality for the cube-per-order index rule for stored item location", Applied Mathematical Modelling 14(2), 87-95, DOI 10.1016/0307-904x(90)90076-h                                                                                                                                                                                                                                                        | In the reference case of single-command, dedicated storage, independent demand, and homogeneous slot capacity, `plan_slotting` returns exactly the cube-per-order-index ordering, asserted as set equality of SKU-to-slot pairs                                                                                                                              | Deterministic, so no noise floor applies. Falsified by any pair differing from the index ordering                                                                                                                                                                                                                |
+| VAL-GATE-ASRS-01     | Bozer, Y.A. and White, J.A. (1984), "Travel-Time Models for Automated Storage/Retrieval Systems", IIE Transactions 16(4), 329-338, DOI 10.1080/07408178408975252                                                                                                                                                                                                                                                                                                          | Under randomized storage with Chebyshev travel, normalized expected single-command time matches `E[SC] = 1 + b^2/3` and dual-command time matches `E[DC] = 4/3 + b^2/2 - b^3/30`, for shape factor b in {0.25, 0.5, 0.75, 1.0}, to 1 percent, 100,000 cycles                                                                                                 | Noise floor is the standard error over 100,000 cycles, which the fixture records and which is far below 1 percent. Falsified when any b falls outside, or when the two forms cross                                                                                                                               |
+| VAL-GATE-SLOT-01     | Malmborg, C.J. and Bhaskaran, K. (1990), "A revised proof of optimality for the cube-per-order index rule for stored item location", Applied Mathematical Modeling 14(2), 87-95, DOI 10.1016/0307-904x(90)90076-h                                                                                                                                                                                                                                                         | In the reference case of single-command, dedicated storage, independent demand, and homogeneous slot capacity, `plan_slotting` returns exactly the cube-per-order-index ordering, asserted as set equality of SKU-to-slot pairs                                                                                                                              | Deterministic, so no noise floor applies. Falsified by any pair differing from the index ordering                                                                                                                                                                                                                |
 | VAL-GATE-SLOT-01b    | Kallina, C. and Lynn, J. (1976), "Application of the Cube-Per-Order Index Rule for Stock Location in a Distribution Warehouse", Interfaces 7(1), 37-46, DOI 10.1287/inte.7.1.37                                                                                                                                                                                                                                                                                           | The 3.9 objective reduces to the index ordering in the reference case, asserted symbolically on the formula and numerically on 200 instances                                                                                                                                                                                                                 | Deterministic. Falsified when the reduction fails on any instance, which would mean the cube term was written wrongly rather than that the gate is loose                                                                                                                                                         |
 | VAL-GATE-SLOT-02     | Jonker, R. and Volgenant, A. (1987), "A shortest augmenting path algorithm for dense and sparse linear assignment problems", Computing 38(4), 325-340, DOI 10.1007/bf02278710, with the implementation notes in Crouse, D.F. (2016), IEEE Transactions on Aerospace and Electronic Systems 52(4), 1679-1696, DOI 10.1109/taes.2016.140952                                                                                                                                 | On 200 random separable instances up to 300 SKUs, the exact solver reproduces the published algorithm's optimum to 1e-9, and the local-search solver lands within 1 percent of it                                                                                                                                                                            | The exact branch is deterministic. The local-search branch's spread over 200 instances is measured and reported, and the 1 percent bound sits above it. Falsified when the exact branch is not optimal, or when local search exceeds 1 percent                                                                   |
 | VAL-GATE-SLOT-03     | Waters, T.R., Putz-Anderson, V., and Garg, A. (1994), Applications Manual for the Revised NIOSH Lifting Equation, DHHS (NIOSH) Publication 94-110, worked examples                                                                                                                                                                                                                                                                                                        | With `ergonomic_provider: niosh`, the recommended weight limit and lifting index for the manual's worked examples reproduce the published values to the precision the manual prints. The gate lives in `twinflow-ergonomics`, and `twinflow-slotting` asserts it delegates and that `ergonomic_risk` decreases monotonically in the recommended weight limit | Deterministic. Falsified when any worked example differs at the manual's printed precision. Retrieval note: `cdc.gov` and `stacks.cdc.gov` returned HTTP 403 on 2026-08-09, so the publication number and title here come from the citation and not from retrieved primary text                                  |
 | VAL-GATE-CONG-01     | Greenshields, B.D., Bibbins, J.R., Channing, W.S., and Miller, H.H. (1935), "A study of traffic capacity", Highway Research Board Proceedings 14, part 1, 448-477, retrieved 2026-08-09 HTTP 200 from onlinepubs.trb.org                                                                                                                                                                                                                                                  | On a single-corridor fixture configured to the paper's reported free speed and its fitted slope of 0.221, the simulated mean speed reproduces `S = F' - m * D'` to the third decimal of the slope, which is the precision the paper prints                                                                                                                   | Noise floor is the standard error of mean speed over the fixture's vehicle passes, measured and reported; the tolerance is the larger of the paper's precision and three standard errors. Falsified when the simulated relation is non-linear in density, or when the fitted slope differs beyond that tolerance |
-| VAL-GATE-DEADLOCK-01 | Coffman, E.G., Elphick, M., and Shoshani, A. (1971), "System Deadlocks", ACM Computing Surveys 3(2), 67-78, DOI 10.1145/356586.356588, the four necessary conditions                                                                                                                                                                                                                                                                                                      | A constructed resource-allocation state satisfying all four conditions is refused by the reservation manager at the allocation that would complete the circular wait. Over 10,000 randomised high-contention episodes, zero deadlock detections                                                                                                              | Deterministic for the constructed state. For the episodes, one detection is a failure, so no noise floor applies. Falsified by any allocation that completes a circular wait, or by any detection                                                                                                                |
+| VAL-GATE-DEADLOCK-01 | Coffman, E.G., Elphick, M., and Shoshani, A. (1971), "System Deadlocks", ACM Computing Surveys 3(2), 67-78, DOI 10.1145/356586.356588, the four necessary conditions                                                                                                                                                                                                                                                                                                      | A constructed resource-allocation state satisfying all four conditions is refused by the reservation manager at the allocation that would complete the circular wait. Over 10,000 randomized high-contention episodes, zero deadlock detections                                                                                                              | Deterministic for the constructed state. For the episodes, one detection is a failure, so no noise floor applies. Falsified by any allocation that completes a circular wait, or by any detection                                                                                                                |
 | VAL-GATE-SCHED-01    | Graham, R.L. (1969), "Bounds on Multiprocessing Timing Anomalies", SIAM Journal on Applied Mathematics 17(2), 416-429, DOI 10.1137/0117039                                                                                                                                                                                                                                                                                                                                | For identical parallel doors with no time windows, the longest-processing-time heuristic's makespan stays within the published `4/3 - 1/(3m)` bound of the CP-SAT optimum on 500 random instances, and CP-SAT matches brute force exactly for n at most 7                                                                                                    | Deterministic given the instances and the fixed CP-SAT settings of 5.20. Falsified when any instance exceeds the bound, or when CP-SAT and brute force disagree                                                                                                                                                  |
-| VAL-GATE-OPT-01      | Jamil, M. and Yang, X.-S. (2013), "A literature survey of benchmark functions for global optimisation problems", International Journal of Mathematical Modelling and Numerical Optimisation 4(2), 150, DOI 10.1504/ijmmno.2013.055204                                                                                                                                                                                                                                     | `run_study` on Sphere, Rosenbrock, Rastrigin, and Ackley in 5 dimensions reaches within 1 percent of the published global optimum inside the configured trial budget, seeded and sequential                                                                                                                                                                  | The across-seed spread of the best value is measured over 20 seeds and reported; the 1 percent bound sits above it. Falsified when the median best value over those seeds exceeds 1 percent                                                                                                                      |
+| VAL-GATE-OPT-01      | Jamil, M. and Yang, X.-S. (2013), "A literature survey of benchmark functions for global optimization problems", International Journal of Mathematical Modeling and Numerical Optimization 4(2), 150, DOI 10.1504/ijmmno.2013.055204                                                                                                                                                                                                                                      | `run_study` on Sphere, Rosenbrock, Rastrigin, and Ackley in 5 dimensions reaches within 1 percent of the published global optimum inside the configured trial budget, seeded and sequential                                                                                                                                                                  | The across-seed spread of the best value is measured over 20 seeds and reported; the 1 percent bound sits above it. Falsified when the median best value over those seeds exceeds 1 percent                                                                                                                      |
 | VAL-GATE-CRN-01      | Law, A.M., Simulation Modeling and Analysis, 5th edition, McGraw-Hill 2015, ISBN 978-0-07-340132-4, common random numbers chapter                                                                                                                                                                                                                                                                                                                                         | On the `second_portal_dock3` comparison over 100 paired replications, the variance of the paired difference estimator under common random numbers is not greater than under independent streams, and the measured ratio is reported rather than asserted                                                                                                     | The ratio's own sampling distribution is an F ratio on 99 and 99 degrees of freedom, whose 95 percent upper point is computed in the fixture. Falsified when the measured ratio exceeds that upper point, which would mean the pairing is broken                                                                 |
 | VAL-GATE-WARMUP-01   | Welch, P.D. (1983), "The Statistical Analysis of Simulation Results", in Lazowska et al., Computer Performance Modeling Handbook, Academic Press, cited as a single secondary locator because the Crossref index returns no record for the chapter; the procedure is also described in Law, Simulation Modeling and Analysis, 5th edition, initial-transient chapter                                                                                                      | On M/M/1 started empty at offered load 0.8, the post-warm-up mean falls within 3 percent of the analytic `L` and the untruncated mean does not, with both directions asserted                                                                                                                                                                                | Tolerance set above the measured batch-means half-width at load 0.8. Falsified when the truncated mean misses, or when the untruncated mean happens to pass, which would mean the fixture is not transient enough to test anything                                                                               |
 | VAL-GATE-OEE-01      | Nakajima, S. (1988), Introduction to TPM: Total Productive Maintenance, Productivity Press, ISBN 978-0-915299-23-5, OEE definition and the six big losses; SEMI E10 and SEMI E79 for the alternative convention                                                                                                                                                                                                                                                           | Two encoded worked equipment logs, one per convention, reproduce the OEE the cited source prints, to the precision that source prints, in rational arithmetic. Separately, OEE recomputed from the tape equals the model's instrumented counters exactly                                                                                                     | Deterministic. Falsified when either convention's figure differs at the source's printed precision, or when the tape and the counters disagree. The fixture records the page locator it transcribed from, and a fixture with no locator fails the gate                                                           |
 | VAL-GATE-VSM-01      | Rother, M. and Shook, J. (1999), Learning to See, Lean Enterprise Institute, ISBN 978-0-9667843-0-5, current-state map worked example                                                                                                                                                                                                                                                                                                                                     | A `ValueStreamSummary` computed from an encoded event log reproducing the book's stated station times, changeovers, uptimes, and inventories yields the same total lead time, total value-added time, and process cycle efficiency, at the map's stated precision. Only the small worked dataset is encoded; the book is cited and not redistributed         | Deterministic. Falsified when any of the three totals differs at the map's precision. The fixture records its page locator, and a fixture with no locator fails the gate                                                                                                                                         |
 | VAL-GATE-SYNC-01     | Lucas, J.M. and Saccucci, M.S. (1990), "Exponentially Weighted Moving Average Control Schemes: Properties and Enhancements", Technometrics 32(1), 1-12, DOI 10.1080/00401706.1990.10484583                                                                                                                                                                                                                                                                                | With `ewma_lambda` and the control limit set to a row of the paper's published average run length tables, the measured average run length to detection for that row's shift size matches the published value to the precision the table prints, over 1,000 seeded series                                                                                     | The standard error of the run-length mean over 1,000 series is measured and reported; the tolerance is the larger of the table's precision and three standard errors. Falsified when the measured average run length falls outside for any tabulated row                                                         |
-| VAL-GATE-SYNC-02     | The sampling distribution of the maximum likelihood estimator for the lognormal location parameter, whose variance is `sigma^2 / n`, as given in Johnson, N.L., Kotz, S., and Balakrishnan, N., Continuous Univariate Distributions, volume 1, 2nd edition, Wiley 1994, ISBN 978-0-471-58495-7, lognormal chapter                                                                                                                                                         | Inject a known multiplicative offset in {0.85, 0.9, 1.1, 1.25} into a reality-side service-time parameter. Over 400 seeded repetitions at `min_observations`, the standardised recovery error has mean 0 and variance 1 within the chi-square interval for 399 degrees of freedom                                                                            | The estimator's own standard error is the noise floor and is computed rather than assumed. Falsified when the standardised error's variance falls outside the chi-square interval, or when its mean differs from 0 by more than three standard errors                                                            |
+| VAL-GATE-SYNC-02     | The sampling distribution of the maximum likelihood estimator for the lognormal location parameter, whose variance is `sigma^2 / n`, as given in Johnson, N.L., Kotz, S., and Balakrishnan, N., Continuous Univariate Distributions, volume 1, 2nd edition, Wiley 1994, ISBN 978-0-471-58495-7, lognormal chapter                                                                                                                                                         | Inject a known multiplicative offset in {0.85, 0.9, 1.1, 1.25} into a reality-side service-time parameter. Over 400 seeded repetitions at `min_observations`, the standardized recovery error has mean 0 and variance 1 within the chi-square interval for 399 degrees of freedom                                                                            | The estimator's own standard error is the noise floor and is computed rather than assumed. Falsified when the standardized error's variance falls outside the chi-square interval, or when its mean differs from 0 by more than three standard errors                                                            |
 | VAL-GATE-SURR-01     | Papadopoulos, H., Proedrou, K., Vovk, V., and Gammerman, A. (2002), "Inductive Confidence Machines for Regression", Machine Learning: ECML 2002, 345-356, DOI 10.1007/3-540-36755-1_29, with the finite-sample statement in Lei, J., G'Sell, M., Rinaldo, A., Tibshirani, R.J., and Wasserman, L. (2018), "Distribution-Free Predictive Inference for Regression", Journal of the American Statistical Association 113(523), 1094-1111, DOI 10.1080/01621459.2017.1307116 | On a held-out batch of `benchmark.surrogate_holdout_n` configurations, the empirical coverage of the 95 percent split-conformal interval lies inside the exact binomial acceptance region for the published bound, which is at least 0.95 and at most 0.95 + 1/(n_calib + 1)                                                                                 | The region is derived from the binomial at 0.001 per tail and the fixture prints it. Falsified when coverage lands outside, which means either the calibration split leaks or the interval construction is wrong                                                                                                 |
 | VAL-GATE-SURR-02     | The committed baseline model, compared by the paired test of the LSS engine                                                                                                                                                                                                                                                                                                                                                                                               | Mean absolute error, mean absolute percentage error, and the 50th, 90th, and 99th absolute-error percentiles per target are published, and CI fails when any target regresses against the committed baseline under a paired test at alpha 0.05                                                                                                               | The paired test's own power is reported. Falsified by a significant regression on any target. No absolute error threshold is asserted, because no external reference fixes one; see 9 Q17                                                                                                                        |
 | VAL-GATE-RL-01       | Wilcoxon, F. (1945), "Individual Comparisons by Ranking Methods", Biometrics Bulletin 1(6), 80, DOI 10.2307/3001968, and Hodges, J.L. and Lehmann, E.L. (1963), "Estimates of Location Based on Rank Tests", The Annals of Mathematical Statistics 34(2), 598-611, DOI 10.1214/aoms/1177704172                                                                                                                                                                            | The signed-rank statistic and the Hodges-Lehmann estimator computed by the LSS engine reproduce the worked examples in those two papers exactly. The benchmark then runs on `benchmark.n_seeds` held-out seeds under common random numbers, and the table is written with Holm-adjusted p-values. No assertion is made about which policy wins               | The statistics reproduction is deterministic. The benchmark half is a publication gate: falsified when the table is missing, when it is stale against the policy-weights hash or the code version, or when the seed sets intersect                                                                               |
@@ -2327,7 +2327,7 @@ invites re-rolling the seed set, which is p-hacking with extra steps. The region
 repetitions is derived from the exact binomial at 0.001 per tail, and the derivation is printed by
 the fixture so a reader can check it rather than trust it.
 
-VAL-GATE-ASRS-01 needs randomised storage, which is not the policy the slotting layer uses, so the
+VAL-GATE-ASRS-01 needs randomized storage, which is not the policy the slotting layer uses, so the
 gate runs against an ASRS configured with `storage_policy: random`. A separate test asserts that
 switching to `class_based` improves expected cycle time, which is the direction the literature
 predicts but not a closed form this section can assert a value against. Section 9 Q6 records the
@@ -2339,14 +2339,14 @@ no gate here claims that `congestion_k` or `min_speed_ratio` is right for an AMR
 Q14 records what would settle those two, and the absence of a gate for them is the honest state
 rather than an oversight.
 
-### 7.6 E9 tests, the optimisation engine
+### 7.6 E9 tests, the optimization engine
 
-| Test                                     | Asserts                                                                                                    | Fails when                                                    |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `test_study_replay_reproduces_trials`    | `run_study --replay <study_id>` re-evaluates the recorded trial sequence exactly                           | Any trial's parameters differ from the manifest               |
-| `test_parallel_study_is_marked`          | A parallel study records `execution: "parallel"` and is refused as a source for a published number         | A parallel study's result reaches a published table           |
-| `test_infeasible_trials_reach_sampler`   | A budget-violating trial is recorded with its constraint value rather than dropped                         | The trial count in the study is lower than `n_trials`         |
-| `test_pareto_front_becomes_scenario_set` | Every point on the front converts to a valid `Scenario` that passes patch validation                       | Any front point produces an invalid facility document         |
+| Test                                     | Asserts                                                                                            | Fails when                                            |
+|------------------------------------------|----------------------------------------------------------------------------------------------------|-------------------------------------------------------|
+| `test_study_replay_reproduces_trials`    | `run_study --replay <study_id>` re-evaluates the recorded trial sequence exactly                   | Any trial's parameters differ from the manifest       |
+| `test_parallel_study_is_marked`          | A parallel study records `execution: "parallel"` and is refused as a source for a published number | A parallel study's result reaches a published table   |
+| `test_infeasible_trials_reach_sampler`   | A budget-violating trial is recorded with its constraint value rather than dropped                 | The trial count in the study is lower than `n_trials` |
+| `test_pareto_front_becomes_scenario_set` | Every point on the front converts to a valid `Scenario` that passes patch validation               | Any front point produces an invalid facility document |
 
 ### 7.7 E11 tests, observation parity and the benchmark
 
@@ -2365,13 +2365,13 @@ without them it is a sentence in a README. That is why 2.1 points here.
 
 ### 7.8 E12 tests, yard and dock scheduling
 
-| Test                                        | Asserts                                                                                                      | Fails when                                                        |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
-| `test_solver_settings_are_enforced`         | A solve with `num_search_workers` other than 1, or with no deterministic budget, refuses to hand over a plan | A plan reaches the twin under non-deterministic settings          |
-| `test_same_instance_same_plan`              | One instance solved twice in two processes gives an identical `YardPlan` serialisation                       | Any field differs, including `branches_used`                      |
-| `test_wall_clock_cap_raises`                | Exceeding `yard.max_solve_wall_s` raises rather than returning an incumbent                                  | A plan is returned past the cap                                   |
-| `test_labour_provider_swap_changes_nothing` | The same profile supplied by `CalendarLabourProfile` and by a roster provider gives the same plan            | The plan differs when the values are identical                    |
-| `test_crossdock_weight_requires_links`      | A non-zero `w_missed_crossdock` with empty `crossdock_links` fails config validation                         | The load succeeds                                                 |
+| Test                                       | Asserts                                                                                                      | Fails when                                               |
+|--------------------------------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| `test_solver_settings_are_enforced`        | A solve with `num_search_workers` other than 1, or with no deterministic budget, refuses to hand over a plan | A plan reaches the twin under non-deterministic settings |
+| `test_same_instance_same_plan`             | One instance solved twice in two processes gives an identical `YardPlan` serialization                       | Any field differs, including `branches_used`             |
+| `test_wall_clock_cap_raises`               | Exceeding `yard.max_solve_wall_s` raises rather than returning an incumbent                                  | A plan is returned past the cap                          |
+| `test_labor_provider_swap_changes_nothing` | The same profile supplied by `CalendarLaborProfile` and by a roster provider gives the same plan             | The plan differs when the values are identical           |
+| `test_crossdock_weight_requires_links`     | A non-zero `w_missed_crossdock` with empty `crossdock_links` fails config validation                         | The load succeeds                                        |
 
 ### 7.9 E28 tests, the surrogate
 
@@ -2392,14 +2392,14 @@ by the configured repetition count and fails when the product exceeds the alloca
 that grows past its budget then fails as a defect with a message naming the fixture, rather than as
 a job timeout that reads as flakiness.
 
-| Tier                | Allocation | Largest single consumer                                    | How it is held inside the allocation                                                        |
-| ------------------- | ---------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| 1 and 2             | 90 s       | The property suite's generated facilities                  | Horizons are capped by the Hypothesis strategy, not only by the config validator            |
-| 3                   | 10 min     | SCN-E2E-01 across three profiles                           | 8 simulated hours per profile, and the golden diff is on metrics rather than on every event |
-| 4                   | 20 min     | VAL-GATE-QUEUE-02's 400 coverage repetitions               | Coverage runs at one offered load; point accuracy runs at three with 30 replications each   |
+| Tier    | Allocation | Largest single consumer                      | How it is held inside the allocation                                                        |
+|---------|------------|----------------------------------------------|---------------------------------------------------------------------------------------------|
+| 1 and 2 | 90 s       | The property suite's generated facilities    | Horizons are capped by the Hypothesis strategy, not only by the config validator            |
+| 3       | 10 min     | SCN-E2E-01 across three profiles             | 8 simulated hours per profile, and the golden diff is on metrics rather than on every event |
+| 4       | 20 min     | VAL-GATE-QUEUE-02's 400 coverage repetitions | Coverage runs at one offered load; point accuracy runs at three with 30 replications each   |
 
 Two rules keep the paced-clock and speed-multiplier tests inside the tier-1 allocation. Paced-clock
-behaviour is proved on a short scenario of about 60 simulated seconds rather than on a simulated
+behavior is proved on a short scenario of about 60 simulated seconds rather than on a simulated
 day, because the property under test is the ratio between sim time and wall time and a longer run
 adds nothing to it. Property tests over the speed multiplier clamp the lower bound in the Hypothesis
 strategy itself, so a generated multiplier can never produce a worst case longer than the
@@ -2415,21 +2415,21 @@ Phase names follow the source's constraints paragraph, with the agreed Phase 0 a
 pull-forwards. Nothing here is cut, marked optional, or deferred. Where an item lands later than
 another, the dependency reason is in the third column.
 
-| Phase                          | Pieces landing                                                                                                                                                                                                                                                                                                                                                                                                       | Why here                                                                                                                                                                                                                                                                              |
-| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| P0                             | The six new subject domains registered in `schemas/registry.yaml`; the `twinflow.twin.activity_*` payloads; `facility.yaml` schema v0 with the `x-calibratable` and `x-patchable` annotations; `DeterministicEnv` and the tie-break of 5.2; `EventTape` and the hashed-field allowlist; `exogenous_boundary` and the audit-chain fields as declared shapes; package skeletons for all eight bricks with CI wiring    | These are the contracts 5.2, 5.13, 5.17, and 7 depend on. Adding an envelope field, the boundary field, or the calibratable annotation later is a MAJOR bump on every subject and a rewrite of every recorded run and golden file                                                     |
-| P1                             | Walking skeleton twin: one dock door, one station, one scan point, pallet flow to putaway, tape writing, `WindowMetrics` for throughput and one utilisation figure, `StateView`                                                                                                                                                                                                                                      | The source's Phase 1 requirement, end to end before anything widens                                                                                                                                                                                                                   |
-| P2                             | Component 1 in full: the multi-station flow graph, distributions, failures, buffers and blocking, takt, both cycle-time definitions, the WIP integral, utilisation, both OEE conventions, six big losses, all three bottleneck detectors, `ValueStreamSummary`, warm-up and batch means. VAL-GATE-QUEUE-01 to 05, VAL-GATE-OEE-01, VAL-GATE-VSM-01, VAL-GATE-WARMUP-01, VAL-GATE-DET-01 and 02                       | Component 1 in full, and the LSS engine, also at P2, needs real metric streams to judge. The queueing gates land here because they validate the simulation core everything else stands on                                                                                             |
-| P2b, immediately after P2      | E4 replay and the counterfactual engine; the minimal what-if engine of `run` and `compare` without the LSS verdict; `ExogenousTrace` and `ExogenousBoundary`; the ranking buckets of 5.12; VAL-GATE-CRN-01                                                                                                                                                                                                           | Pulled forward from P6 because E1's hosted replay demo is pulled to just after P2 and needs the replay path, and because `compare_scenarios` is the agent's headline demo. The LSS verdict is wired in as soon as P2's engine exists, completing `RankedOption`                       |
-| P3                             | Component 6 calibration and the divergence monitor, with VAL-GATE-SYNC-01 and 02                                                                                                                                                                                                                                                                                                                                     | Needs telemetry breadth from P3's sensor catalog and the findings stream from P2. The digital-twin claim in the README depends on this landing before the repository is presented as a twin. The known false positive of 5.15 is stated from the day this ships, not discovered at P4 |
-| P3b                            | Component 1b in full: the AMR fleet with dispatch, traffic, deadlock, battery and charging; the palletiser cell with jams; the ASRS with crane scheduling; conveyor and sortation with divert logic; slotting; the three named automation what-ifs. VAL-GATE-ASRS-01, VAL-GATE-SLOT-01, 01b, 02 and 03, VAL-GATE-DEADLOCK-01, VAL-GATE-CONG-01                                                                       | The source's stated Phase 3b. Three consequences for other sections are in the list below                                                                                                                                                                                             |
-| P3b+                           | The slotting affinity term, fed by the synthetic order-line generator of 9 Q4 when that resolution is taken; otherwise the affinity weight stays zero until P3e and the config validator holds it there                                                                                                                                                                                                              | Affinity needs order lines, which arrive with outbound at P3e. Sequencing rather than cutting: the term exists from P3b and turns on when its data source exists                                                                                                                      |
-| Before P3g                     | E12 base model: the interval, no-overlap, cumulative-labour, and door-capability constraints, the deterministic solver settings of 5.20, `plan_realisability`, and VAL-GATE-SCHED-01                                                                                                                                                                                                                                 | Moved ahead of its stated P6 position because the source says cross-docking at Phase 3g makes E12's yard optimisation load-bearing. A dependency of later work moves ahead of its dependent                                                                                           |
-| P3g                            | E12 cross-dock extension: `crossdock_links`, the precedence and staging-dwell constraints, and the missed-connection objective term. SCN-E2E-16                                                                                                                                                                                                                                                                      | The extension models a flow that does not exist until 6a5 lands at P3g, so it cannot precede it. Splitting E12 in two is what removes the mutual dependency the single-piece placement created                                                                                        |
-| P3c to P3i                     | No new pieces owned here, but three consumers appear: the VSM renderer consumes `ValueStreamSummary` at P3c, the forecast drives arrivals when `arrivals.mode: forecast_driven` at P3d, and the upstream factory at P3i instantiates a second `TwinModel` from the same package                                                                                                                                      | The twin core must be stable before these consume it, which it is from P2                                                                                                                                                                                                             |
-| P4                             | Sortation identity resolution cross-checked against the CV throughput counter; the real late-arrival window on the divergence monitor, keyed on the store-and-forward replay marker, replacing the interim `sync.suppress_after_gap_s`. SCN-E2E-17's second direction                                                                                                                                                | Both need component 4 and 6c to exist                                                                                                                                                                                                                                                 |
-| P5                             | Golden-file coverage across all three A2 profiles; the demo scenario `second_portal_dock3`; the investment-roadmap table rendering                                                                                                                                                                                                                                                                                   | The source's polish phase                                                                                                                                                                                                                                                             |
-| P6, in the order below         | E5 autonomy tiers, guardrails, audit chain, and rollback, whose write-path schema was frozen at P0; E9 the Optuna engine with VAL-GATE-OPT-01; E25 the scenario corpora; E11 the learned dispatcher with VAL-GATE-RL-01; E28 the surrogate with VAL-GATE-SURR-01 and 02                                                                                                                                              | E5 needs the mature agent and the sync write path. E9 needs the what-if engine and a stable KPI vector. E11 needs E9's benchmark plumbing, the automation layer, and E25's corpora for its curriculum, so E25 comes before it. E28 needs E9's trials plus E25 as its training corpus  |
+| Phase                     | Pieces landing                                                                                                                                                                                                                                                                                                                                                                                                    | Why here                                                                                                                                                                                                                                                                              |
+|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| P0                        | The six new subject domains registered in `schemas/registry.yaml`; the `twinflow.twin.activity_*` payloads; `facility.yaml` schema v0 with the `x-calibratable` and `x-patchable` annotations; `DeterministicEnv` and the tie-break of 5.2; `EventTape` and the hashed-field allowlist; `exogenous_boundary` and the audit-chain fields as declared shapes; package skeletons for all eight bricks with CI wiring | These are the contracts 5.2, 5.13, 5.17, and 7 depend on. Adding an envelope field, the boundary field, or the calibratable annotation later is a MAJOR bump on every subject and a rewrite of every recorded run and golden file                                                     |
+| P1                        | Walking skeleton twin: one dock door, one station, one scan point, pallet flow to putaway, tape writing, `WindowMetrics` for throughput and one utilization figure, `StateView`                                                                                                                                                                                                                                   | The source's Phase 1 requirement, end to end before anything widens                                                                                                                                                                                                                   |
+| P2                        | Component 1 in full: the multi-station flow graph, distributions, failures, buffers and blocking, takt, both cycle-time definitions, the WIP integral, utilization, both OEE conventions, six big losses, all three bottleneck detectors, `ValueStreamSummary`, warm-up and batch means. VAL-GATE-QUEUE-01 to 05, VAL-GATE-OEE-01, VAL-GATE-VSM-01, VAL-GATE-WARMUP-01, VAL-GATE-DET-01 and 02                    | Component 1 in full, and the LSS engine, also at P2, needs real metric streams to judge. The queueing gates land here because they validate the simulation core everything else stands on                                                                                             |
+| P2b, immediately after P2 | E4 replay and the counterfactual engine; the minimal what-if engine of `run` and `compare` without the LSS verdict; `ExogenousTrace` and `ExogenousBoundary`; the ranking buckets of 5.12; VAL-GATE-CRN-01                                                                                                                                                                                                        | Pulled forward from P6 because E1's hosted replay demo is pulled to just after P2 and needs the replay path, and because `compare_scenarios` is the agent's headline demo. The LSS verdict is wired in as soon as P2's engine exists, completing `RankedOption`                       |
+| P3                        | Component 6 calibration and the divergence monitor, with VAL-GATE-SYNC-01 and 02                                                                                                                                                                                                                                                                                                                                  | Needs telemetry breadth from P3's sensor catalog and the findings stream from P2. The digital-twin claim in the README depends on this landing before the repository is presented as a twin. The known false positive of 5.15 is stated from the day this ships, not discovered at P4 |
+| P3b                       | Component 1b in full: the AMR fleet with dispatch, traffic, deadlock, battery and charging; the palletiser cell with jams; the ASRS with crane scheduling; conveyor and sortation with divert logic; slotting; the three named automation what-ifs. VAL-GATE-ASRS-01, VAL-GATE-SLOT-01, 01b, 02 and 03, VAL-GATE-DEADLOCK-01, VAL-GATE-CONG-01                                                                    | The source's stated Phase 3b. Three consequences for other sections are in the list below                                                                                                                                                                                             |
+| P3b+                      | The slotting affinity term, fed by the synthetic order-line generator of 9 Q4 when that resolution is taken; otherwise the affinity weight stays zero until P3e and the config validator holds it there                                                                                                                                                                                                           | Affinity needs order lines, which arrive with outbound at P3e. Sequencing rather than cutting: the term exists from P3b and turns on when its data source exists                                                                                                                      |
+| Before P3g                | E12 base model: the interval, no-overlap, cumulative-labor, and door-capability constraints, the deterministic solver settings of 5.20, `plan_realisability`, and VAL-GATE-SCHED-01                                                                                                                                                                                                                               | Moved ahead of its stated P6 position because the source says cross-docking at Phase 3g makes E12's yard optimization load-bearing. A dependency of later work moves ahead of its dependent                                                                                           |
+| P3g                       | E12 cross-dock extension: `crossdock_links`, the precedence and staging-dwell constraints, and the missed-connection objective term. SCN-E2E-16                                                                                                                                                                                                                                                                   | The extension models a flow that does not exist until 6a5 lands at P3g, so it cannot precede it. Splitting E12 in two is what removes the mutual dependency the single-piece placement created                                                                                        |
+| P3c to P3i                | No new pieces owned here, but three consumers appear: the VSM renderer consumes `ValueStreamSummary` at P3c, the forecast drives arrivals when `arrivals.mode: forecast_driven` at P3d, and the upstream factory at P3i instantiates a second `TwinModel` from the same package                                                                                                                                   | The twin core must be stable before these consume it, which it is from P2                                                                                                                                                                                                             |
+| P4                        | Sortation identity resolution cross-checked against the CV throughput counter; the real late-arrival window on the divergence monitor, keyed on the store-and-forward replay marker, replacing the interim `sync.suppress_after_gap_s`. SCN-E2E-17's second direction                                                                                                                                             | Both need component 4 and 6c to exist                                                                                                                                                                                                                                                 |
+| P5                        | Golden-file coverage across all three A2 profiles; the demo scenario `second_portal_dock3`; the investment-roadmap table rendering                                                                                                                                                                                                                                                                                | The source's polish phase                                                                                                                                                                                                                                                             |
+| P6, in the order below    | E5 autonomy tiers, guardrails, audit chain, and rollback, whose write-path schema was frozen at P0; E9 the Optuna engine with VAL-GATE-OPT-01; E25 the scenario corpora; E11 the learned dispatcher with VAL-GATE-RL-01; E28 the surrogate with VAL-GATE-SURR-01 and 02                                                                                                                                           | E5 needs the mature agent and the sync write path. E9 needs the what-if engine and a stable KPI vector. E11 needs E9's benchmark plumbing, the automation layer, and E25's corpora for its curriculum, so E25 comes before it. E28 needs E9's trials plus E25 as its training corpus  |
 
 Four sequencing consequences change other sections' phases. Each is a reordering the source's own
 text implies, and none is a cut.
@@ -2447,9 +2447,9 @@ text implies, and none is a cut.
 4. E25 moves ahead of E11 within P6. The source's stated E order puts E25 after E11, and E11's
    curriculum reads E25's corpora, so the stated order cannot be built in that order.
 
-One dependency does not move a phase, because a shipped null implementation removes it. E23's labour
-roster is a P6 item and E12 needs a labour profile before P3g, so `LabourProfileProvider` ships with
-`CalendarLabourProfile` reading `calendars.yaml`. E23 later registers a provider reading
+One dependency does not move a phase, because a shipped null implementation removes it. E23's labor
+roster is a P6 item and E12 needs a labor profile before P3g, so `LaborProfileProvider` ships with
+`CalendarLaborProfile` reading `calendars.yaml`. E23 later registers a provider reading
 `twinflow.workforce.roster_published` and the solver is untouched. This is the same pattern
 `OperatorProvider` uses in 3.3, and it is the pattern to reach for before proposing a reordering.
 
@@ -2507,7 +2507,7 @@ drift event at a known sim time in the demo profile, so the replay viewer shows 
 finding appear. Decision needed on magnitude.
 
 **Q6. The ASRS storage policy conflicts between the gate and the slotting layer.** The Bozer and
-White travel-time model assumes randomised storage; the slotting layer implies dedicated or
+White travel-time model assumes randomized storage; the slotting layer implies dedicated or
 class-based storage. Proposal: run VAL-GATE-ASRS-01 against a `storage_policy: random` fixture, and
 separately assert that class-based storage improves expected cycle time relative to random, which is
 the direction the literature predicts but not a closed form this section can assert a value against.
@@ -2528,7 +2528,7 @@ a parallel study is not byte-reproducible. Proposal: record the trial-number to 
 in the study manifest, support `--replay <study_id>`, run any study behind a published number in
 sequential mode, and record the mode in `twinflow.optimize.study_completed`. Decision needed on
 whether C1's determinism claim states sequential studies only in the README, or whether a
-deterministic parallel scheme with fixed batch synchronisation becomes a committed roadmap item.
+deterministic parallel scheme with fixed batch synchronization becomes a committed roadmap item.
 
 **Q9. Does a counterfactual replay re-simulate the device fleet?** E4's counterfactual re-simulates
 the facility, but the telemetry stream comes from the device fleet, whose sensors attach to twin
@@ -2549,8 +2549,8 @@ needed on whether the roadmap milestone text is edited to match.
 
 **Q11. Where does the cost catalog live?** `costs.yaml` is proposed here because
 `compare_scenarios` needs it from Phase 2b, but the finance layer at 6a17 will own a chart of
-accounts and standard costs, and two sources of truth for a labour rate is the defect this
-repository exists to criticise. Proposal: `costs.yaml` is the single source from 2b onwards, and
+accounts and standard costs, and two sources of truth for a labor rate is the defect this
+repository exists to criticize. Proposal: `costs.yaml` is the single source from 2b onwards, and
 when 6a17 lands it reads `costs.yaml` rather than duplicating it, with the general ledger's standard
 costs derived from it. Decision needed on ownership at the point 6a17 lands.
 
@@ -2558,7 +2558,7 @@ costs derived from it. Decision needed on ownership at the point 6a17 lands.
 running configuration. In a public demo repository that is a strong claim and a possible foot-gun
 for anyone adapting the code toward a real line. Proposal: shipped profiles default to `L1_ADVISE`,
 `l3_whitelist` stays empty unless `autonomy.acknowledge_l3: true` is set, and the demo shows L3 in a
-clearly labelled sandbox scenario with a guardrail trip and a rollback, which is a better story than
+clearly labeled sandbox scenario with a guardrail trip and a rollback, which is a better story than
 L3 quietly working. Decision needed on whether the recorded shift behind E1's replay viewer includes
 an L3 episode.
 
@@ -2578,7 +2578,7 @@ search. The first is a published AGV or AMR speed-density study with stated vehi
 aisle widths, entered as a second gate configured to that study's fixture. The second is a
 hardware-in-the-loop measurement under E47 on a real vehicle in a measured aisle, which produces a
 parameter this repository can attribute to its own published method. Until one of those exists, the
-values ship labelled as judgment, exactly as section G.3 of
+values ship labeled as judgment, exactly as section G.3 of
 `docs/design/variability-and-faults.md` labels the whole catalog. Falsification of the current
 choice: a measured speed-density curve whose fitted slope differs from `congestion_k` by more than
 the measurement's own confidence interval.
@@ -2588,10 +2588,10 @@ constant-power-then-taper shape in 5.6, the value of
 `automation.amr_fleet.charging.cc_cutoff_soc`, and the taper's linearity are engineering judgment.
 INV-AMR-02 checks that the energy ledger closes, which a wrong curve satisfies perfectly, so the
 invariant is not evidence for the curve. What would settle it is a published charge-profile
-measurement for an industrial lithium-iron-phosphate pack of the modelled capacity, with the state
+measurement for an industrial lithium-iron-phosphate pack of the modeled capacity, with the state
 of charge at which constant current ends stated, entered as a gate configured to that measurement.
 Proposal until then: ship the curve, label it judgment in the config comment, and publish
-`charge_phase_split_s` on every completion event so a reader can see the modelled shape rather than
+`charge_phase_split_s` on every completion event so a reader can see the modeled shape rather than
 infer it. Decision needed on whether the repository commits to sourcing one such measurement before
 the E47 hardware milestone.
 
@@ -2599,7 +2599,7 @@ the E47 hardware milestone.
 `variability.palletiser.jam_rate_baseline` and `variability.palletiser.jam_clear` come from the
 distribution catalog and are judgment values there. Section G.3 of
 `docs/design/variability-and-faults.md` records the status for the whole catalog and lists the
-options: ship judgment values labelled as such, fit what can be fitted to public datasets and cite
+options: ship judgment values labeled as such, fit what can be fitted to public datasets and cite
 them, or carry a `source:` field per parameter taking `judgment`, `public_dataset`, or `textbook`.
 This section adds one consequence specific to it: SCN-E2E-04 asserts that the bottleneck moves off
 the palletiser when a second cell is added, and that assertion holds for any jam rate in a wide
@@ -2624,7 +2624,7 @@ worked examples. Both are valid external published references, and neither has b
 a fixture yet, so this document states the gates operationally and does not print numbers it has not
 read. The fixtures record the edition and page locator they transcribe from, and a fixture with no
 locator fails its gate rather than passing on an untraceable number. Decision needed on which
-editions the repository standardises on, since page locators differ between printings.
+editions the repository standardizes on, since page locators differ between printings.
 
 **Q19. The Rust device agent's stochastic streams and this section's boundary.** Doctrine D-06 gives
 the Rust agent an RNG contract derived from the run seed and its device id by the same

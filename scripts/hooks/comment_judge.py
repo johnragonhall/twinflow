@@ -116,7 +116,7 @@ Report a violation ONLY when you are highly confident; when unsure, stay silent.
 The single most important rule:
 
  A bullet states what the change DOES, in the present tense, as a summary of the
- behaviour that now exists. It is not a description of the past and not a
+ behavior that now exists. It is not a description of the past and not a
  narration of the edit. The reader is somebody reading `git log` a year from
  now who does not know what the code looked like before.
 

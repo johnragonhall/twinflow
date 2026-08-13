@@ -14,7 +14,7 @@ The remaining ports of foundations section 2.2 arrive with the phases that need
 them. A port with no implementation and no consumer is a name nobody tested.
 
 | Symbol                  | Kind     | What it is                                                             |
-| ----------------------- | -------- | ---------------------------------------------------------------------- |
+|-------------------------|----------|------------------------------------------------------------------------|
 | `Clock`                 | protocol | The port a component takes when it needs to know the time              |
 | `SimClock`              | class    | Integer tick time for one run, non-decreasing                          |
 | `PacedClock`            | class    | The D-02 pacer: wraps a clock and blocks so sim time tracks wall time  |
@@ -27,7 +27,7 @@ them. A port with no implementation and no consumer is a name nobody tested.
 | `duration_from_seconds` | function | Convert a written duration to exact ticks, half up away from zero      |
 | `EnvironmentRegistry`   | class    | Holds one environment driver and the sensitivity hooks declared on it  |
 | `EnvironmentDriver`     | protocol | Supplies the exogenous state for one run                               |
-| `EnvironmentState`      | class    | The exogenous state at one instant, as normalised fractions            |
+| `EnvironmentState`      | class    | The exogenous state at one instant, as normalized fractions            |
 | `NullEnvironmentDriver` | class    | The P0 driver: calm at every instant, and never random                 |
 | `CALM`                  | constant | The neutral state every caller sees when no driver is installed        |
 | `__version__`           | constant | The distribution version, read by the build so the two cannot disagree |

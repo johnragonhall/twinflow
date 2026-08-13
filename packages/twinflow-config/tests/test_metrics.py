@@ -1,6 +1,6 @@
 """The metric registry envelope (E26b), and the rules of foundations 5.15.
 
-The identifier space is a Phase 0 artefact even though the expressions that
+The identifier space is a Phase 0 artifact even though the expressions that
 compute the metrics arrive with the AI layer. These tests pin the property that
 makes the split honest: a registry of entries with a null expression loads,
 validates, and resolves a spec limit.
@@ -84,7 +84,7 @@ def test_spec_limits_resolve_against_the_registry():
 
 
 def test_spec_limits_dangling_metric_id_reports_nearest_candidate():
-    """The suggestion behaviour C5 asks for, pinned.
+    """The suggestion behavior C5 asks for, pinned.
 
     A renamed metric fails here rather than at a demo.
     """

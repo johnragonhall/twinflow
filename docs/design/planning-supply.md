@@ -29,20 +29,20 @@ This section is the implementation contract for the supply chain planning and fl
 
 Every requirement below is built here. Six of them have a part owned by another section. Each
 such part is named in 1.2 with the interface across the seam: 6a2's recall drill (6a11), 6a5's
-dock schedule optimiser (E12), 6a6's AMR fleet (1b), E13's broker and bridge (the IoT and UNS
-section), E15's alarm rationalisation (`twinflow-lss`), and E16's finite-capacity scheduler
+dock schedule optimizer (E12), 6a6's AMR fleet (1b), E13's broker and bridge (the IoT and UNS
+section), E15's alarm rationalization (`twinflow-lss`), and E16's finite-capacity scheduler
 (6a9). No requirement is listed here when part of it has no owner anywhere.
 
 | Req | Title                                                                                                                                                                                                                                                                    | Where covered here                                               |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| 6a  | Planning layer: demand forecasting with honest backtests, forecast bias on a control chart, inventory optimisation, safety stock and reorder points from twin-measured lead times, ABC/XYZ segmentation, forecast propagating into truck scheduling and floor congestion | 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 5.1, 5.2, 5.3, 5.19, 7.3, 7.4, 7.5 |
+|-----|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| 6a  | Planning layer: demand forecasting with honest backtests, forecast bias on a control chart, inventory optimization, safety stock and reorder points from twin-measured lead times, ABC/XYZ segmentation, forecast propagating into truck scheduling and floor congestion | 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 5.1, 5.2, 5.3, 5.19, 7.3, 7.4, 7.5 |
 | 6a2 | Supplier network: reliability profiles, OTIF / lead-time-variability / defect-PPM scorecards, disruption what-ifs, inbound quality events through lot genealogy, backward traceback and forward blast radius                                                             | 2.4, 3.4, 5.4, 7.3, 7.5                                          |
 | 6a3 | Outbound shipping: wave versus waveless, carrier assignment, trailer cubing, shared inbound/outbound dock contention, order cycle time and fill rate, the carrier-cutoff shift what-if                                                                                   | 2.5, 3.5, 5.5, 5.6, 5.19, 7.3, 7.5                               |
 | 6a4 | Returns and reverse logistics: reason codes, triage and disposition, reverse P&L, Pareto, restock feeding planning                                                                                                                                                       | 2.7, 3.7, 5.8, 7.3, 7.5                                          |
 | 6a5 | Cross-docking: flow-versus-store decision engine, staging dwell, dock-to-dock time, missed-connection rate                                                                                                                                                               | 2.6, 3.6, 5.7, 7.3, 7.5                                          |
-| 6a6 | E-commerce fulfilment: batch/zone/cluster each-picking, goods-to-person AMR what-if, cartonisation, parcel rate shopping, peak-day chaos, parcel-versus-pallet interference, per-channel unit economics                                                                  | 2.5, 3.5, 5.5, 5.6, 5.9, 7.3, 7.5                                |
+| 6a6 | E-commerce fulfillment: batch/zone/cluster each-picking, goods-to-person AMR what-if, cartonisation, parcel rate shopping, peak-day chaos, parcel-versus-pallet interference, per-channel unit economics                                                                 | 2.5, 3.5, 5.5, 5.6, 5.9, 7.3, 7.5                                |
 | 6a7 | Transportation network: TL/LTL/parcel mode selection, transit distributions with disruptions, carrier contracts and a moving spot market, load consolidation, freight spend analytics                                                                                    | 2.8, 3.8, 5.10, 7.3, 7.5                                         |
-| 6a8 | Multi-echelon inventory optimisation: base-stock per echelon, guaranteed-service-time frontier validated against the twin, budget-constrained placement, explicit risk pooling, disruption propagation across echelons                                                   | 2.3, 3.3, 5.3, 5.13, 5.19, 7.3, 7.5                              |
+| 6a8 | Multi-echelon inventory optimization: base-stock per echelon, guaranteed-service-time frontier validated against the twin, budget-constrained placement, explicit risk pooling, disruption propagation across echelons                                                   | 2.3, 3.3, 5.3, 5.13, 5.19, 7.3, 7.5                              |
 | E13 | Multi-site scale-out with broker-to-broker UNS bridging and federated learning                                                                                                                                                                                           | 2.11, 3.11, 5.14, 7.3, 7.5                                       |
 | E15 | S&OE weekly execution tick with exception queues and bounded corrective actions measured against the untouched plan                                                                                                                                                      | 2.10, 3.10, 5.12, 7.3, 7.5                                       |
 | E16 | ATP/CTP order promising and promise reliability                                                                                                                                                                                                                          | 2.9, 3.9, 5.11, 7.3, 7.5                                         |
@@ -56,19 +56,19 @@ section), E15's alarm rationalisation (`twinflow-lss`), and E16's finite-capacit
 
 This section publishes to or consumes from the following, and names the exact interface in each case. It does not build them.
 
-- Component 5 (LSS engine): every control chart, Pareto, capability index, and hypothesis test in this section is a call into `twinflow-lss`. This section owns the data and its declared statistical type; the engine owns chart selection and rule evaluation. The engine also owns alarm rationalisation, which the S&OE exception queue calls in 5.12 step 4. Section 8.4 states what the queue does at P3e when that call is not yet available.
-- Component 1 / 1b (twin, automation, AMR fleet, slotting): docks, labour, staging positions, AMRs, and conveyors are twin resources, held as SimPy resources inside the twin package. This section requests them and never owns them. `DockBroker` (3.5, 5.5) is a policy layer above the twin's door resources, not a second owner of those doors.
-- Component 2 / 2b (sensor catalog): three behaviours here read sensor streams the catalog owns. Cargo shock, tilt, and temperature sensors on transport legs raise the `DAMAGED_IN_TRANSIT` reason-code uplift (3.7, 5.8). Ambient temperature, humidity, and dew-point sensors derive their readings from the weather state (5.16). Dock door sensors report door occupancy, and disagreement between that stream and `dock.allocation.v1` is an audit finding (4.5).
+- Component 5 (LSS engine): every control chart, Pareto, capability index, and hypothesis test in this section is a call into `twinflow-lss`. This section owns the data and its declared statistical type; the engine owns chart selection and rule evaluation. The engine also owns alarm rationalization, which the S&OE exception queue calls in 5.12 step 4. Section 8.4 states what the queue does at P3e when that call is not yet available.
+- Component 1 / 1b (twin, automation, AMR fleet, slotting): docks, labor, staging positions, AMRs, and conveyors are twin resources, held as SimPy resources inside the twin package. This section requests them and never owns them. `DockBroker` (3.5, 5.5) is a policy layer above the twin's door resources, not a second owner of those doors.
+- Component 2 / 2b (sensor catalog): three behaviors here read sensor streams the catalog owns. Cargo shock, tilt, and temperature sensors on transport legs raise the `DAMAGED_IN_TRANSIT` reason-code uplift (3.7, 5.8). Ambient temperature, humidity, and dew-point sensors derive their readings from the weather state (5.16). Dock door sensors report door occupancy, and disagreement between that stream and `dock.allocation.v1` is an audit finding (4.5).
 - Component 6b (ERP stub, CMMS): the ERP stub is the publisher of record for `order.created.v1` and `supplier.po.issued.v1` in production mode, re-publishing what the packages here compute. See open question 9.1.
 - Component 6a9 (upstream production): supplies the finite-capacity scheduler behind CTP. Interface `CapacityPromiseProvider`.
 - Component 6a11 (QMS and compliance): runs the mock recall drill on the forward blast-radius query this section defines in 5.4 and asserts in INV-GEN-2. This section owns the query, its result type, and its correctness gate; 6a11 owns the drill, the quarantine workflow, and the recall-readiness report.
 - Component 6a12 (order management), 6a13 (procurement), 6a16 (S&OP), 6a17 (finance): consume this section's events. Order lifecycle, PO approval workflow, S&OP consensus, and the GL live there.
 - Component 7 and E26 (the agent and the accuracy stack): the agent is the reader of every what-if answer named in 6a, 6a3, 6a6, 6a8, E13, and E15. Two rules bind this section. E26(a) means the agent never computes a number in tokens, so every KPI named below is emitted as a field on an event the agent can query, never left as something a reader derives. E26(b) means the governed semantic metrics layer holds the single definition of `fill_rate`, `otif`, `days_of_supply`, and `landed_cost`. This section emits the numerator and the denominator of each on the events in section 4, references those definitions, and does not publish a second one. Open question 9.14 records the part of that split that is still unsettled.
-- E9 (Optuna optimisation engine), E28 (surrogate), E30 (causal), E31 (forecast foundation models), E43 (MLOps): register into this section's arenas and search loops through named protocols.
-- E12 (yard and dock scheduling optimisation): cross-dock and inbound scheduling call `DockScheduleProvider`. A deterministic baseline provider ships here at P3d; E12 replaces it. See open question 9.4.
+- E9 (Optuna optimization engine), E28 (surrogate), E30 (causal), E31 (forecast foundation models), E43 (MLOps): register into this section's arenas and search loops through named protocols.
+- E12 (yard and dock scheduling optimization): cross-dock and inbound scheduling call `DockScheduleProvider`. A deterministic baseline provider ships here at P3d; E12 replaces it. See open question 9.4.
 - E13 broker and bridge mechanics: the IoT and UNS section owns broker deployment, the site-to-enterprise bridge, the Sparkplug encoding, and the birth and death certificates that ride on it. This section owns the topic policy schema (`BridgeTopicPolicy`), the site registry, the cross-site KPI rollup, and the federated round protocol. The interface is the topic policy document plus `bridge.stats.period.v1`, and 5.14 states the bridging contract this section depends on.
 - E14 (tariffs), E17 (carbon), E22 (financial twin), E35 (EPCIS ledger): landed cost, carbon per leg, working capital, and custody events are computed by those layers from this section's events.
-- E23 (labour rostering): supplies the roster that replaces the shift-calendar labour plan in `PlanSnapshot.planned_labour_hours` at P6. The `labour_source` field on that snapshot records which source produced the number.
+- E23 (labor rostering): supplies the roster that replaces the shift-calendar labor plan in `PlanSnapshot.planned_labor_hours` at P6. The `labor_source` field on that snapshot records which source produced the number.
 
 ---
 
@@ -88,34 +88,34 @@ leaf schema package, and every run-time coupling travels as a schema'd event on 
 package installed alone still starts and still runs with that input absent. The CI import-graph test
 from doctrine D-09 fails on a cycle, and with the table below it has no edge to find.
 
-| Package               | Declared internal dependencies beyond the shared three | What crosses the seam                                                                                                |
-| --------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| `twinflow-demand`     | none                                                   | consumes `weather.state.v1` when weather is enabled; installs and runs standalone with the coupling disabled         |
-| `twinflow-forecast`   | none                                                   | consumes `demand.signal.published.v1`; usable on any `(unique_id, ds, y)` frame with no twinflow concepts present    |
-| `twinflow-inventory`  | none                                                   | consumes `forecast.point.v1`, `leadtime.observed.v1`, `lane.rate.quoted.v1`, `meio.network.published.v1`             |
-| `twinflow-supply`     | none                                                   | consumes `replenishment.plan.published.v1`; produces PO, ASN, receipt, and scorecard events                          |
-| `twinflow-fulfilment` | none                                                   | requests twin dock, labour, and AMR resources through `TwinResourceProtocol`; consumes `order.created.v1`            |
-| `twinflow-crossdock`  | none                                                   | door requests and wait attribution through `DockBrokerProtocol`; the concrete broker is injected, never imported     |
-| `twinflow-returns`    | none                                                   | door requests through `DockBrokerProtocol`; the `CausalUpliftRegistry` receives transport and pick uplifts as events |
-| `twinflow-transport`  | none                                                   | produces `lane.rate.quoted.v1`, `transport.leg.completed.v1`, `spot.index.v1`                                        |
-| `twinflow-promise`    | none                                                   | consumes ATP inputs as events; `CapacityPromiseProvider` is injected                                                 |
-| `twinflow-soe`        | none                                                   | consumes plan and actual events; `ActionRegistry` entries register themselves                                        |
-| `twinflow-network`    | none                                                   | echelon structure and stage cost through `MeioNetwork`; freight rates arrive as `lane.rate.quoted.v1`                |
-| `twinflow-resilience` | none                                                   | echelon structure for `EchelonPropagation`; disruption knobs are declarative config                                  |
-| `twinflow-exogenous`  | none                                                   | produces `weather.state.v1` and `weather.event.v1`                                                                   |
+| Package                | Declared internal dependencies beyond the shared three | What crosses the seam                                                                                                |
+|------------------------|--------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| `twinflow-demand`      | none                                                   | consumes `weather.state.v1` when weather is enabled; installs and runs standalone with the coupling disabled         |
+| `twinflow-forecast`    | none                                                   | consumes `demand.signal.published.v1`; usable on any `(unique_id, ds, y)` frame with no twinflow concepts present    |
+| `twinflow-inventory`   | none                                                   | consumes `forecast.point.v1`, `leadtime.observed.v1`, `lane.rate.quoted.v1`, `meio.network.published.v1`             |
+| `twinflow-supply`      | none                                                   | consumes `replenishment.plan.published.v1`; produces PO, ASN, receipt, and scorecard events                          |
+| `twinflow-fulfillment` | none                                                   | requests twin dock, labor, and AMR resources through `TwinResourceProtocol`; consumes `order.created.v1`             |
+| `twinflow-crossdock`   | none                                                   | door requests and wait attribution through `DockBrokerProtocol`; the concrete broker is injected, never imported     |
+| `twinflow-returns`     | none                                                   | door requests through `DockBrokerProtocol`; the `CausalUpliftRegistry` receives transport and pick uplifts as events |
+| `twinflow-transport`   | none                                                   | produces `lane.rate.quoted.v1`, `transport.leg.completed.v1`, `spot.index.v1`                                        |
+| `twinflow-promise`     | none                                                   | consumes ATP inputs as events; `CapacityPromiseProvider` is injected                                                 |
+| `twinflow-soe`         | none                                                   | consumes plan and actual events; `ActionRegistry` entries register themselves                                        |
+| `twinflow-network`     | none                                                   | echelon structure and stage cost through `MeioNetwork`; freight rates arrive as `lane.rate.quoted.v1`                |
+| `twinflow-resilience`  | none                                                   | echelon structure for `EchelonPropagation`; disruption knobs are declarative config                                  |
+| `twinflow-exogenous`   | none                                                   | produces `weather.state.v1` and `weather.event.v1`                                                                   |
 
 Four names would otherwise have created an import edge, and doctrine D-09 places all four in
 `twinflow-schemas` instead.
 
-| Name                   | Needed at import time by                                  | Why the leaf package owns it                                                     |
-| ---------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `MeioNetwork`          | inventory, network, resilience                            | owning it in inventory would push scipy and networkx onto the other two          |
-| `Node`                 | inventory, network, resilience                            | same edge, same two packages                                                     |
-| `DockBrokerProtocol`   | fulfilment, cross-dock, returns                           | cross-dock and returns receive a concrete broker by injection and import none    |
-| `TwinResourceProtocol` | fulfilment                                                | keeps the fulfilment package free of an import edge to the twin package          |
+| Name                   | Needed at import time by         | Why the leaf package owns it                                                  |
+|------------------------|----------------------------------|-------------------------------------------------------------------------------|
+| `MeioNetwork`          | inventory, network, resilience   | owning it in inventory would push scipy and networkx onto the other two       |
+| `Node`                 | inventory, network, resilience   | same edge, same two packages                                                  |
+| `DockBrokerProtocol`   | fulfillment, cross-dock, returns | cross-dock and returns receive a concrete broker by injection and import none |
+| `TwinResourceProtocol` | fulfillment                      | keeps the fulfillment package free of an import edge to the twin package      |
 
 Two of those names are re-exported where a reader looks for them. The inventory package re-exports
-`MeioNetwork` and `Node`, and the fulfilment package re-exports `DockBrokerProtocol`. A re-export is
+`MeioNetwork` and `Node`, and the fulfillment package re-exports `DockBrokerProtocol`. A re-export is
 not a second declaration, and the CI test from D-09 checks that each name is defined in exactly one
 package.
 
@@ -125,7 +125,7 @@ Three determinism rules bind every package here, from doctrine D-03, D-04, and D
 
 Iteration order is explicit everywhere (D-03). No field whose iteration order can reach an event
 payload, a hash, or a control decision is a Python `set`. Where set semantics are wanted, the field
-is a `frozenset` with a mandated sorted serialisation, or a tuple with a uniqueness validator. A
+is a `frozenset` with a mandated sorted serialization, or a tuple with a uniqueness validator. A
 `dict` is permitted where insertion order is the meaning, and any `dict` whose keys come from a set,
 from a config mapping, or from concurrent inserts is built by inserting its keys in sorted order.
 Lint `TWF-RNG-002` fails CI on set iteration inside these packages, and CI runs the determinism
@@ -155,21 +155,21 @@ Every byte-identical claim in this section, including INV-SOE-1, INV-WX-2, and t
 the fields listed in 7.2 rather than asserting a number chosen in advance, and names whether an
 exceedance is a wrong tolerance or a defect.
 
-| Package               | Import                | Covers                                                 | Extra third-party deps                                                        |
-| --------------------- | --------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| `twinflow-demand`     | `twinflow.demand`     | 6a demand signal, 6a3/6a6 order streams                | numpy, scipy                                                                  |
-| `twinflow-forecast`   | `twinflow.forecast`   | 6a forecasting arena                                   | statsforecast, numpy, pandas, pyarrow; scikit-learn under the `learned` extra |
-| `twinflow-inventory`  | `twinflow.inventory`  | 6a inventory optimisation, 6a8 MEIO, E41 VMI policy    | numpy, scipy, networkx                                                        |
-| `twinflow-supply`     | `twinflow.supply`     | 6a2 supplier network, E19 n-tier                       | networkx, numpy                                                               |
-| `twinflow-fulfilment` | `twinflow.fulfilment` | 6a3 outbound, 6a6 e-commerce, E41 VAS and postponement | numpy, scipy                                                                  |
-| `twinflow-crossdock`  | `twinflow.crossdock`  | 6a5                                                    | numpy                                                                         |
-| `twinflow-returns`    | `twinflow.returns`    | 6a4                                                    | numpy                                                                         |
-| `twinflow-transport`  | `twinflow.transport`  | 6a7                                                    | numpy, scipy, networkx                                                        |
-| `twinflow-promise`    | `twinflow.promise`    | E16 ATP/CTP                                            | none beyond kernel                                                            |
-| `twinflow-soe`        | `twinflow.soe`        | E15                                                    | none beyond kernel                                                            |
-| `twinflow-network`    | `twinflow.network`    | E13 site topology and rollup, E42 network design       | networkx, highspy, numpy                                                      |
-| `twinflow-resilience` | `twinflow.resilience` | E20 reverse stress testing, 6a8 disruption propagation | optuna, numpy                                                                 |
-| `twinflow-exogenous`  | `twinflow.exogenous`  | E40 weather                                            | numpy, scipy                                                                  |
+| Package                | Import                 | Covers                                                 | Extra third-party deps                                                        |
+|------------------------|------------------------|--------------------------------------------------------|-------------------------------------------------------------------------------|
+| `twinflow-demand`      | `twinflow.demand`      | 6a demand signal, 6a3/6a6 order streams                | numpy, scipy                                                                  |
+| `twinflow-forecast`    | `twinflow.forecast`    | 6a forecasting arena                                   | statsforecast, numpy, pandas, pyarrow; scikit-learn under the `learned` extra |
+| `twinflow-inventory`   | `twinflow.inventory`   | 6a inventory optimization, 6a8 MEIO, E41 VMI policy    | numpy, scipy, networkx                                                        |
+| `twinflow-supply`      | `twinflow.supply`      | 6a2 supplier network, E19 n-tier                       | networkx, numpy                                                               |
+| `twinflow-fulfillment` | `twinflow.fulfillment` | 6a3 outbound, 6a6 e-commerce, E41 VAS and postponement | numpy, scipy                                                                  |
+| `twinflow-crossdock`   | `twinflow.crossdock`   | 6a5                                                    | numpy                                                                         |
+| `twinflow-returns`     | `twinflow.returns`     | 6a4                                                    | numpy                                                                         |
+| `twinflow-transport`   | `twinflow.transport`   | 6a7                                                    | numpy, scipy, networkx                                                        |
+| `twinflow-promise`     | `twinflow.promise`     | E16 ATP/CTP                                            | none beyond kernel                                                            |
+| `twinflow-soe`         | `twinflow.soe`         | E15                                                    | none beyond kernel                                                            |
+| `twinflow-network`     | `twinflow.network`     | E13 site topology and rollup, E42 network design       | networkx, highspy, numpy                                                      |
+| `twinflow-resilience`  | `twinflow.resilience`  | E20 reverse stress testing, 6a8 disruption propagation | optuna, numpy                                                                 |
+| `twinflow-exogenous`   | `twinflow.exogenous`   | E40 weather                                            | numpy, scipy                                                                  |
 
 Heavy dependencies are optional extras (D-10). The core install of every package above is the three
 shared internal packages plus the distributions in its own row. A learned challenger needs a
@@ -187,7 +187,7 @@ evidence. This table is the evidence for the claim that the allowlist check pass
 not a summary of it.
 
 | Distribution    | Version read | Declared license                                   | Field read                                       |
-| --------------- | ------------ | -------------------------------------------------- | ------------------------------------------------ |
+|-----------------|--------------|----------------------------------------------------|--------------------------------------------------|
 | `numpy`         | 2.5.2        | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 | `license_expression`                             |
 | `scipy`         | 1.18.0       | BSD, from the OSI-approved trove classifier        | `classifiers`, `license` holds the full BSD text |
 | `pandas`        | 3.0.5        | BSD 3-Clause                                       | `license`, confirmed by the trove classifier     |
@@ -282,11 +282,11 @@ from twinflow.inventory import (
 with a public API rather than an implied step. Its three methods are the three things the rest of the
 section asks of it.
 
-| Method                                       | Input                                                                 | Output                                                         |
-| -------------------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------- |
-| `net_requirements(plan_horizon)`             | forecast points, positions, open POs, in-transit, expected restock    | `list[NetRequirement]` per `(sku, node, bucket)`               |
-| `propose_pos(net_requirements, policy_set)`  | the netting result plus the active policy per SKU-node                | `list[PoProposal]` with quantity, supplier, and requested date |
-| `propose_appointments(po_proposals)`         | PO proposals plus lane transit distributions plus the door calendar   | `list[AppointmentProposal]` with door, window, and flow type   |
+| Method                                      | Input                                                               | Output                                                         |
+|---------------------------------------------|---------------------------------------------------------------------|----------------------------------------------------------------|
+| `net_requirements(plan_horizon)`            | forecast points, positions, open POs, in-transit, expected restock  | `list[NetRequirement]` per `(sku, node, bucket)`               |
+| `propose_pos(net_requirements, policy_set)` | the netting result plus the active policy per SKU-node              | `list[PoProposal]` with quantity, supplier, and requested date |
+| `propose_appointments(po_proposals)`        | PO proposals plus lane transit distributions plus the door calendar | `list[AppointmentProposal]` with door, window, and flow type   |
 
 The planner proposes and never commits. `twinflow-supply` turns a `PoProposal` into
 `supplier.po.issued.v1`, and `DockScheduleProvider` turns an `AppointmentProposal` into a booked
@@ -317,14 +317,14 @@ from twinflow.supply import (
 )
 ```
 
-### 2.5 `twinflow-fulfilment`
+### 2.5 `twinflow-fulfillment`
 
 Purpose: outbound execution for both channels plus value-added services.
 
 Public API:
 
 ```python
-from twinflow.fulfilment import (
+from twinflow.fulfillment import (
     ReleasePolicy,        # WavePolicy | WavelessPolicy (CONWIP cap)
     PickingMode,          # DISCRETE | BATCH | ZONE | CLUSTER | GOODS_TO_PERSON
     TravelModel,          # s_shape, return, midpoint, largest_gap, optimal (Ratliff-Rosenthal)
@@ -337,9 +337,9 @@ from twinflow.fulfilment import (
     DockBrokerProtocol,   # declared in twinflow-schemas under D-09, re-exported
                           # here; cross-dock and returns type against it
     ChannelEconomics,     # per-order activity cost rollup
-    VasLine,              # kitting, labelling, bundling, light assembly
+    VasLine,              # kitting, labeling, bundling, light assembly
     PostponementPlanner,  # stock_finished vs postpone
-    FulfilmentConfig,
+    FulfillmentConfig,
 )
 ```
 
@@ -399,7 +399,7 @@ from twinflow.transport import (
 from twinflow.promise import (
     AtpEngine,           # discrete and cumulative ATP over time buckets
     CtpEngine,           # falls back to CapacityPromiseProvider
-    CapacityPromiseProvider,  # protocol implemented by 6a9 finite scheduler and DC labour
+    CapacityPromiseProvider,  # protocol implemented by 6a9 finite scheduler and DC labor
     PromiseLedger,       # quoted vs actual, promise reliability
     PromiseConfig,
 )
@@ -489,7 +489,7 @@ Three type rules apply to every entity below, so they are stated once here rathe
 is a `decimal.Decimal` quantised to `Decimal("0.01")` in the run currency, rounded with
 `ROUND_HALF_EVEN`. A monetary field is never a `float`, and a rate that multiplies a quantity is
 carried at `Decimal("0.000001")` and quantised only when it becomes a posted cost. The JSON Schema
-type for a monetary field is `string` with a decimal pattern, not `number`, so serialisation cannot
+type for a monetary field is `string` with a decimal pattern, not `number`, so serialization cannot
 introduce a binary rounding error. Allocated shares of a shared resource cost (dock occupancy,
 staging occupancy, supervision) are split by the largest-remainder rule: each activity takes the
 floor of its exact share, and the remaining cents go one each to activities ranked by descending
@@ -497,9 +497,9 @@ exact remainder, ties broken by ascending activity id. That rule is what makes I
 statement rather than an aspiration.
 
 **No field whose iteration order is observable is a `set`.** Where set semantics are wanted, the
-field is a `frozenset` and its serialisation is the sorted sequence of its members; where order is
+field is a `frozenset` and its serialization is the sorted sequence of its members; where order is
 part of the meaning, the field is a `tuple` with a uniqueness validator. Every `dict` field below is
-built by inserting its keys in ascending key order and serialises in that order, so two processes
+built by inserting its keys in ascending key order and serializes in that order, so two processes
 produce the same bytes for the same content. That covers `MeioSolution.service_times` and
 `base_stocks`, `ReversePnl.by_reason`, `NetworkDesign.assignment`, `ContractTerms.accessorials`,
 `BlastRadius.path_by_unit`, and every config-derived mapping in section 6. This is doctrine D-03
@@ -515,24 +515,24 @@ section B. No entity here declares a family, a parameter default, or an RNG stre
 
 **Region**: `region_id: str`, `lat: float`, `lon: float`, `population_weight: float`, `weather_region_id: str`.
 
-**DemandComponents**: `base: float`, `trend: float`, `seasonal_annual: float`, `dow: float`, `promo_lift: float`, `weather_mult: float`, `shock: float`. Invariant INV-DEM-1: `expected_units == base * trend * seasonal_annual * dow * promo_lift * weather_mult * shock` to within 1e-9 relative. The components are always published with the realised value so the causal chain is auditable and so E30's causal layer has the true structure to be scored against.
+**DemandComponents**: `base: float`, `trend: float`, `seasonal_annual: float`, `dow: float`, `promo_lift: float`, `weather_mult: float`, `shock: float`. Invariant INV-DEM-1: `expected_units == base * trend * seasonal_annual * dow * promo_lift * weather_mult * shock` to within 1e-9 relative. The components are always published with the realized value so the causal chain is auditable and so E30's causal layer has the true structure to be scored against.
 
 **PromoDecomposition**: per promotion, per SKU: `promo_id`, `sku_id`, `lift_integral_units: float`, `pull_forward_fraction: float`, `cannibalisation_fraction: float`, `incremental_fraction: float`, `dip_units: float`, `cannibalised_units: float`, `incremental_units: float`. The three fractions are not one parameter with two names. `pull_forward_fraction` is the share of the lift integral taken from the same SKU's post-promotion window, drawn per promotion from `variability.demand.forward_buy`. `cannibalisation_fraction` is the share taken from other SKUs in the same category over the promotion window, drawn from `variability.demand.cannibalisation`. `incremental_fraction` is the residual, `1 - pull_forward_fraction - cannibalisation_fraction`, and it is a reported output rather than a configured input. The residual can be negative when both drawn shares are large, which means the promotion destroyed more baseline demand than it created; that is a real outcome and it is reported, not clamped, so `incremental_fraction` has range `[-1, 1]` and no configured bound.
 
-Invariant INV-DEM-4 is stated over realised units, not over the fractions. The three fractions sum
+Invariant INV-DEM-4 is stated over realized units, not over the fractions. The three fractions sum
 to 1.0 by construction, because the third is defined as one minus the other two, so asserting that
 sum is a test no state of the world can fail and doctrine D-12 forbids it. What can fail is the
 reconciliation between the declared decomposition and the series the generator produced.
 INV-DEM-4 asserts three things: `incremental_units == lift_integral_units - dip_units -
 cannibalised_units` to within 1e-9 relative; `dip_units` equals the summed shortfall of the promoted
-SKU's realised expectation against its unpromoted counterfactual over the post-promotion dip window,
+SKU's realized expectation against its unpromoted counterfactual over the post-promotion dip window,
 to within 1e-9 relative; and `cannibalised_units` equals the summed shortfall of the other SKUs in
 the same category over the promotion window, on the same basis. A generator that publishes a
 decomposition it did not produce fails on the second or third clause.
 
 **DemandSignal**: `(sku_id, region_id, sim_date)` key, `expected_units: float`, `realised_units: int`, `components: DemandComponents`, `dist: Literal["poisson","negbin","zip"]`, `dispersion: float | None`.
 
-**OrderLite**: the minimal order carried between P3e and 6a12. `order_id`, `channel: Literal["wholesale","ecommerce"]`, `customer_id`, `region_id`, `created_ts`, `requested_ship_date`, `lines: list[OrderLine]`, `priority_class: Literal["contract","spot","marketplace"]`, `state: OrderLiteState`. `OrderLiteState` is `CREATED | PROMISED | ALLOCATED | RELEASED | PICKED | PACKED | STAGED | LOADED | SHIPPED | DELIVERED | CANCELLED | BACKORDERED`. 6a12 extends this enum additively (C3 additive-only within a major version) rather than replacing it. See open question 9.3.
+**OrderLite**: the minimal order carried between P3e and 6a12. `order_id`, `channel: Literal["wholesale","ecommerce"]`, `customer_id`, `region_id`, `created_ts`, `requested_ship_date`, `lines: list[OrderLine]`, `priority_class: Literal["contract","spot","marketplace"]`, `state: OrderLiteState`. `OrderLiteState` is `CREATED | PROMISED | ALLOCATED | RELEASED | PICKED | PACKED | STAGED | LOADED | SHIPPED | DELIVERED | CANCELED | BACKORDERED`. 6a12 extends this enum additively (C3 additive-only within a major version) rather than replacing it. See open question 9.3.
 
 **OrderLine**: `line_id`, `sku_id`, `qty_ordered: int`, `qty_allocated: int`, `qty_shipped: int`, `unit_price`, `promise: PromiseRef | None`.
 
@@ -542,7 +542,7 @@ Invariant INV-DEM-2: `qty_allocated <= qty_ordered` and `qty_shipped <= qty_allo
 
 **Series**: `(unique_id, ds, y)` with `unique_id = f"{sku_id}|{region_id}|{channel}"`. Granularity is daily by default, with weekly rollup as a config.
 
-**ModelSpec**: `model_id`, `family: Literal["baseline","classical","learned","foundation"]`, `factory: Callable[[], Model]`, `eligible_quadrants: frozenset[SbcQuadrant]` serialised sorted (D-03), `requires_exog: bool`, `deterministic: bool`, `thread_count: int` fixed at 1. Invariant INV-FCST-0: registration is refused unless the model accepts an explicit RNG child stream from the kernel and two fits of the same training slice under the same stream produce parameter vectors that agree to 1e-12 and forecasts that are bit-identical. Accepting a seed is not enough; the fit must reproduce, and the arena proves that at registration time rather than trusting the flag.
+**ModelSpec**: `model_id`, `family: Literal["baseline","classical","learned","foundation"]`, `factory: Callable[[], Model]`, `eligible_quadrants: frozenset[SbcQuadrant]` serialized sorted (D-03), `requires_exog: bool`, `deterministic: bool`, `thread_count: int` fixed at 1. Invariant INV-FCST-0: registration is refused unless the model accepts an explicit RNG child stream from the kernel and two fits of the same training slice under the same stream produce parameter vectors that agree to 1e-12 and forecasts that are bit-identical. Accepting a seed is not enough; the fit must reproduce, and the arena proves that at registration time rather than trusting the flag.
 
 **BacktestPlan**: `cutoffs: list[date]`, `horizon: int`, `window: Literal["expanding","sliding"]`, `sliding_len: int | None`, `step: int`, `min_train_periods: int`.
 
@@ -595,11 +595,11 @@ Invariant INV-INV-2: `safety_stock` is non-decreasing in the service target, for
 
 **MeioNetwork**: a directed graph of nodes with, per arc, a processing time and a demand-propagation rule; per node a `max_service_time` bound and a stage cost. The guaranteed-service model also carries `net_replenishment_time` and `demand_bound` per node. This type has exactly one owning package, `twinflow-inventory`, and `twinflow-network` and `twinflow-resilience` import it rather than redeclaring it (D-09).
 
-**MeioSolution**: `method: Literal["gst_dp","clark_scarf_serial","sim_search","budget_constrained"]`, `service_times: dict[node_id, int]`, `base_stocks: dict[node_id, float]`, `total_cost: Decimal`, `holding_cost: Decimal`, `holding_cost_budget: Decimal | None`, `budget_binding: bool | None`, `frontier: list[(service_target, cost)]`, `validated_against_sim: {run_id, achieved_service, ci_low, ci_high}`, `optimum_is_unique: bool`. Dict fields are built by inserting node ids in sorted order, so their iteration order is the sorted order and the serialised solution is stable across processes (D-03).
+**MeioSolution**: `method: Literal["gst_dp","clark_scarf_serial","sim_search","budget_constrained"]`, `service_times: dict[node_id, int]`, `base_stocks: dict[node_id, float]`, `total_cost: Decimal`, `holding_cost: Decimal`, `holding_cost_budget: Decimal | None`, `budget_binding: bool | None`, `frontier: list[(service_target, cost)]`, `validated_against_sim: {run_id, achieved_service, ci_low, ci_high}`, `optimum_is_unique: bool`. Dict fields are built by inserting node ids in sorted order, so their iteration order is the sorted order and the serialized solution is stable across processes (D-03).
 
 `optimum_is_unique` is set by the solver when it detects a tie in total cost between distinct service-time vectors, which happens routinely on trees with equal marginal stage costs. It is what lets VAL-GATE MEIO-1 compare against a published solution honestly: a different argmin at the same cost is a correct answer, and the gate says so.
 
-Invariant INV-MEIO-1: base-stock level at a node is non-decreasing in that node's downstream service target. Invariant INV-MEIO-2: under `service_measure = cycle_service_level` with normally distributed location demand, pooled safety stock never exceeds the sum of decentralised safety stocks for non-negatively correlated demand across locations. That is a consequence of variance addition under a common safety factor, and it is stated with its assumptions because it does not survive without them. Invariant INV-MEIO-3 covers the fill-rate case, where per-location order quantities differ and the pooling comparison does not follow from variance addition: the analytic pooled requirement and the simulated pooled requirement agree within Monte Carlo error, and the direction of the pooling benefit is reported rather than asserted.
+Invariant INV-MEIO-1: base-stock level at a node is non-decreasing in that node's downstream service target. Invariant INV-MEIO-2: under `service_measure = cycle_service_level` with normally distributed location demand, pooled safety stock never exceeds the sum of decentralized safety stocks for non-negatively correlated demand across locations. That is a consequence of variance addition under a common safety factor, and it is stated with its assumptions because it does not survive without them. Invariant INV-MEIO-3 covers the fill-rate case, where per-location order quantities differ and the pooling comparison does not follow from variance addition: the analytic pooled requirement and the simulated pooled requirement agree within Monte Carlo error, and the direction of the pooling benefit is reported rather than asserted.
 
 ### 3.4 Supply
 
@@ -616,7 +616,7 @@ right summary here and is not used: the arcsine identity relating tau to rho, Kr
 Journal of the American Statistical Association 53(284):814-861, DOI 10.1080/01621459.1958.10501481,
 holds for continuous marginals, and two Bernoulli outcomes are tied almost everywhere.
 
-**PurchaseOrder**: `po_id`, `supplier_id`, `lines`, `issued_ts`, `requested_date`, `acknowledged_date | None`, `state: ISSUED | ACKNOWLEDGED | SHIPPED | RECEIVED | CLOSED | CANCELLED`.
+**PurchaseOrder**: `po_id`, `supplier_id`, `lines`, `issued_ts`, `requested_date`, `acknowledged_date | None`, `state: ISSUED | ACKNOWLEDGED | SHIPPED | RECEIVED | CLOSED | CANCELED`.
 
 **Asn**: `asn_id`, `po_id`, `lots: list[LotRef]`, `eta`, `carrier_id`, `mode`.
 
@@ -639,7 +639,7 @@ ORACLE SUP-4; 6a11 owns the drill, the quarantine workflow, and the recall-readi
 
 **ConcentrationReport**: per node, `dependent_tier1_ids`, `dependent_tier1_share`, `hhi` over sources per component class, `revealed_fraction`.
 
-### 3.5 Fulfilment
+### 3.5 Fulfillment
 
 **Wave**: `wave_id`, `release_ts`, `cutoff_ts`, `orders: list[order_id]`, `sizing_rule`, `zone_scope`. **WavelessRelease**: `wip_cap_per_zone`, `release_priority_rule`.
 
@@ -649,7 +649,7 @@ ORACLE SUP-4; 6a11 owns the drill, the quarantine workflow, and the recall-readi
 
 **Load**: `load_id`, `trailer_type`, `stops: list[stop]`, `pallets`, `cube_util`, `weight_util`, `axle_loads`, `lifo_valid: bool`. Invariant INV-LOAD-1: `cube_util <= 1.0`, `weight_util <= 1.0`, every axle load within its configured limit, and for multi-stop loads the pallet order is LIFO-consistent with the stop order.
 
-**DockDoor**: `door_id`, `types_allowed: frozenset[Literal["inbound","outbound","returns","crossdock"]]` serialised as a sorted sequence (D-03), `current_type`, `changeover_minutes`.
+**DockDoor**: `door_id`, `types_allowed: frozenset[Literal["inbound","outbound","returns","crossdock"]]` serialized as a sorted sequence (D-03), `current_type`, `changeover_minutes`.
 
 The door itself is a twin resource. The twin package holds each door as a SimPy `Resource` and is the
 only thing that can grant it, which is why 1.2 lists docks under Component 1. `DockBroker` sits above
@@ -657,11 +657,11 @@ that resource and owns three things the twin does not: which flow types a door a
 switch costs in unavailability, and which flow to attribute each queue wait to. It requests the twin's
 door resource like any other requester and never grants one itself. Every inbound receipt, outbound
 load, returns intake, and cross-dock move arrives at the same twin resource, through one policy
-layer, which is what makes the contention real rather than modelled twice.
+layer, which is what makes the contention real rather than modeled twice.
 
 Invariant INV-DOCK-1: a door is never occupied by two flows at once, and a type switch always charges `changeover_minutes` of unavailability. Invariant INV-DOCK-2: every queue wait recorded by `DockBroker` is attributed to exactly one flow type, and the sum of attributed waits per door equals that door's total granted-request wait time in the twin's own resource log to within 1e-9 seconds. The second invariant is what proves the broker is a policy layer rather than a second scheduler: if it were granting doors on its own, the two logs would diverge.
 
-**VasJob**: `job_id`, `type: Literal["kitting","labelling","bundling","light_assembly"]`, `output_sku_id`, `components: list[(sku_id, qty)]`, `labour_minutes`, `defect_qty`. Invariant INV-VAS-1: material conservation, `sum(component qty consumed) == bom qty * output qty + scrap qty`.
+**VasJob**: `job_id`, `type: Literal["kitting","labeling","bundling","light_assembly"]`, `output_sku_id`, `components: list[(sku_id, qty)]`, `labor_minutes`, `defect_qty`. Invariant INV-VAS-1: material conservation, `sum(component qty consumed) == bom qty * output qty + scrap qty`.
 
 **OrderCostRecord**: per order, an activity list with `(activity_id, activity, resource, minutes: Decimal, rate: Decimal, cost: Decimal)` plus material lines, freight lines, and allocated shared-resource lines. Every monetary field follows the quantisation and rounding rule stated at the head of section 3. Allocated shared-resource lines carry `allocation_basis` (`dock_occupancy_seconds`, `staging_position_seconds`, or `supervision_minutes`) and `allocation_residual_cents`, the number of cents this line received from the largest-remainder split. This is the raw feed for 6a17's activity-based costing. Invariant INV-COST-1: the sum of the `cost` fields of every line equals the reported `cost_per_order` exactly, as `Decimal` equality at `Decimal("0.01")`, with no tolerance; and the sum of `allocation_residual_cents` across the orders sharing one resource pool equals the pool's unallocated remainder exactly, so no cent is created or lost by the split.
 
@@ -701,13 +701,13 @@ Causal linkage rules, which are what make the Pareto worth drawing. Each rule is
 The base reason mix comes from `variability.returns.reason_mix`; an uplift multiplies one reason's
 weight when its evidence is present, by the factor in `returns.causal_uplift`.
 
-| Reason code             | Evidence that raises it                                                                 | Evidence source layer     | Registers at |
-| ----------------------- | --------------------------------------------------------------------------------------- | ------------------------- | ------------ |
-| `WRONG_ITEM_SHIPPED`    | a `mispick` on the order's pick tasks                                                   | fulfilment                | P3f          |
-| `QUALITY_DEFECT`        | the defect fraction of the lots consumed by that order                                  | supply genealogy          | P3f          |
-| `LATE_DELIVERY_REFUSAL` | a missed promise date on the promise ledger                                             | promise                   | P3f          |
-| `DAMAGED_IN_TRANSIT`    | outbound handling exceptions and load-quality signals on the shipment                   | fulfilment                | P3f          |
-| `DAMAGED_IN_TRANSIT`    | a shock or temperature excursion on the shipment's transport legs, from cargo sensors   | transport, sensor catalog | P3h          |
+| Reason code             | Evidence that raises it                                                               | Evidence source layer     | Registers at |
+|-------------------------|---------------------------------------------------------------------------------------|---------------------------|--------------|
+| `WRONG_ITEM_SHIPPED`    | a `mispick` on the order's pick tasks                                                 | fulfillment               | P3f          |
+| `QUALITY_DEFECT`        | the defect fraction of the lots consumed by that order                                | supply genealogy          | P3f          |
+| `LATE_DELIVERY_REFUSAL` | a missed promise date on the promise ledger                                           | promise                   | P3f          |
+| `DAMAGED_IN_TRANSIT`    | outbound handling exceptions and load-quality signals on the shipment                 | fulfillment               | P3f          |
+| `DAMAGED_IN_TRANSIT`    | a shock or temperature excursion on the shipment's transport legs, from cargo sensors | transport, sensor catalog | P3h          |
 
 `DAMAGED_IN_TRANSIT` has two registered uplifts because its strongest evidence, the cargo shock and
 temperature sensors on a transport leg, does not exist until transport lands at P3h, and returns land
@@ -722,7 +722,7 @@ Invariant INV-RET-1: every `QUALITY_DEFECT` return resolves through genealogy to
 
 **TriageResult**: `rma_id`, `grade: Literal["A","B","C","SCRAP"]`, `inspect_minutes`, `inspector_id`.
 
-**Disposition**: `rma_id`, `path: RESTOCK | REFURBISH | LIQUIDATE | SCRAP`, `labour_minutes`, `material_cost`, `recovery_value`, `cycle_time_s`, `restock_lot_id | None`.
+**Disposition**: `rma_id`, `path: RESTOCK | REFURBISH | LIQUIDATE | SCRAP`, `labor_minutes`, `material_cost`, `recovery_value`, `cycle_time_s`, `restock_lot_id | None`.
 
 Invariant INV-RET-2 (returns closure): `received == restocked + refurbished + liquidated + scrapped + in_triage_wip` at every sim time.
 
@@ -738,7 +738,7 @@ Invariant INV-RET-2 (returns closure): `received == restocked + refurbished + li
 
 **RateQuote**: `lane_id`, `mode`, `carrier_id`, `service`, `rate_source: Literal["contract","spot"]`, `linehaul: Decimal`, `fuel: Decimal`, `accessorials: Decimal`, `total_cost: Decimal`, `transit_days_p50`, `transit_days_p95`. Invariant INV-TRN-4: `total_cost == linehaul + fuel + accessorials` as exact `Decimal` equality at `Decimal("0.01")`, with no tolerance.
 
-**SpotIndex**: `lane_group_id`, `sim_date`, `index_value`. Process: `d log X = theta (mu - log X) dt + sigma dW`, discretised exactly (the OU exact transition, not Euler), with `mu` shifted by weather severity and by aggregate capacity utilisation on the lane group. Invariant INV-TRN-3: with `sigma=0`, the index converges monotonically to `exp(mu)`; the estimator recovers `theta, mu, sigma` from a 10,000-step simulated path within a 95% confidence interval.
+**SpotIndex**: `lane_group_id`, `sim_date`, `index_value`. Process: `d log X = theta (mu - log X) dt + sigma dW`, discretised exactly (the OU exact transition, not Euler), with `mu` shifted by weather severity and by aggregate capacity utilization on the lane group. Invariant INV-TRN-3: with `sigma=0`, the index converges monotonically to `exp(mu)`; the estimator recovers `theta, mu, sigma` from a 10,000-step simulated path within a 95% confidence interval.
 
 **Leg**: `leg_id`, `shipment_id`, `lane_id`, `mode`, `carrier_id`, `planned_transit_s`, `actual_transit_s`, `disruption_ids`, `distance_km`, `billable_weight_kg`.
 
@@ -759,7 +759,7 @@ never shorter than the exact optimum, and the recorded gap is reported. That is 
 real failure mode, because a heuristic that beats the optimum has a bug in its distance
 accumulation.
 
-Freight class handling: LTL pricing uses a density-to-class table. Real NMFC classification data is proprietary and is not redistributed. The repo ships `catalogs/freight_classes.synthetic.yaml`, a synthetic density-to-class table with the same shape (density bands mapping to class numbers), labelled synthetic in the file header and in the README. See open question 9.5.
+Freight class handling: LTL pricing uses a density-to-class table. Real NMFC classification data is proprietary and is not redistributed. The repo ships `catalogs/freight_classes.synthetic.yaml`, a synthetic density-to-class table with the same shape (density bands mapping to class numbers), labeled synthetic in the file header and in the README. See open question 9.5.
 
 ### 3.9 Promise
 
@@ -780,7 +780,7 @@ in 7.2, so a failure names which monotonicity broke.
 
 ### 3.10 S&OE
 
-**PlanSnapshot**: `snapshot_id`, `taken_ts`, `horizon_days`, `planned_receipts`, `planned_shipments`, `planned_labour_hours`, `forecast_run_id`, `policy_set_id`, `source: Literal["replenishment_plan","sop_consensus"]`.
+**PlanSnapshot**: `snapshot_id`, `taken_ts`, `horizon_days`, `planned_receipts`, `planned_shipments`, `planned_labor_hours`, `forecast_run_id`, `policy_set_id`, `source: Literal["replenishment_plan","sop_consensus"]`.
 
 **Exception**: `exception_id`, `type`, `severity`, `revenue_at_risk`, `service_impact` (orders and lines at risk), `cost_impact`, `evidence: list[event_id]`, `node_id | lane_id | sku_id`, `detected_ts`, `state: OPEN | ACTIONED | SHELVED | CLOSED`.
 
@@ -794,7 +794,7 @@ Invariant INV-SOE-1: applying the null action produces a byte-identical event lo
 
 ### 3.11 Network
 
-**Site**: `site_id`, `facility_config_uri`, `region_id`, `roles: frozenset[Literal["dc","forward","factory","crossdock"]]` serialised as a sorted sequence (D-03), `broker_endpoint`, `uns_prefix`, `timezone`.
+**Site**: `site_id`, `facility_config_uri`, `region_id`, `roles: frozenset[Literal["dc","forward","factory","crossdock"]]` serialized as a sorted sequence (D-03), `broker_endpoint`, `uns_prefix`, `timezone`.
 
 **BridgeTopicPolicy**: `forward: list[topic_glob]`, `block: list[topic_glob]`, `qos`, `retain_policy`. The default policy forwards findings, KPI rollups, and birth/death certificates, and blocks raw high-rate telemetry. The measured effect (events per second and bytes crossing the bridge, versus raw forwarding) is the E36 edge-economics number for the multi-site case.
 
@@ -802,15 +802,15 @@ Invariant INV-SOE-1: applying the null action produces a byte-identical event lo
 
 **FederatedUpdate**: `round_id`, `site_id`, `model_id`, `model_version`, `param_count`, `param_blob_uri`, `sample_count`, `metric_before`, `metric_after`. Invariant INV-FL-1: the `fl.update.v1` schema has `additionalProperties: false` and contains no telemetry-typed field; a CI test asserts the field set is a subset of the allowlist and that the payload byte size is bounded by `param_count * bytes_per_param + header_bytes`, so raw data cannot be smuggled in a padded blob.
 
-**Candidate**: `candidate_id`, `lat`, `lon`, `fixed_cost_year`, `capacity_units_year`, `labour_rate`, `labour_availability`, `real_estate_cost_m2`, `region_id`.
+**Candidate**: `candidate_id`, `lat`, `lon`, `fixed_cost_year`, `capacity_units_year`, `labor_rate`, `labor_availability`, `real_estate_cost_m2`, `region_id`.
 
 **NetworkDesign**: `design_id`, `method: Literal["cog","milp","robust_expected","robust_minimax_regret"]`, `opened_sites: list[candidate_id]`, `assignment: dict[region_id, candidate_id]`, `predicted_cost_breakdown`, `service_coverage` (fraction of demand within N transit days), `scenario_id`.
 
-**DesignValidation**: `design_id`, `facility_config_uris`, `twin_run_id`, `simulated_cost`, `predicted_cost`, `gap_pct`, `gap_decomposition: {congestion, labour_queueing, dock_contention, other}`.
+**DesignValidation**: `design_id`, `facility_config_uris`, `twin_run_id`, `simulated_cost`, `predicted_cost`, `gap_pct`, `gap_decomposition: {congestion, labor_queueing, dock_contention, other}`.
 
 ### 3.12 Resilience
 
-**DisruptionKnob**: `knob_id`, `target: Literal["supplier","lane","site","labour","demand"]`, `target_id`, `kind`, `domain: {min, max}` for continuous or `{False, True}` for binary, `magnitude_cost` (a scalar making disruptions comparable so "minimal" is well defined).
+**DisruptionKnob**: `knob_id`, `target: Literal["supplier","lane","site","labor","demand"]`, `target_id`, `kind`, `domain: {min, max}` for continuous or `{False, True}` for binary, `magnitude_cost` (a scalar making disruptions comparable so "minimal" is well defined).
 
 **BreakingSet**: `set_id`, `disruptions: list[(knob_id, magnitude)]`, `cardinality`, `total_magnitude`, `threshold_breached: Literal["service","cash","both"]`, `tts_days`, `ttr_days`, `search_method`, `trials`, `seed`.
 
@@ -860,17 +860,17 @@ on `Network`, where retain, quality of service, and last will apply. The set is 
 
 ### 4.1 Demand
 
-| Event                     | Version | Key fields                                                                                                | Producer                                  | Consumers                                 |
-| ------------------------- | ------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------- |
-| `demand.signal.published` | v1      | sku_id, region_id, sim_date, expected_units, realised_units, components{}, dist, seed_stream              | `twinflow-demand`                         | forecast, inventory, soe, causal (E30)    |
-| `order.created`           | v1      | order_id, channel, customer_id, region_id, requested_ship_date, lines[], priority_class, source_signal_id | `twinflow-demand` (P3e), ERP stub (later) | promise, fulfilment, crossdock, soe, 6a12 |
-| `order.cancelled`         | v1      | order_id, reason, stage_reached, cancel_cost                                                              | fulfilment                                | finance, soe                              |
-| `channel.mix.changed`     | v1      | period, wholesale_share, ecommerce_share, source                                                          | demand                                    | fulfilment, network                       |
+| Event                     | Version | Key fields                                                                                                | Producer                                  | Consumers                                  |
+|---------------------------|---------|-----------------------------------------------------------------------------------------------------------|-------------------------------------------|--------------------------------------------|
+| `demand.signal.published` | v1      | sku_id, region_id, sim_date, expected_units, realised_units, components{}, dist, seed_stream              | `twinflow-demand`                         | forecast, inventory, soe, causal (E30)     |
+| `order.created`           | v1      | order_id, channel, customer_id, region_id, requested_ship_date, lines[], priority_class, source_signal_id | `twinflow-demand` (P3e), ERP stub (later) | promise, fulfillment, crossdock, soe, 6a12 |
+| `order.canceled`          | v1      | order_id, reason, stage_reached, cancel_cost                                                              | fulfillment                               | finance, soe                               |
+| `channel.mix.changed`     | v1      | period, wholesale_share, ecommerce_share, source                                                          | demand                                    | fulfillment, network                       |
 
 ### 4.2 Forecast
 
 | Event                         | Version | Key fields                                                                                                                    |
-| ----------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------- |
+|-------------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------|
 | `forecast.run.completed`      | v1      | run_id, model_id, model_version, cutoff, horizon_days, granularity, series_count, metrics{}, seed, deterministic              |
 | `forecast.point`              | v1      | run_id, unique_id, cutoff, target_date, h, yhat, lo, hi, interval_method, nominal_coverage                                    |
 | `forecast.error.observed`     | v1      | run_id, unique_id, target_date, h, y, yhat, error, scaled_error, ape, stat_type="continuous"                                  |
@@ -882,7 +882,7 @@ on `Network`, where retain, quality of service, and last will apply. The set is 
 ### 4.3 Inventory
 
 | Event                             | Version | Key fields                                                                                                                                                                      |
-| --------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------------------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `inventory.policy.set`            | v1      | sku_id, node_id, policy_type, params{}, service_measure, target, derived_from{leadtime_fit_id, demand_fit_id, prior}                                                            |
 | `inventory.position.snapshot`     | v1      | node_id, sku_id, owner_party_id, sim_ts, on_hand, on_order, in_transit, allocated, available, ownership, demand_rate_units_per_day, demand_rate_window_days, demand_rate_source |
 | `inventory.adjustment`            | v1      | node_id, sku_id, qty_delta, reason, source_event_id, lot_id                                                                                                                     |
@@ -897,7 +897,7 @@ on `Network`, where retain, quality of service, and last will apply. The set is 
 ### 4.4 Supply
 
 | Event                         | Version | Key fields                                                                                                                                    |
-| ----------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+|-------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------|
 | `supplier.po.issued`          | v1      | po_id, supplier_id, lines[], requested_date, source: reorder_signal_id                                                                        |
 | `supplier.po.acknowledged`    | v1      | po_id, promised_date, confirmed_lines[]                                                                                                       |
 | `supplier.asn.sent`           | v1      | asn_id, po_id, lots[], eta, carrier_id, mode                                                                                                  |
@@ -909,26 +909,26 @@ on `Network`, where retain, quality of service, and last will apply. The set is 
 | `ntier.edge.revealed`         | v1      | parent_id, child_id, component_class, share, visibility_before, visibility_after, mapping_cost, effort_days                                   |
 | `ntier.concentration`         | v1      | node_id, dependent_tier1_ids[], dependent_tier1_share, hhi, revealed_fraction, period                                                         |
 
-### 4.5 Fulfilment
+### 4.5 Fulfillment
 
-| Event                                       | Version | Key fields                                                                                                           |
-| ------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
-| `wave.released`                             | v1      | wave_id, orders[], sizing_rule, zone_scope, cutoff_ts                                                                |
-| `pick.task.created` / `pick.task.completed` | v1      | task_id, order_id/batch_id, sku_id, qty, zone_id, mode, travel_distance_m, duration_s, mispick                       |
-| `carton.packed`                             | v1      | carton_id, order_id, box_id, items[], cube_fill, actual_weight_kg, dim_weight_kg, billable_weight_kg                 |
-| `load.built`                                | v1      | load_id, trailer_type, stops[], pallets[], cube_util, weight_util, axle_loads[], lifo_valid                          |
-| `shipment.tendered`                         | v1      | shipment_id, load_id, carrier_id, mode, service, rate_quote_id                                                       |
-| `shipment.shipped`                          | v1      | shipment_id, ship_ts, door_id, on_time_ship                                                                          |
-| `order.fulfilment.completed`                | v1      | order_id, cycle_time_s, line_fill, unit_fill, order_fill, on_time_ship, cost_breakdown{labour, carton, freight, vas} |
-| `vas.job.completed`                         | v1      | job_id, type, output_sku_id, components[], labour_minutes, defect_qty                                                |
-| `dock.allocation`                           | v1      | door_id, flow_type, from_ts, to_ts, changeover_charged_minutes, queue_wait_s                                         |
+| Event                                       | Version | Key fields                                                                                                          |
+|---------------------------------------------|---------|---------------------------------------------------------------------------------------------------------------------|
+| `wave.released`                             | v1      | wave_id, orders[], sizing_rule, zone_scope, cutoff_ts                                                               |
+| `pick.task.created` / `pick.task.completed` | v1      | task_id, order_id/batch_id, sku_id, qty, zone_id, mode, travel_distance_m, duration_s, mispick                      |
+| `carton.packed`                             | v1      | carton_id, order_id, box_id, items[], cube_fill, actual_weight_kg, dim_weight_kg, billable_weight_kg                |
+| `load.built`                                | v1      | load_id, trailer_type, stops[], pallets[], cube_util, weight_util, axle_loads[], lifo_valid                         |
+| `shipment.tendered`                         | v1      | shipment_id, load_id, carrier_id, mode, service, rate_quote_id                                                      |
+| `shipment.shipped`                          | v1      | shipment_id, ship_ts, door_id, on_time_ship                                                                         |
+| `order.fulfillment.completed`               | v1      | order_id, cycle_time_s, line_fill, unit_fill, order_fill, on_time_ship, cost_breakdown{labor, carton, freight, vas} |
+| `vas.job.completed`                         | v1      | job_id, type, output_sku_id, components[], labor_minutes, defect_qty                                                |
+| `dock.allocation`                           | v1      | door_id, flow_type, from_ts, to_ts, changeover_charged_minutes, queue_wait_s                                        |
 
 `dock.allocation.v1` is UNS-published, because dock door state is an OT-visible signal that the dock door sensors also report, and the disagreement between the two is itself an audit finding. The republication path is the bridge described at the head of section 4, not a `Network` handle held here (D-08).
 
 ### 4.6 Cross-dock
 
 | Event                      | Version | Key fields                                                                                                   |
-| -------------------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+|----------------------------|---------|--------------------------------------------------------------------------------------------------------------|
 | `crossdock.decision`       | v1      | pallet_id, decision, policy, score_flow, score_store, reason_codes[], connection_deadline_ts, target_load_id |
 | `crossdock.staged`         | v1      | pallet_id, lane_id, staged_ts                                                                                |
 | `crossdock.forced_putaway` | v1      | pallet_id, lane_id, dwell_s, dwell_limit_s                                                                   |
@@ -937,17 +937,17 @@ on `Network`, where retain, quality of service, and last will apply. The set is 
 ### 4.7 Returns
 
 | Event                          | Version | Key fields                                                                                                              |
-| ------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------- |
+|--------------------------------|---------|-------------------------------------------------------------------------------------------------------------------------|
 | `return.created`               | v1      | rma_id, order_id, sku_id, qty, reason_code, causal_link{source_event_id, kind}, causal_sources_active[]                 |
 | `return.received`              | v1      | rma_id, received_ts, door_id, queue_wait_s                                                                              |
 | `return.triaged`               | v1      | rma_id, grade, inspect_minutes, inspector_id                                                                            |
-| `return.disposition.completed` | v1      | rma_id, path, labour_minutes, material_cost, recovery_value, cycle_time_s, restock_lot_id                               |
+| `return.disposition.completed` | v1      | rma_id, path, labor_minutes, material_cost, recovery_value, cycle_time_s, restock_lot_id                                |
 | `returns.pnl.period`           | v1      | period, returns_units, recovery_rate, cost_per_return, mean_time_to_disposition_s, by_reason{}, causal_sources_active[] |
 
 ### 4.8 Transport
 
 | Event                     | Version | Key fields                                                                                                                              |
-| ------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+|---------------------------|---------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | `lane.rate.quoted`        | v1      | quote_id, lane_id, mode, carrier_id, service, rate_source, linehaul, fuel, accessorials, total_cost, transit_days_p50, transit_days_p95 |
 | `transport.leg.started`   | v1      | leg_id, shipment_id, lane_id, mode, carrier_id, planned_transit_s, depart_ts                                                            |
 | `transport.leg.completed` | v1      | leg_id, actual_transit_s, arrive_ts, disruption_ids[], on_time                                                                          |
@@ -958,7 +958,7 @@ on `Network`, where retain, quality of service, and last will apply. The set is 
 ### 4.9 Promise
 
 | Event                 | Version | Key fields                                                                                                        |
-| --------------------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
+|-----------------------|---------|-------------------------------------------------------------------------------------------------------------------|
 | `promise.quoted`      | v1      | promise_id, order_id, line_id, method, quoted_date, supply_refs[], confidence, is_repromise                       |
 | `promise.outcome`     | v1      | promise_id, quoted_date, actual_ship_date, actual_delivery_date, met, days_late, stat_type="proportion_defective" |
 | `atp.bucket.snapshot` | v1      | node_id, sku_id, bucket_date, on_hand, scheduled_receipts, in_transit, committed, atp, cumulative_atp             |
@@ -966,7 +966,7 @@ on `Network`, where retain, quality of service, and last will apply. The set is 
 ### 4.10 S&OE
 
 | Event                 | Version | Key fields                                                                                      |
-| --------------------- | ------- | ----------------------------------------------------------------------------------------------- |
+|-----------------------|---------|-------------------------------------------------------------------------------------------------|
 | `soe.tick`            | v1      | tick_id, period_start, period_end, plan_snapshot_id                                             |
 | `soe.exception`       | v1      | exception_id, type, severity, revenue_at_risk, service_impact{}, cost_impact, evidence[], state |
 | `soe.action.applied`  | v1      | action_id, exception_id, kind, params{}, authority_tier, cost_estimate                          |
@@ -975,9 +975,9 @@ on `Network`, where retain, quality of service, and last will apply. The set is 
 ### 4.11 Network
 
 | Event                    | Version | Key fields                                                                                                         |
-| ------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------ |
+|--------------------------|---------|--------------------------------------------------------------------------------------------------------------------|
 | `site.registered`        | v1      | site_id, region_id, roles[], uns_prefix, facility_config_uri                                                       |
-| `site.kpi.period`        | v1      | site_id, period, fill_rate, turns, throughput, labour_hours, cost_per_unit                                         |
+| `site.kpi.period`        | v1      | site_id, period, fill_rate, turns, throughput, labor_hours, cost_per_unit                                          |
 | `network.kpi.period`     | v1      | period, network_fill_rate, network_turns, intersite_transfer_units, intersite_transfer_cost, load_balance_gini     |
 | `intersite.transfer`     | v1      | transfer_id, from_site, to_site, sku_id, qty, reason, cost, lane_id                                                |
 | `bridge.stats.period`    | v1      | site_id, period, events_forwarded, events_blocked, bytes_forwarded, bytes_if_raw, reduction_pct                    |
@@ -992,7 +992,7 @@ on `Network`, where retain, quality of service, and last will apply. The set is 
 ### 4.12 Resilience
 
 | Event                   | Version | Key fields                                                                                             |
-| ----------------------- | ------- | ------------------------------------------------------------------------------------------------------ |
+|-------------------------|---------|--------------------------------------------------------------------------------------------------------|
 | `stress.search.started` | v1      | search_id, space_hash, threshold{}, method, budget_trials, seed                                        |
 | `stress.breaking_set`   | v1      | set_id, search_id, disruptions[], cardinality, total_magnitude, threshold_breached, tts_days, ttr_days |
 | `disruption.propagated` | v1      | origin_node_id, affected_node_ids[], echelon_path[], lag_days, service_delta, cash_delta               |
@@ -1000,7 +1000,7 @@ on `Network`, where retain, quality of service, and last will apply. The set is 
 ### 4.13 Exogenous
 
 | Event                      | Version | Key fields                                                                                                 |
-| -------------------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
+|----------------------------|---------|------------------------------------------------------------------------------------------------------------|
 | `weather.state`            | v1      | weather_region_id, sim_date, temp_c, temp_anomaly_c, precip_mm, snow_mm, wind_ms, severity_index, event_id |
 | `weather.event`            | v1      | event_id, kind, regions[], start_date, end_date, intensity                                                 |
 | `weather.coupling.applied` | v1      | subscriber, weather_region_id, sim_date, target, multiplier, input_state_hash                              |
@@ -1009,7 +1009,7 @@ on `Network`, where retain, quality of service, and last will apply. The set is 
 
 ---
 
-## 5. Behaviour
+## 5. Behavior
 
 ### 5.1 Demand signal generation (6a)
 
@@ -1023,16 +1023,16 @@ with:
 
 - `trend(t) = (1 + g) ** (t / 365)` where `g` is annual growth, per SKU or per category.
 - `seasonal_annual(t)` a Fourier series with `k` harmonics on a 365.25-day period, coefficients per category.
-- `dow(t)` seven multipliers per category, normalised to mean 1.0 so day-of-week never changes the annual total.
+- `dow(t)` seven multipliers per category, normalized to mean 1.0 so day-of-week never changes the annual total.
 - `promo_lift(t)` from the promo calendar: a lift multiplier during the promo window, followed by a post-promo dip window implementing forward-buy pull-forward. The pull-forward is conservative: the dip integral equals `pull_forward_fraction` of the lift integral, so the promo does not create demand it did not steal, unless `incremental_fraction > 0` says it does. Before 6a16 exists, the calendar is a local stub read from `demand.yaml`; after 6a16, it is consumed from the marketing layer's promo events.
 - `weather_mult(t)` from `twinflow-exogenous`, defaulting to 1.0 when weather is disabled.
 - `shock(t)` from a rare-event process: Poisson arrivals with a magnitude distribution, used for genuine demand shocks distinct from promotions.
 
-The realised count is drawn from Poisson, negative binomial, or zero-inflated Poisson depending on the SKU's declared `dist`. Intermittent SKUs use zero inflation with probability `p0`, which is what makes Croston-class methods necessary and what gives the SBC quadrant classifier real work.
+The realized count is drawn from Poisson, negative binomial, or zero-inflated Poisson depending on the SKU's declared `dist`. Intermittent SKUs use zero inflation with probability `p0`, which is what makes Croston-class methods necessary and what gives the SBC quadrant classifier real work.
 
-Order construction: the realised units for a `(sku, region, day)` are split into orders. Wholesale orders take large multi-unit lines with a configured lines-per-order distribution and a pallet-quantity rounding rule. E-commerce orders take a lines-per-order distribution skewed to 1 and 2 lines and a units-per-line distribution skewed to 1, which is what makes each-picking and cartonisation meaningful. The channel split comes from `ChannelMix`, which is time-varying so the wholesale-versus-e-commerce balance the building fights over changes over the run.
+Order construction: the realized units for a `(sku, region, day)` are split into orders. Wholesale orders take large multi-unit lines with a configured lines-per-order distribution and a pallet-quantity rounding rule. E-commerce orders take a lines-per-order distribution skewed to 1 and 2 lines and a units-per-line distribution skewed to 1, which is what makes each-picking and cartonisation meaningful. The channel split comes from `ChannelMix`, which is time-varying so the wholesale-versus-e-commerce balance the building fights over changes over the run.
 
-Determinism: `twinflow-demand` draws only from the kernel child stream `demand`, further split per `(sku_id, region_id)` so adding a SKU does not change any other SKU's realised series. This matters: without per-entity stream splitting, a config change in one SKU perturbs every golden file.
+Determinism: `twinflow-demand` draws only from the kernel child stream `demand`, further split per `(sku_id, region_id)` so adding a SKU does not change any other SKU's realized series. This matters: without per-entity stream splitting, a config change in one SKU perturbs every golden file.
 
 ### 5.2 Forecasting arena (6a)
 
@@ -1056,13 +1056,13 @@ Backtest: rolling-origin evaluation with configurable expanding or sliding windo
 
 Metrics: MAPE, sMAPE, WAPE, MASE, RMSSE, mean error (bias), and Brown's tracking signal. MASE is scaled by the in-sample seasonal naive mean absolute error following Hyndman and Koehler (2006). WAPE is the primary ranking metric because the demand contains zeros and MAPE is undefined on them, and the arena documents that choice inline rather than silently dropping zero rows.
 
-Ranking rule, which is the honest-evaluation requirement made executable: a challenger replaces the incumbent only if (a) it wins on WAPE at the target horizon, and (b) the Diebold-Mariano test with the Harvey-Leybourne-Newbold small-sample correction rejects equal predictive accuracy at alpha 0.05 in the challenger's favour, and (c) its absolute bias is not worse than the incumbent's by more than `bias_tolerance`. If any condition fails, the incumbent stays and the comparison table is published anyway. The README carries the table either way.
+Ranking rule, which is the honest-evaluation requirement made executable: a challenger replaces the incumbent only if (a) it wins on WAPE at the target horizon, and (b) the Diebold-Mariano test with the Harvey-Leybourne-Newbold small-sample correction rejects equal predictive accuracy at alpha 0.05 in the challenger's favor, and (c) its absolute bias is not worse than the incumbent's by more than `bias_tolerance`. If any condition fails, the incumbent stays and the comparison table is published anyway. The README carries the table either way.
 
-Intervals: split conformal prediction wrapped around whichever model wins, calibrated per horizon on a held-out calibration set. The inventory optimiser consumes the conformal quantiles, not a normal approximation, whenever conformal intervals are available for that series.
+Intervals: split conformal prediction wrapped around whichever model wins, calibrated per horizon on a held-out calibration set. The inventory optimizer consumes the conformal quantiles, not a normal approximation, whenever conformal intervals are available for that series.
 
-Forecast bias on a control chart: `BiasMonitor` publishes `forecast.error.observed.v1` per realised target date. The LSS engine plots scaled error on an I-MR chart per SKU class and per channel. Nelson rule 2, nine points in a row on the same side of the centre line, is the bias-drift detector, and a violation produces a finding of type `forecast_bias_drift` with the evidence window. The rule set is the one published in Nelson (1984), "The Shewhart Control Chart: Tests for Special Causes", Journal of Quality Technology 16(4):237-239, and the engine owns the rule numbering; this package only declares the statistical type of the stream. The tracking signal is a second, independent detector, with the limit read from `forecast.tracking_signal_limit`, whose default is 4. That default is a working convention rather than a value this section takes from a published table, and open question 9.17 records that. Disagreement between the two detectors is itself reported, because a bias the control chart sees and the tracking signal misses is a different situation from the reverse.
+Forecast bias on a control chart: `BiasMonitor` publishes `forecast.error.observed.v1` per realized target date. The LSS engine plots scaled error on an I-MR chart per SKU class and per channel. Nelson rule 2, nine points in a row on the same side of the center line, is the bias-drift detector, and a violation produces a finding of type `forecast_bias_drift` with the evidence window. The rule set is the one published in Nelson (1984), "The Shewhart Control Chart: Tests for Special Causes", Journal of Quality Technology 16(4):237-239, and the engine owns the rule numbering; this package only declares the statistical type of the stream. The tracking signal is a second, independent detector, with the limit read from `forecast.tracking_signal_limit`, whose default is 4. That default is a working convention rather than a value this section takes from a published table, and open question 9.17 records that. Disagreement between the two detectors is itself reported, because a bias the control chart sees and the tracking signal misses is a different situation from the reverse.
 
-### 5.3 Inventory optimisation (6a) and MEIO (6a8)
+### 5.3 Inventory optimization (6a) and MEIO (6a8)
 
 **Lead times come from the twin.** `LeadTimeEstimator` consumes `leadtime.observed.v1` records produced by supplier receipts and transport legs. It fits lognormal and gamma candidates by maximum likelihood, tests each with Anderson-Darling, and accepts the better-fitting candidate if its p-value clears `leadtime.ad_alpha`. If neither clears, it falls back to an empirical bootstrap distribution. It never falls back to a normal approximation, because lead times are positive and right-skewed and a normal fit produces negative lead times in the tail. Below `min_observations`, the config prior is used and the emitted policy is flagged `prior=True`.
 
@@ -1081,23 +1081,23 @@ must reject, and VAL-GATE LT-1 is written to catch exactly that.
 **Safety stock.** Two service measures, both implemented, one chosen by config with no default:
 
 - Cycle service level (Type 1): `SS = z_CSL * sqrt(L * sigma_D^2 + D_bar^2 * sigma_L^2)`, the standard demand-and-lead-time-variability form.
-- Fill rate (Type 2): solve for `k` such that the expected shortage per replenishment cycle equals `Q * (1 - beta)`, where for normal demand over lead time the expected shortage is `sigma_L * G(k)` and `G(k) = phi(k) - k * (1 - Phi(k))` is the standardised normal loss function. `k` is found by Brent root finding on `G`.
+- Fill rate (Type 2): solve for `k` such that the expected shortage per replenishment cycle equals `Q * (1 - beta)`, where for normal demand over lead time the expected shortage is `sigma_L * G(k)` and `G(k) = phi(k) - k * (1 - Phi(k))` is the standardized normal loss function. `k` is found by Brent root finding on `G`.
 
 The two answers differ, sometimes by a lot, and the reports always name which measure produced the number. That distinction is the first thing a competent reviewer probes.
 
-**Reorder point and policies.** `ROP = D_bar * L + SS`. Policies implemented: `(s,Q)`, `(s,S)`, `(R,S)` periodic review, and pure base-stock. EOQ is implemented with an assumption checker: if the demand coefficient of variation over the review horizon exceeds `eoq.max_cv`, or a quantity-discount schedule is present, the engine refuses to emit an EOQ and emits a reason instead of a number. Refusing is the correct behaviour and it is tested.
+**Reorder point and policies.** `ROP = D_bar * L + SS`. Policies implemented: `(s,Q)`, `(s,S)`, `(R,S)` periodic review, and pure base-stock. EOQ is implemented with an assumption checker: if the demand coefficient of variation over the review horizon exceeds `eoq.max_cv`, or a quantity-discount schedule is present, the engine refuses to emit an EOQ and emits a reason instead of a number. Refusing is the correct behavior and it is tested.
 
 **Newsvendor** for single-period decisions (promotional buys, short-life SKUs): critical ratio `CR = Cu / (Cu + Co)`, `Q* = F^-1(CR)`, using the fitted demand distribution rather than assuming normality.
 
 **Segmentation.** ABC by cumulative annual COGS with configurable cut points (defaults 80/95 percent cumulative). XYZ by demand coefficient of variation with configurable cut points (defaults CV <= 0.5 is X, CV <= 1.0 is Y, else Z). The Syntetos-Boylan-Croston quadrant uses average demand interval and squared coefficient of variation with the published cut-offs ADI = 1.32 and CV^2 = 0.49 from Syntetos, Boylan and Croston (2005), JORS 56(5):495-503. The quadrant drives forecast method eligibility and policy class, so the classifier is load-bearing rather than decorative.
 
-**MEIO, guaranteed service time.** The primary model is the guaranteed-service framework of Graves and Willems (2000), M&SOM 2(1):68-83: each stage quotes an outbound service time, each stage's net replenishment time is its own processing time plus its inbound service time minus its outbound service time, and safety stock at a stage covers demand over its net replenishment time against a demand bound. The optimisation over service times is a dynamic program on the spanning tree of the supply network. The implementation follows the paper's DP formulation, handles the general spanning-tree case, and refuses networks that are not spanning trees with an explicit error naming the offending cycle. The output is a full frontier: cost as a function of the customer-facing service target, so the question of where safety stock lives is answered as a curve, not a point.
+**MEIO, guaranteed service time.** The primary model is the guaranteed-service framework of Graves and Willems (2000), M&SOM 2(1):68-83: each stage quotes an outbound service time, each stage's net replenishment time is its own processing time plus its inbound service time minus its outbound service time, and safety stock at a stage covers demand over its net replenishment time against a demand bound. The optimization over service times is a dynamic program on the spanning tree of the supply network. The implementation follows the paper's DP formulation, handles the general spanning-tree case, and refuses networks that are not spanning trees with an explicit error naming the offending cycle. The output is a full frontier: cost as a function of the customer-facing service target, so the question of where safety stock lives is answered as a curve, not a point.
 
 **MEIO, stochastic service anchor.** `ClarkScarfSerial` implements the exact echelon base-stock optimum for a serial system following Clark and Scarf (1960), Management Science 6(4):475-490. It exists as a validation anchor: on a serial network under its assumptions, the two frameworks answer different questions and the repo says so in the README rather than pretending they agree. See open question 9.8.
 
-**Risk pooling.** `RiskPooling` computes the analytic centralisation benefit for independent identically distributed locations, which is the square-root law from Eppen (1979), Management Science 25(5):498-501, and the general correlated case numerically. The what-if "centralised versus forward-positioned stock" reports the service-versus-cost tradeoff with both the analytic and the simulated number side by side.
+**Risk pooling.** `RiskPooling` computes the analytic centralization benefit for independent identically distributed locations, which is the square-root law from Eppen (1979), Management Science 25(5):498-501, and the general correlated case numerically. The what-if "centralized versus forward-positioned stock" reports the service-versus-cost tradeoff with both the analytic and the simulated number side by side.
 
-**MEIO, budget-constrained placement.** 6a8 asks a second question in its own words: holding cost is capped at a stated figure, so place inventory across the network to maximise service. `BudgetConstrainedPlacement` answers it as the dual of the frontier rather than as a separate model. The guaranteed-service dynamic program is solved once per candidate customer-facing service target on the grid of `meio.frontier_points`, each solve returning a total holding cost; the placement returned is the one with the highest service target whose holding cost is at or below `meio.holding_cost_budget`. `MeioSolution` records `holding_cost_budget` and `budget_binding`, which is true when the chosen point sits on the budget rather than at the unconstrained optimum. When even the lowest service target on the grid exceeds the budget, the engine returns no placement and raises a finding naming the shortfall in currency, because a budget that cannot buy the cheapest feasible network is a planning input error and inventing a placement for it would hide that. The grid is refined by bisection between the two adjacent frontier points that bracket the budget, to `meio.budget_tolerance` in currency, so the answer does not depend on how coarse the frontier grid happened to be.
+**MEIO, budget-constrained placement.** 6a8 asks a second question in its own words: holding cost is capped at a stated figure, so place inventory across the network to maximize service. `BudgetConstrainedPlacement` answers it as the dual of the frontier rather than as a separate model. The guaranteed-service dynamic program is solved once per candidate customer-facing service target on the grid of `meio.frontier_points`, each solve returning a total holding cost; the placement returned is the one with the highest service target whose holding cost is at or below `meio.holding_cost_budget`. `MeioSolution` records `holding_cost_budget` and `budget_binding`, which is true when the chosen point sits on the budget rather than at the unconstrained optimum. When even the lowest service target on the grid exceeds the budget, the engine returns no placement and raises a finding naming the shortfall in currency, because a budget that cannot buy the cheapest feasible network is a planning input error and inventing a placement for it would hide that. The grid is refined by bisection between the two adjacent frontier points that bracket the budget, to `meio.budget_tolerance` in currency, so the answer does not depend on how coarse the frontier grid happened to be.
 
 **Validation against the twin.** Every MEIO solution is re-run in simulation under the derived base-stock levels, and `meio.solution.v1` carries `validated_against_sim` with the achieved service level and its Monte Carlo confidence interval. If the achieved service falls outside the interval containing the target, the solution is emitted with a warning finding rather than silently reported. This is the same reference-validation discipline the LSS engine uses, applied to planning.
 
@@ -1115,7 +1115,7 @@ Defects: each received lot draws its defect count from `variability.supplier.lot
 
 Scorecards are computed per period, carry sample sizes, and declare their statistical type so the LSS engine picks p-chart for OTIF proportions, u-chart or c-chart for defect counts, and I-MR or Xbar-R for lead-time continuous data. Scorecard periods with a sample size below `scorecard.min_n` are emitted with `insufficient_sample=True` and are excluded from control limit calculation rather than plotted as if they were solid.
 
-Disruption scenarios are first-class: `supplier.disruption.v1` with a capacity multiplier and a lead-time multiplier over a date window. The standard what-ifs from the source are catalogued scenarios: `supplier_b_down_two_weeks.yaml` and `supplier_a_leadtime_doubles.yaml`. Each is answered with service level, cost, and the dual-sourcing versus higher-safety-stock comparison expressed as resilience per dollar, computed by paired runs with common random numbers so the difference is the policy and not the seed.
+Disruption scenarios are first-class: `supplier.disruption.v1` with a capacity multiplier and a lead-time multiplier over a date window. The standard what-ifs from the source are catalogd scenarios: `supplier_b_down_two_weeks.yaml` and `supplier_a_leadtime_doubles.yaml`. Each is answered with service level, cost, and the dual-sourcing versus higher-safety-stock comparison expressed as resilience per dollar, computed by paired runs with common random numbers so the difference is the policy and not the seed.
 
 **N-tier illumination (E19).** The supplier graph is n-tier from birth. Tier-1 suppliers are visible. Deeper edges start `unknown` and carry a `mapping_cost` and `mapping_effort_days`. A mapping action reveals a subset of edges from a chosen parent, with a reveal probability per edge, so mapping is an investment with an uncertain return rather than a free lookup.
 
@@ -1125,33 +1125,33 @@ The ROI of mapping is computed by paired simulation: run the same seeds with and
 
 ### 5.5 Outbound and e-commerce execution (6a3, 6a6)
 
-**Release.** `WavePolicy` groups orders into waves at scheduled release times, with a sizing rule (`fixed_count`, `carrier_cutoff`, `zone_balanced`) and a wave scope. Wave completion gates packing for the wave's orders, which is what creates the characteristic wave sawtooth in labour utilisation. `WavelessPolicy` releases orders continuously subject to a WIP cap per zone (a CONWIP rule), with a priority rule (`earliest_cutoff`, `contract_first`, `shortest_processing_time`). The comparison of the two on identical demand and identical seeds is a standard what-if, and the answer is published either way.
+**Release.** `WavePolicy` groups orders into waves at scheduled release times, with a sizing rule (`fixed_count`, `carrier_cutoff`, `zone_balanced`) and a wave scope. Wave completion gates packing for the wave's orders, which is what creates the characteristic wave sawtooth in labor utilization. `WavelessPolicy` releases orders continuously subject to a WIP cap per zone (a CONWIP rule), with a priority rule (`earliest_cutoff`, `contract_first`, `shortest_processing_time`). The comparison of the two on identical demand and identical seeds is a standard what-if, and the answer is published either way.
 
 **Picking modes.** Discrete (one order at a time), batch (a cart carries `batch_size` orders, sorted after picking), zone (pick-and-pass or pick-and-sort across zones), cluster (a cart with per-order totes, no downstream sort), and goods-to-person (the AMR fleet from 1b brings the shelf to a station, so picker travel goes to zero and the constraint moves to AMR fleet size and station throughput). Mode is config. GTP requires the automation layer and is disabled with a clear error when the AMR fleet is absent from `facility.yaml`.
 
 **Travel model.** For picker-to-goods modes, travel distance per pick tour is computed from the rack layout and the routing strategy: S-shape (traversal), return, midpoint, largest-gap, and an optimal router. The optimal router for a single-block layout implements the Ratliff and Rosenthal (1983) dynamic program, Operations Research 31(3):507-521. The heuristics follow the survey in De Koster, Le-Duc and Roodbergen (2007), EJOR 182(2):481-501. Travel distance feeds pick time through a walk speed and a per-pick handling time, so slotting changes (from 1b) show up as measurable pick-rate changes.
 
-**Cartonisation.** Given an order's items, choose the box from `catalogs/cartons.yaml` that minimises billable cost subject to geometric fit, weight limit, and compatibility rules (hazmat segregation, fragile-on-top, no mixing of temperature-controlled with ambient). Geometric fit is solved by a constructive extreme-point heuristic with rotations, and the result is verified by `FitChecker`, an independent implementation that only answers yes or no. Using two implementations means a packing bug cannot silently produce impossible cartons. Multi-box splitting is supported when no single box fits.
+**Cartonisation.** Given an order's items, choose the box from `catalogs/cartons.yaml` that minimizes billable cost subject to geometric fit, weight limit, and compatibility rules (hazmat segregation, fragile-on-top, no mixing of temperature-controlled with ambient). Geometric fit is solved by a constructive extreme-point heuristic with rotations, and the result is verified by `FitChecker`, an independent implementation that only answers yes or no. Using two implementations means a packing bug cannot silently produce impossible cartons. Multi-box splitting is supported when no single box fits.
 
 Dim weight: `dim_weight = L * W * H / dim_divisor`, with the divisor a config key per carrier and unit system. The shipped defaults are 139 cubic inches per pound and 5000 cubic centimetres per kilogram. Those are configured working values, not values this section takes from a carrier's published tariff, and the synthetic carrier catalog says so in its header; open question 9.16 records what calibrating them against a real tariff would need. Billable weight is the maximum of actual and dim weight. Carton fill rate is item cube over box cube and is a reported KPI, because void volume is what the dim-weight charge is taxing.
 
 **Parcel rate shopping.** For each carton, quote every eligible carrier service on the destination zone, compute total landed parcel cost including fuel and residential surcharges, filter by the service days needed to meet the promise, and choose the cheapest feasible. The chosen and rejected quotes are both logged, so the savings from rate shopping is measurable rather than assumed.
 
-**Trailer cubing and load building.** Pallets are assigned to trailers subject to cube, gross weight, per-axle weight, stackability, and, for multi-stop loads, LIFO order consistency with the stop sequence. Fill rate is reported as the binding one of cube utilisation and weight utilisation, with the binding constraint named, because "we run at 78 percent fill" means nothing without saying which dimension binds.
+**Trailer cubing and load building.** Pallets are assigned to trailers subject to cube, gross weight, per-axle weight, stackability, and, for multi-stop loads, LIFO order consistency with the stop sequence. Fill rate is reported as the binding one of cube utilization and weight utilization, with the binding constraint named, because "we run at 78 percent fill" means nothing without saying which dimension binds.
 
-**Carrier assignment for TL and LTL.** Enumerate feasible carrier and mode combinations for the lane, quote each through `RateEngine`, filter by transit days against the promise, and select by the configured objective (`least_cost`, `least_cost_feasible`, `best_on_time_within_budget`). Contract commitments create a soft constraint: falling short of committed volume triggers a rate escalation at contract review, which is modelled and shows up in the freight spend analytics.
+**Carrier assignment for TL and LTL.** Enumerate feasible carrier and mode combinations for the lane, quote each through `RateEngine`, filter by transit days against the promise, and select by the configured objective (`least_cost`, `least_cost_feasible`, `best_on_time_within_budget`). Contract commitments create a soft constraint: falling short of committed volume triggers a rate escalation at contract review, which is modeled and shows up in the freight spend analytics.
 
-**Dock contention.** Every door request goes through `DockBroker`, which is the policy layer above the twin's door resources and never grants a door itself (3.5). Inbound receipts, outbound loading, returns intake, and cross-dock all queue for the same pool. Doors declare which flow types they accept, and switching a door's type charges `changeover_minutes`. Queue waits are recorded per flow type, so the interference between flows is directly measured rather than inferred. This is the mechanism behind the parcel-versus-pallet interference claim in 6a6: the two channels compete for doors, labour pools, and AMRs, and every contention point emits a wait time attributable to a flow type.
+**Dock contention.** Every door request goes through `DockBroker`, which is the policy layer above the twin's door resources and never grants a door itself (3.5). Inbound receipts, outbound loading, returns intake, and cross-dock all queue for the same pool. Doors declare which flow types they accept, and switching a door's type charges `changeover_minutes`. Queue waits are recorded per flow type, so the interference between flows is directly measured rather than inferred. This is the mechanism behind the parcel-versus-pallet interference claim in 6a6: the two channels compete for doors, labor pools, and AMRs, and every contention point emits a wait time attributable to a flow type.
 
-**Channel unit economics.** Every order accumulates an `OrderCostRecord` from the actual activity records: pick minutes times the picker's loaded rate, pack minutes, carton and void-fill material, VAS labour, freight from the actual rate quote, and an allocated share of dock and staging occupancy. Cost per order, cost per line, and labour minutes per order are reported per channel. These records are the input the finance layer's activity-based costing consumes, so channel profitability is computed from the same events the operation ran on.
+**Channel unit economics.** Every order accumulates an `OrderCostRecord` from the actual activity records: pick minutes times the picker's loaded rate, pack minutes, carton and void-fill material, VAS labor, freight from the actual rate quote, and an allocated share of dock and staging occupancy. Cost per order, cost per line, and labor minutes per order are reported per channel. These records are the input the finance layer's activity-based costing consumes, so channel profitability is computed from the same events the operation ran on.
 
 **Peak-day chaos.** `chaos/peak_day.yaml` defines an hourly demand multiplier profile, compressed carrier cutoffs, elevated e-commerce channel share, and a follow-on elevated return rate in the subsequent weeks. It is a standard scenario in the catalog, run with a fixed seed, and its results are golden-filed.
 
 ### 5.6 Value-added services and postponement (E41 second half)
 
-VAS lines are scheduled DC work content with their own labour pool, cycle-time distributions, and defect rates. Kitting consumes component SKUs and produces a kit SKU per a light bill of materials. Labelling and bundling transform a SKU in place. Light assembly is kitting with a longer cycle time and a higher defect rate. Defects raise quality findings through the same path as any other defect and so reach the QMS layer.
+VAS lines are scheduled DC work content with their own labor pool, cycle-time distributions, and defect rates. Kitting consumes component SKUs and produces a kit SKU per a light bill of materials. Labeling and bundling transform a SKU in place. Light assembly is kitting with a longer cycle time and a higher defect rate. Defects raise quality findings through the same path as any other defect and so reach the QMS layer.
 
-Postponement is a planning decision: `strategy: stock_finished | postpone` per kit SKU. Under `stock_finished`, safety stock is held on each finished variant. Under `postpone`, safety stock is held on the shared components and the kit is built to order, which pools the variant demand variability into the component. The analytic benefit for independent identically distributed variants is the square-root law again, which is the same Eppen result, and the general case is simulated. The cost side is the added per-order VAS labour and the added order cycle time, which can push orders past a carrier cutoff. The what-if reports both sides and the crossover point.
+Postponement is a planning decision: `strategy: stock_finished | postpone` per kit SKU. Under `stock_finished`, safety stock is held on each finished variant. Under `postpone`, safety stock is held on the shared components and the kit is built to order, which pools the variant demand variability into the component. The analytic benefit for independent identically distributed variants is the square-root law again, which is the same Eppen result, and the general case is simulated. The cost side is the added per-order VAS labor and the added order cycle time, which can push orders past a carrier cutoff. The what-if reports both sides and the crossover point.
 
 ### 5.7 Cross-docking (6a5)
 
@@ -1159,18 +1159,18 @@ Every inbound pallet reaches a decision point at receipt. The rule policy flows 
 
 ```
 cost_flow  = staging_occupancy_cost + P(miss) * miss_penalty + expedite_cost_if_missed
-cost_store = putaway_labour + storage_cost_until_needed + retrieval_labour
+cost_store = putaway_labor + storage_cost_until_needed + retrieval_labor
 ```
 
 where `P(miss)` is estimated from the current dock queue state and the remaining time to the outbound departure. The pallet flows when `cost_flow < cost_store`. The rule policy is the baseline the cost policy must beat, and both are run on identical seeds with the comparison published either way, in the same pattern the anomaly detection and dispatcher comparisons use.
 
-Staging lanes are finite. A pallet that exceeds `dwell_limit_s` is force-put-away, which emits `crossdock.forced_putaway.v1`, consumes putaway labour, and counts as a cross-dock defect distinct from a missed connection.
+Staging lanes are finite. A pallet that exceeds `dwell_limit_s` is force-put-away, which emits `crossdock.forced_putaway.v1`, consumes putaway labor, and counts as a cross-dock defect distinct from a missed connection.
 
 Missed connection is the defining defect: a pallet planned to flow that does not make its planned outbound load. It is emitted as a proportion so the LSS engine plots it on a p-chart. Dock-to-dock time and staging dwell are continuous and go on I-MR or Xbar-R charts.
 
-The flow-through sweep what-if raises the pre-allocated share from 20 to 40 to 60 percent and identifies the first binding constraint by ranking resources on utilisation and on their contribution to total queueing delay. A controlled test injects a known constraint (a reduced staging lane count) and asserts the sweep names that constraint.
+The flow-through sweep what-if raises the pre-allocated share from 20 to 40 to 60 percent and identifies the first binding constraint by ranking resources on utilization and on their contribution to total queueing delay. A controlled test injects a known constraint (a reduced staging lane count) and asserts the sweep names that constraint.
 
-Inbound and outbound schedules must synchronise for cross-docking to work at all. The scheduler is behind `DockScheduleProvider`. A deterministic baseline provider ships with this section (fixed appointment windows from the replenishment plan and the outbound cutoffs). E12's optimiser replaces it through the same interface, and the improvement is measured against the baseline.
+Inbound and outbound schedules must synchronize for cross-docking to work at all. The scheduler is behind `DockScheduleProvider`. A deterministic baseline provider ships with this section (fixed appointment windows from the replenishment plan and the outbound cutoffs). E12's optimizer replaces it through the same interface, and the improvement is measured against the baseline.
 
 ### 5.8 Returns and reverse logistics (6a4)
 
@@ -1178,19 +1178,19 @@ Returns are generated as a function of shipments, not of demand: for each shippe
 
 Reason codes are assigned by the causal rules in 3.7 rather than by a flat categorical draw. That is the difference between a Pareto chart that is decoration and a Pareto chart that points at a fixable cause.
 
-Returns compete for doors through `DockBroker`, for triage labour through the labour pool, and for staging space. The competition is the point: a returns surge degrades outbound service through shared resources, and the twin measures the path.
+Returns compete for doors through `DockBroker`, for triage labor through the labor pool, and for staging space. The competition is the point: a returns surge degrades outbound service through shared resources, and the twin measures the path.
 
-Triage inspects (labour minutes drawn per reason code, since a damage claim takes longer than a remorse return), grades A/B/C/scrap, and dispositions. Each disposition path carries labour minutes, material cost, cycle time, and a recovery value as a fraction of original price. Restocked units emit `inventory.adjustment.v1` with a lot reference so genealogy stays closed.
+Triage inspects (labor minutes drawn per reason code, since a damage claim takes longer than a remorse return), grades A/B/C/scrap, and dispositions. Each disposition path carries labor minutes, material cost, cycle time, and a recovery value as a fraction of original price. Restocked units emit `inventory.adjustment.v1` with a lot reference so genealogy stays closed.
 
 The reverse P&L reports recovery rate, cost per return, and mean time to disposition, per period and per reason code. Reason codes are Pareto-charted by the LSS engine, and a finding fires when the top reason exceeds `returns.pareto_concentration_threshold` of total volume.
 
 **Feedback into planning.** Restocked units are a supply source, not negative demand. The replenishment planner computes net requirements as forecast gross demand minus expected restock inflow, where expected restock inflow is a distributed lag on shipments: `E[restock_t] = sum_k shipments_{t-k} * return_rate * P(delay = k) * P(disposition = RESTOCK)`. The forecaster continues to forecast gross demand. Keeping the two separable is what makes the numbers auditable, and a test asserts that ignoring the restock inflow produces measurably higher inventory, which is the failure mode this models.
 
-The returns spike what-if raises the return rate to 12 percent and reports the triage labour and staging space needed before outbound service level degrades, plus the recovery-versus-scrap split that E7's sustainability tier consumes as a circular-economy KPI.
+The returns spike what-if raises the return rate to 12 percent and reports the triage labor and staging space needed before outbound service level degrades, plus the recovery-versus-scrap split that E7's sustainability tier consumes as a circular-economy KPI.
 
 ### 5.9 Parcel and pallet interference (6a6)
 
-The interference is not modelled as an abstraction; it emerges from three shared resources: dock doors through `DockBroker`, the labour pool through the twin's worker resources, and the AMR fleet through the automation layer. Each contention point records wait time attributed to the requesting flow type, so the question "what does adding e-commerce cost my wholesale service level" is answered by decomposing wholesale order cycle time into its waiting components and attributing each to the flow that occupied the resource. The staffing split answer comes from a sweep over labour allocation between the two channels, ranked by the combined service objective, with the LSS engine's hypothesis test on the before and after samples.
+The interference is not modeled as an abstraction; it emerges from three shared resources: dock doors through `DockBroker`, the labor pool through the twin's worker resources, and the AMR fleet through the automation layer. Each contention point records wait time attributed to the requesting flow type, so the question "what does adding e-commerce cost my wholesale service level" is answered by decomposing wholesale order cycle time into its waiting components and attributing each to the flow that occupied the resource. The staffing split answer comes from a sweep over labor allocation between the two channels, ranked by the combined service objective, with the LSS engine's hypothesis test on the before and after samples.
 
 ### 5.10 Transportation network (6a7)
 
@@ -1200,7 +1200,7 @@ The interference is not modelled as an abstraction; it emerges from three shared
 
 **Transit.** Base transit per lane and mode is lognormal. Disruption multipliers stack multiplicatively: weather severity along the lane's region path, spot-market tightness as a proxy for capacity crunches, and border or port delay on international lanes. A disruption also has a probability of a hard service failure, which produces a late delivery rather than a slow one.
 
-**Spot market.** A mean-reverting process on the log rate per lane group, simulated with the exact OU transition so the discretisation is unbiased at any step size. The long-run mean is shifted by weather severity and by aggregate capacity utilisation across the lane group, which is what makes the spot market move for reasons the rest of the twin can explain rather than moving for its own sake.
+**Spot market.** A mean-reverting process on the log rate per lane group, simulated with the exact OU transition so the discretisation is unbiased at any step size. The long-run mean is shifted by weather severity and by aggregate capacity utilization across the lane group, which is what makes the spot market move for reasons the rest of the twin can explain rather than moving for its own sake.
 
 **Consolidation.** Orders and lanes are consolidated into multi-stop loads. The baseline is the Clarke and Wright (1964) savings heuristic, Operations Research 12(4):568-581. An exact branch-and-bound solver handles instances up to `consolidation.exact_max_stops` (default 10) and is used both as a production path for small problems and as the correctness oracle for the heuristic in tests.
 
@@ -1212,7 +1212,7 @@ The interference is not modelled as an abstraction; it emerges from three shared
 
 ATP is computed over time buckets per `(node, sku)`. Discrete ATP for a bucket is on-hand plus scheduled receipts landing in that bucket minus commitments due in that bucket. Cumulative ATP is the running sum with look-ahead, which is what lets a promise consume a future receipt. Both are implemented, and the mode is config, because they give different answers and a system that only implements one is hiding a decision.
 
-The promise flow: a line requests a quantity by a date. ATP is checked first. If ATP cannot cover it, CTP is asked: `CapacityPromiseProvider` (the factory's finite-capacity scheduler from 6a9, and the DC's own labour and dock capacity) returns the earliest date the quantity can be made available. The promise records which supply references it consumed, so the audit trail from a promise to the specific receipts backing it is complete.
+The promise flow: a line requests a quantity by a date. ATP is checked first. If ATP cannot cover it, CTP is asked: `CapacityPromiseProvider` (the factory's finite-capacity scheduler from 6a9, and the DC's own labor and dock capacity) returns the earliest date the quantity can be made available. The promise records which supply references it consumed, so the audit trail from a promise to the specific receipts backing it is complete.
 
 Over-promising is prevented structurally: promises consume ATP buckets atomically inside the sim's single-threaded scheduler, and the invariant is asserted continuously. Allocation policy (fair share versus priority during shortage) is a hook: `AllocationPolicy` is a protocol this package calls, implemented here with a simple priority-class policy and replaced by 6a12's richer policy later.
 
@@ -1222,11 +1222,11 @@ Promise reliability is the customer-facing KPI: the fraction of promises met, tr
 
 Every `soe.cadence_days` (default 7) at `soe.tick_time`, the tick runs. `soe.tick_time` is a time of day on the simulated clock, resolved against the site's configured timezone and never against a wall clock (D-02), so a run started at any hour produces the same tick schedule.
 
-1. Snapshot the plan of record. Before 6a16 exists, this is the replenishment plan plus the current forecast run plus the planned labour. After 6a16, it is the S&OP consensus. The `source` field records which.
+1. Snapshot the plan of record. Before 6a16 exists, this is the replenishment plan plus the current forecast run plus the planned labor. After 6a16, it is the S&OP consensus. The `source` field records which.
 2. Diff plan against simulated actuals for the elapsed period, at the granularity the plan was made at.
 3. Detect exceptions and quantify each: revenue at risk (units at risk times price), service impact (orders and lines at risk of missing promise), cost impact (expedite or overtime cost implied).
-4. Rank and rationalise. The exception queue passes through the LSS engine's alarm rationalisation (deduplication, severity ranking, shelving), which is the reference-architecture requirement that the findings stream cannot flood. A supplier outage that generates 400 line-level exceptions collapses into one ranked exception with 400 pieces of evidence. Section 8.4 states what the queue does when that call is not yet bound.
-5. Offer bounded corrective actions from `ActionRegistry`. Actions register themselves as their owning layer arrives: `expedite` needs the transport layer, `reallocate` needs multiple nodes, `substitute` needs substitution rules, `re_wave` needs the fulfilment layer, `de_expedite` needs an existing expedite. Bounds are per-action limits on cost and on quantity, enforced before application.
+4. Rank and rationalize. The exception queue passes through the LSS engine's alarm rationalization (deduplication, severity ranking, shelving), which is the reference-architecture requirement that the findings stream cannot flood. A supplier outage that generates 400 line-level exceptions collapses into one ranked exception with 400 pieces of evidence. Section 8.4 states what the queue does when that call is not yet bound.
+5. Offer bounded corrective actions from `ActionRegistry`. Actions register themselves as their owning layer arrives: `expedite` needs the transport layer, `reallocate` needs multiple nodes, `substitute` needs substitution rules, `re_wave` needs the fulfillment layer, `de_expedite` needs an existing expedite. Bounds are per-action limits on cost and on quantity, enforced before application.
 6. Apply the chosen action and measure it. Measurement branches the simulation at the tick checkpoint into a treated arm and a control arm with identical RNG child seeds. The control arm runs the untouched plan. The difference between arms is the action's effect with no seed noise, and the LSS engine runs the appropriate hypothesis test on the paired outcomes across replications.
 
 The null-action test is the important one: applying an action with zero effect must produce a byte-identical event log to the control arm. If it does not, either the branching leaks state or a subsystem is drawing from a shared RNG stream, and the test catches both.
@@ -1239,7 +1239,7 @@ A disruption at any node propagates downstream through the material flow with a 
 
 `sites.yaml` registers sites, each pointing at its own `facility.yaml`. Each site runs its own broker with its own UNS prefix `enterprise/<enterprise>/<site>/...`. Site brokers bridge to an enterprise broker with a topic policy that forwards findings, KPI rollups, and birth/death certificates and blocks raw telemetry. `bridge.stats.period.v1` reports events and bytes forwarded against what raw forwarding would have cost, which is the measured bandwidth reduction number. The broker configuration and bridging mechanics belong to the IoT and UNS section; this package owns the topic policy schema, the site registry, and the KPI rollup.
 
-Cross-site KPIs roll up per period. The overflow allocation question ("which site absorbs next week's overflow volume") is an assignment problem over sites subject to capacity, labour availability, and inter-site transfer cost, solved with the same MILP machinery as network design, then executed in the twin so the recommended answer is verified rather than asserted.
+Cross-site KPIs roll up per period. The overflow allocation question ("which site absorbs next week's overflow volume") is an assignment problem over sites subject to capacity, labor availability, and inter-site transfer cost, solved with the same MILP machinery as network design, then executed in the twin so the recommended answer is verified rather than asserted.
 
 Federated learning: `FederatedRound` coordinates rounds, each site trains locally on its own telemetry, and `FederatedAggregator` combines updates by FedAvg (McMahan et al., 2017, AISTATS), weighting by local sample count. `fl.update.v1` carries model parameters and a sample count and nothing else. The privacy claim is enforced at the schema level and tested. The published result is the comparison of the federated model against a centrally trained model on the same data, on both IID and non-IID site partitions, with the degradation reported either way. Model training and the registry belong to the MLOps layer (E43); this package owns the round protocol and the aggregation.
 
@@ -1250,7 +1250,7 @@ The disruption space is declared, not hard-coded: `DisruptionSpace` reads a sche
 Search proceeds in three stages, cheapest first:
 
 1. Exhaustive over cardinality 1 and 2. Exact, and parallel across trials without touching determinism: each trial is its own simulation run with its own `run_id`, and the reduction over trial results is the sort of 2.12, so the number of workers changes how long the stage takes and never what it returns.
-2. Optuna search over the full space, minimising total disruption magnitude subject to a threshold breach, using the multi-objective sampler when both service and cash thresholds are in play.
+2. Optuna search over the full space, minimizing total disruption magnitude subject to a threshold breach, using the multi-objective sampler when both service and cash thresholds are in play.
 3. Surrogate-accelerated search once E28 exists: the surrogate screens candidates, the full simulation confirms every reported breaking set. No breaking set is ever published on surrogate evidence alone.
 
 For each breaking set, time-to-survive and time-to-recover are measured following the risk-exposure framing of Simchi-Levi et al. (2015), Interfaces 45(5):375-390. TTS runs the disruption with recovery actions disabled and records days to threshold breach. TTR enables recovery actions and records days to restored compliance.
@@ -1259,7 +1259,7 @@ Results feed back into the n-tier map: a low-cardinality breaking set that inclu
 
 ### 5.16 Weather (E40)
 
-One process, one state, many subscribers. A seasonal climatological mean per region plus a vector autoregressive anomaly with a spatial correlation matrix `exp(-d_ij / corr_length_km)` produces daily temperature, precipitation, snow, and wind per region. A severity index in [0,1] summarises the state for subscribers that need one number. Severe events are injected from the catalog with a footprint of regions, a duration, and an intensity, and they override the anomaly process for their window.
+One process, one state, many subscribers. A seasonal climatological mean per region plus a vector autoregressive anomaly with a spatial correlation matrix `exp(-d_ij / corr_length_km)` produces daily temperature, precipitation, snow, and wind per region. A severity index in [0,1] summarizes the state for subscribers that need one number. Severe events are injected from the catalog with a footprint of regions, a duration, and an intensity, and they override the anomaly process for their window.
 
 Couplings, each a registered function with its own config block and its own test:
 
@@ -1274,7 +1274,7 @@ Couplings, each a registered function with its own config block and its own test
 
 ### 5.17 VMI and consignment (E41 first half)
 
-Every inventory position carries an owner. Under consignment, stock physically at the DC is owned by the supplier until consumption. Consumption (a pick for shipment, or an issue to a VAS line) triggers `inventory.ownership.transferred.v1`, which is what the financial twin turns into a payable, replacing the receipt-triggered payable of the owned model. That single change is the whole billing difference consignment implies, and modelling it as an ownership transfer event rather than a special case keeps the GL derivation uniform.
+Every inventory position carries an owner. Under consignment, stock physically at the DC is owned by the supplier until consumption. Consumption (a pick for shipment, or an issue to a VAS line) triggers `inventory.ownership.transferred.v1`, which is what the financial twin turns into a payable, replacing the receipt-triggered payable of the owned model. That single change is the whole billing difference consignment implies, and modeling it as an ownership transfer event rather than a special case keeps the GL derivation uniform.
 
 The supplier manages min and max bands. It sees a consumption signal whose cadence is config (`real_time`, `daily`, `weekly`) and whose accuracy is bounded by the DC's inventory record accuracy. That second point is the one worth building: if record accuracy is 92 percent, the supplier replenishes against a wrong picture, and the twin can quantify how much of VMI's benefit depends on the accuracy of the consumption signal. Record accuracy is a property the RFID layer directly improves, so the chain from tag reads to VMI viability is measurable end to end.
 
@@ -1282,15 +1282,15 @@ The VMI case is quantified on three axes: working capital shifted upstream (the 
 
 ### 5.18 Strategic network design (E42)
 
-Inputs: demand by region with geography, candidate sites with fixed cost, capacity, labour rate and availability, and real estate cost, freight rates from `twinflow-transport`, and service targets expressed as the fraction of demand within N transit days.
+Inputs: demand by region with geography, candidate sites with fixed cost, capacity, labor rate and availability, and real estate cost, freight rates from `twinflow-transport`, and service targets expressed as the fraction of demand within N transit days.
 
-`CenterOfGravity` implements Weiszfeld's algorithm for the weighted 1-median under Euclidean distance, with an explicit note in the code and the report that the naive demand-weighted centroid minimises squared distance rather than distance and is the wrong answer to the question usually asked of it. Both are computed and both are reported, with the difference shown.
+`CenterOfGravity` implements Weiszfeld's algorithm for the weighted 1-median under Euclidean distance, with an explicit note in the code and the report that the naive demand-weighted centroid minimizes squared distance rather than distance and is the wrong answer to the question usually asked of it. Both are computed and both are reported, with the difference shown.
 
-`FacilityLocationMilp` is a capacitated facility location model with service constraints: binary open decisions per candidate, continuous flow from candidate to region, minimising fixed cost plus transport plus handling plus labour, subject to demand satisfaction, capacity, and a service-coverage constraint. Solved with HiGHS through `highspy`. For instances at or below `netdesign.exact_max_candidates` (default 8 candidates, 20 regions), a brute-force enumeration runs in tests as the correctness oracle.
+`FacilityLocationMilp` is a capacitated facility location model with service constraints: binary open decisions per candidate, continuous flow from candidate to region, minimizing fixed cost plus transport plus handling plus labor, subject to demand satisfaction, capacity, and a service-coverage constraint. Solved with HiGHS through `highspy`. For instances at or below `netdesign.exact_max_candidates` (default 8 candidates, 20 regions), a brute-force enumeration runs in tests as the correctness oracle.
 
 `RobustDesign` solves under a scenario set (demand scenarios, tariff scenarios from E14, freight-rate scenarios) and reports both the minimum-expected-cost design and the minimax-regret design. They differ, and showing that they differ is the point.
 
-`DesignInstantiator` writes each candidate design out as one or more `facility.yaml` files plus a `sites.yaml`, which the operational twin then runs. `netdesign.instantiated.v1` reports the simulated cost against the MILP's predicted cost, with the gap decomposed into congestion, labour queueing, dock contention, and residual. The gap is the deliverable: a network design model that omits queueing systematically under-predicts cost, and this is the repo that measures by how much.
+`DesignInstantiator` writes each candidate design out as one or more `facility.yaml` files plus a `sites.yaml`, which the operational twin then runs. `netdesign.instantiated.v1` reports the simulated cost against the MILP's predicted cost, with the gap decomposed into congestion, labor queueing, dock contention, and residual. The gap is the deliverable: a network design model that omits queueing systematically under-predicts cost, and this is the repo that measures by how much.
 
 ### 5.19 The three planning what-ifs the source names by number
 
@@ -1302,8 +1302,8 @@ the noise, and each has an end-to-end scenario in 7.5.
 **The 15 percent demand surge (6a).** The scenario multiplies the expected demand rate by 1.15 from
 a stated sim date to the end of the horizon, leaving every other stream identical. It reports four
 quantities, which are the four the source asks for. Dock capacity is reported as the door
-utilisation and the mean and 95th-percentile queue wait per flow type from `dock.allocation.v1`. AMR
-utilisation is reported as the fleet's busy fraction and task queue depth, read from the automation
+utilization and the mean and 95th-percentile queue wait per flow type from `dock.allocation.v1`. AMR
+utilization is reported as the fleet's busy fraction and task queue depth, read from the automation
 layer's own events, because that fleet belongs to 1b and this section consumes rather than owns it.
 Stockout risk is reported as the fill rate and the count of stockout hours per SKU class. The fourth
 is the answer to the question the other three set up: `ReplenishmentPlanner` is re-run with the
@@ -1318,7 +1318,7 @@ as zero.
 to 18:00 as the shipped default pair, and answers what it costs. Moving the cutoff later admits
 orders that previously fell to the next day, which raises same-day volume, compresses the pick, pack
 and load window against a fixed carrier departure, and changes the wave schedule. The comparison
-reports the change in orders shipped same day, in order cycle time, in labour hours and overtime
+reports the change in orders shipped same day, in order cycle time, in labor hours and overtime
 hours, in dock queue wait on the outbound flow type, in the on-time ship rate against the promise,
 and in cost per order from `OrderCostRecord`. It also reports the failure mode that makes the
 question interesting: the count of orders released under the later cutoff that missed the carrier
@@ -1327,7 +1327,7 @@ overtime. Wave sizing under `carrier_cutoff` is re-derived from the shifted cuto
 fixed, since holding it fixed would answer a different question.
 
 **Budget-constrained inventory placement (6a8).** The scenario caps holding cost at a stated figure
-and asks which nodes hold inventory to maximise service. It runs `BudgetConstrainedPlacement` from
+and asks which nodes hold inventory to maximize service. It runs `BudgetConstrainedPlacement` from
 5.3, then validates the returned placement in the twin under the same discipline every MEIO solution
 gets, and reports the achieved service with its confidence interval next to the analytic prediction.
 The deliverable is the pair: the placement, and the gap between what the model promised and what the
@@ -1359,7 +1359,7 @@ not restated here; the rows below reference them and never redefine them.
 ### 6.1 `demand.yaml`
 
 | Key                                | Type                                                                   | Rule                                                                       |
-| ---------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+|------------------------------------|------------------------------------------------------------------------|----------------------------------------------------------------------------|
 | `horizon_days`                     | int                                                                    | required, >= 28                                                            |
 | `skus[].sku_id`                    | str                                                                    | required, unique                                                           |
 | `skus[].base_units_per_day`        | float                                                                  | required, > 0                                                              |
@@ -1392,7 +1392,7 @@ the generator did not produce.
 ### 6.2 `planning.yaml`
 
 | Key                                   | Type                                       | Rule                                                               |
-| ------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------ |
+|---------------------------------------|--------------------------------------------|--------------------------------------------------------------------|
 | `forecast.granularity`                | enum daily/weekly                          | default daily                                                      |
 | `forecast.horizon_days`               | int                                        | required, >= 7                                                     |
 | `forecast.backtest.window`            | enum expanding/sliding                     | default expanding                                                  |
@@ -1427,7 +1427,7 @@ the generator did not produce.
 ### 6.3 `suppliers.yaml` and `supplier_network.yaml`
 
 | Key                                  | Type                                 | Rule                                                              |
-| ------------------------------------ | ------------------------------------ | ----------------------------------------------------------------- |
+|--------------------------------------|--------------------------------------|-------------------------------------------------------------------|
 | `suppliers[].supplier_id`            | str                                  | required, unique                                                  |
 | `suppliers[].tier`                   | int                                  | required, >= 1                                                    |
 | `suppliers[].country_of_origin`      | ISO-3166 alpha-2                     | required                                                          |
@@ -1451,7 +1451,7 @@ the generator did not produce.
 ### 6.4 `outbound.yaml` and `ecommerce.yaml`
 
 | Key                                | Type                                                           | Rule                                                                         |
-| ---------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+|------------------------------------|----------------------------------------------------------------|------------------------------------------------------------------------------|
 | `release_policy`                   | enum wave/waveless                                             | required                                                                     |
 | `wave.schedule[]`                  | list[time]                                                     | required when wave, ascending, unique                                        |
 | `wave.sizing_rule`                 | enum fixed_count/carrier_cutoff/zone_balanced                  | required when wave                                                           |
@@ -1464,19 +1464,19 @@ the generator did not produce.
 | `cartonisation.dim_divisor_in3_lb` | float                                                          | default 139                                                                  |
 | `cartonisation.dim_divisor_cm3_kg` | float                                                          | default 5000                                                                 |
 | `cartonisation.allow_split`        | bool                                                           | default true                                                                 |
-| `docks.doors[].types_allowed`      | list[enum inbound/outbound/returns/crossdock]                  | required, non-empty, unique, stored and serialised in ascending order (D-03) |
+| `docks.doors[].types_allowed`      | list[enum inbound/outbound/returns/crossdock]                  | required, non-empty, unique, stored and serialized in ascending order (D-03) |
 | `docks.changeover_minutes`         | int                                                            | default 15, >= 0                                                             |
 | `carrier.cutoff_times[]`           | list of (carrier_id, time)                                     | required, one per carrier used on outbound                                   |
 | `carrier.objective`                | enum least_cost/least_cost_feasible/best_on_time_within_budget | default least_cost_feasible                                                  |
 | `load.axle_limits_kg`              | list[float]                                                    | required per trailer type                                                    |
-| `vas.lines[].type`                 | enum kitting/labelling/bundling/light_assembly                 | required                                                                     |
+| `vas.lines[].type`                 | enum kitting/labeling/bundling/light_assembly                  | required                                                                     |
 | `vas.lines[].cycle_time`           | DistSpec                                                       | required                                                                     |
 | `postponement.strategy_by_sku`     | map sku -> enum stock_finished/postpone                        | unknown SKUs rejected by name                                                |
 
 ### 6.5 `crossdock.yaml`, `returns.yaml`
 
 | Key                                      | Type                    | Rule                                  |
-| ---------------------------------------- | ----------------------- | ------------------------------------- |
+|------------------------------------------|-------------------------|---------------------------------------|
 | `crossdock.preallocated_share`           | float                   | required, in [0,1]                    |
 | `crossdock.policy`                       | enum rule/cost          | default cost                          |
 | `crossdock.connection_window_hours`      | float                   | required, > 0                         |
@@ -1498,7 +1498,7 @@ defect that makes a config silently ignore half of itself.
 ### 6.6 `transport.yaml`, `lanes.yaml`, `carriers.yaml`
 
 | Key                               | Type                                    | Rule                                                     |
-| --------------------------------- | --------------------------------------- | -------------------------------------------------------- |
+|-----------------------------------|-----------------------------------------|----------------------------------------------------------|
 | `lanes[].distance_km`             | float                                   | required, > 0                                            |
 | `lanes[].base_transit`            | map mode -> DistSpec                    | required for each allowed mode                           |
 | `lanes[].weather_region_path`     | list[str]                               | each must exist in `weather.yaml`                        |
@@ -1518,7 +1518,7 @@ defect that makes a config silently ignore half of itself.
 ### 6.7 `promise.yaml`, `soe.yaml`
 
 | Key                      | Type                              | Rule                                                                                 |
-| ------------------------ | --------------------------------- | ------------------------------------------------------------------------------------ |
+|--------------------------|-----------------------------------|--------------------------------------------------------------------------------------|
 | `atp.mode`               | enum discrete/cumulative          | required                                                                             |
 | `atp.bucket_days`        | int                               | default 1, > 0                                                                       |
 | `atp.horizon_days`       | int                               | required, >= forecast horizon                                                        |
@@ -1533,7 +1533,7 @@ defect that makes a config silently ignore half of itself.
 ### 6.8 `sites.yaml`, `netdesign.yaml`, `weather.yaml`, `vmi.yaml`
 
 | Key                                          | Type                        | Rule                                                                                   |
-| -------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------------- |
+|----------------------------------------------|-----------------------------|----------------------------------------------------------------------------------------|
 | `sites[].site_id`                            | str                         | required, unique                                                                       |
 | `sites[].facility_config_uri`                | path                        | must exist and validate                                                                |
 | `sites[].uns_prefix`                         | str                         | must match the ISA-95 topic pattern                                                    |
@@ -1558,19 +1558,19 @@ defect that makes a config silently ignore half of itself.
 
 ### 6.9 `catalogs/disruption_space.yaml` and the stress search
 
-| Key                                 | Type                                  | Rule                                                                                           |
-| ----------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `knobs[].knob_id`                   | str                                   | required, unique                                                                               |
-| `knobs[].target`                    | enum supplier/lane/site/labour/demand | required                                                                                       |
-| `knobs[].domain`                    | {min, max} or {false, true}           | required; a continuous domain must have min < max                                              |
-| `knobs[].magnitude_cost`            | float                                 | required, > 0; what makes "minimal" comparable across knobs                                    |
-| `stress.thresholds.service`         | float                                 | required, in (0,1)                                                                             |
-| `stress.thresholds.cash`            | Decimal                               | optional; rejected with a named reason until E22 exists (open question 9.13)                   |
-| `stress.exhaustive_max_cardinality` | int                                   | default 2, in [1,3]                                                                            |
-| `stress.budget_trials`              | int                                   | required, > 0; a fixed count, never a wall-clock budget (D-04)                                 |
-| `stress.confirm_with_full_sim`      | bool                                  | default true; false is rejected, because no breaking set publishes on surrogate evidence alone |
-| `stress.tts_horizon_days`           | int                                   | required, > 0                                                                                  |
-| `stress.ttr_horizon_days`           | int                                   | required, > 0, >= `stress.tts_horizon_days`                                                    |
+| Key                                 | Type                                 | Rule                                                                                           |
+|-------------------------------------|--------------------------------------|------------------------------------------------------------------------------------------------|
+| `knobs[].knob_id`                   | str                                  | required, unique                                                                               |
+| `knobs[].target`                    | enum supplier/lane/site/labor/demand | required                                                                                       |
+| `knobs[].domain`                    | {min, max} or {false, true}          | required; a continuous domain must have min < max                                              |
+| `knobs[].magnitude_cost`            | float                                | required, > 0; what makes "minimal" comparable across knobs                                    |
+| `stress.thresholds.service`         | float                                | required, in (0,1)                                                                             |
+| `stress.thresholds.cash`            | Decimal                              | optional; rejected with a named reason until E22 exists (open question 9.13)                   |
+| `stress.exhaustive_max_cardinality` | int                                  | default 2, in [1,3]                                                                            |
+| `stress.budget_trials`              | int                                  | required, > 0; a fixed count, never a wall-clock budget (D-04)                                 |
+| `stress.confirm_with_full_sim`      | bool                                 | default true; false is rejected, because no breaking set publishes on surrogate evidence alone |
+| `stress.tts_horizon_days`           | int                                  | required, > 0                                                                                  |
+| `stress.ttr_horizon_days`           | int                                  | required, > 0, >= `stress.tts_horizon_days`                                                    |
 
 ---
 
@@ -1586,14 +1586,14 @@ Doctrine D-13 requires a test suite to fit the budget its own document sets, and
 arithmetic to be asserted rather than discovered as a timeout. This section's heavy checks do not fit
 one job, so they run in two profiles and every test declares which profile it belongs to.
 
-| Tier             | Profile     | Budget | Command                                        |
-| ---------------- | ----------- | ------ | ---------------------------------------------- |
-| unit             | per-commit  | 90 s   | `just test-unit planning-supply`               |
-| property         | per-commit  | 240 s  | `just test-prop planning-supply`               |
-| e2e seeded       | per-commit  | 900 s  | `just test-e2e planning-supply`                |
-| validation gates | per-commit  | 600 s  | `just test-valgates planning-supply`           |
-| validation gates | nightly     | 3600 s | `just test-valgates planning-supply --nightly` |
-| e2e seeded       | nightly     | 3600 s | `just test-e2e planning-supply --nightly`      |
+| Tier             | Profile    | Budget | Command                                        |
+|------------------|------------|--------|------------------------------------------------|
+| unit             | per-commit | 90 s   | `just test-unit planning-supply`               |
+| property         | per-commit | 240 s  | `just test-prop planning-supply`               |
+| e2e seeded       | per-commit | 900 s  | `just test-e2e planning-supply`                |
+| validation gates | per-commit | 600 s  | `just test-valgates planning-supply`           |
+| validation gates | nightly    | 3600 s | `just test-valgates planning-supply --nightly` |
+| e2e seeded       | nightly    | 3600 s | `just test-e2e planning-supply --nightly`      |
 
 The per-commit profile runs every test at its reduced replication count, which is stated per test
 below and is the count the tolerance in that test is derived from. The nightly profile runs the full
@@ -1615,61 +1615,61 @@ over their declared ranges, and seed values over the full 64-bit range. Every in
 section 3 has a row here, and `test_every_declared_invariant_has_a_property` fails when one does
 not, because an invariant with no test is a claim and this document is a contract.
 
-| ID           | Invariant                                                                                                                                                                                                                                                     | Package                |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
-| INV-DEM-1    | expected units equals the product of published components within 1e-9 relative                                                                                                                                                                                | demand                 |
-| INV-DEM-2    | qty_allocated <= qty_ordered and qty_shipped <= qty_allocated at all times                                                                                                                                                                                    | demand, fulfilment     |
-| INV-DEM-3    | adding a SKU to the config leaves every other SKU's realised series byte-identical (per-entity RNG splitting)                                                                                                                                                 | demand                 |
-| INV-DEM-4    | the published promo decomposition reconciles with the realised dip and cannibalisation windows within 1e-9 relative                                                                                                                                           | demand                 |
-| INV-FCST-0   | the arena refuses to register a model whose fit does not reproduce under a fixed child seed                                                                                                                                                                   | forecast               |
-| INV-FCST-1   | split-conformal coverage averaged over R independent calibration draws falls in [1-alpha, 1-alpha+1/(n+1)] within its stated Monte Carlo error, and the per-draw coverage distribution is not rejected against Beta(n+1-l, l)                                 | forecast               |
-| INV-FCST-2   | WAPE is scale-invariant; MASE is unit-free; sMAPE in [0,200]                                                                                                                                                                                                  | forecast               |
-| INV-FCST-3   | no target-date row appears in the training slice of the cutoff that produced it (no leakage)                                                                                                                                                                  | forecast               |
-| INV-INV-1    | on_hand >= 0 and available == on_hand - allocated at all times                                                                                                                                                                                                | inventory              |
-| INV-INV-2    | safety stock is non-decreasing in the service target under both values of uncertainty_source                                                                                                                                                                  | inventory              |
-| INV-INV-3    | safety stock is non-decreasing in demand variance and in lead-time variance                                                                                                                                                                                   | inventory              |
-| INV-INV-4    | when no parametric lead-time fit is accepted the fallback is empirical, never normal                                                                                                                                                                          | inventory              |
-| INV-PLAN-1   | net requirement equals the netting identity within 1e-9 relative, and expected restock inflow is exactly 0.0 when the restock model is disabled                                                                                                               | inventory              |
-| INV-PLAN-2   | every appointment proposal traces to a PO proposal, and every PO proposal at or above appointment_min_pallets traces to exactly one appointment proposal                                                                                                      | inventory              |
-| INV-SEG-1    | ABC and XYZ each form a total partition of the active SKU set                                                                                                                                                                                                 | inventory              |
-| INV-MEIO-1   | base stock at a node is non-decreasing in its downstream service target                                                                                                                                                                                       | inventory              |
-| INV-MEIO-2   | under cycle service level with normal location demand, pooled safety stock never exceeds the sum of decentralised safety stocks for non-negatively correlated demand                                                                                          | inventory              |
-| INV-MEIO-3   | under fill rate, the analytic and simulated pooled requirements agree within Monte Carlo error and the direction of the pooling benefit is reported rather than asserted                                                                                      | inventory              |
-| INV-SUP-1    | otif <= min(on_time_rate, in_full_rate); all rates in [0,1]; ppm in [0,1e6]                                                                                                                                                                                   | supply                 |
-| INV-SUP-2    | rationed quantities never exceed capacity, granted plus shortfall equals requested, and the result is unchanged when input lines are reordered                                                                                                                | supply                 |
-| INV-SUP-3    | the current value of any scorecard period equals the published value composed with its restatements in order, and no restatement lacks a trigger event                                                                                                        | supply                 |
-| INV-NTIER-1  | child shares per (parent, component class) sum to 1.0 regardless of visibility                                                                                                                                                                                | supply                 |
-| INV-GEN-1    | every receipt lot resolves to exactly one supplier and PO; every defect finding traces to exactly one receipt lot                                                                                                                                             | supply, returns        |
-| INV-GEN-2    | the unit set returned by blast_radius equals the unit set whose backward traceback resolves to that lot, and a mismatch names the direction that dropped a unit                                                                                               | supply                 |
-| INV-CART-1   | billable weight equals max(actual, dim); every packed carton passes the independent FitChecker                                                                                                                                                                | fulfilment             |
-| INV-LOAD-1   | no load exceeds cube, gross weight, or any axle limit; multi-stop pallet order is LIFO-consistent                                                                                                                                                             | fulfilment             |
-| INV-DOCK-1   | a door is never doubly occupied and every type switch charges the changeover                                                                                                                                                                                  | fulfilment             |
-| INV-DOCK-2   | every recorded queue wait is attributed to exactly one flow type, and the attributed waits per door sum to that door's granted-request wait time in the twin's resource log within 1e-9 s                                                                     | fulfilment             |
-| INV-VAS-1    | VAS material conservation: components consumed equal BOM times output plus scrap                                                                                                                                                                              | fulfilment             |
-| INV-COST-1   | the sum of activity costs equals the reported cost per order to the cent, and allocation residual cents sum to the pool remainder exactly                                                                                                                     | fulfilment             |
-| INV-XDOCK-1  | no pallet exceeds the dwell limit without a forced-putaway event in the same sim instant                                                                                                                                                                      | cross-dock             |
-| INV-XDOCK-2  | decided_flow plus decided_store equals received, and flowed plus force_putaway plus still_staged equals decided_flow                                                                                                                                          | cross-dock             |
-| INV-RET-1    | every quality-defect return resolves through genealogy to exactly one receipt lot                                                                                                                                                                             | returns                |
-| INV-RET-2    | returns closure: received equals restocked plus refurbished plus liquidated plus scrapped plus WIP                                                                                                                                                            | returns                |
-| INV-RET-3    | every uplift-raised return carries a causal_link, and every id in causal_sources_active is a registered uplift                                                                                                                                                | returns                |
-| INV-TRN-1    | no trailer exceeds cube or weight capacity                                                                                                                                                                                                                    | transport              |
-| INV-TRN-2    | on a metric distance matrix, adding a stop never reduces the length of the optimal tour, asserted over the exact solver only                                                                                                                                  | transport              |
-| INV-TRN-3    | with sigma zero the spot index converges monotonically to exp(mu)                                                                                                                                                                                             | transport              |
-| INV-TRN-4    | quoted total cost equals linehaul plus fuel plus accessorials as exact Decimal equality at two places                                                                                                                                                         | transport              |
-| INV-TRN-5    | on every instance the exact solver can run, the savings heuristic tour is never shorter than the optimum, and the gap is recorded                                                                                                                             | transport              |
-| INV-ATP-1    | the sum of open promises against a bucket never exceeds its available supply                                                                                                                                                                                  | promise                |
-| INV-ATP-2a   | holding the requested date fixed, a larger requested quantity never returns an earlier promised date                                                                                                                                                          | promise                |
-| INV-ATP-2b   | holding requested date and supply state fixed, promised quantity is non-decreasing in requested quantity and never exceeds it                                                                                                                                 | promise                |
-| INV-SOE-1    | the null corrective action produces a byte-identical event log to the control arm on one platform                                                                                                                                                             | soe                    |
-| INV-RST-1    | any superset of a breaking set also breaks the threshold under monotone knobs                                                                                                                                                                                 | resilience             |
-| INV-FL-1     | fl.update.v1 contains no telemetry-typed field and its payload size is bounded by the parameter count                                                                                                                                                         | network                |
-| INV-WX-1     | every subscriber reading (region, day) observes an identical state by content hash                                                                                                                                                                            | exogenous              |
-| INV-WX-2     | the same seed produces a byte-identical weather series on one platform                                                                                                                                                                                        | exogenous              |
-| INV-VMI-1    | ownership conservation: every unit has exactly one owner at all times, transitions total and non-overlapping                                                                                                                                                  | inventory              |
-| INV-ORD-1    | no field reachable from an event payload, a hash, or a control decision is a set, and every dict field serialises in ascending key order under two different PYTHONHASHSEED values                                                                            | all                    |
-| INV-DET-1    | on one platform with the pinned dependency set, the full planning and supply stack run twice with one seed produces byte-identical event logs (C1 backstop, D-05 tier one)                                                                                    | all                    |
-| INV-DET-2    | across the supported platforms, one seed and one config produce identical business events, and the continuous fields listed in the cross-platform manifest agree within the measured tolerance, with the observed maximum divergence reported (D-05 tier two) | all                    |
-| INV-LITTLE-1 | Little's Law holds on staging lanes and pick WIP over a long run: L equals lambda times W within the stated Monte Carlo tolerance                                                                                                                             | cross-dock, fulfilment |
+| ID           | Invariant                                                                                                                                                                                                                                                     | Package                 |
+|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------|
+| INV-DEM-1    | expected units equals the product of published components within 1e-9 relative                                                                                                                                                                                | demand                  |
+| INV-DEM-2    | qty_allocated <= qty_ordered and qty_shipped <= qty_allocated at all times                                                                                                                                                                                    | demand, fulfillment     |
+| INV-DEM-3    | adding a SKU to the config leaves every other SKU's realized series byte-identical (per-entity RNG splitting)                                                                                                                                                 | demand                  |
+| INV-DEM-4    | the published promo decomposition reconciles with the realized dip and cannibalisation windows within 1e-9 relative                                                                                                                                           | demand                  |
+| INV-FCST-0   | the arena refuses to register a model whose fit does not reproduce under a fixed child seed                                                                                                                                                                   | forecast                |
+| INV-FCST-1   | split-conformal coverage averaged over R independent calibration draws falls in [1-alpha, 1-alpha+1/(n+1)] within its stated Monte Carlo error, and the per-draw coverage distribution is not rejected against Beta(n+1-l, l)                                 | forecast                |
+| INV-FCST-2   | WAPE is scale-invariant; MASE is unit-free; sMAPE in [0,200]                                                                                                                                                                                                  | forecast                |
+| INV-FCST-3   | no target-date row appears in the training slice of the cutoff that produced it (no leakage)                                                                                                                                                                  | forecast                |
+| INV-INV-1    | on_hand >= 0 and available == on_hand - allocated at all times                                                                                                                                                                                                | inventory               |
+| INV-INV-2    | safety stock is non-decreasing in the service target under both values of uncertainty_source                                                                                                                                                                  | inventory               |
+| INV-INV-3    | safety stock is non-decreasing in demand variance and in lead-time variance                                                                                                                                                                                   | inventory               |
+| INV-INV-4    | when no parametric lead-time fit is accepted the fallback is empirical, never normal                                                                                                                                                                          | inventory               |
+| INV-PLAN-1   | net requirement equals the netting identity within 1e-9 relative, and expected restock inflow is exactly 0.0 when the restock model is disabled                                                                                                               | inventory               |
+| INV-PLAN-2   | every appointment proposal traces to a PO proposal, and every PO proposal at or above appointment_min_pallets traces to exactly one appointment proposal                                                                                                      | inventory               |
+| INV-SEG-1    | ABC and XYZ each form a total partition of the active SKU set                                                                                                                                                                                                 | inventory               |
+| INV-MEIO-1   | base stock at a node is non-decreasing in its downstream service target                                                                                                                                                                                       | inventory               |
+| INV-MEIO-2   | under cycle service level with normal location demand, pooled safety stock never exceeds the sum of decentralized safety stocks for non-negatively correlated demand                                                                                          | inventory               |
+| INV-MEIO-3   | under fill rate, the analytic and simulated pooled requirements agree within Monte Carlo error and the direction of the pooling benefit is reported rather than asserted                                                                                      | inventory               |
+| INV-SUP-1    | otif <= min(on_time_rate, in_full_rate); all rates in [0,1]; ppm in [0,1e6]                                                                                                                                                                                   | supply                  |
+| INV-SUP-2    | rationed quantities never exceed capacity, granted plus shortfall equals requested, and the result is unchanged when input lines are reordered                                                                                                                | supply                  |
+| INV-SUP-3    | the current value of any scorecard period equals the published value composed with its restatements in order, and no restatement lacks a trigger event                                                                                                        | supply                  |
+| INV-NTIER-1  | child shares per (parent, component class) sum to 1.0 regardless of visibility                                                                                                                                                                                | supply                  |
+| INV-GEN-1    | every receipt lot resolves to exactly one supplier and PO; every defect finding traces to exactly one receipt lot                                                                                                                                             | supply, returns         |
+| INV-GEN-2    | the unit set returned by blast_radius equals the unit set whose backward traceback resolves to that lot, and a mismatch names the direction that dropped a unit                                                                                               | supply                  |
+| INV-CART-1   | billable weight equals max(actual, dim); every packed carton passes the independent FitChecker                                                                                                                                                                | fulfillment             |
+| INV-LOAD-1   | no load exceeds cube, gross weight, or any axle limit; multi-stop pallet order is LIFO-consistent                                                                                                                                                             | fulfillment             |
+| INV-DOCK-1   | a door is never doubly occupied and every type switch charges the changeover                                                                                                                                                                                  | fulfillment             |
+| INV-DOCK-2   | every recorded queue wait is attributed to exactly one flow type, and the attributed waits per door sum to that door's granted-request wait time in the twin's resource log within 1e-9 s                                                                     | fulfillment             |
+| INV-VAS-1    | VAS material conservation: components consumed equal BOM times output plus scrap                                                                                                                                                                              | fulfillment             |
+| INV-COST-1   | the sum of activity costs equals the reported cost per order to the cent, and allocation residual cents sum to the pool remainder exactly                                                                                                                     | fulfillment             |
+| INV-XDOCK-1  | no pallet exceeds the dwell limit without a forced-putaway event in the same sim instant                                                                                                                                                                      | cross-dock              |
+| INV-XDOCK-2  | decided_flow plus decided_store equals received, and flowed plus force_putaway plus still_staged equals decided_flow                                                                                                                                          | cross-dock              |
+| INV-RET-1    | every quality-defect return resolves through genealogy to exactly one receipt lot                                                                                                                                                                             | returns                 |
+| INV-RET-2    | returns closure: received equals restocked plus refurbished plus liquidated plus scrapped plus WIP                                                                                                                                                            | returns                 |
+| INV-RET-3    | every uplift-raised return carries a causal_link, and every id in causal_sources_active is a registered uplift                                                                                                                                                | returns                 |
+| INV-TRN-1    | no trailer exceeds cube or weight capacity                                                                                                                                                                                                                    | transport               |
+| INV-TRN-2    | on a metric distance matrix, adding a stop never reduces the length of the optimal tour, asserted over the exact solver only                                                                                                                                  | transport               |
+| INV-TRN-3    | with sigma zero the spot index converges monotonically to exp(mu)                                                                                                                                                                                             | transport               |
+| INV-TRN-4    | quoted total cost equals linehaul plus fuel plus accessorials as exact Decimal equality at two places                                                                                                                                                         | transport               |
+| INV-TRN-5    | on every instance the exact solver can run, the savings heuristic tour is never shorter than the optimum, and the gap is recorded                                                                                                                             | transport               |
+| INV-ATP-1    | the sum of open promises against a bucket never exceeds its available supply                                                                                                                                                                                  | promise                 |
+| INV-ATP-2a   | holding the requested date fixed, a larger requested quantity never returns an earlier promised date                                                                                                                                                          | promise                 |
+| INV-ATP-2b   | holding requested date and supply state fixed, promised quantity is non-decreasing in requested quantity and never exceeds it                                                                                                                                 | promise                 |
+| INV-SOE-1    | the null corrective action produces a byte-identical event log to the control arm on one platform                                                                                                                                                             | soe                     |
+| INV-RST-1    | any superset of a breaking set also breaks the threshold under monotone knobs                                                                                                                                                                                 | resilience              |
+| INV-FL-1     | fl.update.v1 contains no telemetry-typed field and its payload size is bounded by the parameter count                                                                                                                                                         | network                 |
+| INV-WX-1     | every subscriber reading (region, day) observes an identical state by content hash                                                                                                                                                                            | exogenous               |
+| INV-WX-2     | the same seed produces a byte-identical weather series on one platform                                                                                                                                                                                        | exogenous               |
+| INV-VMI-1    | ownership conservation: every unit has exactly one owner at all times, transitions total and non-overlapping                                                                                                                                                  | inventory               |
+| INV-ORD-1    | no field reachable from an event payload, a hash, or a control decision is a set, and every dict field serializes in ascending key order under two different PYTHONHASHSEED values                                                                            | all                     |
+| INV-DET-1    | on one platform with the pinned dependency set, the full planning and supply stack run twice with one seed produces byte-identical event logs (C1 backstop, D-05 tier one)                                                                                    | all                     |
+| INV-DET-2    | across the supported platforms, one seed and one config produce identical business events, and the continuous fields listed in the cross-platform manifest agree within the measured tolerance, with the observed maximum divergence reported (D-05 tier two) | all                     |
+| INV-LITTLE-1 | Little's Law holds on staging lanes and pick WIP over a long run: L equals lambda times W within the stated Monte Carlo tolerance                                                                                                                             | cross-dock, fulfillment |
 
 INV-DET-2 reports rather than asserts a preset number, per doctrine D-05: the tolerance is the
 measured divergence from the calibration run recorded in the cross-platform manifest, and an
@@ -1677,7 +1677,7 @@ exceedance names whether the tolerance was wrong or a defect exists.
 
 ### 7.3 Validation gates and oracle tests
 
-Two kinds of test live here and doctrine D-11 treats them differently, so they are labelled
+Two kinds of test live here and doctrine D-11 treats them differently, so they are labeled
 differently. A VAL-GATE checks a statistic against a value published outside this repository. An
 ORACLE test checks an implementation against an independently implemented exact answer, usually
 brute-force enumeration, and claims no external evidence. D-11 rule 5 says a statistic with no valid
@@ -1712,7 +1712,7 @@ check before the gate runs.
 
 - **VAL-GATE FCST-1 (metric definitions).** MASE as implemented matches the definition in Hyndman and Koehler (2006), "Another look at measures of forecast accuracy", International Journal of Forecasting 22(4):679-688, DOI 10.1016/j.ijforecast.2006.03.001, transcribed into `tests/reference/mase.md`. Tolerance: the metric is a closed-form ratio, so agreement is asserted to 1e-12, which is above double-precision accumulation error on the fixture sizes used and below any difference a wrong denominator could produce. Falsified by: a fixture value differing beyond 1e-12, which is what scaling by the wrong in-sample error would produce.
 - **VAL-GATE FCST-2 (published competition benchmark).** The Naive2 forecast and the sMAPE implementation, run on the M3 monthly subset, reproduce the Naive2 sMAPE published in Makridakis and Hibon (2000), "The M3-Competition: results, conclusions and implications", International Journal of Forecasting 16(4):451-476, DOI 10.1016/S0169-2070(00)00057-1. Expected values come from a checked-in extract of the paper's results table. Tolerance: 0.1 sMAPE points, which is looser than the two-decimal precision the table prints, per D-11 rule 2. Series data is operator-supplied for the license reason stated above, and the gate records a skip with that reason when `M3_DATA_DIR` is unset. Falsified by: a reproduced sMAPE more than 0.1 points from the published figure, which is what a seasonally unadjusted Naive2 would produce.
-- **VAL-GATE FCST-3 (intermittent classification).** The SBC quadrant classifier uses the cut-offs ADI = 1.32 and CV^2 = 0.49 attributed to Syntetos, Boylan and Croston (2005), "On the categorization of demand patterns", Journal of the Operational Research Society 56(5):495-503, DOI 10.1057/palgrave.jors.2601841, and classifies a checked-in fixture of series with hand-labelled quadrants. Tolerance: exact classification on the fixture. Falsified by: one misclassified fixture series, which is what a swapped cut-off pair would produce.
+- **VAL-GATE FCST-3 (intermittent classification).** The SBC quadrant classifier uses the cut-offs ADI = 1.32 and CV^2 = 0.49 attributed to Syntetos, Boylan and Croston (2005), "On the categorization of demand patterns", Journal of the Operational Research Society 56(5):495-503, DOI 10.1057/palgrave.jors.2601841, and classifies a checked-in fixture of series with hand-labeled quadrants. Tolerance: exact classification on the fixture. Falsified by: one misclassified fixture series, which is what a swapped cut-off pair would produce.
 - **VAL-GATE FCST-4 (Croston and SBA).** The Croston implementation matches the recursion attributed to Croston (1972), "Forecasting and Stock Control for Intermittent Demands", Operational Research Quarterly 23(3):289-303, DOI 10.1057/jors.1972.50, on a worked fixture, and the SBA variant applies the bias correction factor attributed to Syntetos and Boylan (2005), "The accuracy of intermittent demand estimates", International Journal of Forecasting 21(2):303-314, DOI 10.1016/j.ijforecast.2004.10.001. Tolerance: 1e-10 on the fixture, since both are deterministic recursions on exact inputs. Falsified by: the SBA output equalling the Croston output, which is what omitting the correction factor produces.
 - **VAL-GATE FCST-5 (model comparison test).** The Diebold-Mariano statistic matches the definition in Diebold and Mariano (1995), "Comparing Predictive Accuracy", Journal of Business and Economic Statistics 13(3):253-263, DOI 10.1080/07350015.1995.10524599, on a fixture, and the small-sample correction matches Harvey, Leybourne and Newbold (1997), "Testing the equality of prediction mean squared errors", International Journal of Forecasting 13(2):281-291, DOI 10.1016/S0169-2070(96)00719-4. Tolerance: 1e-8 on the statistic. Falsified by: the corrected and uncorrected statistics agreeing at horizons above 1, which is what dropping the correction produces.
 - **VAL-GATE FCST-6 (conformal coverage).** The finite-sample marginal coverage bound this gate checks is the one attributed to Lei, G'Sell, Rinaldo, Tibshirani and Wasserman (2018), "Distribution-Free Predictive Inference for Regression", Journal of the American Statistical Association 113(523):1094-1111, DOI 10.1080/01621459.2017.1307116: split-conformal coverage at level `1-alpha` lies in `[1-alpha, 1-alpha + 1/(n+1)]` marginally over calibration draws. The gate is written over that marginal statement and not over one draw, because coverage conditional on a single calibration set is random, and an earlier draft asserted a band of plus or minus 0.015 at `n = 1000` that the conditional distribution violates roughly one run in nine. The gate draws `R` independent calibration and test splits, `R = 200` nightly and `R = 40` per commit, computes mean coverage, and asserts it lies in the published band widened by 3 standard errors of the mean. Noise floor: the standard deviation of per-split coverage is `sqrt(beta(1-beta)/(n+2))` for the Beta distribution the split-conformal construction implies, measured at 0.0095 for `alpha = 0.1` and `n = 1000` and checked into the fixture. It also runs a Kolmogorov-Smirnov test of the per-split coverages against `Beta(n+1-l, l)` with `l = floor(alpha(n+1))`, at alpha 0.01. Falsified by: mean coverage outside the widened band, or a KS rejection, either of which is what a calibration set contaminated by training data produces.
@@ -1720,9 +1720,9 @@ check before the gate runs.
 
 #### Inventory and MEIO
 
-- **VAL-GATE INV-1 (loss function).** The standardised normal loss function `G(k) = phi(k) - k(1 - Phi(k))` is checked two ways. Against a published primary text: `G` rebuilt from the complementary error function as `phi(k) - k * erfc(k / sqrt(2)) / 2`, where `erfc` is the function defined in equation 7.2.2 of the NIST Digital Library of Mathematical Functions, Version 1.2.7, released 2026-06-15, section 7.2, agrees with the implementation to 1e-12 across k in [-4, 6]. Against adaptive quadrature of the defining integral `int_k^inf (x - k) phi(x) dx`: agreement to 1e-10, which is the quadrature routine's own reported error bound and so the tightest honest tolerance. A third check compares a checked-in extract of the tabulated unit normal loss function in Silver, Pyke and Thomas, Inventory and Production Management in Supply Chains, 4th edition, at one unit in the last decimal the extract prints; that book is not retrievable here, so the extract carries a transcription header and the check records a skip with that reason when it is absent. Falsified by: disagreement with the DLMF-built form beyond 1e-12, which is what an implementation using the lower tail in place of the upper produces.
+- **VAL-GATE INV-1 (loss function).** The standardized normal loss function `G(k) = phi(k) - k(1 - Phi(k))` is checked two ways. Against a published primary text: `G` rebuilt from the complementary error function as `phi(k) - k * erfc(k / sqrt(2)) / 2`, where `erfc` is the function defined in equation 7.2.2 of the NIST Digital Library of Mathematical Functions, Version 1.2.7, released 2026-06-15, section 7.2, agrees with the implementation to 1e-12 across k in [-4, 6]. Against adaptive quadrature of the defining integral `int_k^inf (x - k) phi(x) dx`: agreement to 1e-10, which is the quadrature routine's own reported error bound and so the tightest honest tolerance. A third check compares a checked-in extract of the tabulated unit normal loss function in Silver, Pyke and Thomas, Inventory and Production Management in Supply Chains, 4th edition, at one unit in the last decimal the extract prints; that book is not retrievable here, so the extract carries a transcription header and the check records a skip with that reason when it is absent. Falsified by: disagreement with the DLMF-built form beyond 1e-12, which is what an implementation using the lower tail in place of the upper produces.
 - **ORACLE INV-2 (fill-rate inversion).** `k_for_fill_rate` inverted through Brent root finding satisfies `G(k) = Q(1-beta)/sigma_L` to 1e-10, and re-substituting recovers the target fill rate to 1e-10. Oracle: the forward function of VAL-GATE INV-1. Falsified by: a root that does not satisfy the forward equation, which is what a bracket that excludes the root produces.
-- **ORACLE INV-3 (EOQ).** The EOQ closed form matches a brute-force grid minimisation of the total cost function to within one unit of quantity over a randomised parameter sweep, and the assumption checker refuses to return an EOQ when demand CV exceeds `inventory.eoq.max_cv` or a quantity-discount schedule is present. Falsified by: a returned EOQ under either refusal condition, or a closed-form answer the grid beats by more than one unit.
+- **ORACLE INV-3 (EOQ).** The EOQ closed form matches a brute-force grid minimization of the total cost function to within one unit of quantity over a randomized parameter sweep, and the assumption checker refuses to return an EOQ when demand CV exceeds `inventory.eoq.max_cv` or a quantity-discount schedule is present. Falsified by: a returned EOQ under either refusal condition, or a closed-form answer the grid beats by more than one unit.
 - **ORACLE INV-4 (newsvendor).** For normal demand, `Q*` matches the closed-form critical-ratio quantile to 1e-10, and simulated expected cost at `Q*` is not beaten by a grid search over Q by more than 2 standard errors of the simulated cost difference. Noise floor: the standard error of the paired cost difference, measured over the same replication count and checked into the fixture.
 - **VAL-GATE INV-5 (policy achieves its target in simulation).** For each service measure, running the derived policy in the twin under the same demand and lead-time distributions achieves the configured target. Reference: the target itself is the published statement being checked, and the analytic form is the loss-function relation validated in VAL-GATE INV-1. Replications: 30 nightly, 10 per commit. Noise floor: the standard error of achieved service across replications, measured and checked into the fixture; the gate asserts the target lies inside the 95 percent interval, whose half-width is 1.96 times that measured standard error. Falsified by: the target lying outside the interval, which is what applying a cycle-service factor to a fill-rate target produces.
 - **VAL-GATE MEIO-1 (guaranteed service time).** The dynamic program is checked against the guaranteed-service model of Graves and Willems (2000), "Optimizing Strategic Safety Stock Placement in Supply Chains", Manufacturing and Service Operations Management 2(1):68-83, DOI 10.1287/msom.2.1.68.23267, on instances from Willems (2008), "Data Set: Real-World Multiechelon Supply Chains Used for Inventory Optimization", Manufacturing and Service Operations Management 10(1):19-23, DOI 10.1287/msom.1070.0176. Both are behind the publisher's paywall here, so the expected values live in a checked-in extract with a transcription header and the gate records a skip with that reason when the extract is absent. Tolerance: total cost within 0.5 percent of the extracted figure. Service times are compared as a set of optima and not as one vector, because ties in total cost between distinct service-time vectors are routine on trees with equal marginal stage costs; the gate asserts the returned cost matches and, when the vector differs, asserts `optimum_is_unique` is false and that the returned vector achieves the same cost. Falsified by: a cost outside 0.5 percent, or a differing vector reported with `optimum_is_unique` true.
@@ -1740,18 +1740,18 @@ check before the gate runs.
 - **ORACLE SUP-3 (scorecard restatement closure).** For every `(supplier_id, period, metric)` touched by a late defect, the current value equals the originally published value composed with its restatements in `restated_ts` order, and every restatement resolves to a defect finding. This is INV-SUP-3 exercised over a seeded run with defects planted in closed periods. Falsified by: a period whose current value cannot be reconstructed from its published history, which is what an in-place overwrite produces.
 - **ORACLE SUP-4 (forward blast radius).** For every `ReceiptLot` in a seeded run, the unit set returned by `blast_radius(lot_id)` equals the unit set whose backward traceback resolves to that lot, and the returned tuples are sorted so two calls return the same object. This is the query 6a11's recall drill consumes, and it is checked here because this section owns the query and the drill lives elsewhere. Falsified by: a unit present in one direction and absent in the other, which the assertion reports by naming the direction that dropped it.
 
-#### Fulfilment
+#### Fulfillment
 
 - **VAL-GATE PICK-1 (routing heuristics).** Expected travel distance for the traversal and return routing strategies in a single-block warehouse is compared against the closed-form approximations attributed to Hall (1993), "Distance approximations for routing manual pickers in a warehouse", IIE Transactions 25(4):76-87, DOI 10.1080/07408179308964306, on the layouts that paper specifies, transcribed into a checked-in extract. The heuristic families themselves follow the survey of De Koster, Le-Duc and Roodbergen (2007), "Design and control of warehouse order picking: A literature review", European Journal of Operational Research 182(2):481-501, DOI 10.1016/j.ejor.2006.07.009. Tolerance: 2 percent, which is above the approximation error the extract records for the published formula, per D-11 rule 2. Falsified by: a simulated mean distance more than 2 percent from the approximation on a layout the paper covers.
 - **ORACLE PICK-2 (optimal routing).** The dynamic program of Ratliff and Rosenthal (1983), "Order-Picking in a Rectangular Warehouse: A Solvable Case of the Traveling Salesman Problem", Operations Research 31(3):507-521, DOI 10.1287/opre.31.3.507, matches brute-force enumeration exactly on all instances with at most 9 pick locations, and never returns a longer tour than any heuristic on 1,000 generated instances. Falsified by: one instance where brute force finds a shorter tour, which is what an incomplete edge-state set produces.
 - **ORACLE CART-1 (packing feasibility).** `FitChecker` correctly classifies a checked-in set of known-feasible and known-infeasible three-dimensional packing instances, including rotation-dependent cases. Tolerance: exact. Falsified by: one misclassification, in either direction.
-- **VAL-GATE CART-2 (packing quality).** The cartoniser's volume utilisation is measured on the container-loading instances `thpack1` to `thpack7`, which OR-Library's container-loading page states were generated and used in Bischoff and Ratcliff (1995), "Issues in the development of approaches to container loading", Omega 23(4):377-390, DOI 10.1016/0305-0483(95)00015-G, and whose objective that page states is to maximise the volume utilisation of the container. The comparison figures are transcribed from that paper into a checked-in extract. Tolerance: the achieved mean utilisation is within 5 percentage points of the extracted figure, a band set from the spread the extract itself records across instance classes rather than chosen for comfort. The result is published in the README whichever side of the band it lands on. Falsified by: a mean utilisation more than 5 points below the extracted figure, or above it, since beating a published container-loading result with a constructive heuristic is more likely a measurement error than a discovery.
-- **VAL-GATE DOCK-1 (queueing).** The dock contention model is checked against queueing theory in two parts, because only one of them has a reference this section could retrieve. Part one, Little's Law: over a long run of a single door, the mean number in the door queue equals the arrival rate times the mean wait, the relation whose statement is the title of Little (1961), "A Proof for the Queuing Formula: L = lambda W", Operations Research 9(3):383-387, DOI 10.1287/opre.9.3.383. Part two, M/G/1 mean wait: with Poisson arrivals and a general service-time distribution, the simulated mean wait is compared against the Pollaczek-Khinchine mean-value formula, attributed to Pollaczek (1930), Mathematische Zeitschrift 32(1):64-100, DOI 10.1007/BF01194620, and to Khintchine (1932), Matematicheskii Sbornik 39(4):73-84. Neither body text was retrievable here, so the formula the test uses is written out in the fixture header and the comparison is reported with its attribution rather than presented as a reproduction of a text this section read. Replications: 30 of 100,000 arrivals nightly, 5 of 20,000 per commit. Noise floor: the measured standard error of the mean wait across replications, checked into the fixture; tolerance is 3 standard errors. Falsified by: Little's Law failing, which is what double-counting a queued request produces, or the M/G/1 comparison drifting with the service-time variance, which is what modelling the door as M/M/1 produces.
+- **VAL-GATE CART-2 (packing quality).** The cartoniser's volume utilization is measured on the container-loading instances `thpack1` to `thpack7`, which OR-Library's container-loading page states were generated and used in Bischoff and Ratcliff (1995), "Issues in the development of approaches to container loading", Omega 23(4):377-390, DOI 10.1016/0305-0483(95)00015-G, and whose objective that page states is to maximize the volume utilization of the container. The comparison figures are transcribed from that paper into a checked-in extract. Tolerance: the achieved mean utilization is within 5 percentage points of the extracted figure, a band set from the spread the extract itself records across instance classes rather than chosen for comfort. The result is published in the README whichever side of the band it lands on. Falsified by: a mean utilization more than 5 points below the extracted figure, or above it, since beating a published container-loading result with a constructive heuristic is more likely a measurement error than a discovery.
+- **VAL-GATE DOCK-1 (queueing).** The dock contention model is checked against queueing theory in two parts, because only one of them has a reference this section could retrieve. Part one, Little's Law: over a long run of a single door, the mean number in the door queue equals the arrival rate times the mean wait, the relation whose statement is the title of Little (1961), "A Proof for the Queuing Formula: L = lambda W", Operations Research 9(3):383-387, DOI 10.1287/opre.9.3.383. Part two, M/G/1 mean wait: with Poisson arrivals and a general service-time distribution, the simulated mean wait is compared against the Pollaczek-Khinchine mean-value formula, attributed to Pollaczek (1930), Mathematische Zeitschrift 32(1):64-100, DOI 10.1007/BF01194620, and to Khintchine (1932), Matematicheskii Sbornik 39(4):73-84. Neither body text was retrievable here, so the formula the test uses is written out in the fixture header and the comparison is reported with its attribution rather than presented as a reproduction of a text this section read. Replications: 30 of 100,000 arrivals nightly, 5 of 20,000 per commit. Noise floor: the measured standard error of the mean wait across replications, checked into the fixture; tolerance is 3 standard errors. Falsified by: Little's Law failing, which is what double-counting a queued request produces, or the M/G/1 comparison drifting with the service-time variance, which is what modeling the door as M/M/1 produces.
 
 #### Cross-dock
 
-- **ORACLE XD-1 (constraint identification).** With a known constraint injected, staging lanes reduced to a level that binds first by analytic capacity comparison, the flow-through sweep names that constraint. Tolerance: exact identification in 20 of 20 seeds. Falsified by: one seed naming a different resource, which is what ranking on utilisation alone rather than on queueing-delay contribution produces.
-- **VAL-GATE XD-2 (policy comparison).** The cost policy is compared to the rule policy on paired seeds with common random numbers, 30 nightly and 10 per commit, and the LSS engine's paired test reports the difference with its effect size and interval. Reference: the comparison is reported, not asserted, so the published claim is the table and not a winner. Noise floor: the measured standard error of the paired difference, checked in. Falsified by: the comparison table absent from the run artefacts, or a paired test run on unpaired seeds, which the fixture detects by checking that the two arms share child seeds.
+- **ORACLE XD-1 (constraint identification).** With a known constraint injected, staging lanes reduced to a level that binds first by analytic capacity comparison, the flow-through sweep names that constraint. Tolerance: exact identification in 20 of 20 seeds. Falsified by: one seed naming a different resource, which is what ranking on utilization alone rather than on queueing-delay contribution produces.
+- **VAL-GATE XD-2 (policy comparison).** The cost policy is compared to the rule policy on paired seeds with common random numbers, 30 nightly and 10 per commit, and the LSS engine's paired test reports the difference with its effect size and interval. Reference: the comparison is reported, not asserted, so the published claim is the table and not a winner. Noise floor: the measured standard error of the paired difference, checked in. Falsified by: the comparison table absent from the run artifacts, or a paired test run on unpaired seeds, which the fixture detects by checking that the two arms share child seeds.
 
 #### Returns
 
@@ -1778,8 +1778,8 @@ check before the gate runs.
 #### Network and design
 
 - **ORACLE ND-1 (MILP exactness).** On instances with at most 8 candidates and 20 regions, the HiGHS solution equals brute-force enumeration exactly in objective value, and where the opened-site set differs the gate asserts the objective is equal and the tie-break of 2.11 was applied. Falsified by: an objective enumeration beats.
-- **VAL-GATE ND-2 (1-median).** Weiszfeld's algorithm is checked against instances whose 1-median is known in closed form rather than against an unnamed textbook example. For a triangle with all angles below 120 degrees the minimiser is the Fermat point; for a triangle with an angle at or above 120 degrees it is that vertex. That characterisation and the convergence treatment are attributed to Kuhn (1973), "A note on Fermat's problem", Mathematical Programming 4(1):98-107, DOI 10.1007/BF01584648, with the algorithm's original statement available in the annotated English translation, Weiszfeld and Plastria, "On the point for which the sum of the distances to n given points is minimum", Annals of Operations Research 167(1):7-41, DOI 10.1007/s10479-008-0352-z. Tolerance: 1e-6 on the located point. The gate also asserts the demand-weighted centroid differs from the 1-median on the same instance, which documents the trap rather than hiding it. Falsified by: convergence to the centroid, which is what minimising squared distance produces.
-- **VAL-GATE ND-3 (design-to-operation gap).** The winning design instantiated as `facility.yaml` and run in the twin reports its simulated cost against the MILP's predicted cost with the gap decomposed into congestion, labour queueing, dock contention, and residual. Reference: the MILP's own objective, which is an external-to-the-simulation prediction rather than a published statistic, so this is a consistency gate on the decomposition and says so. Tolerance: the four components sum to the total gap within 1 percent of the total. Falsified by: a residual that grows with instance size, which means the decomposition is missing a term.
+- **VAL-GATE ND-2 (1-median).** Weiszfeld's algorithm is checked against instances whose 1-median is known in closed form rather than against an unnamed textbook example. For a triangle with all angles below 120 degrees the minimizer is the Fermat point; for a triangle with an angle at or above 120 degrees it is that vertex. That characterization and the convergence treatment are attributed to Kuhn (1973), "A note on Fermat's problem", Mathematical Programming 4(1):98-107, DOI 10.1007/BF01584648, with the algorithm's original statement available in the annotated English translation, Weiszfeld and Plastria, "On the point for which the sum of the distances to n given points is minimum", Annals of Operations Research 167(1):7-41, DOI 10.1007/s10479-008-0352-z. Tolerance: 1e-6 on the located point. The gate also asserts the demand-weighted centroid differs from the 1-median on the same instance, which documents the trap rather than hiding it. Falsified by: convergence to the centroid, which is what minimizing squared distance produces.
+- **VAL-GATE ND-3 (design-to-operation gap).** The winning design instantiated as `facility.yaml` and run in the twin reports its simulated cost against the MILP's predicted cost with the gap decomposed into congestion, labor queueing, dock contention, and residual. Reference: the MILP's own objective, which is an external-to-the-simulation prediction rather than a published statistic, so this is a consistency gate on the decomposition and says so. Tolerance: the four components sum to the total gap within 1 percent of the total. Falsified by: a residual that grows with instance size, which means the decomposition is missing a term.
 - **ORACLE FL-1 (federated privacy).** `fl.update.v1` schema validation rejects any payload containing a telemetry-typed field, and a runtime test asserts the payload size is bounded by `param_count * bytes_per_param + header_bytes`. Falsified by: a padded blob passing the size bound, which is the smuggling path the bound exists to close.
 - **VAL-GATE FL-2 (federated accuracy).** FedAvg, the aggregation rule of McMahan, Moore, Ramage, Hampson and Aguera y Arcas (2017), "Communication-Efficient Learning of Deep Networks from Decentralized Data", Proceedings of the 20th International Conference on Artificial Intelligence and Statistics, Proceedings of Machine Learning Research 54:1273-1282, is run on an IID partition and reaches within `federated.iid_tolerance` of the centrally trained model's held-out score. On a non-IID partition the degradation is measured and published either way, with no threshold, because that paper's abstract states only that "the approach is robust to the unbalanced and non-IID data distributions that are a defining characteristic of this setting", which is a direction and not a bound, and asserting a bound this section cannot derive would be inventing evidence. Falsified by: IID degradation beyond the configured tolerance, which is what a sample-count weighting error produces. <!-- docs-lint-ok PROMO-01 verbatim quotation of the McMahan et al. 2017 abstract, retrieved from proceedings.mlr.press -->
 - **ORACLE BRG-1 (bridge policy).** No concrete topic in the schema's test set is matched by both the forward and the block list, and the measured bridge reduction is recorded per run. Falsified by: one topic matched by both lists, which makes forwarding order-dependent.
@@ -1820,7 +1820,7 @@ The assertions:
    levels, measured over `R` seeds at zero injected bias and checked into the fixture. The gate
    requires the observed step between the 0 and 30 percent levels to exceed 3 of those standard
    errors, so an effect smaller than the measurement cannot pass as a demonstration.
-3. The effect size, eta squared for the ANOVA and the standardised paired difference for the trend,
+3. The effect size, eta squared for the ANOVA and the standardized paired difference for the trend,
    is recorded in the golden file, so a regression that flattens the effect is caught by the number
    and not only by the p-value.
 4. The appointment-versus-arrival mismatch count mediates the effect: with appointments held fixed
@@ -1833,23 +1833,23 @@ The assertions:
 
 ### 7.5 Seeded end-to-end scenarios with golden files
 
-| ID              | Scenario                                                 | Golden artefacts                                                                                                             |
-| --------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| ID              | Scenario                                                 | Golden artifacts                                                                                                             |
+|-----------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | E2E-PLAN-01     | 120-day two-channel base run                             | planning report, forecast arena table for both target families, policy set, event log hash                                   |
 | E2E-FCSTPROP-01 | forecast bias to congestion (7.4)                        | trend test, ANOVA result, queue-wait table with intervals, mediation check                                                   |
-| E2E-SURGE-01    | demand surge 15 percent (5.19)                           | door utilisation and queue wait, AMR utilisation, fill rate and stockout hours, absorbing safety stock in units and currency |
-| E2E-CUTOFF-01   | carrier cutoff moved from 16:00 to 18:00 (5.19)          | same-day orders, cycle time, labour and overtime hours, on-time ship, cost per order, missed-departure count                 |
-| E2E-MEIOBUD-01  | holding cost capped, placement maximising service (5.19) | placement, analytic service, simulated service with interval, binding echelon                                                |
+| E2E-SURGE-01    | demand surge 15 percent (5.19)                           | door utilization and queue wait, AMR utilization, fill rate and stockout hours, absorbing safety stock in units and currency |
+| E2E-CUTOFF-01   | carrier cutoff moved from 16:00 to 18:00 (5.19)          | same-day orders, cycle time, labor and overtime hours, on-time ship, cost per order, missed-departure count                  |
+| E2E-MEIOBUD-01  | holding cost capped, placement maximizing service (5.19) | placement, analytic service, simulated service with interval, binding echelon                                                |
 | E2E-SUP-01      | supplier B down two weeks                                | service level, scorecard restatement, dual-source versus safety-stock comparison                                             |
 | E2E-CAP-01      | supplier A capacity halved for one month                 | rationing record, shortfall by PO, lead-time effect on the scorecard                                                         |
 | E2E-NTIER-01    | hidden shared tier-2 causes correlated tier-1 failure    | correlation estimate with CI, mapping ROI                                                                                    |
-| E2E-OUT-01      | wave versus waveless on identical demand                 | cycle time, fill rate, labour utilisation, comparison table                                                                  |
+| E2E-OUT-01      | wave versus waveless on identical demand                 | cycle time, fill rate, labor utilization, comparison table                                                                   |
 | E2E-PEAK-01     | peak-day chaos with elevated follow-on returns           | channel unit economics, dock contention decomposition                                                                        |
 | E2E-XDOCK-01    | flow-through sweep 20 to 40 to 60 percent                | binding constraint, missed-connection p-chart, dwell I-MR                                                                    |
 | E2E-RET-01      | returns spike to 12 percent                              | reverse P&L, reason-code Pareto, `causal_sources_active`, outbound service degradation                                       |
 | E2E-TRN-01      | diesel up 20 percent                                     | freight spend table, mode-mix shift                                                                                          |
 | E2E-TRN-02      | carrier X on-time down 10 percent                        | switch-versus-renegotiate indifference point                                                                                 |
-| E2E-MEIO-01     | centralise versus forward-position                       | frontier, analytic and simulated service side by side                                                                        |
+| E2E-MEIO-01     | centralize versus forward-position                       | frontier, analytic and simulated service side by side                                                                        |
 | E2E-PRM-01      | promise reliability under a supply shortfall             | promise p-chart, quoted-versus-actual I-MR                                                                                   |
 | E2E-SOE-01      | weekly tick with an expedite action                      | treated versus control arms, hypothesis test                                                                                 |
 | E2E-WX-01       | winter storm across two regions                          | demand, transit, yard, HVAC, slip-risk deltas from one state                                                                 |
@@ -1882,7 +1882,7 @@ Landing in Phase 0 alongside C1, C2, C3, C5, C10, A1:
 
 ### 8.2 Pre-P3d: E40 weather, moved forward
 
-E40 lands immediately before P3d. Reason: weather is an input to the demand generator's seasonality and to the ambient sensor readings that already exist from Phase 3's sensor breadth. Adding a correlated exogenous driver after the demand generator is seeded changes every realised series and invalidates every golden file recorded before it. Moving it forward costs nothing and saves a repository-wide golden-file rebase. The couplings for transit, yard, HVAC, and slip risk register as their target layers arrive; the coupling registry is open from the start.
+E40 lands immediately before P3d. Reason: weather is an input to the demand generator's seasonality and to the ambient sensor readings that already exist from Phase 3's sensor breadth. Adding a correlated exogenous driver after the demand generator is seeded changes every realized series and invalidates every golden file recorded before it. Moving it forward costs nothing and saves a repository-wide golden-file rebase. The couplings for transit, yard, HVAC, and slip risk register as their target layers arrive; the coupling registry is open from the start.
 
 ### 8.3 P3d: the planning layer (6a)
 
@@ -1899,18 +1899,18 @@ MEIO is not here. It needs a network, and the network arrives at P3h.
 
 1. `twinflow-supply` with an n-tier graph from birth. E19's data model lands here even though its mapping mechanic and concentration analytics land later in the phase, because a tier-1-only supplier schema would need a migration to become n-tier.
 2. E19 mapping mechanic, visibility states, concentration reporting, and the correlated-failure demonstration.
-3. E16 ATP/CTP, moved forward from P6. Reason: 6a3's on-time-ship and fill-rate KPIs need a promise to measure against, and building outbound without a promise means retrofitting the promise reference into every order line later. CTP's capacity provider is stubbed with the DC's own labour and dock capacity until 6a9 supplies the factory scheduler.
-4. `twinflow-fulfilment` outbound half: wave and waveless release, pallet picking, load building, carrier assignment for TL and LTL, dock contention through `DockBroker`.
+3. E16 ATP/CTP, moved forward from P6. Reason: 6a3's on-time-ship and fill-rate KPIs need a promise to measure against, and building outbound without a promise means retrofitting the promise reference into every order line later. CTP's capacity provider is stubbed with the DC's own labor and dock capacity until 6a9 supplies the factory scheduler.
+4. `twinflow-fulfillment` outbound half: wave and waveless release, pallet picking, load building, carrier assignment for TL and LTL, dock contention through `DockBroker`.
 5. E41 VMI policy half, moved forward from P6. Reason: VMI is a supplier-facing replenishment mode and the supplier layer is being built now; the ownership field already exists from Phase 0, so this is policy only.
 6. E15 S&OE core, moved forward from P6. Reason: the plan of record and the actuals both exist as of this phase, the exception queue is the natural consumer of everything P3d and P3e produce, and the control-arm mechanism is a direct exercise of C1 that is cheaper to build now than to retrofit. The action registry starts with `reallocate` and `re_wave`; `expedite` registers at P3h when transport exists; `substitute` registers when 6a12 supplies substitution rules.
 
-   Two seams in the S&OE tick are unbound at P3e and both have a stated behaviour rather than a
-   silent one. Alarm rationalisation belongs to `twinflow-lss`, which lands at P2, so the call is
+   Two seams in the S&OE tick are unbound at P3e and both have a stated behavior rather than a
+   silent one. Alarm rationalization belongs to `twinflow-lss`, which lands at P2, so the call is
    normally bound; when the engine is absent, as it is in a standalone install of `twinflow-soe`,
    the queue ranks exceptions by `revenue_at_risk` descending, then `severity` descending, then
    `exception_id` ascending, groups them by `(type, node_id or lane_id or sku_id)`, and marks every
-   published exception `rationalised=False`. A reader can then tell an unrationalised queue from a
-   rationalised one, which a queue that silently skipped the step could not. The authority tier on
+   published exception `rationalized=False`. A reader can then tell an unrationalised queue from a
+   rationalized one, which a queue that silently skipped the step could not. The authority tier on
    `CorrectiveAction` comes from E5's autonomy levels; until E5 lands, every action is published at
    `L1` and the field is never absent, so no consumer has to handle a missing tier and no action can
    auto-apply by default.
@@ -1922,7 +1922,7 @@ MEIO is not here. It needs a network, and the network arrives at P3h.
 ### 8.6 P3g: cross-dock and e-commerce
 
 1. `twinflow-crossdock`. Depends on inbound receipts, outbound loads, and the dock broker. Ships with the baseline `DockScheduleProvider`; E12 replaces it later and the improvement is measured against this baseline.
-2. `twinflow-fulfilment` e-commerce half: each-picking modes, travel models, cartonisation, parcel rate shopping, peak-day chaos, channel unit economics, parcel-versus-pallet interference measurement. Goods-to-person needs the AMR fleet, which arrived at P3b.
+2. `twinflow-fulfillment` e-commerce half: each-picking modes, travel models, cartonisation, parcel rate shopping, peak-day chaos, channel unit economics, parcel-versus-pallet interference measurement. Goods-to-person needs the AMR fleet, which arrived at P3b.
 3. E41 VAS and postponement half. Reason for placing it here rather than with the VMI half: kitting and postponement are DC work content whose value shows up against the e-commerce order profile, and the pooling argument needs the variant demand structure that the e-commerce channel supplies.
 
 ### 8.7 P3h: transport, then sites, then MEIO
@@ -1948,7 +1948,7 @@ No new packages from this section land here, but three integrations do, and they
 
 Remaining items from this section, in the author's stated E order:
 
-- **E20 reverse stress testing.** Stays in P6 because it is not an upstream dependency of earlier work, and because stage 3 of its search wants E28's surrogate and E9's optimiser, both P6. Its `DisruptionSpace` declaration already shipped in Phase 0, so E20 is additive when it lands.
+- **E20 reverse stress testing.** Stays in P6 because it is not an upstream dependency of earlier work, and because stage 3 of its search wants E28's surrogate and E9's optimizer, both P6. Its `DisruptionSpace` declaration already shipped in Phase 0, so E20 is additive when it lands.
 - **E42 strategic network design.** Stays in P6 per the author's order. It is downstream of everything: it needs the transport rate model, the demand geography, the multi-site instantiation path, and a mature operational twin to hand designs to. Its value is highest last, because the design-versus-operation gap it publishes is only interesting once the operational model is trustworthy.
 - **E13b federated learning.** With E43's model registry, per 8.7.
 
@@ -1960,13 +1960,13 @@ These are genuine ambiguities in the source. None has been silently resolved.
 
 **9.1 Who owns the demand generator.** Component 6a says "the ERP stub generates a synthetic demand signal", and 6b says the ERP stub is "kept deliberately small". This spec puts the generator in `twinflow-demand` and makes the ERP stub a thin publisher that calls it, on the grounds that a forecasting brick a reader installs alone needs a demand source and the ERP stub must stay small. If the author prefers the generator inside the ERP stub, `twinflow-demand` becomes a library the stub depends on and the event producer field changes. The event contract is identical either way, so this is reversible, but the decision belongs before P3d.
 
-**9.2 Goods-to-person station ownership.** 6a6 calls goods-to-person an AMR what-if. The AMR fleet, its task allocation, and its traffic management are 1b, which lands at P3b. This spec puts the GTP pick station and its queueing in `twinflow-fulfilment` and calls into the AMR fleet for transport tasks. The alternative is putting the station in the automation package. The seam matters because the station's throughput is the constraint in most GTP designs, and whichever package owns it owns that KPI.
+**9.2 Goods-to-person station ownership.** 6a6 calls goods-to-person an AMR what-if. The AMR fleet, its task allocation, and its traffic management are 1b, which lands at P3b. This spec puts the GTP pick station and its queueing in `twinflow-fulfillment` and calls into the AMR fleet for transport tasks. The alternative is putting the station in the automation package. The seam matters because the station's throughput is the constraint in most GTP designs, and whichever package owns it owns that KPI.
 
 **9.3 Order state model boundary.** 6a3 and 6a6 need orders at P3e; 6a12's full order-lifecycle engine arrives after P3i. This spec defines `OrderLite` with a minimal state set that 6a12 extends additively under C3. The open question is whether 6a12 is permitted to extend the enum, or whether the author wants a single order state model designed up front in Phase 0 and frozen. Extending an enum is additive and legal under C3; replacing it is a major version break.
 
 **9.4 Cross-dock's dependence on E12.** 6a5 says "the yard optimization of E12 becomes load-bearing here", but 6a5 is P3g and E12 is P6. This spec ships a deterministic baseline `DockScheduleProvider` at P3g and has E12 replace it later through the same interface, with the improvement measured against the baseline. The alternative is moving E12 forward to P3g under the agreed resequencing rule, on the grounds that it is an upstream dependency of 6a5. Both are defensible. The baseline-first version has the advantage that it produces the comparison table E12 needs to justify itself.
 
-**9.5 Freight classification data.** LTL rating needs a density-to-class mapping. Real NMFC classification tables are proprietary and cannot be redistributed in an Apache-2.0 repo. This spec ships a synthetic density-to-class table with the same structure, labelled synthetic. The alternative is to abstract away class entirely and rate LTL on density directly, which is simpler but loses a piece of vocabulary that a freight audience recognises immediately. Confirm which trade the author wants.
+**9.5 Freight classification data.** LTL rating needs a density-to-class mapping. Real NMFC classification tables are proprietary and cannot be redistributed in an Apache-2.0 repo. This spec ships a synthetic density-to-class table with the same structure, labeled synthetic. The alternative is to abstract away class entirely and rate LTL on density directly, which is simpler but loses a piece of vocabulary that a freight audience recognizes immediately. Confirm which trade the author wants.
 
 **9.6 Currency and FX.** E14's tariff engine and international inbound lanes imply cross-border transactions. The source never states whether the system is single-currency. Multi-currency affects landed cost, the GL in 6a17, contract terms, and the spot market. This spec assumes single-currency with a `currency` field present on monetary events so multi-currency is additive later, but the decision belongs to the finance section and is made once for the whole repo.
 
@@ -1980,14 +1980,14 @@ These are genuine ambiguities in the source. None has been silently resolved.
 
 **9.11 Gross versus net forecasting with returns.** 6a4 says "return-inflated stock is a real forecasting complication; the forecaster must handle it". Two conventions exist: forecast gross demand and model return inflow separately, or forecast net requirements directly. This spec chooses gross plus a separable distributed-lag return-inflow model, because it keeps the forecast auditable and lets the return model be validated on its own. If the author wants net forecasting, the arena's target series changes and every backtest number changes with it.
 
-**9.12 Spot-market calibration.** The spot index needs volatility and mean-reversion parameters that produce plausible behaviour. Public freight rate indices exist but their data is proprietary. This spec uses a synthetic Ornstein-Uhlenbeck process with parameters chosen to produce a plausible volatility band, documented as synthetic and not calibrated to any real index. Confirm that no calibration claim is wanted, because claiming calibration to a real index would need data the repo cannot ship.
+**9.12 Spot-market calibration.** The spot index needs volatility and mean-reversion parameters that produce plausible behavior. Public freight rate indices exist but their data is proprietary. This spec uses a synthetic Ornstein-Uhlenbeck process with parameters chosen to produce a plausible volatility band, documented as synthetic and not calibrated to any real index. Confirm that no calibration claim is wanted, because claiming calibration to a real index would need data the repo cannot ship.
 
 **9.13 What counts as the E20 threshold.** Reverse stress testing needs thresholds to search against. Service level is obvious. Cash comes from E22's financial twin, which is P6. This spec supports both and lets the config declare which are active, but until E22 exists only the service threshold is available, which makes the P6 ordering of E20 relative to E22 relevant. If E20 lands before E22, its first release searches on service alone and gains the cash threshold when E22 arrives.
 
-**9.14 Where the four governed metrics are defined and where their parts are published.** E26(b) puts one definition of `fill_rate`, `otif`, `days_of_supply`, and `landed_cost` in the governed semantic metrics layer, and this section publishes the numerator and the denominator of each rather than a second definition. Three of the four are settled: `fill_rate` and `otif` have their counts and denominators on `order.fulfilment.completed.v1` and `supplier.scorecard.v1`, and `days_of_supply` gained its denominator fields on `inventory.position.snapshot.v1` in 3.3. `landed_cost` is not settled, because its parts arrive from four sections: freight from `lane.rate.quoted.v1` here, duty from E14, carbon price from E17, and handling from 6a17. This section publishes its own part and names the others, but who assembles the total, and whether a partially assembled landed cost may be published at all before E14 and E17 land, is a decision for the metrics layer and the finance section together. Publishing a landed cost that silently omits duty is the failure mode to avoid.
+**9.14 Where the four governed metrics are defined and where their parts are published.** E26(b) puts one definition of `fill_rate`, `otif`, `days_of_supply`, and `landed_cost` in the governed semantic metrics layer, and this section publishes the numerator and the denominator of each rather than a second definition. Three of the four are settled: `fill_rate` and `otif` have their counts and denominators on `order.fulfillment.completed.v1` and `supplier.scorecard.v1`, and `days_of_supply` gained its denominator fields on `inventory.position.snapshot.v1` in 3.3. `landed_cost` is not settled, because its parts arrive from four sections: freight from `lane.rate.quoted.v1` here, duty from E14, carbon price from E17, and handling from 6a17. This section publishes its own part and names the others, but who assembles the total, and whether a partially assembled landed cost may be published at all before E14 and E17 land, is a decision for the metrics layer and the finance section together. Publishing a landed cost that silently omits duty is the failure mode to avoid.
 
-**9.15 Benchmark instance data and redistribution terms.** Three gates in 7.3 compare against published benchmark results, and the instance data behind them has three different licence positions. The M-competition series are conveniently redistributed in the `Mcomp` package on CRAN, version 2.8, published 2018-06-19, whose CRAN page states the licence as GPL-3, which cannot be vendored into an Apache-2.0 repository, so that gate reads operator-supplied data and records a skip otherwise. The container-loading instances `thpack1` to `thpack7` are published on OR-Library, which carries its own statement on legal use that has not been read here. CVRPLIB publishes the set A instances and their best-known solutions under terms that have likewise not been read here. Confirm for each source whether the instances may be vendored, and if not, the operator-supplied path with a recorded skip becomes the shipped arrangement for all three. Reporting a skipped gate as a pass is the outcome this question exists to prevent.
+**9.15 Benchmark instance data and redistribution terms.** Three gates in 7.3 compare against published benchmark results, and the instance data behind them has three different license positions. The M-competition series are conveniently redistributed in the `Mcomp` package on CRAN, version 2.8, published 2018-06-19, whose CRAN page states the license as GPL-3, which cannot be vendored into an Apache-2.0 repository, so that gate reads operator-supplied data and records a skip otherwise. The container-loading instances `thpack1` to `thpack7` are published on OR-Library, which carries its own statement on legal use that has not been read here. CVRPLIB publishes the set A instances and their best-known solutions under terms that have likewise not been read here. Confirm for each source whether the instances may be vendored, and if not, the operator-supplied path with a recorded skip becomes the shipped arrangement for all three. Reporting a skipped gate as a pass is the outcome this question exists to prevent.
 
-**9.16 Carrier tariff calibration.** Three shipped defaults look like carrier tariff values and are not: the dimensional divisors of 139 cubic inches per pound and 5000 cubic centimetres per kilogram, the parcel weight limit of 31.75 kilograms, and the parcel dimension and girth limits. They are working values chosen to produce plausible behaviour, and the synthetic carrier catalog says so in its header. Calibrating them against a real published tariff would make the parcel economics recognisable to a freight audience, and would need a tariff whose terms permit the numbers to be checked in. Confirm whether the author wants that, because the alternative, which is what ships now, is a model that is internally consistent and matches no carrier in particular.
+**9.16 Carrier tariff calibration.** Three shipped defaults look like carrier tariff values and are not: the dimensional divisors of 139 cubic inches per pound and 5000 cubic centimetres per kilogram, the parcel weight limit of 31.75 kilograms, and the parcel dimension and girth limits. They are working values chosen to produce plausible behavior, and the synthetic carrier catalog says so in its header. Calibrating them against a real published tariff would make the parcel economics recognizable to a freight audience, and would need a tariff whose terms permit the numbers to be checked in. Confirm whether the author wants that, because the alternative, which is what ships now, is a model that is internally consistent and matches no carrier in particular.
 
 **9.17 The tracking signal limit.** Brown's tracking signal is a second bias detector alongside the control chart, and the limit at which it fires is `forecast.tracking_signal_limit`, default 4. That default is a working convention. This section did not retrieve a published table that sets it, so it is not attributed to one, and a report that called it a standard limit would be asserting evidence this section does not have. Two ways out: attribute it to a retrievable published source and state the source in the README, or derive the limit from the false-alarm rate wanted on the smoothed-error process and publish that derivation. The second is more work and produces a number the repository can defend on its own.

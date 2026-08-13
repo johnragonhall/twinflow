@@ -20,7 +20,7 @@ looks for the member on PyPI, where nothing under packages/ has ever been
 published.
 
 It also checks that each package carries LICENSE and NOTICE, byte for byte the
-same as the repository root's. Apache-2.0 section 4(a) requires the licence to
+same as the repository root's. Apache-2.0 section 4(a) requires the license to
 reach every recipient of the work and 4(d) requires the NOTICE text to travel
 with it, and a wheel is a recipient. PEP 639 license-files cannot reach outside
 the package directory, so each package holds its own copy, and a copy is a thing

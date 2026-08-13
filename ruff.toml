@@ -1,7 +1,7 @@
 # Ruff configuration.
 #
 # Markdown is excluded from both the linter and the formatter. Ruff can format
-# Python code blocks inside Markdown, and that is the wrong behaviour here: the
+# Python code blocks inside Markdown, and that is the wrong behavior here: the
 # design documents under docs/design use illustrative snippets with aligned
 # trailing comments, written so a reader can scan a protocol at a glance. Ruff
 # reflows them into multi-line calls and drops the alignment, which costs
@@ -30,7 +30,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 [lint.isort]
 # twinflow is this project, not a third-party dependency. Without this, rule I
 # sorts `import twinflow.schemas` into the third-party block, and every package
-# added later re-sorts its neighbours' imports on the first run that touches
+# added later re-sorts its neighbors' imports on the first run that touches
 # them. The namespace prefix covers every package under packages/;
 # twinflow_roadmap is named separately because the roadmap tool sits outside the
 # twinflow namespace on purpose, being an operations-plane leaf that nothing

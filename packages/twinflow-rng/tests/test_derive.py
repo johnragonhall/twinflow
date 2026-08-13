@@ -63,7 +63,7 @@ def test_run_entropy_and_spawn_key_are_four_words_each():
 
     numpy zero-pads the run entropy up to the pool size when a spawn key is
     present. Fixing the run entropy at four words, which is the default pool
-    size, makes that branch unreachable, so its behaviour never enters the
+    size, makes that branch unreachable, so its behavior never enters the
     cross-language contract of A.7.
     """
     from twinflow.rng.derive import _entropy

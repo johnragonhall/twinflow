@@ -25,7 +25,7 @@ from twinflow.config._impl.errors import Diagnostic, Severity, nearest
 
 #: The published facility contract. The loader validates against this file
 #: rather than against a second copy expressed in Python, so the schema an
-#: author reads and the schema the loader enforces are one artefact.
+#: author reads and the schema the loader enforces are one artifact.
 FACILITY_SCHEMA = "config/facility/v1.json"
 
 
@@ -185,7 +185,7 @@ def _suggest_for(error: jsonschema.ValidationError) -> str:
 def check_references(document: Any, path: str) -> list[Diagnostic]:
     """Stage 6. Every reference resolves, and each names a nearby candidate.
 
-    Only the domains a Phase 0 artefact owns are resolved here. A reference into
+    Only the domains a Phase 0 artifact owns are resolved here. A reference into
     a domain no installed package owns is a different diagnostic (TF-C130), and
     it arrives with the entry-point registry that knows which domains exist.
     """
