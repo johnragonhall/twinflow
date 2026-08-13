@@ -18,10 +18,10 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- close P0 and specify the fifteen gates P2 now owes
 - publish an index of every test in the tree
 - let a gate name every test that proves it
 - read the body category the commit convention already requires
-- give the IP hygiene gate a job that always runs
 - let a fix name the test that already covers it
 - arm the contributor agreement and the layer map
 - express the Purdue split in the garage compose
@@ -29,7 +29,6 @@ here freely: the hook only ever adds.
 - give the agreement checks one home and arm their gate
 - run the regression gate over the branch
 - make a fix carry the test that catches it
-- hold the workflows to pinned inputs, attested output, and a scan
 - sign what the release builds and audit the workflows that build it
 - check that done means delivered and that no script is orphaned
 - give DET-002 the second platform it asserts
@@ -48,6 +47,7 @@ here freely: the hook only ever adds.
 ### Fixed
 
 - scope the ARCH-5 claim to the half that ships
+- give the unit tier the history its two history checks read
 - give the tier latency metric the package that measures it
 - refuse a topic type that takes a page out of the linter
 - close three checks that cannot fail
@@ -57,6 +57,9 @@ here freely: the hook only ever adds.
 - render a gate document the documentation gates accept
 
 ### Security
+
+- give the IP hygiene gate a job that always runs
+- hold the workflows to pinned inputs, attested output, and a scan
 
 ## [0.1.0] - 2026-08-13
 
