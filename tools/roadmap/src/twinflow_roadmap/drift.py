@@ -189,6 +189,26 @@ def check_drift(roadmap: Roadmap, *, offline: bool = False) -> DriftReport:
         return report
 
     titles = {str(issue.get("title", "")) for issue in open_issues}
+    projected = [
+        package for package in roadmap.work_packages if any(package.id in t for t in titles)
+    ]
+
+    # A tracker holding no roadmap issue at all has never been projected, which
+    # is a different fact from a tracker that disagrees. Reporting the first as
+    # the second makes every work package a finding on a repository whose
+    # projection has not been created yet, and that reading blocks the very
+    # release whose sync step creates it.
+    #
+    # One projected work package is enough to say the projection exists, and
+    # from there a missing issue is drift.
+    if not projected:
+        report.skipped.append(
+            f"issue checks: no issue in {repo} names a work package, so the tracker holds no "
+            f"projection of this plan yet. `just roadmap sync --apply` creates it, and the "
+            f"release ritual runs that at step 11c"
+        )
+        return report
+
     for package in roadmap.work_packages:
         if package.status == "planned":
             continue
@@ -196,8 +216,9 @@ def check_drift(roadmap: Roadmap, *, offline: bool = False) -> DriftReport:
             report.findings.append(
                 Finding(
                     "DRIFT-ISSUE",
-                    f"{package.id} is {package.status} and no issue in {repo} names it. Run "
-                    f"`just roadmap sync --apply` from a checkout",
+                    f"{package.id} is {package.status} and no issue in {repo} names it, while "
+                    f"{len(projected)} other work packages do. Run `just roadmap sync --apply` "
+                    f"from a checkout",
                     ROADMAP_FILE,
                     ids=(package.id,),
                 )
