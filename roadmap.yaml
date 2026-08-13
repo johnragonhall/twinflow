@@ -523,7 +523,7 @@ work_packages:
       - VAL-GATE-CI-001
     brick: null
     release: v0.1.0
-    status: planned
+    status: done
   - id: WP-P0-16
     title: "Pin the reference runner and record its digest"
     phase: P0
@@ -537,7 +537,7 @@ work_packages:
     gates: []
     brick: null
     release: v0.1.0
-    status: planned
+    status: done
   - id: WP-P0-17
     title: "Record the SCN-F1 determinism scenario and prove the two-run hash match"
     phase: P0

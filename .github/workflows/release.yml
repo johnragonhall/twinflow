@@ -117,9 +117,8 @@ jobs:
       #    the gates that do exist run individually rather than through it.
       - name: Step 4, phase-exit gates
         run: |
-          echo "SKIP: just gate phase-exit arrives with WP-P0-15. Running the implemented gates."
+          just gate phase-exit
           just determinism
-          just roadmap-gate
 
       - name: Step 4b, roadmap drift against the tracker
         env:

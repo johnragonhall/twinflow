@@ -49,6 +49,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- call the phase-exit runner and record the work it ran
 - carry the Apache-2.0 text to the byte
 - give the local actionlint the shellcheck it needs to match CI
 - run shellcheck and actionlint locally, and on shell files only
