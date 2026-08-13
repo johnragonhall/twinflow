@@ -26,7 +26,7 @@ Three statuses, and the required field set widens with each:
 that set which is not `implemented` fails the run rather than being skipped,
 because the registry already promised it at the phase it starts at.
 
-## The registry (141 gates)
+## The registry (142 gates)
 
 | Gate                       | First phase | Kind         | Standing | Status      | Owner                             |
 |----------------------------|-------------|--------------|----------|-------------|-----------------------------------|
@@ -131,6 +131,7 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-QS-001`          | P1          | budget       | yes      | specified   | docs/design/repo-craft.md         |
 | `VAL-GATE-RECALL-001`      | 6a11        | budget       | no       | declared    | docs/design/production-quality.md |
 | `VAL-GATE-RECALL-002`      | P6-W3       | budget       | no       | declared    | docs/design/production-quality.md |
+| `VAL-GATE-REG-001`         | P0          | invariant    | yes      | implemented | docs/testing-policy.md            |
 | `VAL-GATE-REL-001`         | P0          | validation   | yes      | implemented | docs/design/foundations.md 5.8    |
 | `VAL-GATE-RELBUD-001`      | P1          | budget       | yes      | specified   | docs/design/roadmap.md 7.5        |
 | `VAL-GATE-RET-001`         | P3f         | invariant    | no       | declared    | docs/design/planning-supply.md    |
@@ -690,6 +691,16 @@ Declared at 6a11, owned by docs/design/production-quality.md. Its assertion is s
 
 Declared at P6-W3, owned by docs/design/production-quality.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
 
+### `VAL-GATE-REG-001`
+
+**Asserts.** Every commit since v0.1.0 whose type is fix touches at least one test file, or records a Regression-Test trailer giving at least twenty characters of reason why the defect has no test that could fail.
+
+**Falsified by.** One fix commit that changes no test and carries no exemption trailer, or an exemption whose reason is shorter than the floor.
+
+**Reference.** Conventional Commits 1.0.0, which defines `fix` as a commit that patches a bug. <https://www.conventionalcommits.org/en/v1.0.0/>
+
+**Runs.** `uv run python scripts/checks/regression-test-gate.py --range v0.1.0..HEAD`, tested by `tests/test_regression_test_gate.py`.
+
 ### `VAL-GATE-REL-001`
 
 **Asserts.** CHANGELOG has a section for this tag, the semver bump matches the C9 policy for package APIs, REST and MCP contracts, event schemas, and facility.yaml, and the C6 compatibility table lists which recorded runs and configs this release loads.
@@ -904,37 +915,37 @@ registry cannot disagree.
 
 | Phase     | Gates in force |
 |-----------|----------------|
-| `P0`      | 12             |
-| `P1`      | 23             |
-| `P2`      | 36             |
-| `P3`      | 35             |
-| `P3b`     | 26             |
-| `P3c`     | 28             |
-| `P3d`     | 28             |
-| `P3e`     | 26             |
-| `P3f`     | 25             |
-| `P3g`     | 26             |
-| `P3h`     | 28             |
-| `P3i`     | 27             |
-| `ECON`    | 28             |
-| `6a10`    | 28             |
-| `6a11`    | 29             |
-| `ROST`    | 25             |
-| `6a12`    | 27             |
-| `RISK`    | 26             |
-| `6a13`    | 26             |
-| `6a14`    | 26             |
-| `OTDRILL` | 25             |
-| `6a15`    | 27             |
-| `CAUSAL`  | 26             |
-| `6a16`    | 27             |
-| `SOE`     | 25             |
-| `6a17`    | 28             |
-| `P4`      | 26             |
-| `P5`      | 27             |
-| `P6-W1`   | 28             |
-| `P6-W2`   | 30             |
-| `P6-W3`   | 30             |
-| `P6-W4`   | 28             |
-| `P6-W5`   | 29             |
-| `P6-W6`   | 26             |
+| `P0`      | 13             |
+| `P1`      | 24             |
+| `P2`      | 37             |
+| `P3`      | 36             |
+| `P3b`     | 27             |
+| `P3c`     | 29             |
+| `P3d`     | 29             |
+| `P3e`     | 27             |
+| `P3f`     | 26             |
+| `P3g`     | 27             |
+| `P3h`     | 29             |
+| `P3i`     | 28             |
+| `ECON`    | 29             |
+| `6a10`    | 29             |
+| `6a11`    | 30             |
+| `ROST`    | 26             |
+| `6a12`    | 28             |
+| `RISK`    | 27             |
+| `6a13`    | 27             |
+| `6a14`    | 27             |
+| `OTDRILL` | 26             |
+| `6a15`    | 28             |
+| `CAUSAL`  | 27             |
+| `6a16`    | 28             |
+| `SOE`     | 26             |
+| `6a17`    | 29             |
+| `P4`      | 27             |
+| `P5`      | 28             |
+| `P6-W1`   | 29             |
+| `P6-W2`   | 31             |
+| `P6-W3`   | 31             |
+| `P6-W4`   | 29             |
+| `P6-W5`   | 30             |
+| `P6-W6`   | 27             |

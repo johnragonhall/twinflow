@@ -1,5 +1,16 @@
 # Single task entry point. CI calls these same recipes, so a green local run
 # and a green CI run mean the same thing.
+#
+# PERF: deferred - `uv run` costs 763ms of startup before any recipe code runs,
+# against 132ms for the interpreter in .venv (medians of 5, this checkout).
+# Across the six gates the pre-commit hook calls that is 5110ms against 1389ms
+# wall clock, 3 runs each with no overlap. Calling .venv/Scripts/python.exe
+# directly is a 3.7x cut to the wait on every commit, and it gives up the
+# environment check uv performs on each invocation. Whether a hook should
+# re-verify the lockfile before every commit is the owner's call, not a
+# tuning decision, so the number is recorded here and nothing is changed.
+# Revisit when the hook exceeds ten seconds or when CI minutes are the
+# constraint. CI keeps `uv run` either way: a runner has no warm .venv.
 
 # List every recipe with its description.
 default:
@@ -124,7 +135,8 @@ gate subcommand="phase-exit" *args:
     set -eu
     case '{{subcommand}}' in
         phase-exit) uv run python scripts/checks/phase-exit-gate.py {{args}} ;;
-        *) echo "unknown gate subcommand: {{subcommand}}. Known: phase-exit" >&2; exit 2 ;;
+        regression) uv run python scripts/checks/regression-test-gate.py --range v0.1.0..HEAD ;;
+        *) echo "unknown gate subcommand: {{subcommand}}. Known: phase-exit, regression" >&2; exit 2 ;;
     esac
 
 # RMAP-001. The three offline commands plus the offline half of drift, which is

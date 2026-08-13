@@ -173,6 +173,24 @@ if [ -n "$SPELL_PY" ] && [ -f scripts/checks/spelling-gate.py ]; then
   $SPELL_PY scripts/checks/spelling-gate.py --commit-msg "$msg_file" || exit 1
 fi
 
+# --- regression test, REG-001 ---------------------------------------------
+# A fix ships with the test that catches it. Checked here rather than in the
+# pre-commit hook because the rule reads the commit type, and the type does not
+# exist until the message does. Stdlib only, so no --with is needed.
+REG_PY=""
+if command -v uv >/dev/null 2>&1; then
+  REG_PY="uv run --quiet --no-project python"
+else
+  for candidate in python3 python; do
+    command -v "$candidate" >/dev/null 2>&1 && { REG_PY="$candidate"; break; }
+  done
+fi
+if [ -n "$REG_PY" ] && [ -f scripts/checks/regression-test-gate.py ]; then
+  # Word splitting is the point: REG_PY is a command with arguments.
+  # shellcheck disable=SC2086
+  $REG_PY scripts/checks/regression-test-gate.py --staged "$msg_file" || exit 1
+fi
+
 # The fuzzy half of the same rule. Fails open when the CLI is unavailable, and
 # is skipped outright when the judge is turned off, so the disable switch costs
 # nothing rather than starting a process that exits immediately.

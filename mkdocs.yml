@@ -120,6 +120,7 @@ nav:
       - Template: adr/template.md
   - Working here:
       - Testing strategy: testing-strategy.md
+      - Testing policy: testing-policy.md
       - Code review policy: code-review.md
       - Documentation standard: DOCUMENTATION-STANDARD.md
 
