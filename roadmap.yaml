@@ -466,7 +466,7 @@ work_packages:
       - VAL-GATE-RMAP-001
     brick: twinflow-roadmap
     release: v0.1.0
-    status: in_progress
+    status: done
   - id: WP-P0-13
     title: "Sync milestones and issues to GitHub under the banned-label policy"
     phase: P0
@@ -482,7 +482,7 @@ work_packages:
       - VAL-GATE-RMAP-001
     brick: twinflow-roadmap
     release: v0.1.0
-    status: planned
+    status: done
   - id: WP-P0-14
     title: "Run the release ritual unattended from a tag"
     phase: P0
