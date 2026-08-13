@@ -139,3 +139,65 @@ def test_validate_runs_both_halves(roadmap):
     findings = roadmap.validate()
     assert findings == []
     assert completeness.check(roadmap) == []
+
+
+def test_a_script_does_not_answer_for_itself(roadmap, tmp_path):
+    """An orphan that names itself is still an orphan.
+
+    Regression. A usage line, an argparse prog, or a module docstring names the
+    file it sits in, and all 26 scripts in this repository carry one. Searching
+    a single concatenated haystack lets every one of them satisfy the check on
+    its own text, so the search returns nothing and reports a clean tree
+    whatever is in it. A gate that cannot fail is not a gate.
+    """
+    root = tmp_path
+    (root / "scripts" / "checks").mkdir(parents=True)
+    (root / "justfile").write_text("check:\n    echo hi\n", encoding="utf-8")
+    (root / "scripts" / "checks" / "orphan-gate.py").write_text(
+        '"""orphan-gate.py: nothing calls this."""\nx = 1\n', encoding="utf-8"
+    )
+
+    original = roadmap.root
+    object.__setattr__(roadmap, "root", root)
+    try:
+        findings = completeness.check_reached(roadmap)
+    finally:
+        object.__setattr__(roadmap, "root", original)
+
+    assert [f.rule for f in findings] == ["ORPHAN-SCRIPT"]
+
+
+def test_a_peer_naming_a_script_still_reaches_it(roadmap, tmp_path):
+    """Excluding a script's own text does not cost it a genuine caller."""
+    root = tmp_path
+    (root / "scripts" / "checks").mkdir(parents=True)
+    (root / "justfile").write_text("check:\n    bash scripts/caller.sh\n", encoding="utf-8")
+    (root / "scripts" / "caller.sh").write_text(
+        "python scripts/checks/worker.py\n", encoding="utf-8"
+    )
+    (root / "scripts" / "checks" / "worker.py").write_text(
+        '"""worker.py does the work."""\nx = 1\n', encoding="utf-8"
+    )
+
+    original = roadmap.root
+    object.__setattr__(roadmap, "root", root)
+    try:
+        findings = completeness.check_reached(roadmap)
+    finally:
+        object.__setattr__(roadmap, "root", original)
+
+    assert findings == []
+
+
+def test_every_real_script_names_itself(roadmap):
+    """The premise the regression above rests on, checked rather than asserted.
+
+    If scripts stop carrying their own name the exclusion becomes harmless
+    rather than load-bearing, and this test is what says so.
+    """
+    self_naming = [
+        path
+        for path in completeness.script_paths(REPO_ROOT)
+        if path.name in path.read_text(encoding="utf-8", errors="replace")
+    ]
+    assert len(self_naming) >= 20, "the self-reference the exclusion exists for is gone"

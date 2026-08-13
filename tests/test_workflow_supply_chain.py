@@ -82,14 +82,53 @@ def test_every_pin_records_the_tag_it_came_from():
                 assert "#" in line.split("uses:", 1)[1], f"{path.name}:{number} pins with no tag"
 
 
+#: The two shorthands GitHub accepts in place of a scope map. `write-all` is
+#: every scope at write, which is the opposite of what a top-level default is
+#: for, and it arrives as a plain string rather than as a mapping.
+PERMISSION_SHORTHANDS = ("read-all", "write-all")
+
+
 def test_no_workflow_grants_write_by_default():
+    """The top-level default is the floor every job starts from.
+
+    A scope map and a shorthand string are both legal here, so both are read.
+    Checking only the map would leave the shorthand unread, and `write-all` is
+    written as a shorthand.
+    """
+    checked = 0
     for path in workflow_files():
         document = load(path)
         permissions = document.get("permissions")
         assert permissions is not None, f"{path.name} declares no top-level permissions"
-        if isinstance(permissions, dict):
+
+        if isinstance(permissions, str):
+            assert permissions in PERMISSION_SHORTHANDS, (
+                f"{path.name} declares permissions {permissions!r}, which is neither a "
+                f"scope map nor a shorthand this test knows how to read"
+            )
+            assert permissions != "write-all", (
+                f"{path.name} grants write on every scope to every job"
+            )
+        else:
             for scope, level in permissions.items():
                 assert level != "write", f"{path.name} grants {scope}: write to every job"
+        checked += 1
+
+    # A workflow whose permissions this test cannot parse is a workflow it does
+    # not check, and a count proves every one was read rather than skipped.
+    assert checked == len(workflow_files())
+
+
+def test_the_shorthand_form_is_actually_exercised():
+    """At least one workflow uses the string form the branch above reads.
+
+    Without this the shorthand branch is unreachable in this repository, and an
+    unreachable branch is one nothing would notice going wrong.
+    """
+    shorthands = [
+        path.name for path in workflow_files() if isinstance(load(path).get("permissions"), str)
+    ]
+    assert shorthands, "no workflow uses the shorthand form, so that branch is untested"
 
 
 def test_the_release_builds_twice_and_compares(  # PROV-001

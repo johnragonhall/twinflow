@@ -111,9 +111,10 @@ def compare(
             if a == b:
                 continue
 
-            # bool before float: in Python a bool is an int, and an int is not
-            # a continuous field however it compares.
-            if isinstance(a, float) and isinstance(b, float) and not isinstance(a, bool):
+            # `float` alone is the continuous test. A bool subclasses int and an
+            # int is not a float, so both fall through to the business-field
+            # comparison below and are held to exact equality.
+            if isinstance(a, float) and isinstance(b, float):
                 divergence = relative_divergence(a, b)
                 worst = max(worst, divergence)
                 if tolerance is not None and divergence > tolerance:

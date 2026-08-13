@@ -156,15 +156,8 @@ def caller_text(root: Path) -> str:
     return "\n".join(chunks)
 
 
-def check_reached(roadmap) -> list[Finding]:
-    """Every script under scripts/ and tools/ that nothing invokes."""
-    findings: list[Finding] = []
-    root = roadmap.root
-    text = caller_text(root)
-    planned = planned_paths(roadmap)
-
-    # A script may also be called by another script, so the scripts themselves
-    # are part of the caller set. Read once rather than per candidate.
+def script_paths(root: Path) -> list[Path]:
+    """Every script under the roots whose reachability is in scope."""
     scripts: list[Path] = []
     for script_root in SCRIPT_ROOTS:
         base = root / script_root
@@ -173,9 +166,25 @@ def check_reached(roadmap) -> list[Finding]:
         for path in sorted(base.rglob("*")):
             if path.suffix in SCRIPT_SUFFIXES and "__pycache__" not in path.parts:
                 scripts.append(path)
+    return scripts
 
-    peer_text = "\n".join(path.read_text(encoding="utf-8", errors="replace") for path in scripts)
-    haystack = text + "\n" + peer_text
+
+def check_reached(roadmap) -> list[Finding]:
+    """Every script under scripts/ and tools/ that nothing invokes."""
+    findings: list[Finding] = []
+    root = roadmap.root
+    callers = caller_text(root)
+    planned = planned_paths(roadmap)
+
+    scripts = script_paths(root)
+    # A script may be called by another script, so the scripts are part of the
+    # caller set. Each body is kept under its own path rather than concatenated,
+    # because a script is not permitted to answer for itself: a usage line, an
+    # argparse prog, or a module docstring names the file it sits in, and every
+    # gate in this repository carries one. A single haystack would let all of
+    # them satisfy the check on their own text and the search would find nothing
+    # it was written to find.
+    bodies = {path: path.read_text(encoding="utf-8", errors="replace") for path in scripts}
 
     for path in scripts:
         relative = path.relative_to(root).as_posix()
@@ -187,7 +196,12 @@ def check_reached(roadmap) -> list[Finding]:
             continue
         # By full path or by bare name: a justfile calls the path, and a Python
         # caller may import the stem.
-        if relative in haystack or path.name in haystack:
+        named_by = (relative, path.name)
+        if any(needle in callers for needle in named_by):
+            continue
+        if any(
+            needle in body for peer, body in bodies.items() if peer != path for needle in named_by
+        ):
             continue
         findings.append(
             Finding(

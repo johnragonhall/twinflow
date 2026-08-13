@@ -133,3 +133,26 @@ def test_the_shipped_scenario_compares_clean_against_itself(tmp_path):
     findings, worst = tool.compare(events, events, 0.0)
     assert findings == []
     assert worst == 0.0
+
+
+def test_a_bool_is_a_business_field_not_a_continuous_one():
+    """Regression. `True` must never be compared under a tolerance.
+
+    A bool subclasses int, so the guard that matters is that neither reaches
+    the float branch. Asserted against behavior rather than against the
+    isinstance chain, so a rewrite of that chain is still held to it.
+    """
+    left = [{"twinflowsimts": 0, "twinflowproducerid": "a", "twinflowseq": 0, "ok": True}]
+    right = [{"twinflowsimts": 0, "twinflowproducerid": "a", "twinflowseq": 0, "ok": False}]
+    findings, worst = tool.compare(left, right, tolerance=1.0)
+    assert any("business field" in f for f in findings)
+    assert worst == 0.0
+
+
+def test_an_int_is_a_business_field_not_a_continuous_one():
+    """Regression. A count that drifts is a different run, not rounding."""
+    left = [{"twinflowsimts": 0, "twinflowproducerid": "a", "twinflowseq": 0, "n": 7}]
+    right = [{"twinflowsimts": 0, "twinflowproducerid": "a", "twinflowseq": 0, "n": 8}]
+    findings, worst = tool.compare(left, right, tolerance=1.0)
+    assert any("business field" in f for f in findings)
+    assert worst == 0.0
