@@ -30,6 +30,8 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- render a gate document the documentation gates accept
+
 ### Security
 
 ## [0.1.0] - 2026-08-13
