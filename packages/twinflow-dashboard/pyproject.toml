@@ -1,0 +1,52 @@
+[project]
+name = "twinflow-dashboard"
+description = "The dashboard stub, and the accessibility floor it is held to."
+requires-python = ">=3.12"
+# Exactly the four names section 2.1 of docs/design/dashboard-replay.md fixes,
+# and nothing else. No frontend toolchain, no npm, no node at run time: node is
+# a development dependency for the browser test tier only.
+#
+# The list is short on purpose. `pip install twinflow-dashboard` followed by
+# `twinflow-dashboard demo` is the A1 proof, and every name added here is a
+# second thing a reader installs to see the first one work. No port signature in
+# this package names a columnar or dataframe type, which is what keeps the D-10
+# clean-environment import job a claim that can be falsified.
+#
+# httpx is deliberately absent. It pulls certifi, which is MPL-2.0, and the
+# CONTRIBUTING.md allowlist row that applies to a run-time dependency reads
+# Refused. Nothing here makes an HTTP request: the browser reads twinflow-api,
+# and this process serves a file.
+dependencies = [
+    "starlette>=0.37,<2",
+    "uvicorn>=0.30,<1",
+    "pydantic>=2.9",
+    "twinflow-schemas",
+]
+
+# Read from the module, so __version__ and the distribution metadata are one
+# value and cannot disagree.
+dynamic = ["version"]
+
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+
+[build-system]
+# 1.27 is where hatchling accepts the PEP 639 license fields above.
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/twinflow/dashboard/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+# The whole namespace directory, so assets/index.html travels with the wheel.
+# A package that imported cleanly and served a 500 on the first request would
+# fail the A1 proof at the only moment a reader is watching.
+packages = ["src/twinflow"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "pyproject.toml"]
+exclude = ["**/__pycache__", "**/*.py[co]", "**/.pytest_cache"]
+
+[tool.uv.sources]
+twinflow-schemas = { workspace = true }

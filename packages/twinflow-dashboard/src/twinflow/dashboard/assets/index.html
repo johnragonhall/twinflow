@@ -1,0 +1,885 @@
+<!doctype html>
+<!--
+  THE single file. Requirement 8 says single-file with no build step, and
+  docs/design/ui-direction.md section 2.3 argues that decision rather than
+  inheriting it: the browser unit tier extracts the script blocks below and
+  evaluates them in node:vm, which works because a classic script is a plain
+  string of source and a bundle is not.
+
+  Nothing here is substituted at serve time. The server reads this file off disk
+  byte for byte and the page fetches /config.json for everything it needs to
+  know about the deployment, so the file under test is the file being served.
+
+  Gate VAL-GATE-A11Y-001 is the floor this file is held to. Three of its clauses
+  are checked against this markup and this stylesheet by the tests in
+  packages/twinflow-dashboard/tests/. The axe-core clause is not, and nothing in
+  this repository should be read as evidence for it.
+-->
+<html lang="en" data-theme="light" data-contrast="normal" data-tf-motion="full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>twinflow dashboard</title>
+    <style>
+      /*
+        Section 4.3 token set, in OKLCH. Every value below is copied from that
+        table with its computed contrast ratio, so a change here is a change to
+        a number that was measured rather than chosen by eye.
+      */
+      :root {
+        --tf-bg: oklch(0.985 0.004 250);
+        --tf-bg-raised: oklch(1 0 250);
+        --tf-bg-sunken: oklch(0.945 0.006 250);
+        --tf-fg: oklch(0.25 0.02 250);
+        --tf-fg-muted: oklch(0.5 0.02 250);
+        --tf-fg-inverse: oklch(0.99 0 250);
+        --tf-border: oklch(0.86 0.012 250);
+        --tf-border-strong: oklch(0.61 0.018 250);
+        --tf-focus: oklch(0.52 0.192 258);
+        --tf-sev-critical: oklch(0.42 0.17 27);
+        --tf-sev-high: oklch(0.46 0.104 62);
+        --tf-sev-medium: oklch(0.65 0.13 92);
+        --tf-sev-low: oklch(0.5 0.13 248);
+        --tf-sev-info: oklch(0.54 0.02 250);
+        --tf-ok: oklch(0.52 0.13 150);
+        --tf-warn: oklch(0.58 0.122 75);
+        --tf-stale: oklch(0.58 0.02 250);
+
+        /*
+          Section 9.2 durations. Every one of them is a token, and every
+          transition below is written through a token, because section 9.4 sets
+          them to zero under reduced motion and a literal duration is invisible
+          to that preference. A test asserts both halves of that sentence.
+        */
+        --tf-duration-arrival: 400ms;
+        --tf-duration-rank: 150ms;
+        --tf-duration-panel-in: 150ms;
+        --tf-duration-panel-out: 100ms;
+        --tf-duration-dialog: 150ms;
+        --tf-duration-sparkline: 100ms;
+        --tf-duration-rate-meter: 250ms;
+        --tf-duration-theme: 200ms;
+        --tf-duration-flow: 1200ms;
+
+        --tf-target: 24px;
+        --tf-glyph: 14px;
+      }
+
+      html[data-theme="dark"] {
+        --tf-bg: oklch(0.205 0.014 250);
+        --tf-bg-raised: oklch(0.255 0.014 250);
+        --tf-bg-sunken: oklch(0.165 0.014 250);
+        --tf-fg: oklch(0.95 0.008 250);
+        --tf-fg-muted: oklch(0.745 0.014 250);
+        --tf-fg-inverse: oklch(0.18 0.01 250);
+        --tf-border: oklch(0.36 0.016 250);
+        --tf-border-strong: oklch(0.55 0.02 250);
+        --tf-focus: oklch(0.8 0.14 240);
+        --tf-sev-critical: oklch(0.64 0.19 27);
+        --tf-sev-high: oklch(0.78 0.15 62);
+        --tf-sev-medium: oklch(0.86 0.14 92);
+        --tf-sev-low: oklch(0.72 0.12 248);
+        --tf-sev-info: oklch(0.68 0.02 250);
+      }
+
+      html[data-theme="light"][data-contrast="more"] {
+        --tf-bg: oklch(1 0 250);
+        --tf-bg-raised: oklch(0.975 0.004 250);
+        --tf-bg-sunken: oklch(0.93 0.008 250);
+        --tf-fg: oklch(0.16 0.02 250);
+        --tf-fg-muted: oklch(0.38 0.02 250);
+        --tf-border-strong: oklch(0.48 0.02 250);
+        --tf-focus: oklch(0.42 0.154 258);
+        --tf-sev-critical: oklch(0.36 0.146 27);
+        --tf-sev-high: oklch(0.4 0.092 60);
+        --tf-sev-medium: oklch(0.59 0.12 90);
+        --tf-sev-low: oklch(0.44 0.124 250);
+        --tf-sev-info: oklch(0.48 0.02 250);
+      }
+
+      /*
+        Section 9.4. The operating system preference and the in-interface
+        preference both reach the same tokens, and the interface overrides the
+        operating system in both directions. Every duration token declared above
+        is set to zero in each of these two blocks.
+      */
+      @media (prefers-reduced-motion: reduce) {
+        :root {
+          --tf-duration-arrival: 0ms;
+          --tf-duration-rank: 0ms;
+          --tf-duration-panel-in: 0ms;
+          --tf-duration-panel-out: 0ms;
+          --tf-duration-dialog: 0ms;
+          --tf-duration-sparkline: 0ms;
+          --tf-duration-rate-meter: 0ms;
+          --tf-duration-theme: 0ms;
+          --tf-duration-flow: 0ms;
+        }
+      }
+
+      html[data-tf-motion="reduced"] {
+        --tf-duration-arrival: 0ms;
+        --tf-duration-rank: 0ms;
+        --tf-duration-panel-in: 0ms;
+        --tf-duration-panel-out: 0ms;
+        --tf-duration-dialog: 0ms;
+        --tf-duration-sparkline: 0ms;
+        --tf-duration-rate-meter: 0ms;
+        --tf-duration-theme: 0ms;
+        --tf-duration-flow: 0ms;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--tf-bg);
+        color: var(--tf-fg);
+        font: 15px/1.45 ui-sans-serif, system-ui, sans-serif;
+        transition: background-color var(--tf-duration-theme) ease-out;
+      }
+
+      :focus-visible {
+        outline: 3px solid var(--tf-focus);
+        outline-offset: 2px;
+      }
+
+      .tf-skip {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        background: var(--tf-bg-raised);
+        color: var(--tf-fg);
+        padding: 8px 12px;
+        border: 2px solid var(--tf-focus);
+        z-index: 10;
+      }
+
+      .tf-skip:focus {
+        left: 8px;
+      }
+
+      button,
+      select,
+      summary {
+        min-height: var(--tf-target);
+        min-width: var(--tf-target);
+        font: inherit;
+        color: var(--tf-fg);
+        background: var(--tf-bg-raised);
+        border: 1px solid var(--tf-border-strong);
+        border-radius: 4px;
+        padding: 2px 10px;
+      }
+
+      #tf-header {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--tf-border);
+        background: var(--tf-bg-raised);
+      }
+
+      h1 {
+        font-size: 1.05rem;
+        margin: 0;
+        letter-spacing: 0.04em;
+      }
+
+      #tf-synthetic-badge {
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        border: 2px solid var(--tf-border-strong);
+        background: var(--tf-bg-sunken);
+      }
+
+      #tf-provenance-note {
+        flex-basis: 100%;
+        color: var(--tf-fg-muted);
+        margin: 0;
+        transition:
+          opacity var(--tf-duration-panel-in) ease-out,
+          height var(--tf-duration-panel-in) ease-out;
+      }
+
+      #tf-provenance-note[hidden] {
+        display: none;
+      }
+
+      #tf-safety-band {
+        border: 2px solid var(--tf-sev-critical);
+        border-left-width: 8px;
+        background: var(--tf-bg-raised);
+        padding: 8px 16px;
+        margin: 0;
+      }
+
+      #tf-safety-band[hidden] {
+        display: none;
+      }
+
+      #tf-main {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+
+      /*
+        Section 10. The DOM order is header, safety band, center, left, right,
+        footer, so a keyboard reader reaches the finding before the picture. The
+        visual order at three columns is left, center, right, and `order` is
+        what separates the two. This is the one place this interface lets the
+        visual order and the tab order diverge, and ACCESSIBILITY.md records it
+        rather than leaving it for a reviewer to find.
+      */
+      @media (min-width: 60rem) {
+        #tf-main {
+          grid-template-columns: 1fr 1.2fr 1fr;
+        }
+
+        #tf-left {
+          order: 1;
+        }
+
+        #tf-center {
+          order: 2;
+        }
+
+        #tf-right {
+          order: 3;
+        }
+      }
+
+      section.tf-panel {
+        border: 1px solid var(--tf-border);
+        background: var(--tf-bg-raised);
+        border-radius: 6px;
+        padding: 10px 12px;
+        min-width: 0;
+      }
+
+      h2 {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--tf-fg-muted);
+        margin: 0 0 8px;
+      }
+
+      #tf-findings {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-height: 22rem;
+        overflow-y: auto;
+      }
+
+      .tf-finding {
+        display: grid;
+        grid-template-columns: auto auto auto 1fr;
+        gap: 8px;
+        align-items: center;
+        padding: 6px 4px;
+        border-bottom: 1px solid var(--tf-border);
+        transition:
+          background-color var(--tf-duration-arrival) linear,
+          transform var(--tf-duration-rank) cubic-bezier(0, 0, 0.2, 1);
+      }
+
+      .tf-sev-word {
+        font-weight: 700;
+        font-size: 0.78rem;
+        letter-spacing: 0.06em;
+      }
+
+      .tf-class-word {
+        font-size: 0.78rem;
+        color: var(--tf-fg-muted);
+      }
+
+      .tf-glyph {
+        width: var(--tf-glyph);
+        height: var(--tf-glyph);
+        flex: none;
+      }
+
+      .tf-glyph polygon {
+        stroke: var(--tf-border-strong);
+        stroke-width: 1.5;
+      }
+
+      /*
+        Fill only. The shape, the word, and the row position carry the severity
+        on their own, which is what section 6.4 means by surviving grayscale,
+        forced colors, and a compressed GIF.
+      */
+      .tf-glyph-critical polygon {
+        fill: var(--tf-sev-critical);
+      }
+
+      .tf-glyph-high polygon {
+        fill: var(--tf-sev-high);
+      }
+
+      .tf-glyph-medium polygon {
+        fill: var(--tf-sev-medium);
+      }
+
+      .tf-glyph-low polygon {
+        fill: var(--tf-sev-low);
+      }
+
+      .tf-glyph-info polygon {
+        fill: var(--tf-sev-info);
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 0.86rem;
+      }
+
+      th,
+      td {
+        text-align: left;
+        border-bottom: 1px solid var(--tf-border);
+        padding: 4px 6px;
+      }
+
+      #tf-plan svg {
+        width: 100%;
+        height: auto;
+      }
+
+      .tf-flow {
+        stroke: var(--tf-fg-muted);
+        stroke-width: 2;
+        stroke-dasharray: 6 6;
+        fill: none;
+        animation: tf-flow var(--tf-duration-flow) linear infinite;
+      }
+
+      @keyframes tf-flow {
+        to {
+          stroke-dashoffset: -24;
+        }
+      }
+
+      #tf-rate-meter div {
+        background: var(--tf-ok);
+        height: 10px;
+        transition: width var(--tf-duration-rate-meter) cubic-bezier(0, 0, 0.2, 1);
+      }
+
+      dialog {
+        border: 1px solid var(--tf-border-strong);
+        background: var(--tf-bg-raised);
+        color: var(--tf-fg);
+        border-radius: 8px;
+        padding: 16px;
+        transition: opacity var(--tf-duration-dialog) cubic-bezier(0, 0, 0.2, 1);
+      }
+
+      fieldset {
+        border: 1px solid var(--tf-border);
+        border-radius: 6px;
+        margin: 0 0 10px;
+      }
+
+      #tf-footer {
+        border-top: 1px solid var(--tf-border);
+        padding: 10px 16px;
+        color: var(--tf-fg-muted);
+        font-size: 0.86rem;
+      }
+
+      .tf-status {
+        color: var(--tf-fg-muted);
+        font-size: 0.86rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <a class="tf-skip" id="tf-skip-link" href="#tf-center">Skip to the findings stream</a>
+
+    <header id="tf-header">
+      <h1>twinflow</h1>
+      <button
+        id="tf-synthetic-badge"
+        type="button"
+        aria-expanded="false"
+        aria-controls="tf-provenance-note"
+      >
+        SYNTHETIC
+      </button>
+      <span class="tf-status">Sim time <output id="tf-sim-time">0</output> s</span>
+      <label for="tf-speed">Clock speed</label>
+      <select id="tf-speed">
+        <option value="0">0x, paused</option>
+        <option value="1" selected>1x, real time</option>
+      </select>
+      <span class="tf-status" id="tf-achieved">achieved 1.00x</span>
+      <p id="tf-provenance-note" hidden>
+        This run is generated by the twinflow simulator. The badge is not dismissible: every
+        screenshot and every replay frame carries it, and it reads SYNTHETIC + N PHYSICAL when a
+        real device is in the fleet.
+      </p>
+    </header>
+
+    <!--
+      Section 6.3. The safety band exists only when it is non-empty, is not
+      collapsible, does not scroll, and is exempt from every reduction of
+      section 7. NUREG-0700 Revision 4 guideline 4.1.2-1 is the reason.
+    -->
+    <section
+      id="tf-safety-band"
+      role="region"
+      aria-labelledby="tf-safety-heading"
+      aria-live="assertive"
+      hidden
+    >
+      <h2 id="tf-safety-heading">Safety and security</h2>
+      <ul id="tf-safety-list"></ul>
+    </section>
+
+    <main id="tf-main">
+      <!--
+        Center first in the DOM, per section 10, so the tab order reaches the
+        finding before the picture.
+      -->
+      <section id="tf-center" class="tf-panel" aria-labelledby="tf-center-heading" tabindex="-1">
+        <h2 id="tf-center-heading">Findings stream</h2>
+        <p class="tf-status" id="tf-stream-status">Not connected.</p>
+        <ul
+          id="tf-findings"
+          tabindex="0"
+          role="list"
+          aria-label="Findings, ordered by class then severity then recency"
+        ></ul>
+
+        <details>
+          <summary id="tf-legend">Severity legend</summary>
+          <table>
+            <caption class="tf-status">
+              Severity is carried by four channels at once: the word, the number of sides on the
+              glyph, the color, and the row position. Removing any one of them leaves the severity
+              readable.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Glyph</th>
+                <th scope="col">Severity</th>
+                <th scope="col">Sides</th>
+                <th scope="col">Read it by</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-severity="critical">
+                <td>
+                  <svg
+                    class="tf-glyph tf-glyph-critical"
+                    viewBox="0 0 24 24"
+                    role="img"
+                    aria-labelledby="tf-glyph-critical-title"
+                    focusable="false"
+                  >
+                    <title id="tf-glyph-critical-title">CRITICAL</title>
+                    <polygon
+                      points="15.83,2.76 21.24,8.17 21.24,15.83 15.83,21.24 8.17,21.24 2.76,15.83 2.76,8.17 8.17,2.76"
+                    />
+                  </svg>
+                </td>
+                <td class="tf-sev-word">CRITICAL</td>
+                <td>8</td>
+                <td>Octagon, the most sides</td>
+              </tr>
+              <tr data-severity="high">
+                <td>
+                  <svg
+                    class="tf-glyph tf-glyph-high"
+                    viewBox="0 0 24 24"
+                    role="img"
+                    aria-labelledby="tf-glyph-high-title"
+                    focusable="false"
+                  >
+                    <title id="tf-glyph-high-title">HIGH</title>
+                    <polygon
+                      points="17.00,3.34 22.00,12.00 17.00,20.66 7.00,20.66 2.00,12.00 7.00,3.34"
+                    />
+                  </svg>
+                </td>
+                <td class="tf-sev-word">HIGH</td>
+                <td>6</td>
+                <td>Hexagon</td>
+              </tr>
+              <tr data-severity="medium">
+                <td>
+                  <svg
+                    class="tf-glyph tf-glyph-medium"
+                    viewBox="0 0 24 24"
+                    role="img"
+                    aria-labelledby="tf-glyph-medium-title"
+                    focusable="false"
+                  >
+                    <title id="tf-glyph-medium-title">MEDIUM</title>
+                    <polygon points="12.00,2.00 21.51,8.91 17.88,20.09 6.12,20.09 2.49,8.91" />
+                  </svg>
+                </td>
+                <td class="tf-sev-word">MEDIUM</td>
+                <td>5</td>
+                <td>Pentagon</td>
+              </tr>
+              <tr data-severity="low">
+                <td>
+                  <svg
+                    class="tf-glyph tf-glyph-low"
+                    viewBox="0 0 24 24"
+                    role="img"
+                    aria-labelledby="tf-glyph-low-title"
+                    focusable="false"
+                  >
+                    <title id="tf-glyph-low-title">LOW</title>
+                    <polygon points="19.07,4.93 19.07,19.07 4.93,19.07 4.93,4.93" />
+                  </svg>
+                </td>
+                <td class="tf-sev-word">LOW</td>
+                <td>4</td>
+                <td>Square</td>
+              </tr>
+              <tr data-severity="info">
+                <td>
+                  <svg
+                    class="tf-glyph tf-glyph-info"
+                    viewBox="0 0 24 24"
+                    role="img"
+                    aria-labelledby="tf-glyph-info-title"
+                    focusable="false"
+                  >
+                    <title id="tf-glyph-info-title">INFO</title>
+                    <polygon points="12.00,2.00 20.66,17.00 3.34,17.00" />
+                  </svg>
+                </td>
+                <td class="tf-sev-word">INFO</td>
+                <td>3</td>
+                <td>Triangle, the fewest sides</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+      </section>
+
+      <section id="tf-left" class="tf-panel" aria-labelledby="tf-left-heading" tabindex="-1">
+        <h2 id="tf-left-heading">Plan view</h2>
+        <button id="tf-plan-table-toggle" type="button" aria-expanded="false" aria-controls="tf-plan-table">
+          Show the plan view as a table
+        </button>
+        <div id="tf-plan">
+          <svg viewBox="0 0 200 80" role="img" aria-labelledby="tf-plan-title" focusable="false">
+            <title id="tf-plan-title">
+              Two stations, receiving and putaway, joined by one conveyor running left to right at
+              120 units per hour.
+            </title>
+            <rect x="8" y="24" width="44" height="32" fill="var(--tf-bg-sunken)" stroke="var(--tf-border-strong)" />
+            <text x="30" y="44" text-anchor="middle" font-size="9" fill="var(--tf-fg)">recv-1</text>
+            <path class="tf-flow" d="M56 40 H140" />
+            <path d="M136 36 L144 40 L136 44 Z" fill="var(--tf-fg-muted)" />
+            <text x="98" y="30" text-anchor="middle" font-size="8" fill="var(--tf-fg-muted)">
+              120 per hour
+            </text>
+            <rect x="148" y="24" width="44" height="32" fill="var(--tf-bg-sunken)" stroke="var(--tf-border-strong)" />
+            <text x="170" y="44" text-anchor="middle" font-size="9" fill="var(--tf-fg)">put-1</text>
+          </svg>
+        </div>
+        <table id="tf-plan-table" hidden>
+          <caption class="tf-status">
+            The same facts as the picture. Flow direction is an arrow and a number, so nothing lives
+            only in the dashed animation.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">From</th>
+              <th scope="col">To</th>
+              <th scope="col">Kind</th>
+              <th scope="col">Flow per hour</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>recv-1</td>
+              <td>put-1</td>
+              <td>conveyor</td>
+              <td>120</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="tf-right" class="tf-panel" aria-labelledby="tf-right-heading" tabindex="-1">
+        <h2 id="tf-right-heading">Run</h2>
+        <dl id="tf-run-facts">
+          <dt>Run</dt>
+          <dd id="tf-run-id">not loaded</dd>
+          <dt>Events</dt>
+          <dd id="tf-event-count">0</dd>
+          <dt>Log hash</dt>
+          <dd id="tf-log-hash">not loaded</dd>
+        </dl>
+        <h2 id="tf-rate-heading">Alarm rate, per ten minutes</h2>
+        <div id="tf-rate-meter" role="img" aria-labelledby="tf-rate-heading" aria-describedby="tf-rate-value">
+          <div style="width: 10%"></div>
+        </div>
+        <p class="tf-status" id="tf-rate-value">1 alarm per ten minutes, the normal-operation target</p>
+      </section>
+    </main>
+
+    <footer id="tf-footer">
+      <button id="tf-settings" type="button" aria-haspopup="dialog" aria-controls="tf-settings-dialog">
+        Settings
+      </button>
+      <span id="tf-build-note">
+        Stub build. The routes this release does not serve answer TF-A020 rather than an empty
+        list.
+      </span>
+
+      <dialog id="tf-settings-dialog" aria-labelledby="tf-settings-heading">
+        <h2 id="tf-settings-heading">Display settings</h2>
+        <fieldset>
+          <legend>Theme</legend>
+          <label><input type="radio" name="tf-theme" value="light" checked /> Light</label>
+          <label><input type="radio" name="tf-theme" value="dark" /> Dark</label>
+        </fieldset>
+        <fieldset>
+          <legend>Contrast</legend>
+          <label><input type="radio" name="tf-contrast" value="normal" checked /> Normal</label>
+          <label><input type="radio" name="tf-contrast" value="more" /> More</label>
+        </fieldset>
+        <fieldset>
+          <legend>Motion</legend>
+          <label><input type="radio" name="tf-motion" value="full" checked /> Full</label>
+          <label><input type="radio" name="tf-motion" value="reduced" /> Reduced</label>
+        </fieldset>
+        <button id="tf-settings-close" type="button">Close</button>
+      </dialog>
+    </footer>
+
+    <script>
+      /*
+        The whole browser side. Section 5.2 of the contract page runs this in
+        node:vm by extracting this block, so nothing here touches the DOM at
+        parse time and every entry point hangs off the TF object.
+
+        No query logic lives in the dashboard process. Requirement R32: the page
+        reads twinflow-api over HTTP, so inserting the API later does not rewrite
+        every dashboard test, because the API was there from the first commit.
+      */
+      var TF = {};
+
+      /* Contract test CT-UI-2: this list and the dashboard's severity table
+         carry the same set, most severe first. */
+      TF.SEVERITIES = ["critical", "high", "medium", "low", "info"];
+
+      /* Contract test CT-UI-3: the kind enum in ui.command.v1, the server's
+         dispatch table, and these builders all carry the same set. */
+      TF.COMMANDS = [
+        "ack_finding",
+        "approve_whatif",
+        "ask_agent",
+        "pause",
+        "reject_whatif",
+        "resume",
+        "seek",
+        "set_pref",
+        "set_speed",
+        "shelve_alarm",
+        "step",
+        "unshelve_alarm",
+      ];
+
+      /* Section 6.3, mirrored from the server's table so a row explains its own
+         position: a medium safety finding sorts above a critical quality one. */
+      TF.CLASS_RANK = {
+        safety: 1,
+        security: 2,
+        spc_violation: 3,
+        capability_shortfall: 3,
+        msa_failure: 3,
+        sop_violation: 3,
+        process_mining_deviation: 3,
+        fleet_health: 4,
+        twin_divergence: 5,
+        other: 6,
+      };
+
+      TF.commandCounter = 0;
+
+      /* c-%04d from a per-session counter, per section 4.2. Idempotent on retry
+         without anything random reaching the append-only log. */
+      TF.nextCommandId = function () {
+        TF.commandCounter += 1;
+        return "c-" + String(TF.commandCounter).padStart(4, "0");
+      };
+
+      TF.buildCommand = function (kind, data) {
+        if (TF.COMMANDS.indexOf(kind) === -1) {
+          throw new Error("unknown command kind: " + kind);
+        }
+        return { command_id: TF.nextCommandId(), kind: kind, data: data || {} };
+      };
+
+      TF.sortFindings = function (rows) {
+        return rows.slice().sort(function (a, b) {
+          var ca = TF.CLASS_RANK[a.kind] || 6;
+          var cb = TF.CLASS_RANK[b.kind] || 6;
+          if (ca !== cb) return ca - cb;
+          var sa = TF.SEVERITIES.indexOf(a.severity);
+          var sb = TF.SEVERITIES.indexOf(b.severity);
+          if (sa !== sb) return sa - sb;
+          if (a.chattering !== b.chattering) return a.chattering ? 1 : -1;
+          if (a.last_sim_time !== b.last_sim_time) return b.last_sim_time - a.last_sim_time;
+          return a.finding_id < b.finding_id ? -1 : 1;
+        });
+      };
+
+      TF.start = function (doc, fetchImpl) {
+        return fetchImpl("/config.json")
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (bootstrap) {
+            TF.config = bootstrap;
+            doc.documentElement.setAttribute(
+              "data-theme",
+              bootstrap.theme_mode === "system" ? "light" : bootstrap.theme_mode
+            );
+            doc.documentElement.setAttribute("data-contrast", bootstrap.contrast);
+            doc.documentElement.setAttribute(
+              "data-tf-motion",
+              bootstrap.motion === "reduced" ? "reduced" : "full"
+            );
+            var badge = doc.getElementById("tf-synthetic-badge");
+            if (badge) badge.textContent = bootstrap.provenance_badge;
+            return fetchImpl(bootstrap.api_base_url + "/api/v1/runs");
+          })
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (body) {
+            var run = body.runs && body.runs[0];
+            if (!run) return;
+            var id = doc.getElementById("tf-run-id");
+            if (id) id.textContent = run.run_id;
+            var count = doc.getElementById("tf-event-count");
+            if (count) count.textContent = String(run.event_count);
+            var hash = doc.getElementById("tf-log-hash");
+            if (hash) hash.textContent = run.log_hash;
+            var status = doc.getElementById("tf-stream-status");
+            if (status) status.textContent = "Connected to " + run.run_id + ".";
+          });
+      };
+
+      TF.wire = function (doc) {
+        var badge = doc.getElementById("tf-synthetic-badge");
+        var note = doc.getElementById("tf-provenance-note");
+        if (badge && note) {
+          badge.addEventListener("click", function () {
+            var open = badge.getAttribute("aria-expanded") === "true";
+            badge.setAttribute("aria-expanded", open ? "false" : "true");
+            note.hidden = open;
+          });
+        }
+
+        var toggle = doc.getElementById("tf-plan-table-toggle");
+        var planTable = doc.getElementById("tf-plan-table");
+        if (toggle && planTable) {
+          toggle.addEventListener("click", function () {
+            var open = toggle.getAttribute("aria-expanded") === "true";
+            toggle.setAttribute("aria-expanded", open ? "false" : "true");
+            planTable.hidden = open;
+          });
+        }
+
+        var settings = doc.getElementById("tf-settings");
+        var dialog = doc.getElementById("tf-settings-dialog");
+        var close = doc.getElementById("tf-settings-close");
+        if (settings && dialog) {
+          settings.addEventListener("click", function () {
+            dialog.showModal();
+          });
+        }
+        if (close && dialog) {
+          close.addEventListener("click", function () {
+            dialog.close();
+            if (settings) settings.focus();
+          });
+        }
+
+        var motion = doc.querySelectorAll('input[name="tf-motion"]');
+        Array.prototype.forEach.call(motion, function (input) {
+          input.addEventListener("change", function () {
+            doc.documentElement.setAttribute("data-tf-motion", input.value);
+          });
+        });
+
+        var theme = doc.querySelectorAll('input[name="tf-theme"]');
+        Array.prototype.forEach.call(theme, function (input) {
+          input.addEventListener("change", function () {
+            doc.documentElement.setAttribute("data-theme", input.value);
+          });
+        });
+
+        var contrast = doc.querySelectorAll('input[name="tf-contrast"]');
+        Array.prototype.forEach.call(contrast, function (input) {
+          input.addEventListener("change", function () {
+            doc.documentElement.setAttribute("data-contrast", input.value);
+          });
+        });
+
+        /* Roving focus: the stream is one tab stop and the arrow keys move
+           inside it, so the total tab count does not grow with the number of
+           findings. */
+        var stream = doc.getElementById("tf-findings");
+        if (stream) {
+          stream.addEventListener("keydown", function (event) {
+            if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+            var rows = stream.querySelectorAll("li");
+            if (!rows.length) return;
+            var current = doc.activeElement;
+            var index = Array.prototype.indexOf.call(rows, current);
+            var next = event.key === "ArrowDown" ? index + 1 : index - 1;
+            if (next < 0) next = 0;
+            if (next >= rows.length) next = rows.length - 1;
+            rows[next].focus();
+            event.preventDefault();
+          });
+        }
+
+        var speed = doc.getElementById("tf-speed");
+        if (speed) {
+          speed.addEventListener("change", function () {
+            TF.post(doc, TF.buildCommand("set_speed", { speed: Number(speed.value) }));
+          });
+        }
+      };
+
+      TF.post = function (doc, command) {
+        if (typeof fetch !== "function") return null;
+        return fetch("/api/command", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(command),
+        });
+      };
+
+      if (typeof document !== "undefined" && typeof fetch === "function") {
+        TF.wire(document);
+        TF.start(document, fetch);
+      }
+    </script>
+  </body>
+</html>
