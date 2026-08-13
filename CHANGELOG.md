@@ -55,6 +55,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- point the audit and the SBOM at this project
 - let only this dashboard's own page write
 - compare the approver to the requester by identity
 - recover two entries and file two under Security

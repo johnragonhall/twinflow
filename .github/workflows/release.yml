@@ -193,11 +193,18 @@ jobs:
           git diff --exit-code -- ROADMAP.md docs/gates.md schemas .importlinter
 
       # 9. SBOM, license allowlist, and the wheels.
+      # Both tools name their target explicitly. `uvx` resolves a tool into its
+      # own isolated environment, and both `pip-audit` with no argument and
+      # `cyclonedx-py environment` with no path read the environment their own
+      # interpreter lives in, which under `uvx` is the tool's. `sbom-gate.py`
+      # then reads the resulting document against the lock, so the target being
+      # right is asserted rather than assumed.
       - name: Step 9, SBOM and license allowlist
         run: |
           uv run python scripts/checks/license-allowlist-gate.py
-          uvx cyclonedx-py environment > sbom.cdx.json
-          uvx pip-audit
+          uvx cyclonedx-py environment .venv > sbom.cdx.json
+          uv run python scripts/checks/sbom-gate.py sbom.cdx.json
+          uv run --with pip-audit pip-audit
 
       # 9b. Every brick, built twice into separate directories and compared.
       #

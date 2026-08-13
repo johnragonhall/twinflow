@@ -268,10 +268,13 @@ fi
 # Security, dependency audits, SBOM - --full and --security
 # ---------------------------------------------------------------------------
 if [ "$MODE" = "--full" ] || [ "$MODE" = "--security" ]; then
-  if have pip-audit; then
+  # `uv run --with` puts pip-audit into this project's environment, so the
+  # environment it audits by default is this project's. A bare `uvx pip-audit`
+  # resolves into an isolated environment and audits that one instead.
+  if have uv; then
+    step "pip-audit" uv run --with pip-audit pip-audit
+  elif have pip-audit; then
     step "pip-audit" pip-audit
-  elif have uvx; then
-    step "pip-audit" uvx pip-audit
   else
     note_skip "pip-audit" "install: uv tool install pip-audit"
   fi
@@ -303,12 +306,19 @@ if [ "$MODE" = "--full" ] || [ "$MODE" = "--security" ]; then
 
   # SBOM. syft covers the whole tree; the cyclonedx generators cover one
   # ecosystem each and are the fallback.
+  # `cyclonedx-py environment` takes the path of the environment to describe.
+  # Without it the generator describes the environment uvx built for the
+  # generator. `sbom-gate.py` reads the result against the lock either way.
   if have syft; then
     step "SBOM (syft, cyclonedx-json)" sh -c 'syft dir:. -o cyclonedx-json > sbom.cdx.json'
   elif have uvx; then
-    step "SBOM (cyclonedx-py)" sh -c 'uvx cyclonedx-py environment > sbom.cdx.json'
+    step "SBOM (cyclonedx-py)" sh -c 'uvx cyclonedx-py environment .venv > sbom.cdx.json'
   else
     note_skip "SBOM" "install syft, or use: uvx cyclonedx-py"
+  fi
+
+  if [ -f sbom.cdx.json ] && have uv; then
+    step "SBOM names what ships" uv run python scripts/checks/sbom-gate.py sbom.cdx.json
   fi
 fi
 
