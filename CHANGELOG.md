@@ -48,6 +48,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- recover two entries and file two under Security
 - scope the ARCH-5 claim to the half that ships
 - give the unit tier the history its two history checks read
 - give the tier latency metric the package that measures it
