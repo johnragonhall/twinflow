@@ -1,0 +1,40 @@
+[project]
+name = "twinflow-storage"
+description = "The append-only historian, and the naming that makes it the L2 system of record."
+requires-python = ">=3.12"
+dependencies = [
+    # UnsPath and NamingError. A series has exactly one name and that name is
+    # the six-level UNS topic, so the grammar is imported from the package that
+    # owns the facility model rather than restated here. It is not a database
+    # driver and does not touch the extras of foundations section 2.7.
+    "twinflow-config",
+    "twinflow-kernel",
+    "twinflow-schemas",
+]
+
+# Read from the module, so __version__ and the distribution metadata are one
+# value and cannot disagree.
+dynamic = ["version"]
+
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+
+[build-system]
+# 1.27 is where hatchling accepts the PEP 639 license fields above.
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/twinflow/storage/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/twinflow"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "pyproject.toml"]
+exclude = ["**/__pycache__", "**/*.py[co]", "**/.pytest_cache"]
+
+[tool.uv.sources]
+twinflow-config = { workspace = true }
+twinflow-kernel = { workspace = true }
+twinflow-schemas = { workspace = true }
