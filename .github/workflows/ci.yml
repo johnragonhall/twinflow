@@ -133,10 +133,14 @@ jobs:
           cache-dependency-glob: uv.lock
 
       - name: Set up Python ${{ matrix.python-version }}
-        run: uv python install ${{ matrix.python-version }}
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        run: uv python install "$PYTHON_VERSION"
 
       - name: Sync dependencies
-        run: uv sync --all-extras --dev --python ${{ matrix.python-version }}
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        run: uv sync --all-extras --dev --python "$PYTHON_VERSION"
 
       # Every step below is a recipe call, so local and CI cannot drift. Without
       # this install those calls produce "just: command not found" on the first
@@ -175,7 +179,9 @@ jobs:
       # and the divergence job below compares them. Recording here rather than
       # comparing here, because a leg cannot read another leg's filesystem.
       - name: Record the SCN-F1 run for this leg
-        run: just record-run "run-${{ runner.os }}-py${{ matrix.python-version }}.jsonl" 0
+        env:
+          LEG: ${{ runner.os }}-py${{ matrix.python-version }}
+        run: just record-run "run-$LEG.jsonl" 0
 
       - name: Upload this leg's run
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -342,13 +348,18 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check results
+        env:
+          # Through the environment rather than into the script text. A job
+          # result is a fixed vocabulary today, and a `run:` block that
+          # expands any expression is a habit rather than a safe case.
+          RESULTS: >-
+            changes=${{ needs.changes.result }}
+            python=${{ needs.python.result }}
+            divergence=${{ needs.divergence.result }}
+            roadmap=${{ needs.roadmap.result }}
+            agent=${{ needs.agent.result }}
         run: |
-          for result in \
-            "changes=${{ needs.changes.result }}" \
-            "python=${{ needs.python.result }}" \
-            "divergence=${{ needs.divergence.result }}" \
-            "roadmap=${{ needs.roadmap.result }}" \
-            "agent=${{ needs.agent.result }}"
+          for result in $RESULTS
           do
             name=${result%%=*}
             state=${result#*=}

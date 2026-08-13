@@ -26,13 +26,14 @@ Three statuses, and the required field set widens with each:
 that set which is not `implemented` fails the run rather than being skipped,
 because the registry already promised it at the phase it starts at.
 
-## The registry (138 gates)
+## The registry (141 gates)
 
 | Gate                       | First phase | Kind         | Standing | Status      | Owner                             |
 |----------------------------|-------------|--------------|----------|-------------|-----------------------------------|
 | `VAL-GATE-A11Y-001`        | P1          | validation   | yes      | specified   | docs/design/ui-direction.md       |
 | `VAL-GATE-ABC-001`         | 6a17        | invariant    | no       | declared    | docs/design/back-office.md        |
 | `VAL-GATE-ABSENT-SEAM-001` | 6a14        | invariant    | no       | declared    | docs/design/human-sustain.md      |
+| `VAL-GATE-ACT-001`         | P1          | policy       | yes      | implemented | docs/design/repo-craft.md         |
 | `VAL-GATE-ADOPT-001`       | P5          | invariant    | no       | declared    | docs/design/repo-craft.md         |
 | `VAL-GATE-AGT-001`         | P2          | invariant    | yes      | declared    | docs/design/ai-layer.md           |
 | `VAL-GATE-ATP-001`         | 6a12        | invariant    | no       | declared    | docs/design/back-office.md        |
@@ -126,6 +127,7 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-PM-002`          | P3c         | ground_truth | no       | declared    | docs/design/lss-engine.md         |
 | `VAL-GATE-PM-003`          | P3c         | validation   | no       | declared    | docs/design/lss-engine.md         |
 | `VAL-GATE-PROMO-001`       | 6a16        | invariant    | no       | declared    | docs/design/back-office.md        |
+| `VAL-GATE-PROV-001`        | P1          | validation   | yes      | implemented | docs/design/repo-craft.md         |
 | `VAL-GATE-QS-001`          | P1          | budget       | yes      | specified   | docs/design/repo-craft.md         |
 | `VAL-GATE-RECALL-001`      | 6a11        | budget       | no       | declared    | docs/design/production-quality.md |
 | `VAL-GATE-RECALL-002`      | P6-W3       | budget       | no       | declared    | docs/design/production-quality.md |
@@ -141,6 +143,7 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-RST-001`         | RISK        | invariant    | no       | declared    | docs/design/planning-supply.md    |
 | `VAL-GATE-RULA-001`        | 6a10        | validation   | no       | declared    | docs/design/human-sustain.md      |
 | `VAL-GATE-RUNBOOK-001`     | P6-W5       | invariant    | no       | declared    | docs/design/back-office.md        |
+| `VAL-GATE-SAST-001`        | P1          | policy       | yes      | implemented | docs/design/repo-craft.md         |
 | `VAL-GATE-SCH-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.5    |
 | `VAL-GATE-SEC-001`         | P0          | validation   | yes      | implemented | CONTRIBUTING.md                   |
 | `VAL-GATE-SIM-001`         | P2          | ground_truth | no       | declared    | docs/design/lss-engine.md         |
@@ -186,6 +189,14 @@ Declared at 6a17, owned by docs/design/back-office.md. Its assertion is specifie
 ### `VAL-GATE-ABSENT-SEAM-001`
 
 Declared at 6a14, owned by docs/design/human-sustain.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+
+### `VAL-GATE-ACT-001`
+
+**Asserts.** Every action a workflow uses is pinned to a commit SHA, and the workflow security audit reports no finding that .github/zizmor.yml does not record a reason for.
+
+**Falsified by.** One action pinned to a tag or branch, or one audit finding with no recorded reason.
+
+**Runs.** `uv run pytest tests/test_workflow_supply_chain.py -q`, tested by `tests/test_workflow_supply_chain.py`.
 
 ### `VAL-GATE-ADOPT-001`
 
@@ -605,6 +616,16 @@ Declared at P3c, owned by docs/design/lss-engine.md. Its assertion is specified 
 
 Declared at 6a16, owned by docs/design/back-office.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
 
+### `VAL-GATE-PROV-001`
+
+**Asserts.** The release workflow builds every artifact twice from a pinned SOURCE_DATE_EPOCH and compares them byte for byte, attests SLSA build provenance over each one, and reads the PEP 740 attestation back off the index before the run is called successful.
+
+**Falsified by.** Two builds of one commit that differ, an artifact published with no provenance attestation, or an index that serves no attestation for a published file.
+
+**Reference.** SLSA v1.0 Build Level 3, and PEP 740 index support for digital attestations. <https://slsa.dev/spec/v1.0/levels>
+
+**Runs.** `uv run pytest tests/test_workflow_supply_chain.py -q -k provenance`, tested by `tests/test_workflow_supply_chain.py`.
+
 ### `VAL-GATE-QS-001`
 
 **Asserts.** The five-minute quickstart runs from a clean container against the published instructions in under 300 seconds on the CI reference runner, ending on a live dashboard serving non-empty state, with no network access beyond the pinned image.
@@ -682,6 +703,14 @@ Declared at 6a10, owned by docs/design/human-sustain.md. Its assertion is specif
 ### `VAL-GATE-RUNBOOK-001`
 
 Declared at P6-W5, owned by docs/design/back-office.md. Its assertion is specified one phase before it is implemented, which is what stops a gate being written to fit the code that was going to be written anyway.
+
+### `VAL-GATE-SAST-001`
+
+**Asserts.** Static analysis runs over every language this repository ships and over its workflows, on a pull request and on a schedule, and its findings reach the repository security tab.
+
+**Falsified by.** A language in the tree that no analysis covers, or a scan whose results are not published.
+
+**Runs.** `uv run pytest tests/test_workflow_supply_chain.py -q -k analysis`, tested by `tests/test_workflow_supply_chain.py`.
 
 ### `VAL-GATE-SCH-001`
 
@@ -816,36 +845,36 @@ registry cannot disagree.
 | Phase     | Gates in force |
 |-----------|----------------|
 | `P0`      | 12             |
-| `P1`      | 20             |
-| `P2`      | 33             |
-| `P3`      | 32             |
-| `P3b`     | 23             |
-| `P3c`     | 25             |
-| `P3d`     | 25             |
-| `P3e`     | 23             |
-| `P3f`     | 22             |
-| `P3g`     | 23             |
-| `P3h`     | 25             |
-| `P3i`     | 24             |
-| `ECON`    | 25             |
-| `6a10`    | 25             |
-| `6a11`    | 26             |
-| `ROST`    | 22             |
-| `6a12`    | 24             |
-| `RISK`    | 23             |
-| `6a13`    | 23             |
-| `6a14`    | 23             |
-| `OTDRILL` | 22             |
-| `6a15`    | 24             |
-| `CAUSAL`  | 23             |
-| `6a16`    | 24             |
-| `SOE`     | 22             |
-| `6a17`    | 25             |
-| `P4`      | 23             |
-| `P5`      | 24             |
-| `P6-W1`   | 25             |
-| `P6-W2`   | 27             |
-| `P6-W3`   | 27             |
-| `P6-W4`   | 25             |
-| `P6-W5`   | 26             |
-| `P6-W6`   | 23             |
+| `P1`      | 23             |
+| `P2`      | 36             |
+| `P3`      | 35             |
+| `P3b`     | 26             |
+| `P3c`     | 28             |
+| `P3d`     | 28             |
+| `P3e`     | 26             |
+| `P3f`     | 25             |
+| `P3g`     | 26             |
+| `P3h`     | 28             |
+| `P3i`     | 27             |
+| `ECON`    | 28             |
+| `6a10`    | 28             |
+| `6a11`    | 29             |
+| `ROST`    | 25             |
+| `6a12`    | 27             |
+| `RISK`    | 26             |
+| `6a13`    | 26             |
+| `6a14`    | 26             |
+| `OTDRILL` | 25             |
+| `6a15`    | 27             |
+| `CAUSAL`  | 26             |
+| `6a16`    | 27             |
+| `SOE`     | 25             |
+| `6a17`    | 28             |
+| `P4`      | 26             |
+| `P5`      | 27             |
+| `P6-W1`   | 28             |
+| `P6-W2`   | 30             |
+| `P6-W3`   | 30             |
+| `P6-W4`   | 28             |
+| `P6-W5`   | 29             |
+| `P6-W6`   | 26             |

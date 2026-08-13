@@ -279,7 +279,7 @@ work_packages:
     wave: 1
     covers:
       - { id: "C10", partial: false }
-      - { id: "CON-3", partial: false }
+      - { id: "CON-3", partial: true, note: "the workflows and the matrix" }
     depends_on: []
     deliverables:
       - "pyproject.toml"
@@ -419,7 +419,7 @@ work_packages:
     phase: P0
     wave: 10
     covers:
-      - { id: "C11", partial: false }
+      - { id: "C11", partial: true, note: "the audits, the allowlist, and the SBOM" }
     depends_on: []
     deliverables:
       - "scripts/checks/license-allowlist-gate.py"
@@ -553,6 +553,69 @@ work_packages:
       - VAL-GATE-DET-002
     brick: twinflow-kernel
     release: v0.1.0
+    status: done
+  - id: WP-P1-19
+    title: "Pin the workflow supply chain and audit the workflows themselves"
+    phase: P1
+    wave: 19
+    covers:
+      - { id: "C11", partial: false }
+    depends_on: []
+    deliverables:
+      - ".github/zizmor.yml"
+      - ".github/CODEOWNERS"
+      - "tests/test_workflow_supply_chain.py"
+      - "just actions-audit"
+    gates:
+      - VAL-GATE-ACT-001
+    brick: null
+    release: v0.2.0
+    status: done
+  - id: WP-P1-20
+    title: "Attest the build provenance and publish reproducibly"
+    phase: P1
+    wave: 20
+    covers:
+      - { id: "C9", partial: true, note: "the provenance and reproducibility half" }
+    depends_on: []
+    deliverables:
+      - ".github/workflows/release.yml"
+    gates:
+      - VAL-GATE-PROV-001
+    brick: null
+    release: v0.2.0
+    status: done
+  - id: WP-P1-21
+    title: "Scan the tree and publish the security posture"
+    phase: P1
+    wave: 21
+    covers:
+      - { id: "CON-3", partial: false }
+    depends_on: []
+    deliverables:
+      - ".github/workflows/codeql.yml"
+      - ".github/workflows/scorecard.yml"
+    gates:
+      - VAL-GATE-SAST-001
+    brick: null
+    release: v0.2.0
+    status: done
+  - id: WP-P1-22
+    title: "Publish the documentation site and measure coverage"
+    phase: P1
+    wave: 22
+    covers:
+      - { id: "C4", partial: true, note: "the measured coverage figure and the mutation run" }
+    depends_on: []
+    deliverables:
+      - ".github/workflows/docs.yml"
+      - ".devcontainer/devcontainer.json"
+      - "just docs-build"
+      - "just coverage"
+      - "just mutants"
+    gates: []
+    brick: null
+    release: v0.2.0
     status: done
   - id: WP-P1-01
     title: "Model one station: receiving and putaway"

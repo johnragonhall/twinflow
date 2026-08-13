@@ -24,6 +24,49 @@
 
 version: 1
 gates:
+  VAL-GATE-ACT-001:
+    kind: policy
+    status: implemented
+    first_phase: P1
+    standing: true
+    owner_section: "docs/design/repo-craft.md"
+    assertion: >-
+      Every action a workflow uses is pinned to a commit SHA, and the workflow security audit
+      reports no finding that .github/zizmor.yml does not record a reason for.
+    falsified_by: >-
+      One action pinned to a tag or branch, or one audit finding with no recorded reason.
+    test_path: tests/test_workflow_supply_chain.py
+    command: "uv run pytest tests/test_workflow_supply_chain.py -q"
+  VAL-GATE-PROV-001:
+    kind: validation
+    status: implemented
+    first_phase: P1
+    standing: true
+    owner_section: "docs/design/repo-craft.md"
+    reference: "SLSA v1.0 Build Level 3, and PEP 740 index support for digital attestations."
+    reference_url: "https://slsa.dev/spec/v1.0/levels"
+    assertion: >-
+      The release workflow builds every artifact twice from a pinned SOURCE_DATE_EPOCH and
+      compares them byte for byte, attests SLSA build provenance over each one, and reads the
+      PEP 740 attestation back off the index before the run is called successful.
+    falsified_by: >-
+      Two builds of one commit that differ, an artifact published with no provenance
+      attestation, or an index that serves no attestation for a published file.
+    test_path: tests/test_workflow_supply_chain.py
+    command: "uv run pytest tests/test_workflow_supply_chain.py -q -k provenance"
+  VAL-GATE-SAST-001:
+    kind: policy
+    status: implemented
+    first_phase: P1
+    standing: true
+    owner_section: "docs/design/repo-craft.md"
+    assertion: >-
+      Static analysis runs over every language this repository ships and over its workflows, on
+      a pull request and on a schedule, and its findings reach the repository security tab.
+    falsified_by: >-
+      A language in the tree that no analysis covers, or a scan whose results are not published.
+    test_path: tests/test_workflow_supply_chain.py
+    command: "uv run pytest tests/test_workflow_supply_chain.py -q -k analysis"
   VAL-GATE-A11Y-001:
     kind: validation
     status: specified
