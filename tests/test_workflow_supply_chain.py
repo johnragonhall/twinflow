@@ -261,3 +261,41 @@ def test_the_commit_message_gate_refuses_a_shallow_clone():
     # so at the point of use rather than passing over one commit.
     text = (REPO_ROOT / "scripts" / "checks" / "commit-message-gate.py").read_text(encoding="utf-8")
     assert "is_shallow" in text, "nothing stops this gate passing vacuously on a shallow clone"
+
+
+# --- the gates a hook bypass cannot reach -----------------------------------
+
+LINT = WORKFLOWS / "lint.yml"
+
+#: Gates whose whole point is that `--no-verify` cannot skip them. Each has to
+#: run in a job with no path filter, because a commit touching only documents
+#: reaches no path-filtered job at all.
+UNCONDITIONAL_GATES = ("banned-terms-gate.py", "prose-gate.py")
+
+
+@pytest.mark.parametrize("gate", UNCONDITIONAL_GATES)
+def test_the_hook_bypass_has_a_backstop(gate):
+    """Regression. IP hygiene ran in no unconditional job.
+
+    The pre-commit hook runs the staged half and `--no-verify` skips it, since
+    the hooks are copied into .git/hooks rather than installed through
+    core.hooksPath. `just lint` carries the repo-wide half, but ci.yml
+    path-filters that job, so a documents-only commit made with `--no-verify`
+    reached no copy of the gate. A client name in a public history costs a
+    rewrite, which is the one finding this repository cannot absorb.
+    """
+    assert gate in LINT.read_text(encoding="utf-8"), (
+        f"{gate} runs in no lint.yml job, so `--no-verify` leaves it with no backstop"
+    )
+
+
+def test_the_backstop_job_carries_no_path_filter():
+    # A filtered backstop is not one. The lint workflow triggers on every push
+    # and pull request to main with no `paths:` key, which is what makes the
+    # job above unconditional.
+    document = load(LINT)
+    triggers = document[True] if True in document else document.get("on", {})
+    for event in ("push", "pull_request"):
+        assert "paths" not in (triggers.get(event) or {}), (
+            f"lint.yml filters {event} by path, so its gates are not a backstop"
+        )

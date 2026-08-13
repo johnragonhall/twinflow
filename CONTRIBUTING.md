@@ -128,22 +128,22 @@ covers which kind of test a change needs.
 Two workflows share this work, and they do not cover the same ground. Read the
 `Enforced by` column before you assume a green tick covers your change.
 
-| Target      | Tool                                     | Config                     | Enforced by                                                         |
-|-------------|------------------------------------------|----------------------------|---------------------------------------------------------------------|
-| IP hygiene  | `scripts/checks/banned-terms-gate.py`    | `.ip-denylist`             | `pre-commit`, staged files, before either bypass is read            |
-| Regression  | `scripts/checks/regression-test-gate.py` | `scripts/hooks/commit-msg` | `commit-msg`, `lint.yml` over the range, and `just gate regression` |
-| Commit log  | `scripts/checks/commit-message-gate.py`  | `scripts/hooks/commit-msg` | `lint.yml`, the range since the previous tag                        |
-| Prose       | `scripts/checks/prose-gate.py`           | `docs/style/*.yml`         | `lint.yml`, whole tree, on every commit that reaches it             |
-| Spelling    | `scripts/checks/spelling-gate.py`        | `docs/style/spelling.yml`  | `lint.yml`, whole tree, and the commit message                      |
-| Determinism | `scripts/checks/nondeterminism-gate.sh`  | none                       | `lint.yml`, whole tree                                              |
-| Metrics     | `scripts/checks/metric-marker-gate.sh`   | none                       | `lint.yml`, report mode, fatal only on a release tag                |
-| Markdown    | `markdownlint-cli2`                      | `.markdownlint.jsonc`      | `lint.yml`, whole tree                                              |
-| Shell       | `shellcheck`                             | `.shellcheckrc`            | `lint.yml`, whole tree                                              |
-| Workflows   | `actionlint`                             | none                       | `lint.yml`, whole tree                                              |
-| Agreement   | the `cla` job                            | `CLA.md` section 7         | `lint.yml`, pull requests only                                      |
-| Python      | `ruff check`, `ruff format --check`      | `pyproject.toml`           | `ci.yml`, only when its `python` path filter matches                |
-| Types       | `ty check`                               | `pyproject.toml`           | `ci.yml`, only when its `python` path filter matches                |
-| Rust        | `cargo fmt`, `cargo clippy -D warnings`  | `agent/`                   | `ci.yml`, only when `agent/` changed                                |
+| Target      | Tool                                     | Config                     | Enforced by                                                          |
+|-------------|------------------------------------------|----------------------------|----------------------------------------------------------------------|
+| IP hygiene  | `scripts/checks/banned-terms-gate.py`    | `.ip-denylist`             | `pre-commit`, staged files, before `LINT_OK`; `lint.yml`, whole tree |
+| Regression  | `scripts/checks/regression-test-gate.py` | `scripts/hooks/commit-msg` | `commit-msg`, `lint.yml` over the range, and `just gate regression`  |
+| Commit log  | `scripts/checks/commit-message-gate.py`  | `scripts/hooks/commit-msg` | `just gate phase-exit` via CC-001; the hook applies the rules inline |
+| Prose       | `scripts/checks/prose-gate.py`           | `docs/style/*.yml`         | `lint.yml`, whole tree, on every commit that reaches it              |
+| Spelling    | `scripts/checks/spelling-gate.py`        | `docs/style/spelling.yml`  | `ci.yml` via `just lint`, `pre-commit`, and the commit message       |
+| Determinism | `scripts/checks/nondeterminism-gate.sh`  | none                       | `lint.yml`, whole tree                                               |
+| Metrics     | `scripts/checks/metric-marker-gate.sh`   | none                       | `lint.yml`, report mode, fatal only on a release tag                 |
+| Markdown    | `markdownlint-cli2`                      | `.markdownlint.jsonc`      | `lint.yml`, whole tree                                               |
+| Shell       | `shellcheck`                             | `.shellcheckrc`            | `lint.yml`, whole tree                                               |
+| Workflows   | `actionlint`                             | none                       | `lint.yml`, whole tree                                               |
+| Agreement   | the `cla` job                            | `CLA.md` section 7         | `lint.yml`, pull requests only                                       |
+| Python      | `ruff check`, `ruff format --check`      | `pyproject.toml`           | `ci.yml`, only when its `python` path filter matches                 |
+| Types       | `ty check`                               | `pyproject.toml`           | `ci.yml`, only when its `python` path filter matches                 |
+| Rust        | `cargo fmt`, `cargo clippy -D warnings`  | `agent/`                   | `ci.yml`, only when `agent/` changed                                 |
 
 The `python` filter in `ci.yml` covers `packages/`, `tools/`, `scripts/`,
 `tests/`, `scenarios/`, `justfile`, `pyproject.toml`, `uv.lock`, and `ci.yml`
@@ -164,7 +164,10 @@ which costs a history rewrite.
 `--no-verify` is different. The hooks are copied into `.git/hooks` rather than
 installed through `core.hooksPath`, so `--no-verify` stops git running the hook
 at all and gate 0 with it. No hook defends against that flag. The backstop is
-`lint.yml`, which runs the generic half over the whole tree on every push.
+the IP hygiene job in `lint.yml`, which runs the generic half over the whole
+tree on every push and every pull request. It sits there rather than in `just
+lint` because `ci.yml` path-filters that job, and a commit touching only
+documents would reach no copy of the gate at all.
 
 The commit-msg hook runs the spelling gate, the narration judge, and the
 regression gate against the message and the staged files together. The

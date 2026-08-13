@@ -58,6 +58,15 @@ jobs:
 
       # docs/DOCUMENTATION-STANDARD.md, enforced from docs/style/*.yml over the
       # whole tree. --all because the hook only ever sees staged lines.
+      # IP hygiene, repo-wide. The pre-commit hook runs the staged half, and
+      # `--no-verify` skips it the way it skips every hook. This is the only
+      # unconditional run: `just lint` also carries it, but ci.yml path-filters
+      # that job, so a documents-only commit reaches no other copy. A client
+      # name in a public history costs a rewrite, so it gets a job that always
+      # runs rather than one that usually does.
+      - name: IP hygiene gate (repo-wide)
+        run: python scripts/checks/banned-terms-gate.py --all
+
       - name: Prose gate (repo-wide)
         run: python scripts/checks/prose-gate.py --all
 

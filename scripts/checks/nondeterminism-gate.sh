@@ -200,7 +200,7 @@ run unreproducible.
   Genuinely outside the simulated world (a build script, a dev-only tool)?
   Annotate that line:      # nondeterminism-ok: <reason>
 
-  Bypass every hook once:  git commit --no-verify
+  Bypass every hook once:  git commit --no-verify   (gate 0 included)
 MSG
   exit 1
 fi

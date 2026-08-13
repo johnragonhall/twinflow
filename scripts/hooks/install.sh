@@ -42,7 +42,7 @@ What the hooks do:
 Bypass:
   LINT_OK=1 git commit ...           skip the pre-commit lint gates only
   NO_CHANGELOG_SYNC=1 git commit ... skip the changelog amend for one commit
-  git commit --no-verify ...         skip every hook
+  git commit --no-verify ...         skip every hook, gate 0 included
 
 Re-run this script after pulling a change to scripts/hooks/.
 MSG

@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- give the IP hygiene gate a job that always runs
 - let a fix name the test that already covers it
 - arm the contributor agreement and the layer map
 - express the Purdue split in the garage compose
