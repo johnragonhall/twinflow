@@ -4,6 +4,7 @@
 #
 #   sh scripts/changelog-sync.sh                        # sync from HEAD's subject
 #   sh scripts/changelog-sync.sh --subject "feat: x"    # sync from a given subject
+#   sh scripts/changelog-sync.sh --catch-up             # recover missed entries
 #   sh scripts/changelog-sync.sh --selftest             # run the built-in check
 #
 # Type to Keep a Changelog heading:
@@ -29,14 +30,16 @@ FILE="CHANGELOG.md"
 SUBJECT=""
 BODY=""
 selftest=0
+catchup=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --file)     FILE="$2"; shift 2 ;;
     --subject)  SUBJECT="$2"; shift 2 ;;
     --body)     BODY="$2"; shift 2 ;;
+    --catch-up) catchup=1; shift ;;
     --selftest) selftest=1; shift ;;
-    *) echo "usage: $0 [--file F] [--subject S] [--body B] [--selftest]" >&2; exit 2 ;;
+    *) echo "usage: $0 [--file F] [--subject S] [--body B] [--catch-up] [--selftest]" >&2; exit 2 ;;
   esac
 done
 
@@ -188,6 +191,28 @@ fi
 
 # Read the subject as UTF-8 regardless of the platform's log output encoding,
 # so a non-ASCII byte cannot land mangled in CHANGELOG.md.
+# --catch-up walks every commit since the last release tag and inserts whatever
+# is missing. The post-commit hook covers the normal path, but it cannot cover
+# every path: `git commit-tree` writes a commit with no hooks at all, a rebase
+# and a merge deliberately skip the amend, and `--no-verify` skips everything.
+# A changelog that silently misses those is worse than one nobody trusts, so
+# this makes the gap recoverable in one command instead of by hand.
+if [ "$catchup" = "1" ]; then
+  since=$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || echo "")
+  range=${since:+$since..HEAD}
+  added=0
+  # Oldest first, so the newest commit ends up the top bullet of its section.
+  for sha in $(git rev-list --reverse --no-merges "${range:-HEAD}" 2>/dev/null); do
+    s=$(git -c i18n.logOutputEncoding=UTF-8 log -1 --format=%s "$sha" 2>/dev/null) || continue
+    b=$(git -c i18n.logOutputEncoding=UTF-8 log -1 --format=%b "$sha" 2>/dev/null) || b=""
+    before=$(cksum < "$FILE")
+    insert "$FILE" "$s" "$b"
+    [ "$(cksum < "$FILE")" = "$before" ] || { added=$((added + 1)); echo "  recovered: $s"; }
+  done
+  echo "[changelog-sync] catch-up over ${since:-the whole history}: $added entries recovered"
+  exit 0
+fi
+
 if [ -z "$SUBJECT" ]; then
   SUBJECT=$(git -c i18n.logOutputEncoding=UTF-8 log -1 --format=%s 2>/dev/null) || exit 0
   [ -n "$BODY" ] || BODY=$(git -c i18n.logOutputEncoding=UTF-8 log -1 --format=%b 2>/dev/null) || BODY=""

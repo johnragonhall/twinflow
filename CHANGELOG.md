@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- recover a missed entry and keep the omission loud
 - register the cross-language RNG parity gate
 - close P0 and specify the fifteen gates P2 now owes
 - publish an index of every test in the tree
