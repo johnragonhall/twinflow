@@ -1,16 +1,17 @@
 # Single task entry point. CI calls these same recipes, so a green local run
 # and a green CI run mean the same thing.
 #
-# PERF: deferred - `uv run` costs 763ms of startup before any recipe code runs,
-# against 132ms for the interpreter in .venv (medians of 5, this checkout).
-# Across the six gates the pre-commit hook calls that is 5110ms against 1389ms
-# wall clock, 3 runs each with no overlap. Calling .venv/Scripts/python.exe
-# directly is a 3.7x cut to the wait on every commit, and it gives up the
-# environment check uv performs on each invocation. Whether a hook should
-# re-verify the lockfile before every commit is the owner's call, not a
-# tuning decision, so the number is recorded here and nothing is changed.
-# Revisit when the hook exceeds ten seconds or when CI minutes are the
-# constraint. CI keeps `uv run` either way: a runner has no warm .venv.
+# PERF: L0 rejected for these recipes, applied to the hooks. `uv run` costs
+# 643ms of startup before recipe code runs, against 145ms for the interpreter
+# in .venv (medians of 5, this checkout). That ratio pays in the pre-commit
+# hook, which runs six short gates where startup is most of the work:
+# scripts/hooks/resolve-python.sh now picks the virtualenv there, and the hook
+# went from 2787ms to 1202ms wall clock, 3 runs each with no overlap.
+# It does not pay here. A recipe is one long process, not six short ones:
+# `just test` runs 41s, so the same 500ms is under 2% of it, and Amdahl caps
+# the gain at 1.01x. CI calls these recipes as its entry point and needs the
+# environment resolved from the lockfile rather than from whatever .venv holds.
+# Revisit if a recipe shorter than five seconds ends up on a per-save path.
 
 # List every recipe with its description.
 default:

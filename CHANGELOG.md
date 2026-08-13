@@ -29,6 +29,8 @@ here freely: the hook only ever adds.
 
 ### Changed
 
+- resolve the interpreter once, from the virtualenv
+
 ### Deprecated
 
 ### Removed

@@ -159,14 +159,9 @@ fi
 # The same rules the pre-commit hook applies to the staged files, applied to the
 # message. A commit subject is read far more often than the line it describes,
 # and it cannot be corrected later without rewriting history.
-SPELL_PY=""
-if command -v uv >/dev/null 2>&1; then
-  SPELL_PY="uv run --quiet --no-project --with pyyaml python"
-else
-  for candidate in python3 python; do
-    command -v "$candidate" >/dev/null 2>&1 && { SPELL_PY="$candidate"; break; }
-  done
-fi
+# shellcheck source=scripts/hooks/resolve-python.sh
+. scripts/hooks/resolve-python.sh
+SPELL_PY="$HOOK_PY_YAML"
 if [ -n "$SPELL_PY" ] && [ -f scripts/checks/spelling-gate.py ]; then
   # Word splitting is the point: SPELL_PY is a command with arguments.
   # shellcheck disable=SC2086
@@ -177,14 +172,7 @@ fi
 # A fix ships with the test that catches it. Checked here rather than in the
 # pre-commit hook because the rule reads the commit type, and the type does not
 # exist until the message does. Stdlib only, so no --with is needed.
-REG_PY=""
-if command -v uv >/dev/null 2>&1; then
-  REG_PY="uv run --quiet --no-project python"
-else
-  for candidate in python3 python; do
-    command -v "$candidate" >/dev/null 2>&1 && { REG_PY="$candidate"; break; }
-  done
-fi
+REG_PY="$HOOK_PY"
 if [ -n "$REG_PY" ] && [ -f scripts/checks/regression-test-gate.py ]; then
   # Word splitting is the point: REG_PY is a command with arguments.
   # shellcheck disable=SC2086
@@ -198,14 +186,7 @@ if [ "${COMMENT_JUDGE:-1}" != "0" ] && [ -f scripts/hooks/comment_judge.py ]; th
   # uv first, for the same reason the pre-commit hook resolves it that way: a
   # wrapper that insists on `uv run python` rejects a direct call, and the
   # judge then fails open on a machine where it would have run.
-  JUDGE_PY=""
-  if command -v uv >/dev/null 2>&1; then
-    JUDGE_PY="uv run --quiet --no-project python"
-  else
-    for candidate in python3 python; do
-      command -v "$candidate" >/dev/null 2>&1 && { JUDGE_PY="$candidate"; break; }
-    done
-  fi
+  JUDGE_PY="$HOOK_PY"
   if [ -n "$JUDGE_PY" ]; then
     # Word splitting is the point: JUDGE_PY is a command with arguments.
     # shellcheck disable=SC2086

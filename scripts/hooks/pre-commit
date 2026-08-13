@@ -27,16 +27,13 @@ root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 cd "$root" || exit 0
 
 # --- 0. IP hygiene ----------------------------------------------------------
-IP_PY=""
-if command -v uv >/dev/null 2>&1; then
-  IP_PY="uv run --quiet --no-project python"
-else
-  for candidate in python3 python; do
-    command -v "$candidate" >/dev/null 2>&1 && { IP_PY="$candidate"; break; }
-  done
-fi
+# One resolution for every gate below, and for commit-msg, which sources the
+# same file. See its header for the startup measurement that picks the order.
+# shellcheck source=scripts/hooks/resolve-python.sh
+. scripts/hooks/resolve-python.sh
+IP_PY="$HOOK_PY"
 if [ -n "$IP_PY" ] && [ -f scripts/checks/banned-terms-gate.py ]; then
-  # Word splitting is the point: IP_PY is a command with arguments.
+  # Word splitting is the point: IP_PY may be a command with arguments.
   # shellcheck disable=SC2086
   $IP_PY scripts/checks/banned-terms-gate.py --staged || exit 1
 else
@@ -51,18 +48,9 @@ fi
 fail=0
 staged() { git diff --cached --name-only --diff-filter=ACM -- "$@" || true; }
 
-# Resolve a Python interpreter for the prose gate, which needs PyYAML to read
-# its rules out of docs/style/. uv comes first because --with pyyaml gets that
-# dependency without touching the project environment, and --no-project keeps
-# it from syncing the project on every commit.
-PY=""
-if command -v uv >/dev/null 2>&1; then
-  PY="uv run --quiet --no-project --with pyyaml python"
-elif command -v python >/dev/null 2>&1 && python -c "import sys" >/dev/null 2>&1; then
-  PY="python"
-elif command -v python3 >/dev/null 2>&1 && python3 -c "import sys" >/dev/null 2>&1; then
-  PY="python3"
-fi
+# The prose gate reads its rules out of docs/style/, so it needs PyYAML.
+# resolve-python.sh, sourced above, picks an interpreter that carries it.
+PY="$HOOK_PY_YAML"
 
 # --- 1. prose ---------------------------------------------------------------
 if [ -n "$PY" ]; then
