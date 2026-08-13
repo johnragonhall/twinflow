@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- arm the contributor agreement and the layer map
 - express the Purdue split in the garage compose
 - publish the layer map and hold every package to a row
 - give the agreement checks one home and arm their gate

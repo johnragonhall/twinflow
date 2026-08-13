@@ -226,7 +226,7 @@ gates:
     command: "uv run python scripts/checks/ci-matrix-gate.py"
   VAL-GATE-CLA-001:
     kind: invariant
-    status: specified
+    status: implemented
     first_phase: P1
     standing: true
     owner_section: "CLA.md section 7"
@@ -235,6 +235,8 @@ gates:
       request author's handle is in the signatories list, every signatory line matches the
       published expression, and every commit carries a Signed-off-by trailer.
     falsified_by: "A pull request that merges having failed any of the three checks."
+    test_path: tests/test_cla_gate.py
+    command: uv run pytest tests/test_cla_gate.py -q
   VAL-GATE-COLD-001:
     kind: invariant
     status: declared
@@ -1149,14 +1151,20 @@ gates:
     owner_section: "docs/design/back-office.md"
   VAL-GATE-TIER-001:
     kind: invariant
-    status: specified
+    status: implemented
     first_phase: P1
-    standing: false
+    # ROADMAP section 9 places RA-a at "P1, extended at every phase, asserted in
+    # CI". A map checked only at the phase that wrote it goes stale on the first
+    # package a later phase adds, and the gate reads the member list from the
+    # workspace globs precisely so a new brick owes a row the day it lands.
+    standing: true
     owner_section: "docs/design/foundations.md"
     assertion: >-
       Every package in the uv workspace appears in the RA-a layer map with its ISA-95 level, its
       Purdue level, its compute tier, and its latency budget filled.
     falsified_by: "One unfilled cell in the layer map, or one package with no row."
+    test_path: tests/test_layer_map_gate.py
+    command: "uv run python scripts/checks/layer-map-gate.py"
   VAL-GATE-VAR-001:
     kind: invariant
     status: declared
