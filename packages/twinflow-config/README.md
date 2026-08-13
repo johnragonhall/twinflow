@@ -1,6 +1,6 @@
 ---
 title: twinflow-config
-description: Loads a facility profile, validates it, and reports every problem with a line number and a suggestion.
+description: Loads a facility profile, validates it, reports every problem with a line number and a suggestion, and owns the unified namespace grammar the model projects onto.
 topic_type: concept
 audience: contributors
 ---
@@ -8,7 +8,9 @@ audience: contributors
 # twinflow-config
 
 Loads a facility profile, validates it, and reports what is wrong in a form the
-author can act on.
+author can act on. It also owns the unified namespace grammar, because
+ARCHITECTURE.md section 5 makes the namespace a projection of the facility
+model this package already holds.
 
 ## Install
 
@@ -52,6 +54,36 @@ author who is handed the list.
 
 `nearest` returns nothing when no candidate is close. A confident wrong
 suggestion sends the author further from the fix than no suggestion does.
+
+## The namespace is part of the model
+
+ARCHITECTURE.md section 5 says the unified namespace is "a projection of the
+facility model, not a parallel truth". So the six-level grammar lives here, with
+the model, and both renderers import it:
+
+```python
+from twinflow.config import UnsPath
+
+topic = UnsPath(
+    enterprise="twinflow",
+    site="dc-01",
+    area="receiving",
+    line="inbound-line-01",
+    equipment="conveyor-02",
+    parameter="motor_temp_c",
+)
+topic.topic            # twinflow/dc-01/receiving/inbound-line-01/conveyor-02/motor_temp_c
+topic.subscription(3)  # twinflow/dc-01/receiving/#
+```
+
+Levels are validated at construction, so nothing downstream has to remember to
+check: `twinflow.sensors` renders the same object as a Sparkplug address and a
+JSON mirror topic, and `twinflow.storage` mints the historian series key from
+it. Neither package carries its own copy of the rules, because one contract
+with two definitions is a disagreement waiting for the first tightening.
+
+`UnsPath.subscription` is the only place a wildcard is produced. A published
+topic cannot get one by accident.
 
 ## Warnings are not errors
 
