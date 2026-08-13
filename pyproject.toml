@@ -29,6 +29,12 @@ twinflow-schemas = { workspace = true }
 twinflow-rng = { workspace = true }
 twinflow-kernel = { workspace = true }
 twinflow-config = { workspace = true }
+twinflow-twin = { workspace = true }
+twinflow-sensors = { workspace = true }
+twinflow-storage = { workspace = true }
+twinflow-agent = { workspace = true }
+twinflow-api = { workspace = true }
+twinflow-dashboard = { workspace = true }
 twinflow-roadmap = { workspace = true }
 
 # One lockfile for every member, so a contributor cannot resolve a different
@@ -62,6 +68,12 @@ dev = [
     "twinflow-rng",
     "twinflow-kernel",
     "twinflow-config",
+    "twinflow-twin",
+    "twinflow-sensors",
+    "twinflow-storage",
+    "twinflow-agent",
+    "twinflow-api",
+    "twinflow-dashboard",
     "twinflow-roadmap",
 ]
 

@@ -104,6 +104,16 @@ def render(layers: dict, present: set[str]) -> str:
             "forbidden_modules =",
             f"    twinflow.{owner}._impl",
             f"    twinflow.{owner}._internal",
+            # A1.1 forbids reaching into another package's private modules. It
+            # does not forbid importing that package. Without this, every
+            # consumer of a package whose __init__ re-exports from its own
+            # _impl is reported as a violation, because import-linter follows
+            # the chain `consumer -> twinflow.owner -> twinflow.owner._impl`
+            # and reports the private module at the end of it. That chain is
+            # the design: _impl is private precisely so the public module is
+            # the only way in. The rule that matters is the direct import,
+            # which this still catches.
+            "allow_indirect_imports = True",
             "",
         ]
 

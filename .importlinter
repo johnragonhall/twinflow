@@ -13,51 +13,198 @@ root_packages =
 name = A1.3 layering, apps down to schemas
 type = layers
 layers =
+    twinflow.api | twinflow.dashboard
+    twinflow.twin | twinflow.sensors | twinflow.agent
+    twinflow.storage
     twinflow.config
     twinflow.kernel
     twinflow.rng
     twinflow.schemas
+
+[importlinter:contract:domain-independence]
+name = A1.2 domain packages are independent
+type = independence
+modules =
+    twinflow.twin
+    twinflow.sensors
+    twinflow.agent
+
+[importlinter:contract:private-agent]
+name = A1.1 twinflow.agent private modules stay private
+type = forbidden
+source_modules =
+    twinflow.api
+    twinflow.config
+    twinflow.dashboard
+    twinflow.kernel
+    twinflow.rng
+    twinflow.schemas
+    twinflow.sensors
+    twinflow.storage
+    twinflow.twin
+forbidden_modules =
+    twinflow.agent._impl
+    twinflow.agent._internal
+allow_indirect_imports = True
+
+[importlinter:contract:private-api]
+name = A1.1 twinflow.api private modules stay private
+type = forbidden
+source_modules =
+    twinflow.agent
+    twinflow.config
+    twinflow.dashboard
+    twinflow.kernel
+    twinflow.rng
+    twinflow.schemas
+    twinflow.sensors
+    twinflow.storage
+    twinflow.twin
+forbidden_modules =
+    twinflow.api._impl
+    twinflow.api._internal
+allow_indirect_imports = True
 
 [importlinter:contract:private-config]
 name = A1.1 twinflow.config private modules stay private
 type = forbidden
 source_modules =
+    twinflow.agent
+    twinflow.api
+    twinflow.dashboard
     twinflow.kernel
     twinflow.rng
     twinflow.schemas
+    twinflow.sensors
+    twinflow.storage
+    twinflow.twin
 forbidden_modules =
     twinflow.config._impl
     twinflow.config._internal
+allow_indirect_imports = True
+
+[importlinter:contract:private-dashboard]
+name = A1.1 twinflow.dashboard private modules stay private
+type = forbidden
+source_modules =
+    twinflow.agent
+    twinflow.api
+    twinflow.config
+    twinflow.kernel
+    twinflow.rng
+    twinflow.schemas
+    twinflow.sensors
+    twinflow.storage
+    twinflow.twin
+forbidden_modules =
+    twinflow.dashboard._impl
+    twinflow.dashboard._internal
+allow_indirect_imports = True
 
 [importlinter:contract:private-kernel]
 name = A1.1 twinflow.kernel private modules stay private
 type = forbidden
 source_modules =
+    twinflow.agent
+    twinflow.api
     twinflow.config
+    twinflow.dashboard
     twinflow.rng
     twinflow.schemas
+    twinflow.sensors
+    twinflow.storage
+    twinflow.twin
 forbidden_modules =
     twinflow.kernel._impl
     twinflow.kernel._internal
+allow_indirect_imports = True
 
 [importlinter:contract:private-rng]
 name = A1.1 twinflow.rng private modules stay private
 type = forbidden
 source_modules =
+    twinflow.agent
+    twinflow.api
     twinflow.config
+    twinflow.dashboard
     twinflow.kernel
     twinflow.schemas
+    twinflow.sensors
+    twinflow.storage
+    twinflow.twin
 forbidden_modules =
     twinflow.rng._impl
     twinflow.rng._internal
+allow_indirect_imports = True
 
 [importlinter:contract:private-schemas]
 name = A1.1 twinflow.schemas private modules stay private
 type = forbidden
 source_modules =
+    twinflow.agent
+    twinflow.api
     twinflow.config
+    twinflow.dashboard
     twinflow.kernel
     twinflow.rng
+    twinflow.sensors
+    twinflow.storage
+    twinflow.twin
 forbidden_modules =
     twinflow.schemas._impl
     twinflow.schemas._internal
+allow_indirect_imports = True
+
+[importlinter:contract:private-sensors]
+name = A1.1 twinflow.sensors private modules stay private
+type = forbidden
+source_modules =
+    twinflow.agent
+    twinflow.api
+    twinflow.config
+    twinflow.dashboard
+    twinflow.kernel
+    twinflow.rng
+    twinflow.schemas
+    twinflow.storage
+    twinflow.twin
+forbidden_modules =
+    twinflow.sensors._impl
+    twinflow.sensors._internal
+allow_indirect_imports = True
+
+[importlinter:contract:private-storage]
+name = A1.1 twinflow.storage private modules stay private
+type = forbidden
+source_modules =
+    twinflow.agent
+    twinflow.api
+    twinflow.config
+    twinflow.dashboard
+    twinflow.kernel
+    twinflow.rng
+    twinflow.schemas
+    twinflow.sensors
+    twinflow.twin
+forbidden_modules =
+    twinflow.storage._impl
+    twinflow.storage._internal
+allow_indirect_imports = True
+
+[importlinter:contract:private-twin]
+name = A1.1 twinflow.twin private modules stay private
+type = forbidden
+source_modules =
+    twinflow.agent
+    twinflow.api
+    twinflow.config
+    twinflow.dashboard
+    twinflow.kernel
+    twinflow.rng
+    twinflow.schemas
+    twinflow.sensors
+    twinflow.storage
+forbidden_modules =
+    twinflow.twin._impl
+    twinflow.twin._internal
+allow_indirect_imports = True
