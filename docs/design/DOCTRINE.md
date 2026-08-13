@@ -7,8 +7,8 @@ audience: contributors
 
 # Cross-cutting doctrine
 
-An adversarial review of the fourteen design sections found 242 contradictions, 69 dropped
-requirements, 120 untestable claims, and 22 determinism leaks. Most were local. The ones
+An adversarial review of the fourteen design sections found contradictions, dropped
+requirements, untestable claims, and determinism leaks. Most were local. The ones
 below were not: the same defect appeared in three or more sections, which means each
 section had invented its own answer.
 
