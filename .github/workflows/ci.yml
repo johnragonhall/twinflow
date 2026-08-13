@@ -74,9 +74,11 @@ jobs:
               - 'pyproject.toml'
               - 'uv.lock'
               - '.github/workflows/ci.yml'
+            # agent/** alone, and no workflow path. A workflow path here
+            # starts a Rust build for any change to the Python legs, against
+            # a directory that arrives with the device agent at P3 (R33).
             agent:
               - 'agent/**'
-              - '.github/workflows/ci.yml'
             # The roadmap is data, and a change to the data or to the diagram
             # it renders is a change the coverage proof has to see. Without
             # this filter an edit to ROADMAP.md alone would skip every job and
@@ -181,23 +183,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The same guard scripts/ci-local.sh applies, for the same reason: the
+      # Rust device agent lands at P3, and until then `cd agent` is a failure
+      # that says nothing about the change under test.
+      - name: Is there an agent to build
+        id: agent
+        run: |
+          if [ -f agent/Cargo.toml ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "SKIP: no agent/Cargo.toml. The Rust device agent arrives at P3."
+          fi
+
       - name: Install Rust stable
+        if: steps.agent.outputs.present == 'true'
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
 
       - name: Cache cargo
+        if: steps.agent.outputs.present == 'true'
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: agent
 
       - name: Format check
+        if: steps.agent.outputs.present == 'true'
         run: cd agent && cargo fmt --check
 
       - name: Clippy
+        if: steps.agent.outputs.present == 'true'
         run: cd agent && cargo clippy --all-targets -- -D warnings
 
       - name: Tests
+        if: steps.agent.outputs.present == 'true'
         run: cd agent && cargo test
 
   # Stable status check for branch protection and the README badge. It succeeds

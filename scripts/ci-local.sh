@@ -209,26 +209,41 @@ if [ "$MODE" != "--security" ]; then
     note_skip "markdownlint" "install: npm i -g markdownlint-cli2"
   fi
 
+  # The two checks the hosted lint workflow also runs. Both tools ship a
+  # binary on PyPI, so uvx reaches them with no package manager and no global
+  # install, and a shell parse error or an unparsable workflow fails here
+  # rather than on push. This comment opens with a word other than the tool
+  # name on purpose: shellcheck reads any comment starting with its own name
+  # as a directive and refuses prose after it.
+  SHELLCHECK=""
   if have shellcheck; then
+    SHELLCHECK="shellcheck"
+  elif have uvx; then
+    SHELLCHECK="uvx --from shellcheck-py shellcheck"
+  fi
+  if [ -n "$SHELLCHECK" ]; then
     # The single quotes are deliberate: this text is the body of the sh -c
     # subshell, so the expansions inside it are meant to happen there and not
     # in this shell. shellcheck cannot see that from the outside and reports
     # SC2016, which would fail its own step.
     # shellcheck disable=SC2016
     step "shellcheck" sh -c '
-      files=$(git ls-files "*.sh" "scripts/hooks/*")
+      files=$(sh scripts/checks/shell-files.sh)
       [ -n "$files" ] || { echo "no shell scripts"; exit 0; }
-      # Word splitting is the point here.
+      # $1 is the resolved command, which may carry arguments, and $files is a
+      # list. Word splitting is the point in both.
       # shellcheck disable=SC2086
-      shellcheck $files'
+      $1 $files' _ "$SHELLCHECK"
   else
-    note_skip "shellcheck" "install shellcheck from your package manager"
+    note_skip "shellcheck" "install uv, or shellcheck from your package manager"
   fi
 
   if have actionlint; then
     step "actionlint" actionlint -color
+  elif have uvx; then
+    step "actionlint" uvx --from actionlint-py actionlint
   else
-    note_skip "actionlint" "install actionlint from your package manager"
+    note_skip "actionlint" "install uv, or actionlint from your package manager"
   fi
 fi
 

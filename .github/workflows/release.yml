@@ -136,10 +136,12 @@ jobs:
 
       # 6 and 7. Release-only work that starts at later tags.
       - name: Step 6, re-record the E1 replay bundle
-        run: echo "SKIP: VAL-GATE-E1-001 applies from v0.3.0."
+        run: |
+          echo "SKIP: VAL-GATE-E1-001 applies from v0.3.0."
 
       - name: Step 7, re-run the A4 load harness
-        run: echo "SKIP: VAL-GATE-PERF-001 applies from v0.4.0."
+        run: |
+          echo "SKIP: VAL-GATE-PERF-001 applies from v0.4.0."
 
       # 8. The generated artifacts are regenerated and the tree is asserted
       #    clean over those paths and no others. The renderers land with

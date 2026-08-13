@@ -1,0 +1,19 @@
+# Line endings for the files where a carriage return is a defect rather than a
+# formatting preference.
+#
+# The repository stores LF, and git hands a Windows checkout CRLF unless a file
+# here says otherwise. shellcheck reports SC1017 on every line of a script
+# carrying a carriage return, so without these rules the local battery and the
+# hosted one read different bytes and reach different answers.
+#
+# Scoped to shell scripts and git hooks on purpose. A blanket `* text=auto`
+# renormalizes files this repository compares byte for byte, and the workspace
+# gate asserts that each package's LICENSE and NOTICE match the root copy
+# exactly.
+
+*.sh text eol=lf
+scripts/hooks/pre-commit text eol=lf
+scripts/hooks/commit-msg text eol=lf
+scripts/hooks/post-commit text eol=lf
+scripts/hooks/prepare-commit-msg text eol=lf
+scripts/hooks/install.sh text eol=lf

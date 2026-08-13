@@ -59,6 +59,11 @@ lint:
     sh scripts/checks/nondeterminism-gate.sh --selftest
     sh scripts/checks/nondeterminism-gate.sh --all
     just roadmap-gate
+    # The two checks the hosted lint workflow also runs. Both ship a binary on
+    # PyPI, so uvx reaches them with no package manager, and a workflow that
+    # does not parse fails here rather than on push.
+    uvx --from shellcheck-py shellcheck $(sh scripts/checks/shell-files.sh)
+    uvx --from actionlint-py actionlint
 
 # The roadmap, as data. Without a subcommand it validates, proves coverage, and
 # lints the phase diagram, which is the RMAP-001 set minus the tracker half.

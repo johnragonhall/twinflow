@@ -46,6 +46,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- run shellcheck and actionlint locally, and on shell files only
 - confine the files the spelling gate opens to this repository
 - pass the roadmap subcommand through to the tool
 - resolve the comment judge through uv where uv is present
