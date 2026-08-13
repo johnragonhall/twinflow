@@ -33,6 +33,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- create the labels the issues carry and refuse a tracker it could not read
 - tell an unprojected tracker apart from one that disagrees
 - name what WP-P0-10 leaves in the checkout
 - render a gate document the documentation gates accept

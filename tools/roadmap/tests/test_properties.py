@@ -11,6 +11,7 @@ nobody has made yet. Neither claim implies the other.
 
 from __future__ import annotations
 
+import re
 import tempfile
 from pathlib import Path
 
@@ -135,9 +136,16 @@ def test_release_tags_rise_with_the_phase_order(triples):
     strings, and is not one.
     """
     tags = [f"v{major}.{minor}.{patch}" for major, minor, patch in triples]
-    roadmap_text = ROADMAP
-    for old, new in zip(["v0.1.0", "v0.2.0", "v0.3.0"], tags, strict=True):
-        roadmap_text = roadmap_text.replace(f"release_tag: {old}", f"release_tag: {new}")
+    # One pass, not three. Replacing the tags in sequence lets a later mapping
+    # rewrite the tag an earlier one just wrote: v0.2.0 to v0.3.0 followed by
+    # v0.3.0 to v0.3.1 moves both phases, and the fixture stops describing the
+    # case the example asked for.
+    mapping = dict(zip(["v0.1.0", "v0.2.0", "v0.3.0"], tags, strict=True))
+    roadmap_text = re.sub(
+        r"release_tag: (v\d+\.\d+\.\d+)",
+        lambda found: f"release_tag: {mapping[found.group(1)]}",
+        ROADMAP,
+    )
 
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)

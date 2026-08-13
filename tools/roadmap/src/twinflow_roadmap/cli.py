@@ -133,6 +133,19 @@ def command_sync(args: argparse.Namespace) -> int:
             )
         return 0
 
+    # An apply that could not read the tracker compared nothing, so its empty
+    # plan means "unknown" rather than "already in step". Exiting zero there
+    # reports a projection that was never made, and the release ritual carries
+    # on as though the tracker holds one.
+    if plan.skipped:
+        sys.stderr.write(
+            "\nBLOCKED: the tracker was not read, so there is nothing to apply and no way "
+            "to tell an up-to-date tracker from an unreachable one\n"
+        )
+        for note in plan.skipped:
+            sys.stderr.write(f"  {note}\n")
+        return 1
+
     refused = apply_plan(plan, roadmap, context=args.context)
     if refused:
         sys.stderr.write(

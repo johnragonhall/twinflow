@@ -50,10 +50,26 @@ MILESTONE = "milestone"
 #: Issue mutation. A human runs these from a checkout.
 ISSUE = "issue"
 
+#: A label the issues carry. Created before them, because `gh issue create`
+#: refuses a label the repository does not hold and takes the whole issue with
+#: it: the taxonomy is generated from roadmap.yaml, so nothing else creates it.
+LABEL = "label"
+
 #: The label taxonomy of ROADMAP.md section 8. Generated, never hand-applied:
 #: a hand-applied label is a claim about a work package that roadmap.yaml did
 #: not make.
 LABEL_PREFIXES = ("phase:", "req:", "tier:", "brick:", "gate:", "wave:")
+
+#: One color per prefix, so a reader scanning the issue list sees the taxonomy
+#: rather than a wall of gray. Six-digit hex, which is the form gh takes.
+LABEL_COLORS = {
+    "phase:": "0e8a16",
+    "req:": "1d76db",
+    "tier:": "5319e7",
+    "brick:": "fbca04",
+    "gate:": "b60205",
+    "wave:": "c5def5",
+}
 
 
 @dataclass(frozen=True)
@@ -80,6 +96,10 @@ class SyncPlan:
     unexplained: list[str] = field(default_factory=list)
 
     @property
+    def label_operations(self) -> list[Operation]:
+        return [op for op in self.operations if op.kind == LABEL]
+
+    @property
     def milestone_operations(self) -> list[Operation]:
         return [op for op in self.operations if op.kind == MILESTONE]
 
@@ -98,7 +118,8 @@ class SyncPlan:
             lines.append("[sync] the tracker already matches roadmap.yaml")
         else:
             lines.append(
-                f"[sync] {len(self.milestone_operations)} milestone operations, "
+                f"[sync] {len(self.label_operations)} label operations, "
+                f"{len(self.milestone_operations)} milestone operations, "
                 f"{len(self.issue_operations)} issue operations"
             )
             for operation in self.operations:
@@ -110,28 +131,37 @@ class SyncPlan:
         return "\n".join(lines)
 
 
-def _gh_json(repo: str, *args: str) -> list[dict] | None:
-    """One `gh` call returning parsed JSON, or None when gh cannot answer."""
+def _gh_json(repo: str, *args: str) -> tuple[list[dict] | None, str]:
+    """One `gh` call returning parsed JSON, and why it returned nothing.
+
+    The reason is carried back rather than swallowed. `gh api` takes no --repo
+    flag, and a helper that appended one to every call failed on every read
+    while reporting a missing credential, which is a different problem with a
+    different fix and sent a reader to the wrong one.
+    """
     executable = shutil.which("gh")
     if executable is None:
-        return None
+        return None, "gh is not installed"
+
+    # `gh api` carries the repository inside the endpoint path; the porcelain
+    # commands take it as a flag.
+    call = [executable, *args]
+    if args and args[0] != "api":
+        call += ["--repo", repo]
+
     try:
         completed = subprocess.run(  # noqa: S603
-            [executable, *args, "--repo", repo],
-            capture_output=True,
-            text=True,
-            timeout=60,
-            check=False,
+            call, capture_output=True, text=True, timeout=60, check=False
         )
-    except (OSError, subprocess.TimeoutExpired):
-        return None
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return None, f"gh did not run: {error}"
     if completed.returncode != 0:
-        return None
+        return None, (completed.stderr or completed.stdout or "gh exited non-zero").strip()
     try:
         parsed = json.loads(completed.stdout or "[]")
-    except json.JSONDecodeError:
-        return None
-    return parsed if isinstance(parsed, list) else [parsed]
+    except json.JSONDecodeError as error:
+        return None, f"gh returned output that is not JSON: {error}"
+    return (parsed if isinstance(parsed, list) else [parsed]), ""
 
 
 def phase_by_id(roadmap: Roadmap, phase_id: str) -> Phase:
@@ -266,13 +296,11 @@ def build_plan(roadmap: Roadmap, *, offline: bool = False) -> SyncPlan:
         plan.skipped.append("tracker read: gh is not installed")
         return plan
 
-    milestones = _gh_json(
+    milestones, why = _gh_json(
         repo, "api", f"repos/{repo}/milestones", "--paginate", "--jq", "[.[]]", "--method", "GET"
     )
     if milestones is None:
-        plan.skipped.append(
-            f"tracker read: gh could not read {repo}, which usually means no credentials here"
-        )
+        plan.skipped.append(f"tracker read: gh could not read the milestones of {repo}: {why}")
         return plan
 
     by_title = {str(entry.get("title", "")): entry for entry in milestones}
@@ -312,7 +340,37 @@ def build_plan(roadmap: Roadmap, *, offline: bool = False) -> SyncPlan:
                 )
             )
 
-    issues = _gh_json(
+    # Labels before issues. `gh issue create` refuses a label the repository
+    # does not hold and fails the whole issue with it, so a taxonomy generated
+    # from roadmap.yaml has to be created by the same run that uses it.
+    existing_labels, why = _gh_json(repo, "label", "list", "--limit", "500", "--json", "name")
+    if existing_labels is None:
+        plan.skipped.append(f"tracker read: gh could not list the labels of {repo}: {why}")
+        return plan
+
+    held = {str(entry.get("name", "")) for entry in existing_labels}
+    wanted: set[str] = set()
+    for package in roadmap.work_packages:
+        wanted.update(labels_for(roadmap, package))
+
+    for label in sorted(wanted - held):
+        plan.operations.append(
+            Operation(
+                LABEL,
+                f"create label {label!r}",
+                (
+                    "label",
+                    "create",
+                    label,
+                    "--color",
+                    LABEL_COLORS.get(label.split(":", 1)[0] + ":", "ededed"),
+                    "--description",
+                    f"Generated from roadmap.yaml. {label.split(':', 1)[0]} taxonomy.",
+                ),
+            )
+        )
+
+    issues, why = _gh_json(
         repo,
         "issue",
         "list",
@@ -324,7 +382,7 @@ def build_plan(roadmap: Roadmap, *, offline: bool = False) -> SyncPlan:
         "number,title,body,labels,milestone,state",
     )
     if issues is None:
-        plan.skipped.append("tracker read: gh could not list issues")
+        plan.skipped.append(f"tracker read: gh could not list the issues of {repo}: {why}")
         return plan
 
     by_issue_title = {str(entry.get("title", "")): entry for entry in issues}
@@ -424,12 +482,24 @@ def apply_plan(plan: SyncPlan, roadmap: Roadmap, *, context: str | None) -> list
         return [str(operation) for operation in plan.operations]
 
     for operation in plan.operations:
-        permitted = may_touch_milestones if operation.kind == MILESTONE else may_mutate_issues
+        # A generated label is taxonomy rather than issue content, and the
+        # issues cannot be created without it, so it travels with the milestone
+        # lifecycle rather than waiting for a human.
+        permitted = (
+            may_touch_milestones if operation.kind in (MILESTONE, LABEL) else may_mutate_issues
+        )
         if not permitted:
             refused.append(str(operation))
             continue
+        # `gh api` carries the repository in its endpoint path and rejects the
+        # flag; the porcelain commands need it. The same split the read side
+        # makes, for the same reason.
+        call = [executable, *operation.args]
+        if operation.args and operation.args[0] != "api":
+            call += ["--repo", repo]
+
         completed = subprocess.run(  # noqa: S603
-            [executable, *operation.args, "--repo", repo],
+            call,
             capture_output=True,
             text=True,
             timeout=120,
