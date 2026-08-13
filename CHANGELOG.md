@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- run the roadmap gate everywhere the other gates run
 - validate the plan and prove every idea is placed
 - record the plan as data the build can check
 - assert the log invariants and the release policy

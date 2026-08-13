@@ -84,6 +84,21 @@ if [ "$MODE" != "--security" ]; then
   [ -f scripts/checks/metric-marker-gate.sh ] && \
     step "metric marker gate" sh scripts/checks/metric-marker-gate.sh
   step "changelog-sync selftest" sh scripts/changelog-sync.sh --selftest
+  # RMAP-001, offline half. Pure file reads over the four roadmap files, so it
+  # runs here with the policy gates rather than with the toolchain steps. The
+  # tracker half needs gh and reports what it skipped rather than passing
+  # quietly.
+  if have just; then
+    step "roadmap gate (RMAP-001)" just roadmap-gate
+  elif have uv; then
+    step "roadmap gate (RMAP-001)" sh -c '
+      uv run twinflow-roadmap validate &&
+      uv run twinflow-roadmap coverage &&
+      uv run twinflow-roadmap graph-lint &&
+      uv run twinflow-roadmap drift --offline'
+  else
+    note_skip "roadmap gate" "install: uv tool install rust-just"
+  fi
   # REL-001 over the unreleased section. The version-specific half runs when a
   # tag is cut, where an unfilled metric marker becomes fatal.
   if [ -n "$PY" ]; then

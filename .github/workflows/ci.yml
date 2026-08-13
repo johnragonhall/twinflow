@@ -51,6 +51,7 @@ jobs:
     outputs:
       python: ${{ steps.filter.outputs.python }}
       agent: ${{ steps.filter.outputs.agent }}
+      roadmap: ${{ steps.filter.outputs.roadmap }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -75,6 +76,19 @@ jobs:
               - '.github/workflows/ci.yml'
             agent:
               - 'agent/**'
+              - '.github/workflows/ci.yml'
+            # The roadmap is data, and a change to the data or to the diagram
+            # it renders is a change the coverage proof has to see. Without
+            # this filter an edit to ROADMAP.md alone would skip every job and
+            # the badge would stay green over a plan that no longer validates.
+            roadmap:
+              - 'roadmap.yaml'
+              - 'requirements.yaml'
+              - 'splits.yaml'
+              - 'gates.yaml'
+              - '.roadmap-sync.yaml'
+              - 'ROADMAP.md'
+              - 'tools/roadmap/**'
               - '.github/workflows/ci.yml'
 
   python:
@@ -130,6 +144,34 @@ jobs:
       - name: Determinism
         run: just determinism
 
+  roadmap:
+    name: Roadmap gate
+    needs: changes
+    if: needs.changes.outputs.roadmap == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Sync dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Install just
+        run: |
+          uv tool install rust-just
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      # VAL-GATE-RMAP-001. The tracker half of drift needs a token, so the
+      # offline half runs here and the release workflow runs the full one.
+      - name: Roadmap gate
+        run: just roadmap-gate
+
   agent:
     name: Rust device agent
     needs: changes
@@ -164,7 +206,7 @@ jobs:
   ci:
     name: CI
     if: always()
-    needs: [changes, python, agent]
+    needs: [changes, python, roadmap, agent]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -173,6 +215,7 @@ jobs:
           for result in \
             "changes=${{ needs.changes.result }}" \
             "python=${{ needs.python.result }}" \
+            "roadmap=${{ needs.roadmap.result }}" \
             "agent=${{ needs.agent.result }}"
           do
             name=${result%%=*}

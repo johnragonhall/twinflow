@@ -41,7 +41,23 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ROOT_PYPROJECT = REPO_ROOT / "pyproject.toml"
-PACKAGES_DIR = REPO_ROOT / "packages"
+
+
+def _member_directories(root: dict) -> list[Path]:
+    """Every directory the workspace claims, from the globs it declares.
+
+    Read from tool.uv.workspace.members rather than hard-coded to packages/*.
+    A member that lives somewhere else is still a member: twinflow-roadmap sits
+    under tools/ because it is not part of the twinflow namespace, and a gate
+    that only looked at packages/ would have let it ship with no LICENSE.
+    """
+    globs = root.get("tool", {}).get("uv", {}).get("workspace", {}).get("members", [])
+    found: list[Path] = []
+    for pattern in globs:
+        for path in sorted(REPO_ROOT.glob(pattern)):
+            if path.is_dir() and (path / "pyproject.toml").is_file():
+                found.append(path)
+    return found
 
 
 def _dependency_name(entry: str) -> str:
@@ -61,23 +77,22 @@ def main() -> int:
     declared_dev = {_dependency_name(entry) for entry in dev_group if isinstance(entry, str)}
     declared_sources = set(root.get("tool", {}).get("uv", {}).get("sources", {}))
 
-    if not PACKAGES_DIR.is_dir():
-        print("[workspace] no packages/ directory yet, nothing to check")
+    members = _member_directories(root)
+    if not members:
+        print("[workspace] no workspace members yet, nothing to check")
         return 0
 
     findings: list[str] = []
     checked = 0
 
-    for package_dir in sorted(PACKAGES_DIR.iterdir()):
+    for package_dir in members:
         manifest = package_dir / "pyproject.toml"
-        if not manifest.is_file():
-            continue
+        relative = package_dir.relative_to(REPO_ROOT).as_posix()
 
         name = tomllib.loads(manifest.read_text(encoding="utf-8")).get("project", {}).get("name")
         if not name:
             findings.append(
-                f"packages/{package_dir.name}/pyproject.toml  has no project.name, "
-                f"so no other file can refer to it"
+                f"{relative}/pyproject.toml  has no project.name, so no other file can refer to it"
             )
             continue
 
@@ -100,7 +115,7 @@ def main() -> int:
             if not package_copy.is_file():
                 findings.append(
                     f"{name}  has no {legal_file}, so its wheel ships without one; "
-                    f"copy {legal_file} into packages/{package_dir.name}/"
+                    f"copy {legal_file} into {relative}/"
                 )
             elif root_copy.is_file() and package_copy.read_bytes() != root_copy.read_bytes():
                 findings.append(

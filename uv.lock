@@ -7,6 +7,7 @@ members = [
     "twinflow-config",
     "twinflow-kernel",
     "twinflow-rng",
+    "twinflow-roadmap",
     "twinflow-schemas",
     "twinflow-workspace",
 ]
@@ -819,6 +820,20 @@ requires-dist = [
 ]
 
 [[package]]
+name = "twinflow-roadmap"
+source = { editable = "tools/roadmap" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "ruamel-yaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pydantic", specifier = ">=2.9" },
+    { name = "ruamel-yaml", specifier = ">=0.18" },
+]
+
+[[package]]
 name = "twinflow-schemas"
 source = { editable = "packages/twinflow-schemas" }
 dependencies = [
@@ -852,6 +867,7 @@ dev = [
     { name = "twinflow-config" },
     { name = "twinflow-kernel" },
     { name = "twinflow-rng" },
+    { name = "twinflow-roadmap" },
     { name = "twinflow-schemas" },
 ]
 
@@ -868,6 +884,7 @@ dev = [
     { name = "twinflow-config", editable = "packages/twinflow-config" },
     { name = "twinflow-kernel", editable = "packages/twinflow-kernel" },
     { name = "twinflow-rng", editable = "packages/twinflow-rng" },
+    { name = "twinflow-roadmap", editable = "tools/roadmap" },
     { name = "twinflow-schemas", editable = "packages/twinflow-schemas" },
 ]
 
