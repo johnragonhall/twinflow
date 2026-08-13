@@ -97,9 +97,10 @@ Nothing is deleted, which is the same rule the roadmap runs on.
 
 ## 5. Index of numbered records
 
-| Record                                            | Title                         | Status   | Date       |
-| ------------------------------------------------- | ----------------------------- | -------- | ---------- |
-| [ADR-0001](0001-record-architecture-decisions.md) | Record architecture decisions | accepted | 2026-08-13 |
+| Record                                                                     | Title                                                               | Status   | Date       |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------- | -------- | ---------- |
+| [ADR-0001](0001-record-architecture-decisions.md)                          | Record architecture decisions                                       | accepted | 2026-08-13 |
+| [ADR-0002](0002-implement-the-agent-seam-rather-than-adopt-pydantic-ai.md) | twinflow implements the agent seam rather than adopting Pydantic AI | accepted | 2026-08-13 |
 
 Use [template.md](template.md) to write a new one.
 
@@ -108,24 +109,29 @@ Use [template.md](template.md) to write a new one.
 Sixteen decisions, each with its rejected alternatives and its reason, in
 section 1 of ARCHITECTURE.md. Eleven carry a longer note under the table.
 
-| Id    | Decision                                 | Choice                                                                 |
-| ----- | ---------------------------------------- | ---------------------------------------------------------------------- |
-| `D1`  | Discrete-event simulation kernel         | SimPy, so the project owns the RNG                                     |
-| `D2`  | Batch table format and query engine      | delta-rs writing Delta Lake, DuckDB querying through Arrow, no Spark   |
-| `D3`  | MQTT broker, garage tier                 | Eclipse Mosquitto                                                      |
-| `D4`  | MQTT broker, growth and enterprise tiers | EMQX                                                                   |
-| `D5`  | MQTT broker, edge-gateway tier           | NanoMQ                                                                 |
-| `D6`  | Device payload format                    | Eclipse Sparkplug B v3.0.0                                             |
-| `D7`  | Anomaly detection                        | Statistical baseline first, a learned model only when it beats it      |
-| `D8`  | Process mining                           | `twinflow-procmine`, written here, because PM4Py is AGPL-3.0           |
-| `D9`  | Agent framework                          | Pydantic AI, for the provider seam and the structured-output guarantee |
-| `D10` | Local model path                         | Ollama with constrained decoding, so the demo needs no API key         |
-| `D11` | Forecasting                              | A statsforecast baseline arena, with challengers entered later         |
-| `D12` | Optimization                             | Optuna, native `GPSampler` and MOTPE                                   |
-| `D13` | Causal inference                         | DoWhy for the workflow, EconML for the estimators                      |
-| `D14` | Outbound license                         | Apache-2.0, plus a commercial option, plus `CLA.md`                    |
-| `D15` | Inbound dependency licenses              | Permissive only, and CI fails the build outside the allowlist          |
-| `D16` | RNG bit generator                        | `SeedSequence` with BLAKE2b spawn keys, feeding `PCG64DXSM`            |
+One of them has since been amended by a numbered record. Decision D9 named
+Pydantic AI, and ADR-0002 records why the run-time license allowlist refuses it
+and what twinflow ships instead. The technology decision keeps its id and its
+text, per section 2, and the row below points at the record that amends it.
+
+| Id    | Decision                                 | Choice                                                                                                                   |
+| ----- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `D1`  | Discrete-event simulation kernel         | SimPy, so the project owns the RNG                                                                                       |
+| `D2`  | Batch table format and query engine      | delta-rs writing Delta Lake, DuckDB querying through Arrow, no Spark                                                     |
+| `D3`  | MQTT broker, garage tier                 | Eclipse Mosquitto                                                                                                        |
+| `D4`  | MQTT broker, growth and enterprise tiers | EMQX                                                                                                                     |
+| `D5`  | MQTT broker, edge-gateway tier           | NanoMQ                                                                                                                   |
+| `D6`  | Device payload format                    | Eclipse Sparkplug B v3.0.0                                                                                               |
+| `D7`  | Anomaly detection                        | Statistical baseline first, a learned model only when it beats it                                                        |
+| `D8`  | Process mining                           | `twinflow-procmine`, written here, because PM4Py is AGPL-3.0                                                             |
+| `D9`  | Agent framework                          | Pydantic AI, refused on its license tree. See [ADR-0002](0002-implement-the-agent-seam-rather-than-adopt-pydantic-ai.md) |
+| `D10` | Local model path                         | Ollama with constrained decoding, so the demo needs no API key                                                           |
+| `D11` | Forecasting                              | A statsforecast baseline arena, with challengers entered later                                                           |
+| `D12` | Optimization                             | Optuna, native `GPSampler` and MOTPE                                                                                     |
+| `D13` | Causal inference                         | DoWhy for the workflow, EconML for the estimators                                                                        |
+| `D14` | Outbound license                         | Apache-2.0, plus a commercial option, plus `CLA.md`                                                                      |
+| `D15` | Inbound dependency licenses              | Permissive only, and CI fails the build outside the allowlist                                                            |
+| `D16` | RNG bit generator                        | `SeedSequence` with BLAKE2b spawn keys, feeding `PCG64DXSM`                                                              |
 
 ## 7. Cross-index: doctrine rulings
 
