@@ -1,0 +1,48 @@
+[project]
+name = "twinflow-agent"
+description = "The agent tool surface, schema-constrained, and the autonomy tier every call carries."
+requires-python = ">=3.12"
+# pydantic and two workspace leaves, and no agent framework. ARCHITECTURE.md
+# decision D9 selects Pydantic AI, and the tool surface is built behind the
+# StructuredOutputAdapter seam so that adopting it is a swap rather than a
+# rewrite. It is not a dependency, for a license reason: pydantic-ai 2.27.0
+# resolves to 100 distributions and the bare pydantic-ai-slim to 20, and both
+# trees carry certifi, which is MPL-2.0 through httpx at run time. The allowlist
+# row in CONTRIBUTING.md that applies reads "Shipped at run time | Refused", and
+# VAL-GATE-SEC-001 names that allowlist. ADR-0002 records the decision, and the
+# local model path in local_model.py is why no HTTP client is needed either.
+#
+# twinflow-config is here because query_metric reads the governed metrics layer
+# rather than computing a number inline, which is what makes the answer
+# groundable against a definition somebody owns.
+dependencies = [
+    "pydantic>=2.9",
+    "twinflow-config",
+    "twinflow-schemas",
+]
+
+# Read from the module, so __version__ and the distribution metadata are one
+# value and cannot disagree.
+dynamic = ["version"]
+
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+
+[build-system]
+# 1.27 is where hatchling accepts the PEP 639 license fields above.
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/twinflow/agent/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/twinflow"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "pyproject.toml"]
+exclude = ["**/__pycache__", "**/*.py[co]", "**/.pytest_cache"]
+
+[tool.uv.sources]
+twinflow-config = { workspace = true }
+twinflow-schemas = { workspace = true }

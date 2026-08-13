@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- ship the first tool and the autonomy tier it runs under
 - record an append-only log under the historian name
 - publish two devices and speak Sparkplug B
 - model one receiving and putaway station
