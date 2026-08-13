@@ -41,6 +41,10 @@ from twinflow.schemas import Envelope
 #: what the dashboard is opens one thing.
 INDEX_FILENAME = "index.html"
 
+#: The one media type `POST /api/command` accepts. Named rather than inlined
+#: because the refusal message and the check have to agree.
+JSON_MEDIA_TYPE = "application/json"
+
 #: Section 5.2.2 of the design page ships two content security policies, because
 #: a static host cannot set a response header and the live server can. This is
 #: the served one. `unsafe-inline` is the cost of the no-build decision and is
@@ -121,7 +125,15 @@ def create_app(
         return JSONResponse({"status": "ok", "sim_time": int(clock())})
 
     async def command(request: Request) -> Response:
-        """The browser's only write path. Validate, then assign a position."""
+        """The browser's only write path. Prove it is ours, validate, then assign
+        a position."""
+        refusal = _cross_site_refusal(request)
+        if refusal is not None:
+            return _refused(refusal)
+        media_type = request.headers.get("content-type", "").split(";", 1)[0].strip().lower()
+        if media_type != JSON_MEDIA_TYPE:
+            return _unsupported_media_type(media_type)
+
         try:
             payload: Any = await request.json()
         except ValueError:
@@ -173,6 +185,56 @@ def serve(config: DashboardConfig, *, clock: Callable[[], int]) -> None:  # prag
     import uvicorn
 
     uvicorn.run(create_app(config, clock=clock), host=config.bind, port=config.port)
+
+
+def _cross_site_refusal(request: Request) -> str | None:
+    """Why this write should not be honored, or nothing if it is same-origin.
+
+    `POST /api/command` carries no credential, so the browser will send it for
+    anyone who asks. Without this check any page the operator has open can drive
+    the dashboard: a form post or a `text/plain` fetch is a CORS *simple*
+    request, so it is delivered without a preflight and the reply being
+    unreadable does not undo the write. The audit log is append-only, which
+    makes a forged entry permanent.
+
+    Two independent signals, because each covers the other's gap. `Origin` is
+    sent on every cross-origin POST but is also sent same-origin by some
+    browsers, so it is compared rather than merely required. `Sec-Fetch-Site` is
+    set by the browser and cannot be spoofed by page script, but is absent on
+    clients that are not browsers. A request carrying neither is not a browser
+    request at all, and the media-type check at the call site is what stands in
+    front of it.
+    """
+    site = request.headers.get("sec-fetch-site")
+    if site is not None and site != "same-origin":
+        return f"sec-fetch-site is {site!r}, and this endpoint answers same-origin requests only"
+
+    origin = request.headers.get("origin")
+    if origin is not None and origin != f"{request.url.scheme}://{request.url.netloc}":
+        return f"origin {origin!r} is not this dashboard"
+    return None
+
+
+def _refused(reason: str) -> Response:
+    """403 for a write that did not come from this dashboard's own page."""
+    return JSONResponse({"errors": [reason]}, status_code=403)
+
+
+def _unsupported_media_type(media_type: str) -> Response:
+    """415 for a body this endpoint does not accept.
+
+    Requiring `application/json` is a control rather than pedantry: it is the
+    media type that takes a cross-origin POST out of the CORS simple-request set
+    and forces a preflight, which this app answers for nobody.
+    """
+    return JSONResponse(
+        {
+            "errors": [
+                f"content-type must be {JSON_MEDIA_TYPE}, got {media_type or 'nothing'!r}",
+            ]
+        },
+        status_code=415,
+    )
 
 
 def _invalid(reasons: tuple[str, ...]) -> Response:

@@ -17,6 +17,7 @@ from __future__ import annotations
 import warnings
 from datetime import datetime
 from typing import Literal
+from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -27,6 +28,11 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 #: dependency on the kernel to read three integers would trade the install-alone
 #: claim of D-10 for a constant.
 TICK_RESOLUTIONS: tuple[int, int, int] = (1_000, 1_000_000, 1_000_000_000)
+
+#: Characters that end a content security policy directive or a header line.
+#: `urlsplit` accepts all of them inside an authority, so the origin check reads
+#: them separately rather than trusting the parse.
+_FORBIDDEN_IN_ORIGIN: tuple[str, ...] = (";", ",", " ", "\t", "\r", "\n", "\x00", "'", '"')
 
 
 class DashboardConfig(BaseModel):
@@ -73,6 +79,47 @@ class DashboardConfig(BaseModel):
                 "binding 0.0.0.0 exposes the dashboard on every interface; section 6.2 "
                 "warns rather than refuses because a container publishes that way on purpose",
                 stacklevel=3,
+            )
+        return value
+
+    @field_validator("api_base_url")
+    @classmethod
+    def _api_base_url_is_an_origin_and_nothing_else(cls, value: str) -> str:
+        """Refuse anything that is not scheme, host, and optional port.
+
+        This value is interpolated into the `connect-src` directive of the
+        content security policy the index route serves. A value carrying a
+        space, a semicolon, or a newline writes further directives into that
+        header, so the policy protecting the page is authored by whoever
+        authored the config. Validating the origin here is what keeps
+        `CSP_TEMPLATE.format` a substitution rather than a parser.
+
+        The refusal is at construction rather than at render, for the reason
+        `UnsPath` gives: a value that passed cannot be dangerous at any of the
+        places it is later spelled.
+        """
+        split = urlsplit(value)
+        if split.scheme not in ("http", "https"):
+            raise ValueError(
+                f"api_base_url must be http or https, got {split.scheme or 'no scheme'!r}"
+            )
+        if not split.hostname:
+            raise ValueError(f"api_base_url names no host: {value!r}")
+        if split.path not in ("", "/") or split.query or split.fragment:
+            raise ValueError(
+                f"api_base_url is an origin, not a URL with a path: {value!r}. "
+                f"The dashboard joins its own paths onto it"
+            )
+        try:
+            port = split.port
+        except ValueError as exc:  # a non-numeric port never reaches the header
+            raise ValueError(f"api_base_url carries an invalid port: {value!r}") from exc
+        if port is not None and not 0 < port <= 65535:
+            raise ValueError(f"api_base_url names an impossible port: {value!r}")
+        if any(char in value for char in _FORBIDDEN_IN_ORIGIN):
+            raise ValueError(
+                f"api_base_url carries whitespace or a policy separator: {value!r}. "
+                f"Either would append a directive to the content security policy"
             )
         return value
 

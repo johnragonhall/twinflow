@@ -239,3 +239,124 @@ def test_the_default_sink_keeps_what_it_accepted(clock: StepClock):
     client.post("/api/command", json_body=command())
 
     assert len(app.state.recorded) == 1
+
+
+# ------------------------------------------------- the write path is same-origin
+
+# `POST /api/command` carries no credential and writes an append-only audit log,
+# so without an origin check any page the operator has open can drive the
+# dashboard. A `text/plain` body makes that a CORS simple request, which the
+# browser delivers with no preflight; the reply being unreadable does not undo
+# the write. These assert the refusals, and the two controls below assert that
+# the guard did not simply close the endpoint.
+
+
+def test_a_cross_site_post_is_refused_even_though_its_body_is_valid(client: Client):
+    """The forged request differs from a real one only by where it came from, so
+    a body-shaped check cannot catch it."""
+    response = client.post(
+        "/api/command",
+        json_body=command(),
+        headers={"origin": "https://evil.example"},
+    )
+
+    assert response.status_code == 403
+    assert client.recorded == []
+
+
+def test_a_cross_site_post_is_refused_by_the_browsers_own_signal(client: Client):
+    """`sec-fetch-site` is set by the browser and page script cannot forge it, so
+    it is checked even when `origin` is absent."""
+    response = client.post(
+        "/api/command", json_body=command(), headers={"sec-fetch-site": "cross-site"}
+    )
+
+    assert response.status_code == 403
+    assert client.recorded == []
+
+
+def test_a_text_plain_body_is_refused_before_it_is_parsed(client: Client):
+    """`application/json` is the media type that forces a preflight, which this
+    app answers for nobody. Refusing it is the control, not the pedantry."""
+    response = client.post(
+        "/api/command",
+        content=json.dumps(command()).encode("utf-8"),
+        headers={"content-type": "text/plain"},
+    )
+
+    assert response.status_code == 415
+    assert client.recorded == []
+
+
+def test_a_form_encoded_body_is_refused(client: Client):
+    """The other simple-request media type, and the one a plain HTML form sends
+    with no script involved at all."""
+    response = client.post(
+        "/api/command",
+        content=b"command_id=c-0001&kind=set_speed",
+        headers={"content-type": "application/x-www-form-urlencoded"},
+    )
+
+    assert response.status_code == 415
+    assert client.recorded == []
+
+
+def test_the_dashboards_own_page_still_writes(client: Client):
+    """The control for the three refusals above. A guard that refused everything
+    would pass them all and close the only write path the design has."""
+    response = client.post(
+        "/api/command",
+        json_body=command(),
+        headers={"origin": "http://testserver", "sec-fetch-site": "same-origin"},
+    )
+
+    assert response.status_code == 202
+    assert len(client.recorded) == 1
+
+
+def test_a_client_that_is_not_a_browser_still_writes(client: Client):
+    """curl and the operator's own scripts send neither header. They are not the
+    threat: the forgery being refused needs a browser holding someone's session,
+    and the media-type check stands in front of the headerless case."""
+    response = client.post("/api/command", json_body=command())
+
+    assert response.status_code == 202
+    assert len(client.recorded) == 1
+
+
+# ------------------------------------------- the api origin cannot author policy
+
+# `api_base_url` is interpolated into the `connect-src` directive of the content
+# security policy the index route serves. `CSP_TEMPLATE.format` is a
+# substitution, so whatever the config carries becomes policy. The refusal is at
+# construction, which is what makes every later spelling of the value safe.
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "http://a.test; script-src * 'unsafe-eval'",
+        "http://a.test\r\nx-evil: 1",
+        "http://a.test 'unsafe-inline'",
+        "http://a.test,https://b.test",
+        "javascript:alert(1)",
+        "//a.test",
+        "http://a.test/v1",
+        "http://a.test?x=1",
+    ],
+)
+def test_an_api_base_url_that_could_write_policy_is_refused(value: str):
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        make_config(api_base_url=value)
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["http://127.0.0.1:8000", "https://twin.example", "http://api.internal:9000/"],
+)
+def test_an_ordinary_origin_is_still_accepted(value: str):
+    """The control. A validator that refused every value would pass the eight
+    cases above while making the field unusable."""
+    assert make_config(api_base_url=value).api_base_url == value

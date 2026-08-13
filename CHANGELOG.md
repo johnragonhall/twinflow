@@ -55,6 +55,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- let only this dashboard's own page write
 - compare the approver to the requester by identity
 - recover two entries and file two under Security
 - scope the ARCH-5 claim to the half that ships
