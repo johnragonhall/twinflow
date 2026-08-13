@@ -146,11 +146,13 @@ repository:
           - default
         integration:
           adhoc: true
-          ci: true
+          ci: false
           release: true
         comment: |
           VAL-GATE-SEC-001 needs pip-audit clean, or waived with an expiry date,
-          before a release tag.
+          before a release tag. It runs in the release workflow and in
+          scripts/ci-local.sh, and in no pull request job, which is why ci reads
+          false here.
       - name: zizmor
         type: SAST
         rulesets:
@@ -161,7 +163,7 @@ repository:
           release: false
         comment: |
           Static analysis of the GitHub Actions workflows, configured in
-          .zizmor.yml.
+          .github/zizmor.yml.
     comment: |
       A license allowlist gate refuses any resolved dependency outside the
       permissive set that CONTRIBUTING.md names, with one MPL-2.0 row scoped to
