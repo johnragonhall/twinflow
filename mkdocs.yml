@@ -113,6 +113,8 @@ nav:
       - Interface direction: design/ui-direction.md
       - Repository craft: design/repo-craft.md
       - Phase detail: design/roadmap.md
+  - Reference:
+      - Layer map: reference/layer-map.md
   - Validation gates: gates.md
   - Decision records:
       - Index: adr/index.md
