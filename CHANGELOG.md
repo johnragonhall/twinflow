@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- give DET-002 the second platform it asserts
 - project the plan onto the tracker and generate the gate document
 - make the plan own every number a release defers
 - hold a deferred metric to the work package that owes it

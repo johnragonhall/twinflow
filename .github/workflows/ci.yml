@@ -93,10 +93,10 @@ jobs:
               - '.github/workflows/ci.yml'
 
   python:
-    name: Python ${{ matrix.python-version }}
+    name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
     needs: changes
     if: needs.changes.outputs.python == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -104,6 +104,15 @@ jobs:
         # 3.12 is the floor and 3.13 is the primary. Both are supported for the
         # lifetime of their upstream security window.
         python-version: ["3.12", "3.13"]
+        # repo-craft 1065 puts py3.12 on windows in the unit job, and DET-002
+        # asserts agreement across platforms rather than across interpreters:
+        # two interpreters on one image cannot measure that. Declared in full
+        # and cut back by exclude, rather than added by include, so the cells
+        # this file names are the cells ci_budget.yaml records.
+        os: ["ubuntu-24.04", "windows-2022"]
+        exclude:
+          - os: windows-2022
+            python-version: "3.13"
     steps:
       - uses: actions/checkout@v4
 
@@ -127,10 +136,16 @@ jobs:
           uv tool install rust-just
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
+      # The static battery is the reference platform's job. A shell gate,
+      # markdownlint, shellcheck and actionlint all read the same tracked bytes
+      # whatever runs them, so a second platform re-reading them buys nothing
+      # and costs a toolchain that has to exist there.
       - name: Lint
+        if: runner.os == 'Linux'
         run: just lint
 
       - name: Type check
+        if: runner.os == 'Linux'
         run: just typecheck
 
       - name: Unit tier
@@ -140,6 +155,7 @@ jobs:
       # one interpreter and not another is exactly the kind of bug they exist
       # to catch.
       - name: Property invariants
+        if: runner.os == 'Linux'
         run: just test-property
 
       - name: Determinism
@@ -149,13 +165,13 @@ jobs:
       # and the divergence job below compares them. Recording here rather than
       # comparing here, because a leg cannot read another leg's filesystem.
       - name: Record the SCN-F1 run for this leg
-        run: just record-run "run-py${{ matrix.python-version }}.jsonl" 0
+        run: just record-run "run-${{ runner.os }}-py${{ matrix.python-version }}.jsonl" 0
 
       - name: Upload this leg's run
         uses: actions/upload-artifact@v4
         with:
-          name: run-py${{ matrix.python-version }}
-          path: run-py${{ matrix.python-version }}.jsonl
+          name: run-${{ runner.os }}-py${{ matrix.python-version }}
+          path: run-${{ runner.os }}-py${{ matrix.python-version }}.jsonl
           if-no-files-found: error
 
       # The reference runner's image version, which ci_budget.yaml records as
@@ -168,11 +184,12 @@ jobs:
           echo "observed ImageVersion: ${ImageVersion:-unknown}"
           grep image_version ci_budget.yaml
 
-  # DET-002. The two interpreter legs are the two platforms one runner image
-  # offers, so this is the weaker half of tier two: same operating system,
-  # different interpreter. It is the half that can run today, and it catches an
-  # interpreter-dependent iteration order or float repr, which is the failure
-  # mode the tier exists for.
+  # DET-002, both halves of tier two.
+  #
+  # Across interpreters on one image: catches an interpreter-dependent
+  # iteration order or float repr. Across operating systems at one interpreter:
+  # catches a path separator, a line ending, a locale, and a libm that rounds
+  # its last bit differently, which is the comparison the tier is named for.
   #
   # No tolerance is passed. gates.yaml records this noise floor as not yet
   # measured, so the job publishes the divergence it observed and bounds
@@ -198,14 +215,22 @@ jobs:
       - name: Download every leg's run
         uses: actions/download-artifact@v4
         with:
-          pattern: run-py*
+          pattern: run-*
           merge-multiple: true
 
-      - name: Compare the legs
+      - name: Compare the interpreters, one operating system
         run: |
           uv run python tools/compare_runs.py \
-            run-py3.12.jsonl run-py3.13.jsonl \
-            --label-left "python 3.12" --label-right "python 3.13"
+            run-Linux-py3.12.jsonl run-Linux-py3.13.jsonl \
+            --label-left "linux python 3.12" --label-right "linux python 3.13"
+
+      # The comparison the gate is named for. Both legs run the same seed and
+      # the same config, so a divergence here is the platform and nothing else.
+      - name: Compare the operating systems, one interpreter
+        run: |
+          uv run python tools/compare_runs.py \
+            run-Linux-py3.12.jsonl run-Windows-py3.12.jsonl \
+            --label-left "linux python 3.12" --label-right "windows python 3.12"
 
   roadmap:
     name: Roadmap gate

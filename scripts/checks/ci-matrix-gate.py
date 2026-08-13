@@ -76,24 +76,87 @@ def check_jobs(budget: dict, workflow: dict) -> list[str]:
         findings.append(f"ci.yml defines job {job_id!r}, which ci_budget.yaml gives no budget")
 
     for job_id, job in sorted(workflow_jobs.items()):
+        expected = budgeted.get(job_id, {})
         declared = job.get("runs-on")
-        if declared != runner:
+        allowed = _pinned_runners(expected, runner)
+
+        # A job that spans platforms names its runner through the matrix. That
+        # is still pinned, one image per cell, so the rule is that every runner
+        # the job can land on is an image ci_budget.yaml records: a budget is
+        # stated per runner, and a cell on an unbudgeted image is a cell with
+        # no budget.
+        if declared == "${{ matrix.os }}":
+            declared_os = (job.get("strategy", {}).get("matrix", {}) or {}).get("os") or []
+            for image in declared_os:
+                if image not in allowed:
+                    findings.append(
+                        f"job {job_id!r} can run on {image!r}, which ci_budget.yaml does not "
+                        f"record for it. Every runner a job lands on carries a budget"
+                    )
+        elif declared != runner:
             findings.append(
                 f"job {job_id!r} runs on {declared!r}, not the pinned reference runner "
                 f"{runner!r}. Every budget in ci_budget.yaml is stated on that runner"
             )
 
-        expected = budgeted.get(job_id, {})
         if expected.get("matrix"):
             actual = job.get("strategy", {}).get("matrix", {})
-            if actual != expected["matrix"]:
+            # Compared as the cells each file names rather than as raw mappings,
+            # so exclude counts. A matrix that spells the same three cells two
+            # ways is the same three cells.
+            if _cells(actual) != _cells(expected["matrix"]):
                 findings.append(
-                    f"job {job_id!r} has matrix {actual}, and ci_budget.yaml records "
-                    f"{expected['matrix']}. A leg named in one file and not the other "
-                    f"is a leg nobody runs or a budget nobody meets"
+                    f"job {job_id!r} has matrix cells {_render(_cells(actual))}, and "
+                    f"ci_budget.yaml records {_render(_cells(expected['matrix']))}. A leg "
+                    f"named in one file and not the other is a leg nobody runs or a budget "
+                    f"nobody meets"
                 )
 
     return findings
+
+
+def _render(cells: set) -> str:
+    """Cells as a reader names them, rather than as tuples of pairs."""
+    return (
+        ", ".join(sorted(" ".join(f"{key}={value}" for key, value in cell) for cell in cells))
+        or "none"
+    )
+
+
+def _pinned_runners(budgeted_job: dict, reference: str) -> set[str]:
+    """Every image a job is budgeted to run on."""
+    images = {reference}
+    declared = budgeted_job.get("runs_on")
+    if isinstance(declared, str):
+        images.add(declared)
+    images.update((budgeted_job.get("matrix") or {}).get("os") or [])
+    return images
+
+
+def _cells(matrix: dict) -> set[tuple]:
+    """The cells a matrix expands to, honoring exclude.
+
+    include is deliberately not expanded: a cell added that way carries values
+    the axes do not list, and this gate compares axes. A job needing include
+    states its cells in ci_budget.yaml the same way.
+    """
+    axes = {
+        key: value
+        for key, value in (matrix or {}).items()
+        if key not in ("include", "exclude") and isinstance(value, list)
+    }
+    if not axes:
+        return set()
+
+    names = sorted(axes)
+    cells = [()]
+    for name in names:
+        cells = [cell + ((name, value),) for cell in cells for value in axes[name]]
+
+    for dropped in matrix.get("exclude") or []:
+        wanted = tuple(sorted((key, value) for key, value in dropped.items()))
+        cells = [cell for cell in cells if not all(pair in cell for pair in wanted)]
+    return {tuple(sorted(cell)) for cell in cells}
 
 
 def check_run_set(workflow: dict) -> list[str]:

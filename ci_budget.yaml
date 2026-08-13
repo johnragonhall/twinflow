@@ -73,11 +73,19 @@ jobs:
     measured_s: null
     matrix:
       python-version: ["3.12", "3.13"]
-    reference_leg: "3.13"
+      os: ["ubuntu-24.04", "windows-2022"]
+      exclude:
+        - os: windows-2022
+          python-version: "3.13"
+    reference_leg: "ubuntu-24.04 / 3.13"
     note: >-
       3.12 is the floor and 3.13 is the primary. The reference leg is the one
-      D-05 tier one is defined on; the other leg is a tier two platform and its
-      divergence is measured rather than asserted away.
+      D-05 tier one is defined on; every other leg is a tier two platform and
+      its divergence is measured rather than asserted away. The windows cell
+      runs 3.12 only and carries the unit tier and the recorded run: the static
+      battery reads tracked bytes, which do not change with the reader, and the
+      property tier is stated on the reference platform. repo-craft 1065 places
+      that cell.
 
   - id: divergence
     workflow: ci.yml
@@ -87,10 +95,11 @@ jobs:
     hard_fail_ratio: 1.25
     measured_s: null
     note: >-
-      DET-002 tier two, over the two interpreter legs. A second operating system
-      joins it when one is added to the matrix; until then this is the half of
-      the claim that can be made, and it is stated as that rather than as the
-      whole of it.
+      DET-002 tier two, over both axes: two interpreters on one image, and two
+      operating systems at one interpreter. The second comparison is the one the
+      gate is named for, and it publishes the divergence it observes without
+      bounding it, because gates.yaml records the noise floor as unmeasured
+      until a run produces one.
 
   - id: roadmap
     workflow: ci.yml
