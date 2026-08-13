@@ -42,6 +42,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- give the tier latency metric the package that measures it
 - refuse a topic type that takes a page out of the linter
 - close three checks that cannot fail
 - create the labels the issues carry and refuse a tracker it could not read

@@ -2022,7 +2022,8 @@ work_packages:
     covers:
       - { id: "E36", partial: false }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "metric:decision_latency_by_tier"
     gates:
       - VAL-GATE-EDGE-001
     brick: null
