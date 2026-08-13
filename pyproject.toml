@@ -14,7 +14,11 @@ required-version = ">=0.5"
 default-groups = ["dev"]
 
 [tool.uv.workspace]
-members = ["packages/*"]
+# tools/roadmap is a member and not a package under packages/, because it is not
+# part of the twinflow namespace and nothing at run time imports it. It ships as
+# its own distribution all the same: A1 says a reader who wants only "roadmap as
+# code with a coverage proof" installs one thing and gets it.
+members = ["packages/*", "tools/roadmap"]
 
 # Resolve the members named in the dev group from this tree rather than PyPI,
 # where they do not exist yet. A new package needs a line here and a line in
@@ -25,6 +29,7 @@ twinflow-schemas = { workspace = true }
 twinflow-rng = { workspace = true }
 twinflow-kernel = { workspace = true }
 twinflow-config = { workspace = true }
+twinflow-roadmap = { workspace = true }
 
 # One lockfile for every member, so a contributor cannot resolve a different
 # numpy than CI did. The numpy pin in each member is a determinism constraint,
@@ -57,6 +62,7 @@ dev = [
     "twinflow-rng",
     "twinflow-kernel",
     "twinflow-config",
+    "twinflow-roadmap",
 ]
 
 # Boundary rule A1.3. The layer list and the domain-package list live here and
@@ -95,7 +101,7 @@ outside = ["devtools"]
 # packages/ holds the distributions. tests/ holds the repository policy gates
 # under scripts/checks, which belong to no distribution and would otherwise ship
 # untested inside one that does not own them.
-testpaths = ["packages", "tests"]
+testpaths = ["packages", "tools/roadmap", "tests"]
 # --import-mode=importlib is load-bearing in a workspace, not a preference.
 # Under the default prepend mode pytest imports a test module by its basename,
 # so packages/twinflow-schemas/tests/test_import.py and

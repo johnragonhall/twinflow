@@ -1,0 +1,47 @@
+[project]
+name = "twinflow-roadmap"
+description = "Program management as code: the requirement register, the work-package graph, the gate registry, and the coverage proof."
+requires-python = ">=3.12"
+# A leaf on purpose. This package imports nothing else in the workspace, because
+# it has to run on a checkout that does not yet build: `roadmap validate` is the
+# first thing CI runs on a branch that broke the twin.
+#
+# docs/design/roadmap.md section 2 declares networkx, jinja2, and typer
+# alongside these two. Each arrives with the work package that consumes it
+# rather than ahead of it, which is the same rule twinflow-schemas states:
+# networkx and jinja2 serve the renderers and typer serves the sync command,
+# and all three land with WP-P0-13. Until then the graph walk is a Kahn sort
+# over a dict and the command line is argparse, and neither is worth a
+# dependency a reviewer would have to check.
+dependencies = [
+    "pydantic>=2.9",
+    # Round-trip YAML, which is what keeps line and column on every node. C5
+    # requires a line-numbered error, and a plain safe_load parses the same
+    # document and leaves every diagnostic pointing at nothing.
+    "ruamel.yaml>=0.18",
+]
+
+# Read from the module, so __version__ and the distribution metadata are one
+# value and cannot disagree.
+dynamic = ["version"]
+
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+
+[project.scripts]
+twinflow-roadmap = "twinflow_roadmap.cli:main"
+
+[build-system]
+# 1.27 is where hatchling accepts the PEP 639 license fields above.
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/twinflow_roadmap/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/twinflow_roadmap"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "pyproject.toml"]
+exclude = ["**/__pycache__", "**/*.py[co]", "**/.pytest_cache"]

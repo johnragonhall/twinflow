@@ -31,9 +31,11 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 # twinflow is this project, not a third-party dependency. Without this, rule I
 # sorts `import twinflow.schemas` into the third-party block, and every package
 # added later re-sorts its neighbours' imports on the first run that touches
-# them. The namespace prefix is the whole first-party surface, so one entry
-# covers every package under packages/.
-known-first-party = ["twinflow"]
+# them. The namespace prefix covers every package under packages/;
+# twinflow_roadmap is named separately because the roadmap tool sits outside the
+# twinflow namespace on purpose, being an operations-plane leaf that nothing
+# imports at run time.
+known-first-party = ["twinflow", "twinflow_roadmap"]
 
 [format]
 # Code inside a docstring is real code and is formatted. Code inside Markdown
