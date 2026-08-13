@@ -1,0 +1,108 @@
+# GENERATED from roadmap.yaml and requirements.yaml by `just roadmap splits`.
+#
+# One entry per split label. A split label is not a requirement id: the source
+# carries E4, and E4a and E4b are the two points at which E4 lands. This file is
+# what reconciles the nine split requirements against an append-only requirement
+# register that never learns their labels.
+#
+# A split moves no scope. Both halves are tracked, and the later half is a work
+# package like any other.
+
+version: 1
+splits:
+  E4a:
+    requirement: "E4"
+    work_package: "WP-P1-06"
+    title: "Append-only event-sourced historian contract and per-run config snapshot"
+  E4b:
+    requirement: "E4"
+    work_package: "WP-P3-11"
+    title: "Counterfactual replay engine and time-travel debugging of a finding"
+  E5a:
+    requirement: "E5"
+    work_package: "WP-P1-08"
+    title: "Autonomy tier metadata on every tool and the change-attribution audit event"
+  E5b:
+    requirement: "E5"
+    work_package: "WP-P6-W4-03"
+    title: "L3 auto-apply inside guardrails with rollback"
+  E8a:
+    requirement: "E8"
+    work_package: "WP-6a11-01"
+    title: "The SOP corpus, retrieval, and clause citation ids"
+  E8b:
+    requirement: "E8"
+    work_package: "WP-P4-02"
+    title: "The computer vision violation bound to the clause it breaks"
+  E10a:
+    requirement: "E10"
+    work_package: "WP-P3-10"
+    title: "Genealogy fields named against the EU ESPR digital product passport vocabulary"
+  E10b:
+    requirement: "E10"
+    work_package: "WP-P6-W4-02"
+    title: "The passport upgraded to cryptographically verifiable"
+  E21a:
+    requirement: "E21"
+    work_package: "WP-ECON-04"
+    title: "The decision register, authority tiers, append-only and counterfactual-auditable"
+  E21b:
+    requirement: "E21"
+    work_package: "WP-P6-W4-04"
+    title: "Role agents negotiating under a supervisor with budgets"
+  E25a:
+    requirement: "E25"
+    work_package: "WP-P3c-03"
+    title: "The export framework, dataset card schema, and license recording"
+  E25b:
+    requirement: "E25"
+    work_package: "WP-P6-W6-01"
+    title: "The full labeled dataset corpus across every labeled phenomenon"
+  E26a:
+    requirement: "E26"
+    work_package: "WP-P2-05"
+    title: "Execution-grounded answers"
+  E26b:
+    requirement: "E26"
+    work_package: "WP-P0-08"
+    title: "The governed metrics layer"
+  E26c:
+    requirement: "E26"
+    work_package: "WP-P2-06"
+    title: "Execution-based verification"
+  E26d:
+    requirement: "E26"
+    work_package: "WP-P1-07"
+    title: "Structured outputs on every tool call"
+  E26e:
+    requirement: "E26"
+    work_package: "WP-P3-12"
+    title: "Self-consistency"
+  E26f:
+    requirement: "E26"
+    work_package: "WP-P2-07"
+    title: "The grounding checker"
+  E26g:
+    requirement: "E26"
+    work_package: "WP-P3-13"
+    title: "Calibrated abstention"
+  E35a:
+    requirement: "E35"
+    work_package: "WP-P3-09"
+    title: "The GS1 EPCIS 2.0 event vocabulary at genealogy creation"
+  E35b:
+    requirement: "E35"
+    work_package: "WP-P6-W4-01"
+    title: "The hash chain, Merkle tree, per-party signatures, and customer-side verification"
+  E43a:
+    requirement: "E43"
+    work_package: "WP-P3-08"
+    title: "The model registry with versions and lineage"
+  E43b:
+    requirement: "E43"
+    work_package: "WP-P6-W2-06"
+    title: "Drift monitors and champion-challenger promotion"
+  E43c:
+    requirement: "E43"
+    work_package: "WP-P3-02"
+    title: "The AI red-team suite"

@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- record the plan as data the build can check
 - assert the log invariants and the release policy
 - enforce the licence allowlist against the resolved tree
 - open the environment seam and the metric identifier space

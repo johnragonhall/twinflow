@@ -1,0 +1,399 @@
+# The requirement register (CON-6).
+#
+# Append-only. One entry per requirement id, and an entry is never removed and
+# never reworded. There is no status field and no cut list: an idea that turns
+# out to belong somewhere else is reordered in roadmap.yaml, and section 5 of
+# ROADMAP.md records the move.
+#
+# Source atoms only. A split label such as E4a is not an entry here, because the
+# source carries only E4. Split labels live in splits.yaml and reach a work
+# package through the note on a coverage entry.
+#
+# quote and source_line carry the clause that defines a requirement, verbatim,
+# and the line it sits on in the source document. They are absent here because
+# the source document is not in this repository. The loader accepts an absent
+# quote and refuses a changed one, so filling them in later is an append, and
+# `roadmap coverage --quotes` reports how many are still missing.
+
+version: 1
+requirements:
+  # component
+  - id: "1"
+    tier: component
+    title: "Process twin: receiving and putaway discrete-event model"
+  - id: "1b"
+    tier: component
+    title: "Warehouse automation and robotics layer"
+  - id: "2"
+    tier: component
+    title: "IoT fleet publishing into the UNS"
+  - id: "2b"
+    tier: component
+    title: "Sensor catalog as data"
+  - id: "3"
+    tier: component
+    title: "Fleet management and predictive maintenance"
+  - id: "4"
+    tier: component
+    title: "Computer vision auditing"
+  - id: "5"
+    tier: component
+    title: "Lean Six Sigma engine"
+  - id: "6"
+    tier: component
+    title: "Twin-vs-reality sync through the bi-directional connector"
+  - id: "6a"
+    tier: component
+    title: "Planning layer: forecasting and inventory optimization"
+  - id: "6a2"
+    tier: component
+    title: "Supplier network and scorecards"
+  - id: "6a3"
+    tier: component
+    title: "Outbound shipping"
+  - id: "6a4"
+    tier: component
+    title: "Returns and reverse logistics"
+  - id: "6a5"
+    tier: component
+    title: "Cross-docking"
+  - id: "6a6"
+    tier: component
+    title: "E-commerce fulfillment"
+  - id: "6a7"
+    tier: component
+    title: "Transportation network"
+  - id: "6a8"
+    tier: component
+    title: "Multi-echelon inventory optimization"
+  - id: "6a9"
+    tier: component
+    title: "Upstream production and manufacturing"
+  - id: "6a10"
+    tier: component
+    title: "Worker safety and ergonomics"
+  - id: "6a11"
+    tier: component
+    title: "Quality management system and compliance auditing"
+  - id: "6a12"
+    tier: component
+    title: "Order management and customer service"
+  - id: "6a13"
+    tier: component
+    title: "Procurement and purchasing"
+  - id: "6a14"
+    tier: component
+    title: "HR and workforce management"
+  - id: "6a15"
+    tier: component
+    title: "IT and cybersecurity operations"
+  - id: "6a16"
+    tier: component
+    title: "Marketing, sales operations, and the S&OP cycle"
+  - id: "6a17"
+    tier: component
+    title: "Finance and accounting operations"
+  - id: "6b"
+    tier: component
+    title: "Business-system loop: ERP stub and CMMS queue"
+  - id: "6c"
+    tier: component
+    title: "Edge resilience: store and forward"
+  - id: "7"
+    tier: component
+    title: "AI agent and its tools"
+  - id: "8"
+    tier: component
+    title: "Dashboard"
+  - id: "9"
+    tier: component
+    title: "README"
+
+  # bleeding_edge
+  - id: "E1"
+    tier: bleeding_edge
+    title: "Hosted browser replay demo on GitHub Pages"
+  - id: "E2"
+    tier: bleeding_edge
+    title: "MCP server over the twin, fleet, and LSS tools"
+  - id: "E3"
+    tier: bleeding_edge
+    title: "Sparkplug B compliant device payloads"
+  - id: "E4"
+    tier: bleeding_edge
+    title: "Event-sourced replay and counterfactuals"
+    splittable: true
+  - id: "E5"
+    tier: bleeding_edge
+    title: "Closed-loop autonomy with explicit tiers"
+    splittable: true
+  - id: "E6"
+    tier: bleeding_edge
+    title: "Industry 5.0 human-centric: operators as first-class resources"
+  - id: "E7"
+    tier: bleeding_edge
+    title: "Industry 5.0 sustainable: energy KPIs from motor current"
+  - id: "E8"
+    tier: bleeding_edge
+    title: "SOP grounding via retrieval and clause citation"
+    splittable: true
+  - id: "E9"
+    tier: bleeding_edge
+    title: "Optimization engine over twin configurations"
+  - id: "E10"
+    tier: bleeding_edge
+    title: "Digital product passport style traceability"
+    splittable: true
+  - id: "E11"
+    tier: bleeding_edge
+    title: "Learning-based AMR dispatch, benchmarked against the heuristic"
+  - id: "E12"
+    tier: bleeding_edge
+    title: "Yard and dock scheduling optimization"
+  - id: "E13"
+    tier: bleeding_edge
+    title: "Multi-site scale-out with federated learning"
+  - id: "E14"
+    tier: bleeding_edge
+    title: "Tariff and trade-policy scenario engine"
+  - id: "E15"
+    tier: bleeding_edge
+    title: "S&OE weekly execution layer"
+  - id: "E16"
+    tier: bleeding_edge
+    title: "ATP and CTP order promising"
+  - id: "E17"
+    tier: bleeding_edge
+    title: "Per-shipment embedded-carbon ledger"
+  - id: "E18"
+    tier: bleeding_edge
+    title: "OT cyberattack drill on the Purdue stack"
+  - id: "E19"
+    tier: bleeding_edge
+    title: "N-tier supplier illumination"
+  - id: "E20"
+    tier: bleeding_edge
+    title: "Reverse stress testing"
+  - id: "E21"
+    tier: bleeding_edge
+    title: "Multi-agent system with decision governance"
+    splittable: true
+  - id: "E22"
+    tier: bleeding_edge
+    title: "Financial twin overlay"
+  - id: "E23"
+    tier: bleeding_edge
+    title: "Labor rostering optimization"
+  - id: "E24"
+    tier: bleeding_edge
+    title: "Telemetry-grounded generative SOPs"
+  - id: "E25"
+    tier: bleeding_edge
+    title: "Synthetic data products with dataset cards"
+    splittable: true
+  - id: "E26"
+    tier: bleeding_edge
+    title: "The accuracy stack"
+    splittable: true
+    source_sub_items: ["a", "b", "c", "d", "e", "f", "g"]
+  - id: "E27"
+    tier: bleeding_edge
+    title: "Agent evaluation harness with incident memory"
+  - id: "E28"
+    tier: bleeding_edge
+    title: "Neural twin surrogate"
+  - id: "E29"
+    tier: bleeding_edge
+    title: "Vision-language operations copilot"
+  - id: "E30"
+    tier: bleeding_edge
+    title: "Causal inference with ground-truth validation"
+  - id: "E31"
+    tier: bleeding_edge
+    title: "Forecasting foundation-model bakeoff and conformal calibration"
+  - id: "E32"
+    tier: bleeding_edge
+    title: "Plant-distilled small language model at the edge"
+  - id: "E33"
+    tier: bleeding_edge
+    title: "Graph neural network for disruption propagation"
+  - id: "E34"
+    tier: bleeding_edge
+    title: "Voice interface for the floor"
+  - id: "E35"
+    tier: bleeding_edge
+    title: "Tamper-evident traceability ledger in EPCIS 2.0"
+    splittable: true
+  - id: "E36"
+    tier: bleeding_edge
+    title: "Edge computing tiers with measured economics"
+  - id: "E37"
+    tier: bleeding_edge
+    title: "PLM and engineering change management"
+  - id: "E38"
+    tier: bleeding_edge
+    title: "Insurance and risk transfer"
+  - id: "E39"
+    tier: bleeding_edge
+    title: "ESG and CSRD reporting"
+  - id: "E40"
+    tier: bleeding_edge
+    title: "Weather as a shared exogenous driver"
+  - id: "E41"
+    tier: bleeding_edge
+    title: "Vendor-managed inventory and value-added services"
+  - id: "E42"
+    tier: bleeding_edge
+    title: "Strategic network design"
+  - id: "E43"
+    tier: bleeding_edge
+    title: "MLOps for the twin's models, plus AI security evals"
+    splittable: true
+  - id: "E44"
+    tier: bleeding_edge
+    title: "IoT device lifecycle operations"
+  - id: "E45"
+    tier: bleeding_edge
+    title: "AI operations economics"
+  - id: "E46"
+    tier: bleeding_edge
+    title: "RF physics and read-zone modeling"
+  - id: "E47"
+    tier: bleeding_edge
+    title: "Hardware-in-the-loop mode for one real edge device"
+  - id: "E48"
+    tier: bleeding_edge
+    title: "Field-grade failure artifacts and config compliance audits"
+
+  # craft
+  - id: "C1"
+    tier: craft
+    title: "Determinism: one run seed, splittable child seeds"
+  - id: "C2"
+    tier: craft
+    title: "Sim time against wall clock"
+  - id: "C3"
+    tier: craft
+    title: "Schema registry with additive-only evolution"
+  - id: "C4"
+    tier: craft
+    title: "Test tiers with runtime budgets"
+  - id: "C5"
+    tier: craft
+    title: "Config validation with line-numbered errors"
+  - id: "C6"
+    tier: craft
+    title: "Migration story and the compatibility table"
+  - id: "C7"
+    tier: craft
+    title: "SECURITY.md and the MCP and REST threat model"
+  - id: "C8"
+    tier: craft
+    title: "CONTRIBUTING, code of conduct, governance note"
+  - id: "C9"
+    tier: craft
+    title: "Versioning policy and automated releases"
+  - id: "C10"
+    tier: craft
+    title: "Monorepo tooling: uv workspace, justfile, CI matrix"
+  - id: "C11"
+    tier: craft
+    title: "Dependency hygiene: audits, license allowlist, SBOM"
+  - id: "C12"
+    tier: craft
+    title: "Dashboard accessibility to WCAG 2.1 AA basics"
+  - id: "C13"
+    tier: craft
+    title: "Contributor agreement CI check"
+
+  # adoption
+  - id: "A1"
+    tier: adoption
+    title: "Take-one-brick modularity"
+  - id: "A2"
+    tier: adoption
+    title: "Bring-your-own-facility profiles"
+  - id: "A3"
+    tier: adoption
+    title: "Deployment tiers by configuration"
+  - id: "A4"
+    tier: adoption
+    title: "Published scaling evidence"
+  - id: "A5"
+    tier: adoption
+    title: "ADOPTION.md maturity model"
+  - id: "A6"
+    tier: adoption
+    title: "Integration surface"
+
+  # reference_arch
+  - id: "RA-a"
+    tier: reference_arch
+    title: "Layer map with ISA-95 and Purdue levels and real-world counterparts"
+  - id: "RA-b"
+    tier: reference_arch
+    title: "Purdue network segmentation expressed in docker compose"
+  - id: "RA-c"
+    tier: reference_arch
+    title: "Historian naming and its L2 system-of-record treatment"
+  - id: "RA-d"
+    tier: reference_arch
+    title: "Alarm prioritization, rationalization, dedupe, and shelving"
+  - id: "RA-e"
+    tier: reference_arch
+    title: "OPC UA to MQTT bridge"
+  - id: "RA-3D"
+    tier: reference_arch
+    title: "Browser-native 3D factory view on the live state feed"
+
+  # constraint
+  - id: "CON-1"
+    tier: constraint
+    title: "Fully local, no cloud account, optional environment variable for a hosted LLM"
+  - id: "CON-2"
+    tier: constraint
+    title: "An open-source license file in the repository root"
+  - id: "CON-3"
+    tier: constraint
+    title: "GitHub Actions CI running tests and lint"
+  - id: "CON-4"
+    tier: constraint
+    title: "Conventional commits"
+  - id: "CON-5"
+    tier: constraint
+    title: >-
+      IP hygiene: zero client artifacts, employer code, internal documents, or proprietary data
+  - id: "CON-6"
+    tier: constraint
+    title: "ROADMAP.md as the living backlog, ideas only ever reordered, never deleted"
+  - id: "CON-7"
+    tier: constraint
+    title: >-
+      The author's stated phase order P1 through P6 and the sensor-category-to-phase mapping
+  - id: "CON-8"
+    tier: constraint
+    title: "Every phase leaves the repository shippable and the five-minute quickstart intact"
+  - id: "CON-9"
+    tier: constraint
+    title: "A per-phase tagged release with a CHANGELOG section"
+  - id: "CON-10"
+    tier: constraint
+    title: "GitHub Issues as the public face of ROADMAP.md"
+  - id: "CON-11"
+    tier: constraint
+    title: "mkdocs-material documentation site"
+  - id: "ARCH-1"
+    tier: constraint
+    title: "Discrete-event simulation library"
+  - id: "ARCH-2"
+    tier: constraint
+    title: "Local MQTT broker"
+  - id: "ARCH-3"
+    tier: constraint
+    title: "Storage layer with a Delta Lake table on the batch path"
+  - id: "ARCH-4"
+    tier: constraint
+    title: "Anomaly-detection baselines, statistical first, learned second"
+  - id: "ARCH-5"
+    tier: constraint
+    title: "Agent framework, thin and inspectable, with a local model option"

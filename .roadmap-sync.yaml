@@ -1,0 +1,31 @@
+# How roadmap.yaml reaches the issue tracker.
+#
+# GitHub is a projection of roadmap.yaml, not a second copy of it. Nobody opens
+# a roadmap issue by hand and nobody edits a generated section, because the two
+# would then disagree and the disagreement would be invisible until somebody
+# read both.
+#
+# Two classes of operation, and the class decides who may apply it. Milestone
+# lifecycle operations, which are creating a milestone, closing one, and setting
+# its description or due date, are what step 11 of the release ritual performs
+# unattended. Issue mutation, which is everything else, waits for a human
+# running `just roadmap sync --apply` from a checkout. A blanket "CI never
+# applies" rule is what contradicted the release ritual, so the scope is named
+# rather than asserted away.
+
+repo: johnragonhall/twinflow
+project_number: 1
+milestone_title_template: "{phase_id} {name} ({release_tag})"
+issue_title_template: "[{phase_id}] {id} {title}"
+
+# The label an idea would be dropped under. It does not exist in this
+# repository, `just roadmap drift` fails if anyone creates it, and no issue
+# carrying a req: label is closed as not planned.
+banned_labels: [wontfix]
+
+# Over this many deliverables, each becomes a sub-issue so the parent shows a
+# progress bar.
+create_sub_issues_over: 5
+
+dry_run_default: true
+allowed_apply_contexts: [release-workflow]

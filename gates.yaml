@@ -1,0 +1,993 @@
+# The gate registry.
+#
+# Every gate id in ROADMAP.md section 7 is declared here at Phase 0 with its id,
+# its first phase, its kind, its standing flag, and the section that owns it.
+# Declaring the whole set this early is what forces a subsystem section to
+# specify its gates one phase ahead of implementing them: `roadmap validate`
+# fails when a work package in the open phase or the next one references a gate
+# still at status declared.
+#
+# Validation is scoped by status, because a gate declared at P0 has no test on
+# disk and no assertion yet:
+#
+#   declared     unique id, first_phase resolves, standing present
+#   specified    plus assertion, falsified_by, and the kind's required fields
+#   implemented  plus test_path exists on disk
+#
+# Kind and first phase come from ROADMAP.md section 7 wherever that file carries
+# the row, because it is the revised one and its own text records which rows an
+# earlier revision got wrong. The rest take theirs from docs/design/roadmap.md
+# section 7.4, which is where the policy and budget kinds are used.
+#
+# Gate ids are never renamed. Release notes cite them.
+
+version: 1
+gates:
+  VAL-GATE-A11Y-001:
+    kind: validation
+    status: specified
+    first_phase: P1
+    standing: true
+    owner_section: "docs/design/ui-direction.md"
+    reference: "Web Content Accessibility Guidelines 2.1, W3C recommendation, level AA."
+    reference_url: "https://www.w3.org/TR/WCAG21/"
+    assertion: >-
+      axe-core reports zero critical and zero serious violations, the demo path is completable
+      by keyboard alone, severity is encoded by shape and by text and never by color alone, and
+      reduced motion is honored.
+    falsified_by: >-
+      One critical or serious axe-core violation, one demo step unreachable by keyboard, or one
+      severity encoded by color alone.
+  VAL-GATE-ABC-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a17
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-ABSENT-SEAM-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a14
+    standing: false
+    owner_section: "docs/design/human-sustain.md"
+  VAL-GATE-ADOPT-001:
+    kind: invariant
+    status: declared
+    first_phase: P5
+    standing: false
+    owner_section: "docs/design/repo-craft.md"
+  VAL-GATE-AGT-001:
+    kind: invariant
+    status: declared
+    first_phase: P2
+    standing: true
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-ATP-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a12
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-AUTON-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W4
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-BATCH-001:
+    kind: invariant
+    status: declared
+    first_phase: P3i
+    standing: false
+    owner_section: "docs/design/production-quality.md"
+  VAL-GATE-CAPA-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a11
+    standing: false
+    owner_section: "docs/design/production-quality.md"
+  VAL-GATE-CART-001:
+    kind: invariant
+    status: declared
+    first_phase: P3g
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-CAU-001:
+    kind: ground_truth
+    status: declared
+    first_phase: CAUSAL
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-CAU-002:
+    kind: ground_truth
+    status: declared
+    first_phase: CAUSAL
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-CBAM-001:
+    kind: validation
+    status: declared
+    first_phase: ECON
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-CC-001:
+    kind: validation
+    status: specified
+    first_phase: P0
+    standing: true
+    owner_section: "CONTRIBUTING.md"
+    reference: "Conventional Commits 1.0.0."
+    reference_url: "https://www.conventionalcommits.org/en/v1.0.0/"
+    assertion: >-
+      Every commit message on the default branch parses as a conventional commit with a type
+      from the declared set, and every commit carries a Signed-off-by trailer.
+    falsified_by: "One commit message that does not parse, or one missing trailer."
+  VAL-GATE-CFG-001:
+    kind: invariant
+    status: implemented
+    first_phase: P0
+    standing: true
+    owner_section: "docs/design/foundations.md 5.6"
+    assertion: >-
+      Every shipped config validates, every invalid fixture produces a line-numbered error
+      carrying a suggestion, and each schema validates against the meta-schema its own $schema
+      keyword names.
+    falsified_by: >-
+      A shipped config that fails to load, or an invalid fixture whose error carries no line
+      number or no suggestion.
+    test_path: "packages/twinflow-config/tests/test_config_validation.py"
+  VAL-GATE-CI-001:
+    kind: policy
+    status: specified
+    first_phase: P0
+    standing: true
+    owner_section: "docs/design/repo-craft.md"
+    assertion: >-
+      A GitHub Actions workflow runs lint, the type check, and the test tiers on every pull
+      request, across the declared interpreter matrix, and the aggregate status check is
+      required for merge.
+    falsified_by: >-
+      A pull request that merges with no CI run, or a matrix leg named in the workflow that
+      never executes.
+  VAL-GATE-CLA-001:
+    kind: invariant
+    status: specified
+    first_phase: P1
+    standing: true
+    owner_section: "CLA.md section 7"
+    assertion: >-
+      The contributor agreement job passes the three checks CLA.md section 7 names: the pull
+      request author's handle is in the signatories list, every signatory line matches the
+      published expression, and every commit carries a Signed-off-by trailer.
+    falsified_by: "A pull request that merges having failed any of the three checks."
+  VAL-GATE-COLD-001:
+    kind: invariant
+    status: declared
+    first_phase: P3h
+    standing: false
+    owner_section: "docs/design/sensor-catalog.md"
+  VAL-GATE-CONF-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W2
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-CONFTUT-001:
+    kind: budget
+    status: declared
+    first_phase: P3
+    standing: false
+    owner_section: "docs/design/repo-craft.md"
+  VAL-GATE-COVER-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W6
+    standing: false
+    owner_section: "docs/design/roadmap.md"
+  VAL-GATE-CV-001:
+    kind: invariant
+    status: declared
+    first_phase: P4
+    standing: false
+    owner_section: "docs/design/twin-core.md"
+  VAL-GATE-DATA-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W6
+    standing: false
+    owner_section: "docs/design/foundations.md"
+  VAL-GATE-DEMO-001:
+    kind: budget
+    status: specified
+    first_phase: P1
+    standing: true
+    owner_section: "docs/design/repo-craft.md"
+    noise_floor: >-
+      The run-to-run standard deviation of the demo wall time over five runs on the reference
+      runner, published beside the measured value.
+    assertion: >-
+      The ten-minute scripted demo runs headless and green in under 600 seconds, with each
+      scripted beat asserting on an observable rather than on a sleep.
+    falsified_by: "A run over 600 seconds, or one beat that asserts on a sleep."
+  VAL-GATE-DET-001:
+    kind: invariant
+    status: specified
+    first_phase: P0
+    standing: true
+    owner_section: "docs/design/foundations.md 5.2"
+    assertion: >-
+      Two runs at the same run seed, the same config, the same platform, and the same pinned
+      dependency set produce byte-identical event logs, per doctrine D-05 tier one.
+    falsified_by: "One differing byte between the two event logs."
+  VAL-GATE-DET-002:
+    kind: invariant
+    status: specified
+    first_phase: P0
+    standing: true
+    owner_section: "docs/design/foundations.md 5.2"
+    noise_floor: >-
+      Not yet measured. The first two-platform run sets it, and until that run exists the gate
+      publishes divergence and asserts no bound.
+    assertion: >-
+      Two runs at the same run seed and config on different platforms produce identical business
+      events, and every continuous field agrees within the tolerance this file carries from
+      measured divergence. The observed maximum divergence is published on every run.
+    falsified_by: >-
+      A business event that differs across platforms, or a continuous field outside the recorded
+      tolerance once that tolerance exists.
+  VAL-GATE-DOC-001:
+    kind: invariant
+    status: specified
+    first_phase: P1
+    standing: true
+    owner_section: "docs/DOCUMENTATION-STANDARD.md"
+    assertion: >-
+      The docs link check passes, mkdocs builds, the README opens with the pitch and one
+      measured number, and the prose gate reports no em-dashes.
+    falsified_by: "A broken link, a failed build, or one prose gate finding."
+  VAL-GATE-DOCSITE-001:
+    kind: policy
+    status: declared
+    first_phase: P3
+    standing: false
+    owner_section: "docs/design/repo-craft.md"
+  VAL-GATE-DORA-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a15
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-DRIFT-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W2
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-E1-001:
+    kind: invariant
+    status: declared
+    first_phase: P2
+    standing: true
+    owner_section: "docs/design/dashboard-replay.md"
+  VAL-GATE-ECO-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W3
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-EDGE-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W1
+    standing: false
+    owner_section: "docs/design/iot-fleet.md"
+  VAL-GATE-EHB-001:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-EHB-002:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-EHB-003:
+    kind: validation
+    status: declared
+    first_phase: P3
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-EHB-004:
+    kind: validation
+    status: declared
+    first_phase: 6a11
+    standing: false
+    owner_section: "docs/design/production-quality.md"
+  VAL-GATE-EHB-005:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-ENG-001:
+    kind: invariant
+    status: declared
+    first_phase: P3b
+    standing: false
+    owner_section: "docs/design/twin-core.md"
+  VAL-GATE-ENV-001:
+    kind: invariant
+    status: implemented
+    first_phase: P0
+    standing: true
+    owner_section: "docs/design/foundations.md 5.5"
+    assertion: >-
+      Every event carries producer_id, the sequence number is dense per (run_id, producer_id),
+      and (sim_ts, producer_id, seq) is a total order over the log, per doctrine D-07.
+    falsified_by: "A gap in the sequence, a duplicate, or a tie in the total order."
+    test_path: "packages/twinflow-schemas/tests/test_log_invariants.py"
+  VAL-GATE-EPCIS-001:
+    kind: validation
+    status: declared
+    first_phase: P3
+    standing: false
+    owner_section: "docs/design/iot-fleet.md"
+  VAL-GATE-ERG-SEAM-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a10
+    standing: false
+    owner_section: "docs/design/human-sustain.md"
+  VAL-GATE-ESG-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W5
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-FCST-001:
+    kind: invariant
+    status: declared
+    first_phase: P3d
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-FCST-002:
+    kind: invariant
+    status: declared
+    first_phase: P3d
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-FED-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W3
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-FIN-001:
+    kind: invariant
+    status: declared
+    first_phase: ECON
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-FINOPS-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W5
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-FVA-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a16
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-GL-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a17
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-GLEC-001:
+    kind: validation
+    status: declared
+    first_phase: P3h
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-GNN-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W2
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-GOV-001:
+    kind: invariant
+    status: declared
+    first_phase: ECON
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-HEIN-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a10
+    standing: false
+    owner_section: "docs/design/human-sustain.md"
+  VAL-GATE-HIL-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W1
+    standing: false
+    owner_section: "docs/design/iot-fleet.md"
+  VAL-GATE-HR-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a14
+    standing: false
+    owner_section: "docs/design/human-sustain.md"
+  VAL-GATE-INJ-001:
+    kind: invariant
+    status: declared
+    first_phase: P3
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-INJ-002:
+    kind: invariant
+    status: declared
+    first_phase: 6a11
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-INS-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W5
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-INV-001:
+    kind: invariant
+    status: declared
+    first_phase: P3d
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-IPH-001:
+    kind: policy
+    status: specified
+    first_phase: P0
+    standing: true
+    owner_section: "docs/design/repo-craft.md"
+    assertion: >-
+      No client name, employer name, internal document, or proprietary dataset appears anywhere
+      in the tracked tree or in the commit history.
+    falsified_by: "One banned term found in a tracked file or a commit message."
+  VAL-GATE-LEDGER-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W4
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-LIC-001:
+    kind: policy
+    status: specified
+    first_phase: P0
+    standing: true
+    owner_section: "docs/design/repo-craft.md"
+    reference: "Apache License 2.0."
+    reference_url: "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    assertion: >-
+      The repository root carries a license file whose bytes match the published Apache-2.0
+      text, and every distributed package carries the same file and the NOTICE beside it.
+    falsified_by: "A missing license file, or one byte different from the published text."
+  VAL-GATE-MAS-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W4
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-MEIO-001:
+    kind: ground_truth
+    status: declared
+    first_phase: P3h
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-MEIO-002:
+    kind: validation
+    status: declared
+    first_phase: P3h
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-MSA-001:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-MSA-002:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-MTB-001:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-MTB-002:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-MTB-003:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-MTLS-001:
+    kind: invariant
+    status: declared
+    first_phase: P5
+    standing: false
+    owner_section: "docs/design/repo-craft.md"
+  VAL-GATE-MULTI-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W3
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-NETDES-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W3
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-NIOSH-001:
+    kind: validation
+    status: declared
+    first_phase: 6a10
+    standing: false
+    owner_section: "docs/design/human-sustain.md"
+  VAL-GATE-NIST-001:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-NIST-002:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-NIST-003:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-NIST-004:
+    kind: validation
+    status: declared
+    first_phase: P3
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-NPV-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a17
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-NTIER-001:
+    kind: invariant
+    status: declared
+    first_phase: RISK
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-OEE-001:
+    kind: invariant
+    status: declared
+    first_phase: P3i
+    standing: false
+    owner_section: "docs/design/production-quality.md"
+  VAL-GATE-OPCUA-001:
+    kind: validation
+    status: declared
+    first_phase: P5
+    standing: false
+    owner_section: "docs/design/iot-fleet.md"
+  VAL-GATE-OPT-001:
+    kind: invariant
+    status: declared
+    first_phase: P3b
+    standing: false
+    owner_section: "docs/design/twin-core.md"
+  VAL-GATE-ORDER-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a12
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-OTA-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W1
+    standing: false
+    owner_section: "docs/design/iot-fleet.md"
+  VAL-GATE-OTIF-001:
+    kind: invariant
+    status: declared
+    first_phase: P3e
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-OTSEC-001:
+    kind: invariant
+    status: declared
+    first_phase: OTDRILL
+    standing: false
+    owner_section: "docs/design/iot-fleet.md"
+  VAL-GATE-P2P-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a13
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-PDM-001:
+    kind: invariant
+    status: declared
+    first_phase: P3
+    standing: false
+    owner_section: "docs/design/iot-fleet.md"
+  VAL-GATE-PERF-001:
+    kind: budget
+    status: declared
+    first_phase: P3
+    standing: true
+    owner_section: "docs/design/repo-craft.md"
+  VAL-GATE-PERFORD-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a12
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-PM-001:
+    kind: ground_truth
+    status: declared
+    first_phase: P3c
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-PM-002:
+    kind: ground_truth
+    status: declared
+    first_phase: P3c
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-PM-003:
+    kind: validation
+    status: declared
+    first_phase: P3c
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-PROMO-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a16
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-QS-001:
+    kind: budget
+    status: specified
+    first_phase: P1
+    standing: true
+    owner_section: "docs/design/repo-craft.md"
+    noise_floor: >-
+      The run-to-run standard deviation of the quickstart wall time over five runs on the
+      reference runner, published beside the measured value.
+    assertion: >-
+      The five-minute quickstart runs from a clean container against the published instructions
+      in under 300 seconds on the CI reference runner, ending on a live dashboard serving
+      non-empty state, with no network access beyond the pinned image.
+    falsified_by: >-
+      A run over 300 seconds, a run that needs a cloud account, or a dashboard serving empty
+      state at the end of it.
+  VAL-GATE-RECALL-001:
+    kind: budget
+    status: declared
+    first_phase: 6a11
+    standing: false
+    owner_section: "docs/design/production-quality.md"
+  VAL-GATE-RECALL-002:
+    kind: budget
+    status: declared
+    first_phase: P6-W3
+    standing: false
+    owner_section: "docs/design/production-quality.md"
+  VAL-GATE-REL-001:
+    kind: validation
+    status: implemented
+    first_phase: P0
+    standing: true
+    owner_section: "docs/design/foundations.md 5.8"
+    reference: "Semantic Versioning 2.0.0, and Keep a Changelog 1.1.0."
+    reference_url: "https://semver.org/spec/v2.0.0.html"
+    assertion: >-
+      CHANGELOG has a section for this tag, the semver bump matches the C9 policy for package
+      APIs, REST and MCP contracts, event schemas, and facility.yaml, and the C6 compatibility
+      table lists which recorded runs and configs this release loads.
+    falsified_by: >-
+      A tag with no CHANGELOG section, or a bump that no C9 trigger in the same release record
+      justifies.
+    test_path: "tests/test_release_gate.py"
+  VAL-GATE-RELBUD-001:
+    kind: budget
+    status: specified
+    first_phase: P1
+    standing: true
+    owner_section: "docs/design/roadmap.md 7.5"
+    noise_floor: >-
+      The run-to-run standard deviation of the ritual duration over the releases cut so far,
+      published beside the measured value.
+    assertion: >-
+      The release ritual completes inside the release wall-time budget on the pinned reference
+      runner, and the measured duration is published on ops.release.tagged.v1 whatever it is.
+    falsified_by: "A ritual run over the published budget on the reference runner."
+  VAL-GATE-RET-001:
+    kind: invariant
+    status: declared
+    first_phase: P3f
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-RF-001:
+    kind: validation
+    status: declared
+    first_phase: P3
+    standing: false
+    owner_section: "docs/design/sensor-catalog.md"
+  VAL-GATE-RF-002:
+    kind: validation
+    status: declared
+    first_phase: P3
+    standing: false
+    owner_section: "docs/design/sensor-catalog.md"
+  VAL-GATE-RL-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W2
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-RMAP-001:
+    kind: invariant
+    status: implemented
+    first_phase: P0
+    standing: true
+    owner_section: "docs/design/roadmap.md 7.4"
+    assertion: >-
+      roadmap validate, roadmap coverage, roadmap graph-lint, and roadmap drift all pass, zero
+      requirement ids are unplaced, no issue carrying a req: label is closed as not planned, and
+      no banned label exists in the repository.
+    falsified_by: >-
+      An unplaced requirement id, a cycle in the work-package graph, a banned label, or a
+      tracker state that disagrees with roadmap.yaml.
+    test_path: "tools/roadmap/tests/test_roadmap.py"
+  VAL-GATE-ROST-001:
+    kind: invariant
+    status: declared
+    first_phase: ROST
+    standing: false
+    owner_section: "docs/design/human-sustain.md"
+  VAL-GATE-RPO-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a15
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-RST-001:
+    kind: invariant
+    status: declared
+    first_phase: RISK
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-RULA-001:
+    kind: validation
+    status: declared
+    first_phase: 6a10
+    standing: false
+    owner_section: "docs/design/human-sustain.md"
+  VAL-GATE-RUNBOOK-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W5
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-SCH-001:
+    kind: invariant
+    status: implemented
+    first_phase: P0
+    standing: true
+    owner_section: "docs/design/foundations.md 5.5"
+    assertion: >-
+      Producer and consumer contract tests pass, and the schema differ reports no field removal
+      and no type narrowing within a major version.
+    falsified_by: "A removed field or a narrowed type inside one major version."
+    test_path: "packages/twinflow-schemas/tests/test_schema_registry.py"
+  VAL-GATE-SEC-001:
+    kind: validation
+    status: implemented
+    first_phase: P0
+    standing: true
+    owner_section: "CONTRIBUTING.md"
+    reference: >-
+      The advisory database each tool names: the PyPI advisory database for pip-audit and the
+      RustSec advisory database for cargo-audit, plus the SPDX license allowlist in
+      CONTRIBUTING.md.
+    reference_url: "https://github.com/pypa/advisory-database"
+    assertion: >-
+      pip-audit and cargo-audit are clean or waived with an expiry date, every resolved
+      dependency matches a row in the CONTRIBUTING.md allowlist including the MPL-2.0 row scoped
+      to development dependencies, and the SBOM is attached to the release.
+    falsified_by: >-
+      An unwaived advisory, a resolved dependency with no allowlist row, or a release with no
+      SBOM attached.
+    test_path: "tests/test_license_allowlist_gate.py"
+  VAL-GATE-SIM-001:
+    kind: ground_truth
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-SLM-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W1
+    standing: false
+    owner_section: "docs/design/iot-fleet.md"
+  VAL-GATE-SMED-001:
+    kind: invariant
+    status: declared
+    first_phase: P3i
+    standing: false
+    owner_section: "docs/design/production-quality.md"
+  VAL-GATE-SNF-001:
+    kind: invariant
+    status: declared
+    first_phase: P4
+    standing: false
+    owner_section: "docs/design/twin-core.md"
+  VAL-GATE-SOE-001:
+    kind: invariant
+    status: declared
+    first_phase: SOE
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-SOP-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a16
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-SOPGEN-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W4
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-SPARK-001:
+    kind: validation
+    status: specified
+    first_phase: P1
+    standing: false
+    owner_section: "docs/design/iot-fleet.md"
+    reference: >-
+      Eclipse Sparkplug specification version 3.0.0, dated 2022-11-16, and the Technology
+      Compatibility Kit the Eclipse Sparkplug project publishes for it, edge node profile.
+    reference_url: "https://projects.eclipse.org/projects/iot.sparkplug"
+    assertion: >-
+      The edge-node profile passes with zero failures against a device emitting NBIRTH, DBIRTH,
+      NDATA, and NDEATH with metric aliasing.
+    falsified_by: "One compatibility kit failure on the edge-node profile."
+  VAL-GATE-SPARK-002:
+    kind: validation
+    status: declared
+    first_phase: P3
+    standing: false
+    owner_section: "docs/design/iot-fleet.md"
+  VAL-GATE-SPEND-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a13
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-SUP-001:
+    kind: invariant
+    status: declared
+    first_phase: P3e
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-SURR-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W2
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-TAR-001:
+    kind: invariant
+    status: declared
+    first_phase: ECON
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-TIER-001:
+    kind: invariant
+    status: specified
+    first_phase: P1
+    standing: false
+    owner_section: "docs/design/foundations.md"
+    assertion: >-
+      Every package in the uv workspace appears in the RA-a layer map with its ISA-95 level, its
+      Purdue level, its compute tier, and its latency budget filled.
+    falsified_by: "One unfilled cell in the layer map, or one package with no row."
+  VAL-GATE-VAR-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a17
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-VLM-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W2
+    standing: false
+    owner_section: "docs/design/ai-layer.md"
+  VAL-GATE-VMI-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W3
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-VSM-001:
+    kind: invariant
+    status: declared
+    first_phase: P3c
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-WE-001:
+    kind: validation
+    status: declared
+    first_phase: P2
+    standing: false
+    owner_section: "docs/design/lss-engine.md"
+  VAL-GATE-WEBHOOK-001:
+    kind: invariant
+    status: declared
+    first_phase: P3
+    standing: false
+    owner_section: "docs/design/iot-fleet.md"
+  VAL-GATE-WX-001:
+    kind: invariant
+    status: declared
+    first_phase: P6-W5
+    standing: false
+    owner_section: "docs/design/back-office.md"
+  VAL-GATE-XDOCK-001:
+    kind: invariant
+    status: declared
+    first_phase: P3g
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-YARD-001:
+    kind: invariant
+    status: declared
+    first_phase: P3d
+    standing: false
+    owner_section: "docs/design/planning-supply.md"
+  VAL-GATE-Z14-001:
+    kind: validation
+    status: declared
+    first_phase: 6a11
+    standing: false
+    owner_section: "docs/design/production-quality.md"
+  VAL-GATE-ZONE-001:
+    kind: invariant
+    status: declared
+    first_phase: 6a15
+    standing: false
+    owner_section: "docs/design/back-office.md"

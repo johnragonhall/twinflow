@@ -1,0 +1,2382 @@
+# The roadmap, as data.
+#
+# ROADMAP.md is the readable projection of this file and GitHub is the public
+# one. Nobody edits a generated section and nobody opens a roadmap issue by
+# hand.
+#
+# Two dependency namespaces, not one: depends_on_phases names phases and
+# requires_requirements names requirements. The source's own ordering arguments
+# mix the two freely, and one list holding both leaves the validator guessing
+# which namespace a token belongs to.
+#
+# exit_gates is derived from gates.yaml and never authored here. Authoring it is
+# a load error, which is what stops the phase table and the gate registry
+# drifting apart.
+#
+# partial on a coverage entry means a later work package also covers that
+# requirement. The last one carries partial: false, and that is the invariant
+# the coverage proof reads.
+
+version: 1
+
+phases:
+  - id: P0
+    name: "Contracts"
+    delivers: >-
+      Determinism at both tiers, the sim clock, the schema registry and the event envelope, test
+      tiers, config validation, release automation, monorepo tooling, package topology, the
+      governed metrics layer, the environment driver seam, and the roadmap tool.
+    depends_on_phases: []
+    requires_requirements: []
+    release_tag: v0.1.0
+  - id: P1
+    name: "Walking skeleton"
+    delivers: >-
+      One station end to end, from two devices publishing Sparkplug B into the UNS to a
+      dashboard tile and one agent tool, with the release pipeline producing the tag.
+    depends_on_phases: [P0]
+    requires_requirements: []
+    release_tag: v0.2.0
+  - id: P2
+    name: "The judge"
+    delivers: >-
+      The Lean Six Sigma engine as the thing that judges both the telemetry and the twin, and
+      the browser replay demo that lets a reader watch it without installing anything.
+    depends_on_phases: [P1]
+    requires_requirements: []
+    release_tag: v0.3.0
+  - id: P3
+    name: "Breadth and the business loop"
+    delivers: >-
+      Sensor breadth on the catalog pattern, the predictive maintenance layer, the loop out to
+      the business systems, and the physical model behind every RFID read.
+    depends_on_phases: [P2]
+    requires_requirements: []
+    release_tag: v0.4.0
+  - id: P3b
+    name: "Automation and robotics"
+    delivers: >-
+      The operator model, the energy layer, and the optimizer first, then the automation the
+      what-if questions are about.
+    depends_on_phases: [P3]
+    requires_requirements: []
+    release_tag: v0.5.0
+  - id: P3c
+    name: "Process mining and VSM"
+    delivers: >-
+      Process mining scored against a known ground-truth process model, and the Lean deliverable
+      consultants draw by hand.
+    depends_on_phases: [P3b]
+    requires_requirements: []
+    release_tag: v0.6.0
+  - id: P3d
+    name: "Planning"
+    delivers: >-
+      The loop from execution back to planning, and the yard schedule as a controllable lever.
+    depends_on_phases: [P3c]
+    requires_requirements: ["E9"]
+    release_tag: v0.7.0
+  - id: P3e
+    name: "Supplier and outbound"
+    delivers: >-
+      The inbound side gains a supply base with behavior, and the outbound side completes the
+      end-to-end flow.
+    depends_on_phases: [P3d]
+    requires_requirements: []
+    release_tag: v0.8.0
+  - id: P3f
+    name: "Returns"
+    delivers: >-
+      The reverse flow, competing with inbound for the same doors, labor, and staging space.
+    depends_on_phases: [P3e]
+    requires_requirements: []
+    release_tag: v0.9.0
+  - id: P3g
+    name: "Cross-dock and e-commerce"
+    delivers: >-
+      The flow-through mode and the second order profile, and the contention between them.
+    depends_on_phases: [P3e]
+    requires_requirements: ["E12"]
+    release_tag: v0.10.0
+  - id: P3h
+    name: "Transport and MEIO"
+    delivers: "The network above the four walls, and the question of where safety stock lives."
+    depends_on_phases: [P3g]
+    requires_requirements: []
+    release_tag: v0.11.0
+  - id: P3i
+    name: "Upstream production"
+    delivers: >-
+      The chain's origin, modeled from the inside as a hybrid batch and discrete factory.
+    depends_on_phases: [P3h]
+    requires_requirements: []
+    release_tag: v0.12.0
+  - id: ECON
+    name: "Economics prerequisites"
+    delivers: "The four economic contracts that six of the eight 6a1x layers consume."
+    depends_on_phases: [P3i]
+    requires_requirements: []
+    release_tag: v0.13.0
+  - id: 6a10
+    name: "Safety and ergonomics"
+    delivers: "The human layer made measurable in the same units as the machines."
+    depends_on_phases: [ECON]
+    requires_requirements: ["E6"]
+    release_tag: v0.14.0
+  - id: 6a11
+    name: "QMS and compliance"
+    delivers: >-
+      Findings turned into managed workflows, and the recall drill that proves the genealogy
+      graph is real.
+    depends_on_phases: [6a10, P3f]
+    requires_requirements: []
+    release_tag: v0.15.0
+  - id: ROST
+    name: "Rostering"
+    delivers: >-
+      Staffing as a solved constraint problem feeding the simulation as actual headcount.
+    depends_on_phases: [6a10, P3d]
+    requires_requirements: []
+    release_tag: v0.16.0
+  - id: 6a12
+    name: "Order management and service"
+    delivers: "The front office that experiences everything the operation does."
+    depends_on_phases: [ROST, P3g, P3i]
+    requires_requirements: []
+    release_tag: v0.17.0
+  - id: RISK
+    name: "Supply risk"
+    delivers: >-
+      Hidden concentration made visible, and the search for the disruption combinations that
+      break service or cash.
+    depends_on_phases: [P3e, ECON]
+    requires_requirements: []
+    release_tag: v0.18.0
+  - id: 6a13
+    name: "Procurement"
+    delivers: >-
+      The buy side as a managed function, and the sourcing strategy answer as one agent
+      response.
+    depends_on_phases: [RISK, 6a12]
+    requires_requirements: ["E14", "E17", "E22"]
+    release_tag: v0.19.0
+  - id: 6a14
+    name: "HR and workforce"
+    delivers: "People as a lifecycle with returns, not as interchangeable capacity."
+    depends_on_phases: [ROST, 6a10]
+    requires_requirements: []
+    release_tag: v0.20.0
+  - id: OTDRILL
+    name: "OT drill"
+    delivers: >-
+      Adversarial chaos, not accidental chaos, against the Purdue stack the compose topology
+      already enforces.
+    depends_on_phases: [P3]
+    requires_requirements: ["RA-b"]
+    release_tag: v0.21.0
+  - id: 6a15
+    name: "IT and cyber ops"
+    delivers: >-
+      The twin's own infrastructure as part of the simulation, and vulnerability management with
+      a profit and loss statement.
+    depends_on_phases: [OTDRILL, ECON]
+    requires_requirements: []
+    release_tag: v0.22.0
+  - id: CAUSAL
+    name: "Causal inference"
+    delivers: >-
+      Effect estimation on observational twin data, scored against the causal structure the
+      simulation was built from.
+    depends_on_phases: [P3c, ECON]
+    requires_requirements: []
+    release_tag: v0.23.0
+  - id: 6a16
+    name: "Marketing, sales ops, and S&OP"
+    delivers: >-
+      Demand as a lever the company pulls, and the monthly ritual that reconciles the whole
+      enterprise into one number.
+    depends_on_phases: [CAUSAL, 6a12, 6a14]
+    requires_requirements: ["E21"]
+    release_tag: v0.24.0
+  - id: SOE
+    name: "Sales and operations execution"
+    delivers: "The control-tower loop between the monthly plan and the week that happened."
+    depends_on_phases: [6a16]
+    requires_requirements: []
+    release_tag: v0.25.0
+  - id: 6a17
+    name: "Finance and accounting"
+    delivers: >-
+      Financial statements as derived artifacts, and every variance traced to the physical
+      events that produced it.
+    depends_on_phases: [ECON, 6a13, 6a14, SOE]
+    requires_requirements: ["E22"]
+    release_tag: v0.26.0
+  - id: P4
+    name: "Vision and edge resilience"
+    delivers: >-
+      The second sensing channel that can disagree with the first, and the outage the demo
+      survives.
+    depends_on_phases: [6a17]
+    requires_requirements: []
+    release_tag: v0.27.0
+  - id: P5
+    name: "Polish and protocol"
+    delivers: >-
+      The public artifact set complete, and the compatibility promises that make v1.0.0 mean
+      something.
+    depends_on_phases: [P4]
+    requires_requirements: []
+    release_tag: v1.0.0
+  - id: P6-W1
+    name: "Edge and identity"
+    delivers: >-
+      Compute placement as a measured architecture, and device identity as a lifecycle.
+    depends_on_phases: [P5]
+    requires_requirements: []
+    release_tag: v1.1.0
+  - id: P6-W2
+    name: "Learned models"
+    delivers: >-
+      The learned layer, each model benchmarked against the baseline it claims to beat, and the
+      comparison published either way.
+    depends_on_phases: [P6-W1, P4]
+    requires_requirements: []
+    release_tag: v1.2.0
+  - id: P6-W3
+    name: "Network scale"
+    delivers: "More than one site, which is what turns the facility twin into a network twin."
+    depends_on_phases: [P6-W2, P3h]
+    requires_requirements: []
+    release_tag: v1.3.0
+  - id: P6-W4
+    name: "Trust, autonomy, authoring"
+    delivers: >-
+      The trust layer that lets a customer check a lot's chain of custody without trusting this
+      system's database.
+    depends_on_phases: [P6-W3]
+    requires_requirements: []
+    release_tag: v1.4.0
+  - id: P6-W5
+    name: "Economics and environment"
+    delivers: >-
+      The regulatory and economic artifacts the system can generate from data it already holds,
+      and the one correlated shock that moves five subsystems at once.
+    depends_on_phases: [P6-W4]
+    requires_requirements: []
+    release_tag: v1.5.0
+  - id: P6-W6
+    name: "Completion and proof"
+    delivers: "The closing proof that every recorded idea shipped."
+    depends_on_phases: [P6-W5]
+    requires_requirements: []
+    release_tag: v1.6.0
+
+work_packages:
+  - id: WP-P0-01
+    title: "Stand up the uv workspace, the justfile task entry point, and the CI matrix"
+    phase: P0
+    wave: 1
+    covers:
+      - { id: "C10", partial: false }
+      - { id: "CON-3", partial: false }
+    depends_on: []
+    deliverables:
+      - "pyproject.toml"
+      - "justfile"
+      - ".github/workflows/ci.yml"
+      - "scripts/ci-local.sh"
+    gates:
+      - VAL-GATE-CI-001
+    brick: null
+    release: v0.1.0
+    status: done
+  - id: WP-P0-02
+    title: "Settle the event envelope and publish the schema registry"
+    phase: P0
+    wave: 2
+    covers:
+      - { id: "C3", partial: false }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-schemas/src/twinflow/schemas/envelope.py"
+      - "schemas/registry.yaml"
+      - "schemas/envelope/v1.json"
+      - "tools/schema_diff.py"
+    gates:
+      - VAL-GATE-ENV-001
+      - VAL-GATE-SCH-001
+    brick: twinflow-schemas
+    release: v0.1.0
+    status: done
+  - id: WP-P0-03
+    title: "Fix the run seed, the child stream derivation, and the nondeterminism lint"
+    phase: P0
+    wave: 3
+    covers:
+      - { id: "C1", partial: true, note: "the seed derivation and the lint" }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-rng/src/twinflow/rng/derive.py"
+      - "packages/twinflow-rng/src/twinflow/rng/registry.py"
+      - "scripts/checks/nondeterminism-gate.sh"
+      - "tools/gen_rng_kat.py"
+    gates:
+      - VAL-GATE-DET-001
+      - VAL-GATE-DET-002
+    brick: twinflow-rng
+    release: v0.1.0
+    status: done
+  - id: WP-P0-04
+    title: "Add the sim clock and the clock port"
+    phase: P0
+    wave: 4
+    covers:
+      - { id: "C2", partial: false }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-kernel/src/twinflow/kernel/_impl/time.py"
+      - "packages/twinflow-kernel/src/twinflow/kernel/_impl/ports.py"
+    gates: []
+    brick: twinflow-kernel
+    release: v0.1.0
+    status: done
+  - id: WP-P0-05
+    title: "Enforce the package boundary rules"
+    phase: P0
+    wave: 5
+    covers:
+      - { id: "A1", partial: false }
+    depends_on: []
+    deliverables:
+      - "tools/gen_importlinter.py"
+      - "scripts/checks/import-boundary-gate.py"
+      - ".importlinter"
+    gates: []
+    brick: null
+    release: v0.1.0
+    status: done
+  - id: WP-P0-06
+    title: "Validate a facility profile and say what to fix"
+    phase: P0
+    wave: 6
+    covers:
+      - { id: "C5", partial: false }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-config/src/twinflow/config/_impl/loader.py"
+      - "packages/twinflow-config/src/twinflow/config/_impl/errors.py"
+    gates:
+      - VAL-GATE-CFG-001
+    brick: twinflow-config
+    release: v0.1.0
+    status: done
+  - id: WP-P0-07
+    title: "Publish the facility.yaml schema"
+    phase: P0
+    wave: 7
+    covers:
+      - { id: "A2", partial: true, note: "the facility.yaml schema" }
+    depends_on: []
+    deliverables:
+      - "schemas/config/facility/v1.json"
+      - "profiles/starter_dc.yaml"
+    gates:
+      - VAL-GATE-CFG-001
+    brick: twinflow-config
+    release: v0.1.0
+    status: done
+  - id: WP-P0-08
+    title: "Open the governed metric identifier space"
+    phase: P0
+    wave: 8
+    covers:
+      - { id: "E26", partial: true, note: "E26b the governed metrics layer" }
+    depends_on: []
+    deliverables:
+      - "schemas/config/metrics/v1.json"
+      - "profiles/starter_dc.metrics.yaml"
+      - "packages/twinflow-config/src/twinflow/config/_impl/metrics.py"
+    gates: []
+    brick: twinflow-config
+    release: v0.1.0
+    status: done
+  - id: WP-P0-09
+    title: "Open the environment driver seam with a null driver"
+    phase: P0
+    wave: 9
+    covers:
+      - { id: "E40", partial: true, note: "the driver registry and its null driver" }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-kernel/src/twinflow/kernel/_impl/environment.py"
+    gates: []
+    brick: twinflow-kernel
+    release: v0.1.0
+    status: done
+  - id: WP-P0-10
+    title: "Audit dependencies, allowlist licenses, and publish the SBOM"
+    phase: P0
+    wave: 10
+    covers:
+      - { id: "C11", partial: false }
+    depends_on: []
+    deliverables:
+      - "scripts/checks/license-allowlist-gate.py"
+      - "sbom.cdx.json"
+      - "CONTRIBUTING.md"
+    gates:
+      - VAL-GATE-SEC-001
+    brick: null
+    release: v0.1.0
+    status: done
+  - id: WP-P0-11
+    title: "Set the test tiers and their runtime budgets"
+    phase: P0
+    wave: 11
+    covers:
+      - { id: "C4", partial: true, note: "the tier markers and the property suite" }
+    depends_on: []
+    deliverables:
+      - "pyproject.toml"
+      - "justfile"
+      - "packages/twinflow-rng/tests/test_stream_independence.py"
+    gates: []
+    brick: null
+    release: v0.1.0
+    status: done
+  - id: WP-P0-12
+    title: "Ship twinflow-roadmap, the requirement register, and the coverage proof"
+    phase: P0
+    wave: 12
+    covers:
+      - { id: "CON-6", partial: false, note: "the machine-readable backlog" }
+      - { id: "CON-7", partial: false }
+      - { id: "CON-10", partial: true, note: "the label taxonomy" }
+    depends_on: []
+    deliverables:
+      - "tools/roadmap/src/twinflow_roadmap/"
+      - "requirements.yaml"
+      - "splits.yaml"
+      - "gates.yaml"
+      - "roadmap.yaml"
+      - "just roadmap validate"
+      - "just roadmap coverage"
+    gates:
+      - VAL-GATE-RMAP-001
+    brick: twinflow-roadmap
+    release: v0.1.0
+    status: in_progress
+  - id: WP-P0-13
+    title: "Sync milestones and issues to GitHub under the banned-label policy"
+    phase: P0
+    wave: 13
+    covers:
+      - { id: "CON-10", partial: false }
+    depends_on: [WP-P0-12]
+    deliverables:
+      - "tools/roadmap/src/twinflow_roadmap/sync.py"
+      - ".roadmap-sync.yaml"
+      - "just roadmap sync"
+    gates:
+      - VAL-GATE-RMAP-001
+    brick: twinflow-roadmap
+    release: v0.1.0
+    status: planned
+  - id: WP-P0-14
+    title: "Run the release ritual unattended from a tag"
+    phase: P0
+    wave: 14
+    covers:
+      - { id: "C9", partial: true, note: "the release pipeline" }
+      - { id: "CON-9", partial: false }
+    depends_on: []
+    deliverables:
+      - ".github/workflows/release.yml"
+      - "scripts/checks/release-gate.py"
+      - "CHANGELOG.md"
+      - "just release-check"
+    gates:
+      - VAL-GATE-REL-001
+    brick: null
+    release: v0.1.0
+    status: in_progress
+  - id: WP-P0-15
+    title: "Assert the five source constraints in CI"
+    phase: P0
+    wave: 15
+    covers:
+      - { id: "CON-1", partial: false }
+      - { id: "CON-2", partial: false }
+      - { id: "CON-4", partial: false }
+      - { id: "CON-5", partial: false }
+    depends_on: []
+    deliverables:
+      - "scripts/checks/commit-message-gate.py"
+      - "scripts/checks/license-bytes-gate.py"
+      - "scripts/checks/banned-terms-gate.py"
+      - "just gate phase-exit"
+    gates:
+      - VAL-GATE-LIC-001
+      - VAL-GATE-IPH-001
+      - VAL-GATE-CC-001
+      - VAL-GATE-CI-001
+    brick: null
+    release: v0.1.0
+    status: planned
+  - id: WP-P0-16
+    title: "Pin the reference runner and record its digest"
+    phase: P0
+    wave: 16
+    covers:
+      - { id: "C4", partial: true, note: "the runner the budgets are stated on" }
+    depends_on: []
+    deliverables:
+      - "ci_budget.yaml"
+      - ".github/workflows/ci.yml"
+    gates: []
+    brick: null
+    release: v0.1.0
+    status: planned
+  - id: WP-P0-17
+    title: "Record the SCN-F1 determinism scenario and prove the two-run hash match"
+    phase: P0
+    wave: 17
+    covers:
+      - { id: "C1", partial: false }
+    depends_on: [WP-P0-03]
+    deliverables:
+      - "scenarios/determinism-smoke.yaml"
+      - "scripts/determinism-check.sh"
+      - "just determinism"
+    gates:
+      - VAL-GATE-DET-001
+      - VAL-GATE-DET-002
+    brick: twinflow-kernel
+    release: v0.1.0
+    status: planned
+  - id: WP-P1-01
+    title: "Model one station: receiving and putaway"
+    phase: P1
+    wave: 1
+    covers:
+      - { id: "1", partial: true, note: "the discrete-event station model" }
+      - { id: "ARCH-1", partial: false }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-twin/src/twinflow/twin/station.py"
+    gates: []
+    brick: twinflow-twin
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-02
+    title: "Publish one RFID portal and one temperature sensor onto UNS topics"
+    phase: P1
+    wave: 2
+    covers:
+      - { id: "2", partial: true, note: "two devices" }
+      - { id: "ARCH-2", partial: true, note: "the garage-tier broker" }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-sensors/src/twinflow/sensors/portal.py"
+    gates: []
+    brick: twinflow-sensors
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-03
+    title: "Emit Sparkplug B payloads with metric aliasing"
+    phase: P1
+    wave: 3
+    covers:
+      - { id: "E3", partial: false }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-sensors/src/twinflow/sensors/sparkplug.py"
+    gates:
+      - VAL-GATE-SPARK-001
+    brick: twinflow-sensors
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-04
+    title: "Stand up the garage-tier compose with Purdue segmentation"
+    phase: P1
+    wave: 4
+    covers:
+      - { id: "A3", partial: true, note: "the garage tier" }
+      - { id: "RA-b", partial: false }
+    depends_on: []
+    deliverables:
+      - "deploy/garage/docker-compose.yaml"
+    gates: []
+    brick: null
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-05
+    title: "Name the historian and treat it as the L2 system of record"
+    phase: P1
+    wave: 5
+    covers:
+      - { id: "RA-c", partial: false }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-storage/src/twinflow/storage/naming.py"
+    gates: []
+    brick: twinflow-storage
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-06
+    title: "Record an append-only event log with a per-run config snapshot"
+    phase: P1
+    wave: 6
+    covers:
+      - { id: "E4", partial: true, note: "E4a the historian contract" }
+      - { id: "ARCH-3", partial: true, note: "the batch path table format" }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-storage/src/twinflow/storage/historian.py"
+    gates: []
+    brick: twinflow-storage
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-07
+    title: "Ship the first agent tool with structured outputs"
+    phase: P1
+    wave: 7
+    covers:
+      - { id: "7", partial: true, note: "one tool" }
+      - { id: "E26", partial: true, note: "E26d structured outputs" }
+      - { id: "ARCH-5", partial: false }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-agent/src/twinflow/agent/tools.py"
+    gates: []
+    brick: twinflow-agent
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-08
+    title: "Record autonomy tier metadata and the change-attribution audit event"
+    phase: P1
+    wave: 8
+    covers:
+      - { id: "E5", partial: true, note: "E5a autonomy tier metadata" }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-agent/src/twinflow/agent/autonomy.py"
+    gates: []
+    brick: twinflow-agent
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-09
+    title: "Serve the REST API the dashboard reads through"
+    phase: P1
+    wave: 9
+    covers:
+      - { id: "A6", partial: true, note: "the REST surface" }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-api/src/twinflow/api/app.py"
+    gates: []
+    brick: twinflow-api
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-10
+    title: "Ship the dashboard stub and its accessibility floor"
+    phase: P1
+    wave: 10
+    covers:
+      - { id: "8", partial: true, note: "the stub" }
+      - { id: "C12", partial: false }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-dashboard/src/twinflow/dashboard/app.py"
+    gates:
+      - VAL-GATE-A11Y-001
+    brick: twinflow-dashboard
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-11
+    title: "Publish the layer map with ISA-95 and Purdue levels"
+    phase: P1
+    wave: 11
+    covers:
+      - { id: "RA-a", partial: false }
+    depends_on: []
+    deliverables:
+      - "docs/reference/layer-map.md"
+    gates:
+      - VAL-GATE-TIER-001
+    brick: null
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-12
+    title: "Write the README and the community documents"
+    phase: P1
+    wave: 12
+    covers:
+      - { id: "9", partial: true, note: "the first README" }
+      - { id: "C8", partial: false }
+      - { id: "CON-8", partial: false }
+    depends_on: []
+    deliverables:
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "CODE_OF_CONDUCT.md"
+      - "SUPPORT.md"
+    gates:
+      - VAL-GATE-QS-001
+      - VAL-GATE-DEMO-001
+      - VAL-GATE-DOC-001
+      - VAL-GATE-RELBUD-001
+    brick: null
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-13
+    title: "Check the contributor agreement in CI"
+    phase: P1
+    wave: 13
+    covers:
+      - { id: "C13", partial: false }
+    depends_on: []
+    deliverables:
+      - ".github/workflows/cla.yml"
+      - "CLA.md"
+    gates:
+      - VAL-GATE-CLA-001
+    brick: null
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-14
+    title: "Ship the micro-fulfillment facility profile"
+    phase: P1
+    wave: 14
+    covers:
+      - { id: "A2", partial: true, note: "the micro-fulfillment profile" }
+    depends_on: []
+    deliverables:
+      - "profiles/micro_fulfillment.yaml"
+    gates: []
+    brick: twinflow-config
+    release: v0.2.0
+    status: planned
+  - id: WP-P2-01
+    title: "Build the statistical core and validate it against the published references"
+    phase: P2
+    wave: 1
+    covers:
+      - { id: "5", partial: true, note: "SPC, capability, measurement system analysis, and hypothesis testing" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-NIST-001
+      - VAL-GATE-NIST-002
+      - VAL-GATE-NIST-003
+      - VAL-GATE-EHB-001
+      - VAL-GATE-EHB-002
+      - VAL-GATE-EHB-005
+      - VAL-GATE-MTB-001
+      - VAL-GATE-MTB-002
+      - VAL-GATE-MTB-003
+      - VAL-GATE-WE-001
+      - VAL-GATE-MSA-001
+      - VAL-GATE-MSA-002
+      - VAL-GATE-SIM-001
+    brick: twinflow-lss
+    release: v0.3.0
+    status: planned
+  - id: WP-P2-02
+    title: "Compute takt, cycle time, WIP, utilization, OEE, and the bottleneck"
+    phase: P2
+    wave: 2
+    covers:
+      - { id: "1", partial: true, note: "the flow metrics" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-twin
+    release: v0.3.0
+    status: planned
+  - id: WP-P2-03
+    title: "Sync the twin against reality through the bi-directional connector"
+    phase: P2
+    wave: 3
+    covers:
+      - { id: "6", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-twin
+    release: v0.3.0
+    status: planned
+  - id: WP-P2-04
+    title: "Add get_findings, run_whatif, run_capability_report, and explain_finding"
+    phase: P2
+    wave: 4
+    covers:
+      - { id: "7", partial: true, note: "four more tools" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v0.3.0
+    status: planned
+  - id: WP-P2-05
+    title: "Ground every answer in an execution trace"
+    phase: P2
+    wave: 5
+    covers:
+      - { id: "E26", partial: true, note: "E26a execution-grounded answers" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v0.3.0
+    status: planned
+  - id: WP-P2-06
+    title: "Verify an answer by executing it"
+    phase: P2
+    wave: 6
+    covers:
+      - { id: "E26", partial: true, note: "E26c execution-based verification" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v0.3.0
+    status: planned
+  - id: WP-P2-07
+    title: "Check grounding before an answer is published"
+    phase: P2
+    wave: 7
+    covers:
+      - { id: "E26", partial: true, note: "E26f the grounding checker" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v0.3.0
+    status: planned
+  - id: WP-P2-08
+    title: "Run the agent eval suite v1"
+    phase: P2
+    wave: 8
+    covers:
+      - { id: "E27", partial: true, note: "the eval suite" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-AGT-001
+    brick: twinflow-agent
+    release: v0.3.0
+    status: planned
+  - id: WP-P2-09
+    title: "Count tokens and cost per answered question"
+    phase: P2
+    wave: 9
+    covers:
+      - { id: "E45", partial: true, note: "the counters" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v0.3.0
+    status: planned
+  - id: WP-P2-10
+    title: "Write the migration story and the compatibility table"
+    phase: P2
+    wave: 10
+    covers:
+      - { id: "C6", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: null
+    release: v0.3.0
+    status: planned
+  - id: WP-P2-11
+    title: "Write SECURITY.md and the MCP and REST threat model"
+    phase: P2
+    wave: 11
+    covers:
+      - { id: "C7", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: null
+    release: v0.3.0
+    status: planned
+  - id: WP-P2-12
+    title: "Publish the hosted browser replay demo"
+    phase: P2
+    wave: 12
+    covers:
+      - { id: "E1", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-E1-001
+    brick: null
+    release: v0.3.0
+    status: planned
+  - id: WP-P3-01
+    title: "Serve the MCP server over the twin, fleet, and LSS tools"
+    phase: P3
+    wave: 1
+    covers:
+      - { id: "E2", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-02
+    title: "Run the AI red-team suite against the MCP surface"
+    phase: P3
+    wave: 2
+    covers:
+      - { id: "E43", partial: true, note: "E43c the red-team suite" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-INJ-001
+    brick: twinflow-agent
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-03
+    title: "Add the industrial and environmental sensor categories"
+    phase: P3
+    wave: 3
+    covers:
+      - { id: "2b", partial: true, note: "the industrial and environmental categories" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-sensors
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-04
+    title: "Grow the fleet to fifty devices with every failure mode"
+    phase: P3
+    wave: 4
+    covers:
+      - { id: "2", partial: false }
+      - { id: "ARCH-2", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-SPARK-002
+    brick: twinflow-sensors
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-05
+    title: "Manage the fleet and predict maintenance"
+    phase: P3
+    wave: 5
+    covers:
+      - { id: "3", partial: false }
+      - { id: "ARCH-4", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-PDM-001
+      - VAL-GATE-NIST-004
+    brick: twinflow-fleet
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-06
+    title: "Close the loop out to the ERP stub and the CMMS queue"
+    phase: P3
+    wave: 6
+    covers:
+      - { id: "6b", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-twin
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-07
+    title: "Model RF physics and the read zone"
+    phase: P3
+    wave: 7
+    covers:
+      - { id: "E46", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-RF-001
+      - VAL-GATE-RF-002
+    brick: twinflow-sensors
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-08
+    title: "Register models with versions and lineage"
+    phase: P3
+    wave: 8
+    covers:
+      - { id: "E43", partial: true, note: "E43a the model registry" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-fleet
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-09
+    title: "Name genealogy events in the GS1 EPCIS 2.0 vocabulary"
+    phase: P3
+    wave: 9
+    covers:
+      - { id: "E35", partial: true, note: "E35a the EPCIS vocabulary" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-EPCIS-001
+    brick: twinflow-storage
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-10
+    title: "Name the passport fields against the ESPR vocabulary"
+    phase: P3
+    wave: 10
+    covers:
+      - { id: "E10", partial: true, note: "E10a the passport vocabulary" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-storage
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-11
+    title: "Replay counterfactually and debug a finding through time"
+    phase: P3
+    wave: 11
+    covers:
+      - { id: "E4", partial: false, note: "E4b counterfactual replay and time-travel debugging" }
+      - { id: "ARCH-3", partial: true, note: "the growth-tier table" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-storage
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-12
+    title: "Answer by self-consistency"
+    phase: P3
+    wave: 12
+    covers:
+      - { id: "E26", partial: true, note: "E26e self-consistency" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-13
+    title: "Abstain on a calibrated threshold"
+    phase: P3
+    wave: 13
+    covers:
+      - { id: "E26", partial: false, note: "E26g calibrated abstention" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-14
+    title: "Prioritize, rationalize, dedupe, and shelve alarms"
+    phase: P3
+    wave: 14
+    covers:
+      - { id: "RA-d", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-EHB-003
+    brick: twinflow-fleet
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-15
+    title: "Publish the load harness and the first scaling curve"
+    phase: P3
+    wave: 15
+    covers:
+      - { id: "A4", partial: true, note: "the harness and the first curve" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-PERF-001
+    brick: null
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-16
+    title: "Ship the growth deployment tier"
+    phase: P3
+    wave: 16
+    covers:
+      - { id: "A3", partial: true, note: "the growth tier" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: null
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-17
+    title: "Write CONFIGURING.md and prove it against a fresh profile"
+    phase: P3
+    wave: 17
+    covers:
+      - { id: "A2", partial: true, note: "CONFIGURING.md" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-CONFTUT-001
+    brick: twinflow-config
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-18
+    title: "Export webhooks and EPCIS documents"
+    phase: P3
+    wave: 18
+    covers:
+      - { id: "A6", partial: true, note: "webhooks and the EPCIS export" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-WEBHOOK-001
+    brick: twinflow-api
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-19
+    title: "Add get_fleet_health and get_bottleneck"
+    phase: P3
+    wave: 19
+    covers:
+      - { id: "7", partial: true, note: "two more tools" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-20
+    title: "Publish the mkdocs documentation site"
+    phase: P3
+    wave: 20
+    covers:
+      - { id: "CON-11", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-DOCSITE-001
+    brick: null
+    release: v0.4.0
+    status: planned
+  - id: WP-P3b-01
+    title: "Make operators first-class resources"
+    phase: P3b
+    wave: 1
+    covers:
+      - { id: "E6", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-twin
+    release: v0.5.0
+    status: planned
+  - id: WP-P3b-02
+    title: "Report energy KPIs from motor current"
+    phase: P3b
+    wave: 2
+    covers:
+      - { id: "E7", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-ENG-001
+    brick: twinflow-twin
+    release: v0.5.0
+    status: planned
+  - id: WP-P3b-03
+    title: "Build the optimization engine over twin configurations"
+    phase: P3b
+    wave: 3
+    covers:
+      - { id: "E9", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-OPT-001
+    brick: twinflow-optimize
+    release: v0.5.0
+    status: planned
+  - id: WP-P3b-04
+    title: "Add the AMR fleet, palletizer cell, ASRS, sortation, and slotting"
+    phase: P3b
+    wave: 4
+    covers:
+      - { id: "1b", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-twin
+    release: v0.5.0
+    status: planned
+  - id: WP-P3b-05
+    title: "Add the electrical and power and the warehouse and logistics sensor categories"
+    phase: P3b
+    wave: 5
+    covers:
+      - { id: "2b", partial: true, note: "the electrical and warehouse categories" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-sensors
+    release: v0.5.0
+    status: planned
+  - id: WP-P3b-06
+    title: "Add compare_scenarios"
+    phase: P3b
+    wave: 6
+    covers:
+      - { id: "7", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v0.5.0
+    status: planned
+  - id: WP-P3b-07
+    title: "Ship the mid-market 3PL facility profile"
+    phase: P3b
+    wave: 7
+    covers:
+      - { id: "A2", partial: true, note: "the mid-market 3PL profile" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-config
+    release: v0.5.0
+    status: planned
+  - id: WP-P3c-01
+    title: "Write the process mining engine under Apache-2.0"
+    phase: P3c
+    wave: 1
+    covers:
+      - { id: "5", partial: true, note: "process discovery and conformance checking" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-PM-001
+      - VAL-GATE-PM-002
+      - VAL-GATE-PM-003
+    brick: twinflow-procmine
+    release: v0.6.0
+    status: planned
+  - id: WP-P3c-02
+    title: "Generate the current and future state value stream maps"
+    phase: P3c
+    wave: 2
+    covers:
+      - { id: "1", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-VSM-001
+    brick: twinflow-procmine
+    release: v0.6.0
+    status: planned
+  - id: WP-P3c-03
+    title: "Ship the export framework and the dataset card schema"
+    phase: P3c
+    wave: 3
+    covers:
+      - { id: "E25", partial: true, note: "E25a the export framework" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-devtools
+    release: v0.6.0
+    status: planned
+  - id: WP-P3c-04
+    title: "Publish ADOPTION.md v1"
+    phase: P3c
+    wave: 4
+    covers:
+      - { id: "A5", partial: true, note: "version one" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: null
+    release: v0.6.0
+    status: planned
+  - id: WP-P3d-01
+    title: "Build the demand signal"
+    phase: P3d
+    wave: 1
+    covers:
+      - { id: "6a", partial: true, note: "the demand signal" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-FCST-001
+    brick: twinflow-forecast
+    release: v0.7.0
+    status: planned
+  - id: WP-P3d-02
+    title: "Run the forecasting arena against the point-plus-interval contract"
+    phase: P3d
+    wave: 2
+    covers:
+      - { id: "6a", partial: true, note: "the forecasting arena" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-FCST-002
+    brick: twinflow-forecast
+    release: v0.7.0
+    status: planned
+  - id: WP-P3d-03
+    title: "Optimize inventory and segment it by ABC and XYZ"
+    phase: P3d
+    wave: 3
+    covers:
+      - { id: "6a", partial: true, note: "inventory optimization" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-INV-001
+    brick: twinflow-forecast
+    release: v0.7.0
+    status: planned
+  - id: WP-P3d-04
+    title: "Optimize the yard and dock schedule against the twin"
+    phase: P3d
+    wave: 4
+    covers:
+      - { id: "E12", partial: false }
+    depends_on: [WP-P3b-03, WP-P3d-03]
+    deliverables: []
+    gates:
+      - VAL-GATE-YARD-001
+    brick: twinflow-optimize
+    release: v0.7.0
+    status: planned
+  - id: WP-P3d-05
+    title: "Feed SIOP back into truck scheduling"
+    phase: P3d
+    wave: 5
+    covers:
+      - { id: "6a", partial: false }
+    depends_on: [WP-P3d-04]
+    deliverables: []
+    gates: []
+    brick: twinflow-forecast
+    release: v0.7.0
+    status: planned
+  - id: WP-P3e-01
+    title: "Give the supply base reliability profiles and scorecards"
+    phase: P3e
+    wave: 1
+    covers:
+      - { id: "6a2", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-SUP-001
+    brick: twinflow-twin
+    release: v0.8.0
+    status: planned
+  - id: WP-P3e-02
+    title: "Pick, pack, stage, load, and measure the service level"
+    phase: P3e
+    wave: 2
+    covers:
+      - { id: "6a3", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-OTIF-001
+    brick: twinflow-twin
+    release: v0.8.0
+    status: planned
+  - id: WP-P3f-01
+    title: "Triage, disposition, and cost the reverse flow"
+    phase: P3f
+    wave: 1
+    covers:
+      - { id: "6a4", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-RET-001
+    brick: twinflow-twin
+    release: v0.9.0
+    status: planned
+  - id: WP-P3g-01
+    title: "Decide flow versus store and manage the staging lanes"
+    phase: P3g
+    wave: 1
+    covers:
+      - { id: "6a5", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-XDOCK-001
+    brick: twinflow-twin
+    release: v0.10.0
+    status: planned
+  - id: WP-P3g-02
+    title: "Pick eaches, cartonize, and shop parcel rates"
+    phase: P3g
+    wave: 2
+    covers:
+      - { id: "6a6", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-CART-001
+    brick: twinflow-twin
+    release: v0.10.0
+    status: planned
+  - id: WP-P3h-01
+    title: "Model lanes, modes, carrier contracts, and freight spend"
+    phase: P3h
+    wave: 1
+    covers:
+      - { id: "6a7", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-GLEC-001
+    brick: twinflow-twin
+    release: v0.11.0
+    status: planned
+  - id: WP-P3h-02
+    title: "Place safety stock across two echelons"
+    phase: P3h
+    wave: 2
+    covers:
+      - { id: "6a8", partial: true, note: "two echelons" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-MEIO-001
+      - VAL-GATE-MEIO-002
+    brick: twinflow-forecast
+    release: v0.11.0
+    status: planned
+  - id: WP-P3h-03
+    title: "Add the transport and fleet and the cold-chain sensor categories"
+    phase: P3h
+    wave: 3
+    covers:
+      - { id: "2b", partial: true, note: "the transport and cold-chain categories" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-COLD-001
+    brick: twinflow-sensors
+    release: v0.11.0
+    status: planned
+  - id: WP-P3i-01
+    title: "Model the hybrid batch and discrete factory"
+    phase: P3i
+    wave: 1
+    covers:
+      - { id: "6a9", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-OEE-001
+      - VAL-GATE-BATCH-001
+      - VAL-GATE-SMED-001
+    brick: twinflow-twin
+    release: v0.12.0
+    status: planned
+  - id: WP-P3i-02
+    title: "Add the process and chemical sensor category"
+    phase: P3i
+    wave: 2
+    covers:
+      - { id: "2b", partial: true, note: "the process and chemical category" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-sensors
+    release: v0.12.0
+    status: planned
+  - id: WP-ECON-01
+    title: "Overlay the financial twin"
+    phase: ECON
+    wave: 1
+    covers:
+      - { id: "E22", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-FIN-001
+    brick: twinflow-twin
+    release: v0.13.0
+    status: planned
+  - id: WP-ECON-02
+    title: "Run tariff and trade-policy scenarios"
+    phase: ECON
+    wave: 2
+    covers:
+      - { id: "E14", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-TAR-001
+    brick: twinflow-twin
+    release: v0.13.0
+    status: planned
+  - id: WP-ECON-03
+    title: "Inherit embedded carbon through genealogy"
+    phase: ECON
+    wave: 3
+    covers:
+      - { id: "E17", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-CBAM-001
+    brick: twinflow-twin
+    release: v0.13.0
+    status: planned
+  - id: WP-ECON-04
+    title: "Open the decision register with its authority tiers"
+    phase: ECON
+    wave: 4
+    covers:
+      - { id: "E21", partial: true, note: "E21a the decision register" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-GOV-001
+    brick: twinflow-agent
+    release: v0.13.0
+    status: planned
+  - id: WP-6a10-01
+    title: "Score ergonomic risk and feed fatigue back into the simulation"
+    phase: 6a10
+    wave: 1
+    covers:
+      - { id: "6a10", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-NIOSH-001
+      - VAL-GATE-RULA-001
+      - VAL-GATE-HEIN-001
+      - VAL-GATE-ERG-SEAM-001
+    brick: twinflow-twin
+    release: v0.14.0
+    status: planned
+  - id: WP-6a10-02
+    title: "Add the safety and compliance and the structural sensor categories"
+    phase: 6a10
+    wave: 2
+    covers:
+      - { id: "2b", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-sensors
+    release: v0.14.0
+    status: planned
+  - id: WP-6a11-01
+    title: "Retrieve the SOP corpus with clause citation ids"
+    phase: 6a11
+    wave: 1
+    covers:
+      - { id: "E8", partial: true, note: "E8a the SOP corpus" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v0.15.0
+    status: planned
+  - id: WP-6a11-02
+    title: "Run the quality management system and the mock recall drill"
+    phase: 6a11
+    wave: 2
+    covers:
+      - { id: "6a11", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-Z14-001
+      - VAL-GATE-EHB-004
+      - VAL-GATE-CAPA-001
+      - VAL-GATE-RECALL-001
+      - VAL-GATE-INJ-002
+    brick: twinflow-lss
+    release: v0.15.0
+    status: planned
+  - id: WP-ROST-01
+    title: "Solve the roster against forecast-derived half-hourly requirements"
+    phase: ROST
+    wave: 1
+    covers:
+      - { id: "E23", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-ROST-001
+    brick: twinflow-optimize
+    release: v0.16.0
+    status: planned
+  - id: WP-6a12-01
+    title: "Promise orders against available and capable to promise"
+    phase: 6a12
+    wave: 1
+    covers:
+      - { id: "E16", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-ATP-001
+    brick: twinflow-twin
+    release: v0.17.0
+    status: planned
+  - id: WP-6a12-02
+    title: "Run the order lifecycle and the service operation"
+    phase: 6a12
+    wave: 2
+    covers:
+      - { id: "6a12", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-ORDER-001
+      - VAL-GATE-PERFORD-001
+    brick: twinflow-twin
+    release: v0.17.0
+    status: planned
+  - id: WP-RISK-01
+    title: "Illuminate the n-tier supplier graph"
+    phase: RISK
+    wave: 1
+    covers:
+      - { id: "E19", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-NTIER-001
+    brick: twinflow-twin
+    release: v0.18.0
+    status: planned
+  - id: WP-RISK-02
+    title: "Search disruption space for the minimal breaking combination"
+    phase: RISK
+    wave: 2
+    covers:
+      - { id: "E20", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-RST-001
+    brick: twinflow-optimize
+    release: v0.18.0
+    status: planned
+  - id: WP-6a13-01
+    title: "Run procure-to-pay, the eRFX analog, and spend analytics"
+    phase: 6a13
+    wave: 1
+    covers:
+      - { id: "6a13", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-P2P-001
+      - VAL-GATE-SPEND-001
+    brick: twinflow-twin
+    release: v0.19.0
+    status: planned
+  - id: WP-6a14-01
+    title: "Model hiring, onboarding, the skills matrix, and attrition"
+    phase: 6a14
+    wave: 1
+    covers:
+      - { id: "6a14", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-HR-001
+      - VAL-GATE-ABSENT-SEAM-001
+    brick: twinflow-twin
+    release: v0.20.0
+    status: planned
+  - id: WP-OTDRILL-01
+    title: "Run the adversarial chaos drill against the Purdue stack"
+    phase: OTDRILL
+    wave: 1
+    covers:
+      - { id: "E18", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-OTSEC-001
+    brick: null
+    release: v0.21.0
+    status: planned
+  - id: WP-6a15-01
+    title: "Run ITSM, SRE observability, and the IEC 62443 zone monitor"
+    phase: 6a15
+    wave: 1
+    covers:
+      - { id: "6a15", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-DORA-001
+      - VAL-GATE-RPO-001
+      - VAL-GATE-ZONE-001
+    brick: null
+    release: v0.22.0
+    status: planned
+  - id: WP-CAUSAL-01
+    title: "Estimate effects and score discovery against the true graph"
+    phase: CAUSAL
+    wave: 1
+    covers:
+      - { id: "E30", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-CAU-001
+      - VAL-GATE-CAU-002
+    brick: twinflow-causal
+    release: v0.23.0
+    status: planned
+  - id: WP-6a16-01
+    title: "Run promotions, the pipeline, and the five-step S&OP cycle"
+    phase: 6a16
+    wave: 1
+    covers:
+      - { id: "6a16", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-SOP-001
+      - VAL-GATE-FVA-001
+      - VAL-GATE-PROMO-001
+    brick: twinflow-twin
+    release: v0.24.0
+    status: planned
+  - id: WP-SOE-01
+    title: "Diff the weekly plan against simulated actuals"
+    phase: SOE
+    wave: 1
+    covers:
+      - { id: "E15", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-SOE-001
+    brick: twinflow-twin
+    release: v0.25.0
+    status: planned
+  - id: WP-6a17-01
+    title: "Post the event-driven general ledger and decompose the variances"
+    phase: 6a17
+    wave: 1
+    covers:
+      - { id: "6a17", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-GL-001
+      - VAL-GATE-VAR-001
+      - VAL-GATE-ABC-001
+      - VAL-GATE-NPV-001
+    brick: twinflow-twin
+    release: v0.26.0
+    status: planned
+  - id: WP-P4-01
+    title: "Audit the floor on synthetic rendered frames"
+    phase: P4
+    wave: 1
+    covers:
+      - { id: "4", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-CV-001
+    brick: twinflow-cv
+    release: v0.27.0
+    status: planned
+  - id: WP-P4-02
+    title: "Bind the vision violation to the SOP clause it breaks"
+    phase: P4
+    wave: 2
+    covers:
+      - { id: "E8", partial: false, note: "E8b the vision violation bound to its clause" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-cv
+    release: v0.27.0
+    status: planned
+  - id: WP-P4-03
+    title: "Store and forward across a broker outage"
+    phase: P4
+    wave: 3
+    covers:
+      - { id: "6c", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-SNF-001
+    brick: twinflow-sensors
+    release: v0.27.0
+    status: planned
+  - id: WP-P5-01
+    title: "Write the final README with the demo GIF"
+    phase: P5
+    wave: 1
+    covers:
+      - { id: "9", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: null
+    release: v1.0.0
+    status: planned
+  - id: WP-P5-02
+    title: "Publish the capability report as an artifact"
+    phase: P5
+    wave: 2
+    covers:
+      - { id: "5", partial: true, note: "the published report" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-lss
+    release: v1.0.0
+    status: planned
+  - id: WP-P5-03
+    title: "Bridge OPC UA to MQTT"
+    phase: P5
+    wave: 3
+    covers:
+      - { id: "RA-e", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-OPCUA-001
+    brick: null
+    release: v1.0.0
+    status: planned
+  - id: WP-P5-04
+    title: "Serve the OT broker over mTLS from the internal CA"
+    phase: P5
+    wave: 4
+    covers:
+      - { id: "A3", partial: false }
+      - { id: "ARCH-3", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-MTLS-001
+    brick: null
+    release: v1.0.0
+    status: planned
+  - id: WP-P5-05
+    title: "Publish the final ADOPTION.md"
+    phase: P5
+    wave: 5
+    covers:
+      - { id: "A5", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-ADOPT-001
+    brick: null
+    release: v1.0.0
+    status: planned
+  - id: WP-P5-06
+    title: "Add GraphQL to the integration surface"
+    phase: P5
+    wave: 6
+    covers:
+      - { id: "A6", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-api
+    release: v1.0.0
+    status: planned
+  - id: WP-P5-07
+    title: "Freeze the stable API promise"
+    phase: P5
+    wave: 7
+    covers:
+      - { id: "C9", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: null
+    release: v1.0.0
+    status: planned
+  - id: WP-P5-08
+    title: "Polish the dashboard"
+    phase: P5
+    wave: 8
+    covers:
+      - { id: "8", partial: true, note: "the polish pass" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-dashboard
+    release: v1.0.0
+    status: planned
+  - id: WP-P6-W1-01
+    title: "Measure the four compute placement tiers"
+    phase: P6-W1
+    wave: 1
+    covers:
+      - { id: "E36", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-EDGE-001
+    brick: null
+    release: v1.1.0
+    status: planned
+  - id: WP-P6-W1-02
+    title: "Enroll, twin, and update devices over the air"
+    phase: P6-W1
+    wave: 2
+    covers:
+      - { id: "E44", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-OTA-001
+    brick: twinflow-fleet
+    release: v1.1.0
+    status: planned
+  - id: WP-P6-W1-03
+    title: "Distil the plant language model to tier one"
+    phase: P6-W1
+    wave: 3
+    covers:
+      - { id: "E32", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-SLM-001
+    brick: twinflow-agent
+    release: v1.1.0
+    status: planned
+  - id: WP-P6-W1-04
+    title: "Put one real edge device in the loop"
+    phase: P6-W1
+    wave: 4
+    covers:
+      - { id: "E47", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-HIL-001
+    brick: null
+    release: v1.1.0
+    status: planned
+  - id: WP-P6-W1-05
+    title: "Add the local speech interface"
+    phase: P6-W1
+    wave: 5
+    covers:
+      - { id: "E34", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v1.1.0
+    status: planned
+  - id: WP-P6-W2-01
+    title: "Dispatch AMRs by reinforcement learning against the rule-based baseline"
+    phase: P6-W2
+    wave: 1
+    covers:
+      - { id: "E11", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-RL-001
+    brick: twinflow-optimize
+    release: v1.2.0
+    status: planned
+  - id: WP-P6-W2-02
+    title: "Publish the neural surrogate and its error distribution"
+    phase: P6-W2
+    wave: 2
+    covers:
+      - { id: "E28", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-SURR-001
+    brick: twinflow-twin
+    release: v1.2.0
+    status: planned
+  - id: WP-P6-W2-03
+    title: "Benchmark the vision-language copilot against the classical channel"
+    phase: P6-W2
+    wave: 3
+    covers:
+      - { id: "E29", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-VLM-001
+    brick: twinflow-cv
+    release: v1.2.0
+    status: planned
+  - id: WP-P6-W2-04
+    title: "Run the forecasting foundation-model bakeoff with conformal calibration"
+    phase: P6-W2
+    wave: 4
+    covers:
+      - { id: "E31", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-CONF-001
+    brick: twinflow-forecast
+    release: v1.2.0
+    status: planned
+  - id: WP-P6-W2-05
+    title: "Model disruption propagation with a graph neural network"
+    phase: P6-W2
+    wave: 5
+    covers:
+      - { id: "E33", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-GNN-001
+    brick: twinflow-causal
+    release: v1.2.0
+    status: planned
+  - id: WP-P6-W2-06
+    title: "Monitor drift and promote champion over challenger"
+    phase: P6-W2
+    wave: 6
+    covers:
+      - { id: "E43", partial: false, note: "E43b drift monitors and champion-challenger promotion" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-DRIFT-001
+    brick: twinflow-fleet
+    release: v1.2.0
+    status: planned
+  - id: WP-P6-W2-07
+    title: "Remember incidents and publish the improvement curve"
+    phase: P6-W2
+    wave: 7
+    covers:
+      - { id: "E27", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-agent
+    release: v1.2.0
+    status: planned
+  - id: WP-P6-W3-01
+    title: "Bridge a second facility and train federated models across both"
+    phase: P6-W3
+    wave: 1
+    covers:
+      - { id: "E13", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-MULTI-001
+      - VAL-GATE-FED-001
+      - VAL-GATE-RECALL-002
+    brick: null
+    release: v1.3.0
+    status: planned
+  - id: WP-P6-W3-02
+    title: "Add the third echelon with forward positions"
+    phase: P6-W3
+    wave: 2
+    covers:
+      - { id: "6a8", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-forecast
+    release: v1.3.0
+    status: planned
+  - id: WP-P6-W3-03
+    title: "Design the network and stress-test the candidates"
+    phase: P6-W3
+    wave: 3
+    covers:
+      - { id: "E42", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-NETDES-001
+    brick: twinflow-optimize
+    release: v1.3.0
+    status: planned
+  - id: WP-P6-W3-04
+    title: "Run vendor-managed inventory and value-added services"
+    phase: P6-W3
+    wave: 4
+    covers:
+      - { id: "E41", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-VMI-001
+    brick: twinflow-twin
+    release: v1.3.0
+    status: planned
+  - id: WP-P6-W3-05
+    title: "Version BOMs and recipes under engineering change orders"
+    phase: P6-W3
+    wave: 5
+    covers:
+      - { id: "E37", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-ECO-001
+    brick: twinflow-twin
+    release: v1.3.0
+    status: planned
+  - id: WP-P6-W3-06
+    title: "Ship the enterprise network facility profile"
+    phase: P6-W3
+    wave: 6
+    covers:
+      - { id: "A2", partial: true, note: "the enterprise network profile" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-config
+    release: v1.3.0
+    status: planned
+  - id: WP-P6-W4-01
+    title: "Hash-chain the ledger and sign each party's entries"
+    phase: P6-W4
+    wave: 1
+    covers:
+      - { id: "E35", partial: false, note: "E35b the hash chain and per-party signatures" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-LEDGER-001
+    brick: twinflow-storage
+    release: v1.4.0
+    status: planned
+  - id: WP-P6-W4-02
+    title: "Make the product passport cryptographically verifiable"
+    phase: P6-W4
+    wave: 2
+    covers:
+      - { id: "E10", partial: false, note: "E10b the verifiable passport" }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-storage
+    release: v1.4.0
+    status: planned
+  - id: WP-P6-W4-03
+    title: "Auto-apply inside guardrails with rollback"
+    phase: P6-W4
+    wave: 3
+    covers:
+      - { id: "E5", partial: false, note: "E5b auto-apply inside guardrails" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-AUTON-001
+    brick: twinflow-agent
+    release: v1.4.0
+    status: planned
+  - id: WP-P6-W4-04
+    title: "Negotiate between role agents under a supervisor"
+    phase: P6-W4
+    wave: 4
+    covers:
+      - { id: "E21", partial: false, note: "E21b role agents under a supervisor" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-MAS-001
+    brick: twinflow-agent
+    release: v1.4.0
+    status: planned
+  - id: WP-P6-W4-05
+    title: "Generate SOPs from telemetry and simulate adherence"
+    phase: P6-W4
+    wave: 5
+    covers:
+      - { id: "E24", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-SOPGEN-001
+    brick: twinflow-agent
+    release: v1.4.0
+    status: planned
+  - id: WP-P6-W5-01
+    title: "Report ESG and CSRD against ESRS-style headings"
+    phase: P6-W5
+    wave: 1
+    covers:
+      - { id: "E39", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-ESG-001
+    brick: twinflow-twin
+    release: v1.5.0
+    status: planned
+  - id: WP-P6-W5-02
+    title: "Price cover from the twin's own loss history"
+    phase: P6-W5
+    wave: 2
+    covers:
+      - { id: "E38", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-INS-001
+    brick: twinflow-twin
+    release: v1.5.0
+    status: planned
+  - id: WP-P6-W5-03
+    title: "Route models by cost and publish the monthly AI profit and loss"
+    phase: P6-W5
+    wave: 3
+    covers:
+      - { id: "E45", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-FINOPS-001
+    brick: twinflow-agent
+    release: v1.5.0
+    status: planned
+  - id: WP-P6-W5-04
+    title: "Generate failure runbooks and audit fleet config compliance"
+    phase: P6-W5
+    wave: 4
+    covers:
+      - { id: "E48", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-RUNBOOK-001
+    brick: twinflow-fleet
+    release: v1.5.0
+    status: planned
+  - id: WP-P6-W5-05
+    title: "Wire the weather process to the sensitivity hooks"
+    phase: P6-W5
+    wave: 5
+    covers:
+      - { id: "E40", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-WX-001
+    brick: twinflow-kernel
+    release: v1.5.0
+    status: planned
+  - id: WP-P6-W5-06
+    title: "Render the factory in the browser in three dimensions"
+    phase: P6-W5
+    wave: 6
+    covers:
+      - { id: "RA-3D", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-dashboard
+    release: v1.5.0
+    status: planned
+  - id: WP-P6-W5-07
+    title: "Feed the 3D panel from the live state feed"
+    phase: P6-W5
+    wave: 7
+    covers:
+      - { id: "8", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-dashboard
+    release: v1.5.0
+    status: planned
+  - id: WP-P6-W5-08
+    title: "Prove the final facility profile pass"
+    phase: P6-W5
+    wave: 8
+    covers:
+      - { id: "A2", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-config
+    release: v1.5.0
+    status: planned
+  - id: WP-P6-W6-01
+    title: "Publish the full labeled dataset corpus with cards"
+    phase: P6-W6
+    wave: 1
+    covers:
+      - { id: "E25", partial: false, note: "E25b the full labeled corpus" }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-DATA-001
+    brick: twinflow-devtools
+    release: v1.6.0
+    status: planned
+  - id: WP-P6-W6-02
+    title: "Publish the final scaling curves and the stated knee"
+    phase: P6-W6
+    wave: 2
+    covers:
+      - { id: "A4", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: null
+    release: v1.6.0
+    status: planned
+  - id: WP-P6-W6-03
+    title: "Regenerate the capability report across every subsystem"
+    phase: P6-W6
+    wave: 3
+    covers:
+      - { id: "5", partial: false }
+    depends_on: []
+    deliverables: []
+    gates: []
+    brick: twinflow-lss
+    release: v1.6.0
+    status: planned
+  - id: WP-P6-W6-04
+    title: "Close the milestone coverage proof"
+    phase: P6-W6
+    wave: 4
+    covers:
+      - { id: "C4", partial: false }
+    depends_on: []
+    deliverables: []
+    gates:
+      - VAL-GATE-COVER-001
+    brick: twinflow-roadmap
+    release: v1.6.0
+    status: planned
