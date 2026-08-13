@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- publish two devices and speak Sparkplug B
 - model one receiving and putaway station
 - give the unified namespace one owner
 - build the walking skeleton across six packages

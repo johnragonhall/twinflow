@@ -1,0 +1,54 @@
+[project]
+name = "twinflow-sensors"
+description = "A UHF RFID portal, a temperature sensor, and the Sparkplug B session that publishes them onto an ISA-95 unified namespace."
+requires-python = ">=3.12"
+# No third-party dependency at all, which is worth stating rather than leaving
+# as an accident. The Sparkplug session model here is protobuf-free: the wire
+# codec needs the vendored EPL-2.0 sparkplug_b.proto under schemas/, and that
+# lands with the codec rather than here (see API.md, "What this package does
+# not claim"). numpy is not declared either, because nothing in src/ imports
+# it: a bit generator arrives as an injected parameter and is used through its
+# .beta() method, so the type is the caller's problem and not this package's
+# dependency.
+dependencies = [
+    # UnsPath and the six-level grammar of ARCHITECTURE.md section 5. The
+    # namespace is a projection of the facility model, and twinflow-config owns
+    # that model, so the addressing is imported from there rather than spelled
+    # a second time here.
+    "twinflow-config",
+    # Clock and SimInstant. Every device here reads sim time through the port
+    # rather than a wall clock, per doctrine D-02.
+    "twinflow-kernel",
+    # Not imported by src/, and declared anyway. PortalReader.draw_read_rate
+    # takes a generator that twinflow.rng.generator_for is the only sanctioned
+    # way to build, so a reader who installs this brick alone and follows
+    # README.md needs it present.
+    "twinflow-rng",
+]
+
+# Read from the module, so __version__ and the distribution metadata are one
+# value and cannot disagree.
+dynamic = ["version"]
+
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+
+[build-system]
+# 1.27 is where hatchling accepts the PEP 639 license fields above.
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/twinflow/sensors/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/twinflow"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "pyproject.toml"]
+exclude = ["**/__pycache__", "**/*.py[co]", "**/.pytest_cache"]
+
+[tool.uv.sources]
+twinflow-config = { workspace = true }
+twinflow-kernel = { workspace = true }
+twinflow-rng = { workspace = true }
