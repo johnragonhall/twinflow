@@ -1,0 +1,244 @@
+name: Release
+
+# The release ritual, run in the order docs/design/roadmap.md section 5.11 sets,
+# and any failure aborts before the tag is pushed.
+#
+# WHY THIS EXISTS AT v0.1.0
+# -------------------------
+# v0.1.0 comes out of the same pipeline as v1.6.0, or the release history is
+# inconsistent under exactly the inspection a reviewer performs. Building the
+# pipeline at the first tag costs an afternoon; reconstructing four earlier
+# releases to match a pipeline written later costs the claim that they were
+# reproducible.
+#
+# STEPS THAT CANNOT RUN YET
+# -------------------------
+# Six ritual steps need artefacts a later phase produces: the end-to-end tier,
+# the phase-exit gate runner, the README headline metric, the replay bundle, the
+# load harness, and the ROADMAP renderers. Each is a step here, each names the
+# work package that arms it, and each prints why it did nothing. A skipped step
+# that prints nothing is a step a reader assumes ran.
+#
+# WHAT IT MUTATES
+# ---------------
+# Milestone lifecycle only, which is the one class of tracker change
+# .roadmap-sync.yaml lets a workflow apply without a human. Issue mutation waits
+# for `just roadmap sync --apply` from a checkout.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The version to cut, without the leading v (for example 0.1.0)"
+        required: true
+        type: string
+      dry_run:
+        description: "Run every check and build nothing that leaves the runner"
+        required: false
+        default: true
+        type: boolean
+      publish:
+        description: "Publish the wheels to PyPI. Needs the trusted publisher configured first"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release v${{ inputs.version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      issues: write
+      # Trusted publishing to PyPI. No token is stored anywhere in this
+      # repository, which is why the publish step reads no secret.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The release gate reads the CHANGELOG against the tag history, and
+          # the roadmap history test walks every commit that touched
+          # requirements.yaml. Both need more than one commit.
+          fetch-depth: 0
+
+      - name: Check the version is semver and the tag is free
+        run: |
+          version="${{ inputs.version }}"
+          case "$version" in
+            v*) echo "::error::pass the version without the leading v"; exit 1 ;;
+          esac
+          printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || {
+            echo "::error::$version is not semver MAJOR.MINOR.PATCH"; exit 1; }
+          if git rev-parse "v$version" >/dev/null 2>&1; then
+            echo "::error::v$version already exists. A tag is never moved."
+            exit 1
+          fi
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Sync dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Install just
+        run: |
+          uv tool install rust-just
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      # 1. Lint, types, and the unit tier.
+      - name: Step 1, just check
+        run: just check
+
+      # 2. The property tier, within its runtime budget.
+      - name: Step 2, property invariants
+        run: just test-property
+
+      # 3. The end-to-end tier. It arms when the first scenario exists.
+      - name: Step 3, end-to-end tier
+        run: |
+          if just --list | grep -q '^ *test-e2e'; then
+            just test-e2e
+          else
+            echo "SKIP: no test-e2e recipe yet. It arrives with the SCN-F1 scenario in WP-P0-17."
+          fi
+
+      # 4. The phase-exit suite. The gate runner is WP-P0-15; until it lands,
+      #    the gates that do exist run individually rather than through it.
+      - name: Step 4, phase-exit gates
+        run: |
+          echo "SKIP: just gate phase-exit arrives with WP-P0-15. Running the implemented gates."
+          just determinism
+          just roadmap-gate
+
+      - name: Step 4b, roadmap drift against the tracker
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: uv run twinflow-roadmap drift
+
+      # 5. The README headline number is regenerated from a seeded run, never
+      #    edited. There is no run to seed until P1 ships one.
+      - name: Step 5, regenerate the README headline metric
+        run: |
+          echo "SKIP: no seeded run exists before P1, so there is no measured number to write."
+          echo "The metric marker gate below fails a marker that claims one anyway."
+          sh scripts/checks/metric-marker-gate.sh --release
+
+      # 6 and 7. Release-only work that starts at later tags.
+      - name: Step 6, re-record the E1 replay bundle
+        run: echo "SKIP: VAL-GATE-E1-001 applies from v0.3.0."
+
+      - name: Step 7, re-run the A4 load harness
+        run: echo "SKIP: VAL-GATE-PERF-001 applies from v0.4.0."
+
+      # 8. The generated artefacts are regenerated and the tree is asserted
+      #    clean over those paths and no others. The renderers land with
+      #    WP-P0-13; the check half of the same rule runs today.
+      - name: Step 8, generated artefacts are current
+        run: |
+          uv run python tools/gen_schemas.py --check
+          uv run python tools/gen_importlinter.py --check
+          uv run twinflow-roadmap graph-lint
+          echo "SKIP: the ROADMAP.md and docs/gates.md renderers arrive with WP-P0-13."
+          git diff --exit-code -- ROADMAP.md schemas .importlinter
+
+      # 9. SBOM, licence allowlist, and the wheels.
+      - name: Step 9, SBOM and licence allowlist
+        run: |
+          uv run python scripts/checks/license-allowlist-gate.py
+          uvx cyclonedx-py environment > sbom.cdx.json
+          uvx pip-audit
+
+      - name: Step 9b, build every brick
+        run: uv build --all-packages --out-dir dist
+
+      # 10. The CHANGELOG section for this tag, and the semver bump policy.
+      - name: Step 10, release gate
+        run: just release-check "${{ inputs.version }}"
+
+      - name: Stop here on a dry run
+        if: ${{ inputs.dry_run }}
+        run: |
+          echo "Dry run: every check above passed. Nothing was tagged, published, or closed."
+          echo "Re-run with dry_run false to cut v${{ inputs.version }}."
+
+      # 11. Tag, release, and the milestone lifecycle. Issue mutation is not
+      #     performed here: .roadmap-sync.yaml allows this context to create and
+      #     close milestones and nothing else.
+      - name: Step 11, tag and publish the GitHub release
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The release notes are the CHANGELOG section for this tag, not a
+          # second description of the same release written by hand.
+          awk -v version="## [${{ inputs.version }}]" '
+            index($0, version) == 1 { printing = 1; next }
+            printing && /^## \[/ { exit }
+            printing { print }
+          ' CHANGELOG.md > release-notes.md
+          test -s release-notes.md || {
+            echo "::error::CHANGELOG.md has no section for ${{ inputs.version }}"; exit 1; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ inputs.version }}" -m "Release v${{ inputs.version }}"
+          git push origin "v${{ inputs.version }}"
+          gh release create "v${{ inputs.version }}" \
+            --title "v${{ inputs.version }}" \
+            --notes-file release-notes.md \
+            dist/* sbom.cdx.json
+
+      # The publisher has to be configured on PyPI before the first upload, and
+      # it is a separate input rather than a consequence of dry_run so the first
+      # tag can be cut before that exists. A publish that failed after the tag
+      # was pushed would leave a released version nobody can install.
+      - name: Step 11b, publish to PyPI
+        if: ${{ !inputs.dry_run && inputs.publish }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+
+      - name: Step 11c, close this milestone and open the next
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "SKIP: the milestone lifecycle arrives with WP-P0-13, which is what"
+          echo "creates the milestones this step would close."
+
+      # 12. The release record. ops.release.tagged.v1 is published once the ops
+      #     schema subjects exist; until then the same fields are written as a
+      #     build artefact so the numbers are recorded either way.
+      - name: Step 12, write the release record
+        run: |
+          {
+            echo "tag: v${{ inputs.version }}"
+            echo "commit_sha: ${{ github.sha }}"
+            echo "dry_run: ${{ inputs.dry_run }}"
+            echo "runner: ubuntu-latest"
+            echo "gates_run: [VAL-GATE-DET-001, VAL-GATE-ENV-001, VAL-GATE-SCH-001,"
+            echo "  VAL-GATE-CFG-001, VAL-GATE-SEC-001, VAL-GATE-REL-001, VAL-GATE-RMAP-001]"
+            echo "note: >-"
+            echo "  ops.release.tagged.v1 publishes once the /schemas/ops subjects land."
+          } > release-record.yaml
+          cat release-record.yaml
+
+      - name: Upload the release artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-v${{ inputs.version }}
+          path: |
+            dist
+            sbom.cdx.json
+            release-record.yaml
+          if-no-files-found: error
