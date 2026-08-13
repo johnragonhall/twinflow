@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- make the plan own every number a release defers
 - hold a deferred metric to the work package that owes it
 
 ### Changed

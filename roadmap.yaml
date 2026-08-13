@@ -633,6 +633,7 @@ work_packages:
       - { id: "ARCH-3", partial: true, note: "the batch path table format" }
     depends_on: []
     deliverables:
+      - "metric:historian_stored_bytes_per_sensor_reading"
       - "packages/twinflow-storage/src/twinflow/storage/historian.py"
     gates: []
     brick: twinflow-storage
@@ -838,7 +839,8 @@ work_packages:
     covers:
       - { id: "E26", partial: true, note: "E26c execution-based verification" }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "metric:retry_resolution_rate"
     gates: []
     brick: twinflow-agent
     release: v0.3.0
@@ -850,7 +852,8 @@ work_packages:
     covers:
       - { id: "E26", partial: true, note: "E26f the grounding checker" }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "metric:grounding_pass_rate"
     gates: []
     brick: twinflow-agent
     release: v0.3.0
@@ -862,7 +865,9 @@ work_packages:
     covers:
       - { id: "E27", partial: true, note: "the eval suite" }
     depends_on: []
-    deliverables: []
+    deliverables:
+      - "metric:agent_eval_accuracy"
+      - "metric:calibrated_abstention_rate"
     gates:
       - VAL-GATE-AGT-001
     brick: twinflow-agent
