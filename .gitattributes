@@ -17,3 +17,20 @@ scripts/hooks/commit-msg text eol=lf
 scripts/hooks/post-commit text eol=lf
 scripts/hooks/prepare-commit-msg text eol=lf
 scripts/hooks/install.sh text eol=lf
+
+# The files this repository compares byte for byte against a published text.
+#
+# core.autocrlf is true on a Windows checkout, so without these rules git hands
+# that checkout a LICENSE with CRLF endings. It reads as the Apache License to
+# anybody who opens it and is 11544 bytes rather than the 11358 apache.org
+# serves, so VAL-GATE-LIC-001 fails on Windows and passes everywhere else.
+#
+# `-text` rather than `text eol=lf`: the point is that git performs no
+# conversion in either direction, on the way in or the way out. These bytes are
+# not this repository's to normalize.
+LICENSE -text
+NOTICE -text
+packages/*/LICENSE -text
+packages/*/NOTICE -text
+tools/*/LICENSE -text
+tools/*/NOTICE -text
