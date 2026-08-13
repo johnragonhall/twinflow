@@ -25,7 +25,6 @@ here freely: the hook only ever adds.
 - publish two devices and speak Sparkplug B
 - model one receiving and putaway station
 - give the unified namespace one owner
-- build the walking skeleton across six packages
 - recover a missed entry and keep the omission loud
 - register the cross-language RNG parity gate
 - close P0 and specify the fifteen gates P2 now owes
