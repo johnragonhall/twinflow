@@ -70,8 +70,9 @@ The phase-exit runner refuses to skip. A gate in force at a phase that is not
 `implemented` fails the run, because the registry already promised it at the
 phase it starts at. That is the difference between a plan and an intention.
 
-141 gates are declared. Twelve are in force at the P0 exit, and all twelve are
-implemented.
+The registry states its own totals, and `docs/gates.md` generates them from
+`gates.yaml`. Read the count there rather than here: a count copied into prose is
+a count that goes stale between two commits.
 
 | Enforced by                                                                                     | Where                               |
 | ----------------------------------------------------------------------------------------------- | ----------------------------------- |
@@ -203,7 +204,7 @@ quietly.
 
 | Enforced by                                                             | Where                       |
 | ----------------------------------------------------------------------- | --------------------------- |
-| `test_run_started_carries_no_wall_clock_or_platform_field`              | `packages/twinflow-kernel/` |
+| `test_no_event_reads_the_wall_clock`, over a recorded run               | `packages/twinflow-kernel/` |
 | `nondeterminism-gate.sh`, refusing a wall-clock read outside the kernel | `scripts/checks/`           |
 
 ## 9. Every brick comes out alone
@@ -243,13 +244,15 @@ The reference runner is pinned by digest, and every job carries a time budget in
 | Enforced by                                                          | Where                 |
 | -------------------------------------------------------------------- | --------------------- |
 | `ci-matrix-gate.py`, holding the workflow matrix to the declared set | `scripts/checks/`     |
-| `just ci-local`, running the container-free set in CI order          | `scripts/ci-local.sh` |
+| `just ci`, running the container-free set in CI order                | `scripts/ci-local.sh` |
 
 ## 11. An escape hatch states its reason
 
 Every lint rule here can be escaped on a single line, and the escape names the
-rule and gives a reason. An escape with no reason fails, because a gate that is
-easy to silence is not a gate.
+rule it sets aside. The prose gate goes further and refuses an escape carrying no
+reason, because a gate that is easy to silence is not a gate. The nondeterminism
+gate and the ruff suppressions read the token and not the reason, so the rule
+holds by review there rather than by the linter.
 
 ```text
 docs-lint-ok DIFF-01 quotes the narration this rule rejects
@@ -274,8 +277,8 @@ exemption with the reason it exists.
 The method has a price, and a reader judging the repository should see it stated
 rather than discover it.
 
-It front-loads. Phase P0 produced five installable packages, twelve running
-gates, and no product. A reader who wants to see a warehouse running finds
+It front-loads. Phase P0 produced five installable packages, a running gate set,
+and no product. A reader who wants to see a warehouse running finds
 contracts instead, and the argument for that ordering is section 3 above rather
 than anything visible on screen.
 

@@ -28,14 +28,13 @@ Pick the route that matches the time you have.
 Phase P0 is the contract phase. It ships no product. It fixes the decisions a
 later phase cannot change without invalidating every run already recorded.
 
-| Question                      | Answer today                                                                                                          |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| What is tagged                | v0.1.0, the P0 contracts release                                                                                      |
-| What installs                 | `twinflow-schemas`, `twinflow-rng`, `twinflow-kernel`, `twinflow-config`, and the `twinflow-roadmap` tool, each alone |
-| What runs                     | A determinism scenario, `SCN-F1`, which writes an event log and matches its own hash across two runs                  |
-| What does not exist           | The station model, the device fleet, the statistical engine, the agent, and the dashboard                             |
-| Gates in force at the P0 exit | Twelve, all of them implemented and runnable                                                                          |
-| Gates in the registry         | 141 in total, each carrying the phase it starts at                                                                    |
+| Question            | Answer today                                                                                                                |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| What is tagged      | v0.1.0, the P0 contracts release                                                                                            |
+| What installs       | `twinflow-schemas`, `twinflow-rng`, `twinflow-kernel`, `twinflow-config`, and the `twinflow-roadmap` tool, each alone       |
+| What runs           | A determinism scenario, `SCN-F1`, which writes an event log and matches its own hash across two runs                        |
+| What does not exist | The station model, the device fleet, the statistical engine, the agent, and the dashboard                                   |
+| Gates               | Every gate in force at the P0 exit is implemented and runnable. [gates.md](gates.md) generates the counts from `gates.yaml` |
 
 A reader who wants a running warehouse will not find one. A reader who wants to
 see how someone sets up a system so that its later numbers can be trusted is in
@@ -50,19 +49,19 @@ large plan with nothing underneath it.
    at the section named "Determinism, and what it does not mean". That section
    states a strong property and then removes the three overclaims it invites.
 2. Read the metric marker comment block near the top of the same file. Every
-   quantitative result sits inside a marker, every marker reads `TBD`, and a
-   release cannot be tagged while it owes one. Nothing in this repository states
-   a number it has not measured.
+   quantitative result sits inside a marker. Every marker reads `TBD`. A release
+   cannot be tagged while it owes one, so this repository states no number it has
+   not measured.
 3. Open [DOCTRINE.md](design/DOCTRINE.md) and read ruling D-01 only. It is one
-   page. It catches a defect that would have made the headline determinism
-   claim fail on the first event of every log, and it fixes it by splitting the
-   run manifest.
+   page. It catches a defect that would have failed the headline determinism
+   claim on the first event of every log. It fixes that by splitting the run
+   manifest.
 4. Open [gates.md](gates.md) and read the three-status table at the top. A gate
    must be declared one phase before the subsystem that satisfies it is built.
 5. Skim section 5 of
    [ROADMAP.md](https://github.com/johnragonhall/twinflow/blob/main/ROADMAP.md),
    the resequencing record. It logs every change to the build order with the
-   clause that forced it, because nothing is ever deleted from the plan.
+   clause that forced it. Nothing is ever deleted from the plan.
 
 If those five leave you unconvinced, the rest will not change your mind. If they
 land, take Route B.
@@ -74,20 +73,20 @@ This route is for an engineer judging depth. Read in this order.
 1. Section 1 of
    [ARCHITECTURE.md](https://github.com/johnragonhall/twinflow/blob/main/ARCHITECTURE.md),
    the technology decision record. Sixteen decisions, each with its rejected
-   alternatives and the reason. Read the D16 note last: it explains why the
+   alternatives and the reason. Read the D16 note last. It explains why the
    random number generator is not numpy's default, and it is the one decision
-   that argued its way to its own numeric ceiling.
-2. Sections 2 and 4 of the same file: the dual-mode determinism argument, and
-   the ISA-95 and Purdue layer map that gives every component a real-world
-   counterpart.
+   that argued its way to a numeric ceiling.
+2. Sections 2 and 4 of the same file. Section 2 is the dual-mode determinism
+   argument. Section 4 is the ISA-95 and Purdue layer map, which gives every
+   component a real-world counterpart.
 3. All of [DOCTRINE.md](design/DOCTRINE.md). Fourteen rulings, each written
    because the same defect appeared in three or more design sections.
 4. [foundations.md](design/foundations.md), which is the section the shipped
    packages were built from.
 5. The code, in this order: `packages/twinflow-rng/src/twinflow/rng/derive.py`,
    then its tests, then `packages/twinflow-schemas/src/twinflow/schemas/envelope.py`.
-   The RNG derivation is content-addressed, so a stream's identity comes from
-   its name and not from the order it was requested in.
+   The RNG derivation is content-addressed. A stream's identity comes from its
+   name, not from the order it was requested in.
 6. `justfile`, which is the whole task surface. CI calls the same recipes, so a
    green local run and a green CI run mean the same thing.
 
@@ -100,7 +99,8 @@ first, then these four in any order:
 | Document                                                                             | Why you need it                                                  |
 | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
 | [ENGINEERING.md](https://github.com/johnragonhall/twinflow/blob/main/ENGINEERING.md) | The working method, and the rules a change is judged against     |
-| [testing-strategy.md](testing-strategy.md)                                           | Which tier a new test belongs in, and what makes a test count    |
+| [testing-strategy.md](testing-strategy.md)                                           | Which kind of test a change needs, and what makes a test count   |
+| [testing-policy.md](testing-policy.md)                                               | The rule that a fix ships with the test that catches it          |
 | [code-review.md](code-review.md)                                                     | What a reviewer checks, and what blocks a merge                  |
 | [DOCUMENTATION-STANDARD.md](DOCUMENTATION-STANDARD.md)                               | The writing rules, and which of them CI enforces without a human |
 
