@@ -37,9 +37,27 @@ def test_the_shipped_roadmap_validates(roadmap):
 
 
 def test_the_open_phase_and_the_next_one_are_derived_not_configured(roadmap):
-    """A phase pointer in a file is a pointer somebody forgets to move."""
-    assert roadmap.open_phase == "P0"
-    assert roadmap.next_phase == "P1"
+    """A phase pointer in a file is a pointer somebody forgets to move.
+
+    Asserted as the property rather than as this month's answer. Naming the
+    phase here would put the pointer back, one file over, and the assertion
+    would then need editing at every phase exit, which is the failure the
+    derivation exists to remove.
+    """
+    order = roadmap.phase_order
+    open_phase = roadmap.open_phase
+    assert open_phase in order
+
+    before = order[: order.index(open_phase)]
+    landed = [p for p in roadmap.work_packages if p.phase in before and p.status != "done"]
+    assert landed == [], [package.id for package in landed]
+
+    assert any(
+        package.phase == open_phase and package.status != "done"
+        for package in roadmap.work_packages
+    ), f"{open_phase} is open and holds nothing unfinished"
+
+    assert roadmap.next_phase == order[order.index(open_phase) + 1]
 
 
 def test_every_requirement_is_placed(roadmap):
