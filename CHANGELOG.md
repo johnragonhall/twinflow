@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- pin the reference runner and give every job a budget
 - block a shell or workflow error at the commit that writes it
 - check spelling in the tree and in the commit message
 - cut every tag from one pipeline, starting at the first

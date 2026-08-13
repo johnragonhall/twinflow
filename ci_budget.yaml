@@ -1,0 +1,167 @@
+# The reference runner, and what every job is allowed to cost on it.
+#
+# Six budgets and two gates in docs/design/roadmap.md section 7.5 are stated "on
+# the reference runner", so the runner is a contract rather than an environment
+# detail. It is the platform D-05's byte-identical tier is defined on, the
+# platform VAL-GATE-QS-001 and VAL-GATE-PERF-001 measure against, and the
+# artifact whose change has to be a changelogged event rather than a silent
+# drift in every budget at once.
+#
+# DECLARED BUDGETS AND MEASURED DURATIONS ARE DIFFERENT FIELDS
+# ------------------------------------------------------------
+# `budget_s` is a target this project chose and docs/design/roadmap.md section
+# 7.5 carries. `measured_s` is what a run took. A budget with no measurement
+# beside it is a target nobody has tested, and this file says which is which
+# rather than letting a chosen number read as an observed one.
+#
+# `measured_s: null` means exactly that: not yet measured. It is not zero and it
+# is not an estimate. The release ritual and the CI summary write these fields;
+# nobody types a number into them by hand.
+
+version: 1
+
+# The pinned reference runner.
+#
+# The label is pinned to a release rather than to `ubuntu-latest`, because
+# `-latest` moves to the next Ubuntu major on GitHub's schedule and takes every
+# budget in this file with it, silently.
+#
+# GitHub-hosted runners are images, not containers, so there is no image digest
+# to pin. What GitHub does publish per run is the image version, in the
+# ImageVersion environment variable. That is the identifier recorded here, and
+# scripts/checks/ci-matrix-gate.py reports when a run's version differs from it.
+# The report is deliberately not a failure: GitHub rolls the image roughly
+# weekly against a repository that cannot pin it, so a hard failure would make
+# a green build a function of GitHub's release calendar. A budget breach after
+# an image roll is the failure, which is the effect the pin exists to catch.
+reference_runner:
+  label: ubuntu-24.04
+  os: Ubuntu
+  release: "24.04"
+  # Written by the CI summary from ImageVersion on the reference leg. Null
+  # until a run on the pinned label has reported one.
+  image_version: null
+  observed_on: null
+
+# Every job in .github/workflows/ci.yml, and what it may cost.
+#
+# `hard_fail_ratio` is the 25 percent margin docs/design/foundations.md section
+# 5.6 states: a job over its budget by more than a quarter fails as a defect
+# with an owner, rather than drifting slower every month until somebody notices.
+jobs:
+  - id: changes
+    workflow: ci.yml
+    runs_on: ubuntu-24.04
+    filter: null
+    budget_s: 60
+    hard_fail_ratio: 1.25
+    measured_s: null
+    note: >-
+      The path filter itself. It runs on every event, so its cost is paid by
+      every change including a docs-only one.
+
+  - id: python
+    workflow: ci.yml
+    runs_on: ubuntu-24.04
+    filter: python
+    # The sum of the tiers this job runs, from docs/design/roadmap.md 7.5: unit
+    # 90, property 300, determinism 180, plus lint and the type check. The
+    # per-tier budgets are the contract; this is their sum plus the setup the
+    # job pays before reaching them.
+    budget_s: 900
+    hard_fail_ratio: 1.25
+    measured_s: null
+    matrix:
+      python-version: ["3.12", "3.13"]
+    reference_leg: "3.13"
+    note: >-
+      3.12 is the floor and 3.13 is the primary. The reference leg is the one
+      D-05 tier one is defined on; the other leg is a tier two platform and its
+      divergence is measured rather than asserted away.
+
+  - id: roadmap
+    workflow: ci.yml
+    runs_on: ubuntu-24.04
+    filter: roadmap
+    budget_s: 300
+    hard_fail_ratio: 1.25
+    measured_s: null
+
+  - id: agent
+    workflow: ci.yml
+    runs_on: ubuntu-24.04
+    filter: agent
+    budget_s: 1200
+    hard_fail_ratio: 1.25
+    measured_s: null
+    note: >-
+      The Rust device agent arrives at P3 (R33). Until agent/Cargo.toml exists
+      the job reports why it did nothing, so the budget is unexercised rather
+      than unmet.
+    # Every other filtered job includes the workflow file in its filter, so an
+    # edit to ci.yml cannot skip the job it edits. This one does not, and the
+    # reason is recorded rather than re-argued each time somebody notices it.
+    # The exemption ends when agent/Cargo.toml lands at P3.
+    filter_omits_workflow_because: >-
+      A workflow path here costs a cold Rust toolchain build on every
+      Python-only change, against a directory that does not exist until P3.
+
+  - id: ci
+    workflow: ci.yml
+    runs_on: ubuntu-24.04
+    filter: null
+    budget_s: 60
+    hard_fail_ratio: 1.25
+    measured_s: null
+    aggregate: true
+    note: >-
+      The stable status check branch protection requires. It reads the other
+      jobs' results and runs nothing itself.
+
+# The pull-request wall time, from docs/design/roadmap.md section 7.5. Jobs run
+# in parallel, so this is the critical path rather than the sum.
+wall_time:
+  pull_request_default_leg_s: 1500
+  pull_request_full_matrix_s: 2700
+  measured_s: null
+
+# The release ritual ceiling behind VAL-GATE-RELBUD-001.
+#
+# The ceiling is derived, not chosen: the recorded sum of the steps plus 25
+# percent. Six of those steps have never run, because they need artifacts a
+# later phase produces, so their durations are recorded as null and the ceiling
+# is null with them. RELBUD-001 is first standing at v0.2.0 for this reason. A
+# ceiling computed from six nulls would be a number nobody measured, and a gate
+# asserting it would pass because nothing could fail it.
+release:
+  margin_ratio: 1.25
+  ceiling_s: null
+  steps:
+    - id: check
+      measured_s: null
+    - id: property
+      measured_s: null
+    - id: e2e
+      measured_s: null
+      arrives_with: WP-P0-17
+    - id: phase-exit
+      measured_s: null
+    - id: readme-metric
+      measured_s: null
+      arrives_with: P1
+    - id: e1-replay
+      measured_s: null
+      arrives_with: P2
+    - id: load-harness
+      measured_s: null
+      arrives_with: P3
+    - id: generated-artifacts
+      measured_s: null
+    - id: sbom-and-licenses
+      measured_s: null
+    - id: build-bricks
+      measured_s: null
+    - id: release-gate
+      measured_s: null
+    - id: tag-and-publish
+      measured_s: null

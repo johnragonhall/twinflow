@@ -43,7 +43,7 @@ jobs:
   # changed, so a docs-only commit costs one cheap job instead of the matrix.
   changes:
     name: Detect changed paths
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       contents: read
@@ -96,7 +96,7 @@ jobs:
     name: Python ${{ matrix.python-version }}
     needs: changes
     if: needs.changes.outputs.python == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -149,7 +149,7 @@ jobs:
     name: Roadmap gate
     needs: changes
     if: needs.changes.outputs.roadmap == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -177,7 +177,7 @@ jobs:
     name: Rust device agent
     needs: changes
     if: needs.changes.outputs.agent == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -226,7 +226,7 @@ jobs:
     name: CI
     if: always()
     needs: [changes, python, roadmap, agent]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Check results
