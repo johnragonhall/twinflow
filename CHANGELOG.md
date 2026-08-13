@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- run the regression gate over the branch
 - make a fix carry the test that catches it
 - hold the workflows to pinned inputs, attested output, and a scan
 - sign what the release builds and audit the workflows that build it
