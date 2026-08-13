@@ -162,15 +162,23 @@ I deploy IoT tracking fleets in industrial settings and apply Lean Six Sigma to 
 
 ## Documentation
 
-| Document                           | Contents                                                                                        |
-|------------------------------------|-------------------------------------------------------------------------------------------------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Layer map, ISA-95 and Purdue assignments, real-world counterparts, and decisions with rationale |
-| [ROADMAP.md](ROADMAP.md)           | Living backlog: every milestone with its phase, dependencies, and validation gates              |
-| [docs/design/](docs/design/)       | The section specifications the roadmap is built from, plus the doctrine rulings                 |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Development setup, test tiers, and commit and review conventions                                |
-| [LICENSING.md](LICENSING.md)       | The Apache-2.0 obligations, the commercial option, and the dependency license policy            |
-| [SECURITY.md](SECURITY.md)         | Private disclosure channel, supported versions, and the MCP and REST threat model               |
-| [CHANGELOG.md](CHANGELOG.md)       | Release notes and the compatibility table for recorded runs and configs                         |
+Start with [docs/reading-guide.md](docs/reading-guide.md). It gives three routes through this repository, sized to fifteen minutes, one hour, and a full contributor onboarding, and each step names what it is evidence of.
+
+| Document                                             | Contents                                                                                        |
+|------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| [docs/reading-guide.md](docs/reading-guide.md)       | Where to start, what is built today, and the commands that check each claim on this page        |
+| [docs/glossary.md](docs/glossary.md)                 | Every domain term, marked as defined here or owned by a named external standard                 |
+| [ARCHITECTURE.md](ARCHITECTURE.md)                   | Layer map, ISA-95 and Purdue assignments, real-world counterparts, and decisions with rationale |
+| [ENGINEERING.md](ENGINEERING.md)                     | The eleven rules the work is done under, what each costs, and where the build enforces it       |
+| [ROADMAP.md](ROADMAP.md)                             | Living backlog: every milestone with its phase, dependencies, and validation gates              |
+| [docs/design/](docs/design/)                         | The section specifications the roadmap is built from, plus the doctrine rulings                 |
+| [docs/adr/](docs/adr/)                               | Numbered decision records, and the cross-index to the technology and doctrine registers         |
+| [CONTRIBUTING.md](CONTRIBUTING.md)                   | Development setup, test tiers, and commit and review conventions                                |
+| [docs/code-review.md](docs/code-review.md)           | What a reviewer checks, what blocks a merge, and which external criteria this repository misses |
+| [docs/testing-strategy.md](docs/testing-strategy.md) | The six kinds of test, how to pick one, and what is not measured yet                            |
+| [LICENSING.md](LICENSING.md)                         | The Apache-2.0 obligations, the commercial option, and the dependency license policy            |
+| [SECURITY.md](SECURITY.md)                           | Private disclosure channel, supported versions, and the MCP and REST threat model               |
+| [CHANGELOG.md](CHANGELOG.md)                         | Release notes and the compatibility table for recorded runs and configs                         |
 
 ADOPTION.md lands with milestone A5 and CONFIGURING.md with A2.
 
