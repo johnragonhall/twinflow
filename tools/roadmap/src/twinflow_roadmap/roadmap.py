@@ -484,6 +484,17 @@ class Roadmap:
                             (gate_id,),
                         )
                     )
+                if not gate.command:
+                    findings.append(
+                        Finding(
+                            "GATE-COMMAND",
+                            f"{gate_id} is implemented and names no command, so the "
+                            f"phase-exit runner has nothing to run for it",
+                            GATES_FILE,
+                            line,
+                            (gate_id,),
+                        )
+                    )
             if not gate.standing and gate_id not in referenced:
                 findings.append(
                     Finding(

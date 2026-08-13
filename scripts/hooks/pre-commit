@@ -5,6 +5,7 @@
 # is the hard backstop (.github/workflows/lint.yml runs all of this repo-wide).
 #
 # Gates, in order:
+#   0. IP hygiene     - client and employer names, and internal-document markers
 #   1. prose          - documentation standard conformance
 #   2. nondeterminism - no direct clock, RNG, or socket calls outside the kernel
 #   3. ruff           - lint and format check on Python
@@ -15,10 +16,32 @@
 # Bypass:
 #   LINT_OK=1 git commit ...     skip these lint gates, keep commit-msg checks
 #   git commit --no-verify ...   skip every hook
+#
+# Gate 0 is outside both bypasses on purpose, and is the only gate that is. The
+# others guard style, and a style finding costs a follow-up commit. Gate 0
+# guards a disclosure into a public history, and that costs a history rewrite,
+# so it runs before the bypass is read.
 set -u
 
 root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 cd "$root" || exit 0
+
+# --- 0. IP hygiene ----------------------------------------------------------
+IP_PY=""
+if command -v uv >/dev/null 2>&1; then
+  IP_PY="uv run --quiet --no-project python"
+else
+  for candidate in python3 python; do
+    command -v "$candidate" >/dev/null 2>&1 && { IP_PY="$candidate"; break; }
+  done
+fi
+if [ -n "$IP_PY" ] && [ -f scripts/checks/banned-terms-gate.py ]; then
+  # Word splitting is the point: IP_PY is a command with arguments.
+  # shellcheck disable=SC2086
+  $IP_PY scripts/checks/banned-terms-gate.py --staged || exit 1
+else
+  echo "[ip-hygiene] WARN: no python interpreter, skipped. CI runs the generic half."
+fi
 
 if [ "${LINT_OK:-}" = "1" ]; then
   echo "[pre-commit] bypassed via LINT_OK=1"

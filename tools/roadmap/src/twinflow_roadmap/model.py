@@ -257,6 +257,11 @@ class Gate(Frozen):
     #: The observation that fails this gate, in one sentence.
     falsified_by: str | None = None
     test_path: str | None = None
+    #: How the phase-exit runner runs this gate, as a shell command from the
+    #: repository root. Required at status implemented, beside test_path: the
+    #: test proves the gate can fail, and this is what makes it run at a tag.
+    #: A gate with a test and no command is a gate nobody executes.
+    command: str | None = None
 
     def required_fields(self) -> tuple[str, ...]:
         """What this gate owes at its declared status."""

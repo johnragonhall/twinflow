@@ -1,0 +1,34 @@
+# The IP-hygiene denylist, by example.
+#
+# Copy this file to `.ip-denylist` and put the real names in it. That file is
+# gitignored and must never be committed: a list of client names in a public
+# repository is the disclosure this whole mechanism exists to prevent. This
+# example is what stays in the tree, so a new checkout is told the list exists
+# without being told what is on it.
+#
+#     cp .ip-denylist.example .ip-denylist
+#     $EDITOR .ip-denylist
+#
+# One term per line. A `#` starts a comment. Matching is case-insensitive and
+# on substrings, so `Contoso` also catches `contoso-logistics` and
+# `CONTOSO_WMS_EXPORT.csv`.
+#
+# Put in anything whose appearance in a public commit would be a disclosure:
+#
+#   - every client and former client, in every spelling and abbreviation
+#   - every employer, and its internal product and program code names
+#   - internal system hostnames, share names, and ticket prefixes
+#   - dataset and file names that came from somewhere other than this repository
+#
+# Short terms are the ones to be careful with. A two-letter program code will
+# match inside ordinary words and make the gate something people bypass, which
+# is worse than not having it. Prefer the longest unambiguous spelling.
+#
+# The generic half of the scan needs no list and runs everywhere, including on
+# a CI runner where this file cannot exist. It looks for share-drive paths,
+# document control numbers, and classification banners.
+
+Contoso
+Northwind Traders
+PROJECT BLUEBIRD
+wms-prod-01

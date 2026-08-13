@@ -108,6 +108,12 @@ sbom.cdx.json
 *.key
 !tests/**/*.key
 
+# The IP-hygiene denylist holds client and employer names, so committing it to
+# a public repository is the disclosure the scan exists to prevent. The example
+# beside it is tracked and carries placeholders and the instructions.
+.ip-denylist
+!.ip-denylist.example
+
 # --- IDE --------------------------------------------------------------------
 .idea/
 .vscode/*

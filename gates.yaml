@@ -113,16 +113,21 @@ gates:
     owner_section: "docs/design/back-office.md"
   VAL-GATE-CC-001:
     kind: validation
-    status: specified
+    status: implemented
     first_phase: P0
     standing: true
     owner_section: "CONTRIBUTING.md"
     reference: "Conventional Commits 1.0.0."
     reference_url: "https://www.conventionalcommits.org/en/v1.0.0/"
     assertion: >-
-      Every commit message on the default branch parses as a conventional commit with a type
-      from the declared set, and every commit carries a Signed-off-by trailer.
-    falsified_by: "One commit message that does not parse, or one missing trailer."
+      Every commit since the previous tag parses as a conventional commit with a type from the
+      set scripts/hooks/commit-msg declares, and the semver bump those types imply is the bump
+      the tag being cut makes over the previous one.
+    falsified_by: >-
+      One commit message that does not parse, or a tag whose bump is smaller than the commit
+      types since the previous tag make honest.
+    test_path: tests/test_commit_message_gate.py
+    command: "uv run python scripts/checks/commit-message-gate.py --all"
   VAL-GATE-CFG-001:
     kind: invariant
     status: implemented
@@ -137,9 +142,10 @@ gates:
       A shipped config that fails to load, or an invalid fixture whose error carries no line
       number or no suggestion.
     test_path: "packages/twinflow-config/tests/test_config_validation.py"
+    command: "uv run pytest packages/twinflow-config/tests/test_config_validation.py -q"
   VAL-GATE-CI-001:
     kind: policy
-    status: specified
+    status: implemented
     first_phase: P0
     standing: true
     owner_section: "docs/design/repo-craft.md"
@@ -150,6 +156,8 @@ gates:
     falsified_by: >-
       A pull request that merges with no CI run, or a matrix leg named in the workflow that
       never executes.
+    test_path: tests/test_ci_matrix_gate.py
+    command: "uv run python scripts/checks/ci-matrix-gate.py"
   VAL-GATE-CLA-001:
     kind: invariant
     status: specified
@@ -329,6 +337,7 @@ gates:
       and (sim_ts, producer_id, seq) is a total order over the log, per doctrine D-07.
     falsified_by: "A gap in the sequence, a duplicate, or a tie in the total order."
     test_path: "packages/twinflow-schemas/tests/test_log_invariants.py"
+    command: "uv run pytest packages/twinflow-schemas/tests/test_log_invariants.py -q"
   VAL-GATE-EPCIS-001:
     kind: validation
     status: declared
@@ -451,7 +460,7 @@ gates:
     owner_section: "docs/design/planning-supply.md"
   VAL-GATE-IPH-001:
     kind: policy
-    status: specified
+    status: implemented
     first_phase: P0
     standing: true
     owner_section: "docs/design/repo-craft.md"
@@ -459,6 +468,8 @@ gates:
       No client name, employer name, internal document, or proprietary dataset appears anywhere
       in the tracked tree or in the commit history.
     falsified_by: "One banned term found in a tracked file or a commit message."
+    test_path: tests/test_banned_terms_gate.py
+    command: "uv run python scripts/checks/banned-terms-gate.py --all"
   VAL-GATE-LEDGER-001:
     kind: invariant
     status: declared
@@ -467,7 +478,7 @@ gates:
     owner_section: "docs/design/ai-layer.md"
   VAL-GATE-LIC-001:
     kind: policy
-    status: specified
+    status: implemented
     first_phase: P0
     standing: true
     owner_section: "docs/design/repo-craft.md"
@@ -477,6 +488,8 @@ gates:
       The repository root carries a license file whose bytes match the published Apache-2.0
       text, and every distributed package carries the same file and the NOTICE beside it.
     falsified_by: "A missing license file, or one byte different from the published text."
+    test_path: tests/test_license_bytes_gate.py
+    command: "uv run python scripts/checks/license-bytes-gate.py"
   VAL-GATE-MAS-001:
     kind: invariant
     status: declared
@@ -719,6 +732,7 @@ gates:
       A tag with no CHANGELOG section, or a bump that no C9 trigger in the same release record
       justifies.
     test_path: "tests/test_release_gate.py"
+    command: "uv run python scripts/checks/release-gate.py"
   VAL-GATE-RELBUD-001:
     kind: budget
     status: specified
@@ -770,6 +784,7 @@ gates:
       An unplaced requirement id, a cycle in the work-package graph, a banned label, or a
       tracker state that disagrees with roadmap.yaml.
     test_path: "tools/roadmap/tests/test_roadmap.py"
+    command: "just roadmap-gate"
   VAL-GATE-ROST-001:
     kind: invariant
     status: declared
@@ -811,6 +826,7 @@ gates:
       and no type narrowing within a major version.
     falsified_by: "A removed field or a narrowed type inside one major version."
     test_path: "packages/twinflow-schemas/tests/test_schema_registry.py"
+    command: "uv run pytest packages/twinflow-schemas/tests/test_schema_registry.py -q"
   VAL-GATE-SEC-001:
     kind: validation
     status: implemented
@@ -830,6 +846,7 @@ gates:
       An unwaived advisory, a resolved dependency with no allowlist row, or a release with no
       SBOM attached.
     test_path: "tests/test_license_allowlist_gate.py"
+    command: "uv run python scripts/checks/license-allowlist-gate.py"
   VAL-GATE-SIM-001:
     kind: ground_truth
     status: declared

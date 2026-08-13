@@ -53,6 +53,10 @@ lint:
     uv run python tools/gen_importlinter.py --check
     uv run python tools/gen_schemas.py --check
     uv run python scripts/checks/license-allowlist-gate.py
+    uv run python scripts/checks/license-bytes-gate.py
+    uv run python scripts/checks/ci-matrix-gate.py
+    uv run python scripts/checks/banned-terms-gate.py --selftest
+    uv run python scripts/checks/banned-terms-gate.py --all
     # --no-cache is not optional. A stale .import_linter_cache reports every
     # contract as KEPT over a tree that breaks them.
     uv run lint-imports --no-cache
@@ -85,6 +89,23 @@ roadmap *args:
     else
         uv run twinflow-roadmap {{args}}
     fi
+
+# The gate runner. `just gate phase-exit` runs every gate in force at the open
+# phase, and a named phase overrides it.
+#
+#   just gate phase-exit          the open phase
+#   just gate phase-exit P1       one named phase
+#   just gate phase-exit P1 --list
+#
+# A gate in the set that is not implemented fails the run rather than being
+# skipped, because the registry already promised it at the phase it starts at.
+gate subcommand="phase-exit" *args:
+    #!/usr/bin/env sh
+    set -eu
+    case '{{subcommand}}' in
+        phase-exit) uv run python scripts/checks/phase-exit-gate.py {{args}} ;;
+        *) echo "unknown gate subcommand: {{subcommand}}. Known: phase-exit" >&2; exit 2 ;;
+    esac
 
 # RMAP-001. The three offline commands plus the offline half of drift, which is
 # what a checkout with no tracker credentials can prove.

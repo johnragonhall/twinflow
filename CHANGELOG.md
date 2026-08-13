@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- assert the five source constraints and run a phase's exit set
 - pin the reference runner and give every job a budget
 - block a shell or workflow error at the commit that writes it
 - check spelling in the tree and in the commit message
