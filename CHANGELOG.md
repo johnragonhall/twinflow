@@ -18,6 +18,8 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- hold a deferred metric to the work package that owes it
+
 ### Changed
 
 ### Deprecated

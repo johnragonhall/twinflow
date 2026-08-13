@@ -17,7 +17,7 @@ from pathlib import Path
 
 from pydantic import ValidationError as PydanticError
 
-from twinflow_roadmap import dag, yamlio
+from twinflow_roadmap import dag, markers, yamlio
 from twinflow_roadmap.errors import Finding, RoadmapError
 from twinflow_roadmap.model import (
     PHASE_IDS,
@@ -246,6 +246,7 @@ class Roadmap:
         findings += self._validate_splits()
         findings += self._validate_gates()
         findings += self._validate_work_packages()
+        findings += markers.check(self)
         return findings
 
     def _validate_phases(self) -> list[Finding]:
