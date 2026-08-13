@@ -176,6 +176,7 @@ Start with [docs/reading-guide.md](docs/reading-guide.md). It gives three routes
 | [CONTRIBUTING.md](CONTRIBUTING.md)                   | Development setup, test tiers, and commit and review conventions                                |
 | [docs/code-review.md](docs/code-review.md)           | What a reviewer checks, what blocks a merge, and which external criteria this repository misses |
 | [docs/testing-strategy.md](docs/testing-strategy.md) | The six kinds of test, how to pick one, and what is not measured yet                            |
+| [docs/performance.md](docs/performance.md)           | What a speed claim owes, the fix ladder, and which optimizations determinism forbids            |
 | [docs/testing-policy.md](docs/testing-policy.md)     | The rule that a fix ships with the test that catches it, and the gate behind it                 |
 | [LICENSING.md](LICENSING.md)                         | The Apache-2.0 obligations, the commercial option, and the dependency license policy            |
 | [SECURITY.md](SECURITY.md)                           | Private disclosure channel, supported versions, and the MCP and REST threat model               |

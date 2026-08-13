@@ -96,13 +96,14 @@ Read
 [CONTRIBUTING.md](https://github.com/johnragonhall/twinflow/blob/main/CONTRIBUTING.md)
 first, then these four in any order:
 
-| Document                                                                             | Why you need it                                                  |
-| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| [ENGINEERING.md](https://github.com/johnragonhall/twinflow/blob/main/ENGINEERING.md) | The working method, and the rules a change is judged against     |
-| [testing-strategy.md](testing-strategy.md)                                           | Which kind of test a change needs, and what makes a test count   |
-| [testing-policy.md](testing-policy.md)                                               | The rule that a fix ships with the test that catches it          |
-| [code-review.md](code-review.md)                                                     | What a reviewer checks, and what blocks a merge                  |
-| [DOCUMENTATION-STANDARD.md](DOCUMENTATION-STANDARD.md)                               | The writing rules, and which of them CI enforces without a human |
+| Document                                                                             | Why you need it                                                      |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| [ENGINEERING.md](https://github.com/johnragonhall/twinflow/blob/main/ENGINEERING.md) | The working method, and the rules a change is judged against         |
+| [testing-strategy.md](testing-strategy.md)                                           | Which kind of test a change needs, and what makes a test count       |
+| [testing-policy.md](testing-policy.md)                                               | The rule that a fix ships with the test that catches it              |
+| [performance.md](performance.md)                                                     | What a speed claim owes, and which optimizations determinism forbids |
+| [code-review.md](code-review.md)                                                     | What a reviewer checks, and what blocks a merge                      |
+| [DOCUMENTATION-STANDARD.md](DOCUMENTATION-STANDARD.md)                               | The writing rules, and which of them CI enforces without a human     |
 
 Then run `just check` before you write anything, so you know what green looks
 like on your machine.

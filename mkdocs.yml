@@ -119,6 +119,7 @@ nav:
       - ADR-0001 Record architecture decisions: adr/0001-record-architecture-decisions.md
       - Template: adr/template.md
   - Working here:
+      - Performance standard: performance.md
       - Testing strategy: testing-strategy.md
       - Testing policy: testing-policy.md
       - Code review policy: code-review.md
