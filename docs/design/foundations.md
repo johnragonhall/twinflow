@@ -1652,7 +1652,7 @@ Until that measurement exists, the field is absent and the message degrades to t
 plus `historian volume not yet measured, run just measure-row-bytes`. An unattributed round number
 in operator-facing output is the same defect as an unattributed round number in the README, and it
 is caught by the same lint. The current unfilled value is
-<!--METRIC:historian_stored_bytes_per_sensor_reading-->TBD<!--/METRIC-->, which the release gate
+<!--METRIC:historian_stored_bytes_per_sensor_reading@v0.2.0-->TBD<!--/METRIC-->, which the release gate
 
 refuses to tag while it still reads TBD.
 

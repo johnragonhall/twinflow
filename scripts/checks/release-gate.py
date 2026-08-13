@@ -100,17 +100,34 @@ def actual_bump(previous: str, proposed: str) -> str | None:
 _RANK = {"patch": 0, "minor": 1, "major": 2}
 
 
-def unfilled_markers() -> list[str]:
-    """Metric markers still carrying no measured value."""
+def markers_owed(version: str) -> list[str]:
+    """Metric markers this release promised and did not fill.
+
+    Delegated to scripts/checks/metric-marker-gate.sh rather than scanned here.
+    That gate owns the marker grammar, including the arming tag that says which
+    release owes a number, and a second scan in this file answered a different
+    question from the first: it read the documentation standard, which states
+    the convention and is exempt, and it knew nothing about arming tags.
+    """
+    gate = REPO_ROOT / "scripts" / "checks" / "metric-marker-gate.sh"
+    if not gate.is_file():
+        return []
     result = subprocess.run(
-        ["git", "grep", "-n", "-o", r"<!--METRIC:[a-z0-9_.-]*-->TBD", "--", "*.md"],
+        ["sh", str(gate), "--release", version],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
         encoding="utf-8",
         errors="replace",
+        check=False,
     )
-    return [line for line in result.stdout.splitlines() if line.strip()]
+    if result.returncode == 0:
+        return []
+    return [
+        line.strip()
+        for line in result.stdout.splitlines()
+        if "UNFILLED" in line or "CONFLICT" in line or "MALFORMED" in line
+    ]
 
 
 def main(argv: list[str]) -> int:
@@ -154,8 +171,7 @@ def main(argv: list[str]) -> int:
                     f"carries {headings}, which the C9 policy makes a {needed}"
                 )
 
-        for line in unfilled_markers():
-            findings.append(f"unfilled metric marker at {line}")
+        findings += markers_owed(args.version)
 
     if body is not None and body.strip():
         unknown = set(re.findall(r"^### (\w+)", body, re.MULTILINE)) - KNOWN_HEADINGS

@@ -131,7 +131,7 @@ jobs:
         run: |
           echo "SKIP: no seeded run exists before P1, so there is no measured number to write."
           echo "The metric marker gate below fails a marker that claims one anyway."
-          sh scripts/checks/metric-marker-gate.sh --release
+          sh scripts/checks/metric-marker-gate.sh --release "${{ inputs.version }}"
 
       # 6 and 7. Release-only work that starts at later tags.
       - name: Step 6, re-record the E1 replay bundle

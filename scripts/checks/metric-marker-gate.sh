@@ -10,21 +10,32 @@
 #
 #   1. Always: report how many markers are still unfilled, and fail if any marker is
 #      malformed or if two markers share a name with different values.
-#   2. On a release tag: fail if any marker is still unfilled.
+#   2. On a release tag: fail on an unfilled marker whose number that release owes.
 #
-# An unfilled marker is normal during the build. The repository is public from Phase 1
-# and most numbers arrive later. What is never acceptable is shipping a tagged release
-# whose README shows TBD where a reader expects a result.
+# A marker may name the tag its number arrives at:
+#
+#     <!--METRIC:agent_eval_accuracy@v0.3.0-->TBD<!--/METRIC-->
+#
+# and is then owed from that tag onward. A marker naming no tag is owed by every
+# release. This is the arrangement gates.yaml uses for a gate's first phase, and it
+# exists for the same reason: the repository is public from Phase 1, most numbers
+# arrive with the subsystem that measures them, and a rule making the first tag wait
+# for the last number stops every release rather than one false one. What is never
+# acceptable is a tagged release whose README shows TBD where that release promised a
+# result.
 #
 # Usage:
-#   sh scripts/checks/metric-marker-gate.sh            # report, never fatal
-#   sh scripts/checks/metric-marker-gate.sh --release  # fatal on any unfilled marker
+#   sh scripts/checks/metric-marker-gate.sh                # report, never fatal
+#   sh scripts/checks/metric-marker-gate.sh --release 0.1.0
 #
-# The --release mode is what the release workflow calls. CI calls the default mode.
+# The --release mode is what the release workflow calls, with the version being cut.
+# Without a version every unfilled marker is owed, which is the strict reading and the
+# safe default.
 
 set -u
 
 MODE="${1:-report}"
+CUTTING="${2:-}"
 root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 cd "$root" || exit 1
 
@@ -53,13 +64,19 @@ tmp=$(mktemp) || exit 1
 trap 'rm -f "$tmp" "$tmp.names"' EXIT
 
 for f in $files; do
-  # A well formed marker: <!--METRIC:name-->value<!--/METRIC-->
-  # Extract name and value together so a mismatched pair is visible.
-  grep -oE '<!--METRIC:[A-Za-z0-9_]+-->[^<]*<!--/METRIC-->' "$f" 2>/dev/null \
+  # A well formed marker: <!--METRIC:name-->value<!--/METRIC-->, with the name
+  # optionally naming the tag its number arrives at: name@v0.3.0.
+  # Extract the parts together so a mismatched pair is visible.
+  grep -oE '<!--METRIC:[A-Za-z0-9_]+(@v[0-9]+\.[0-9]+\.[0-9]+)?-->[^<]*<!--/METRIC-->' "$f" 2>/dev/null \
     | while IFS= read -r m; do
-        name=$(printf '%s' "$m" | sed -E 's/^<!--METRIC:([A-Za-z0-9_]+)-->.*/\1/')
-        value=$(printf '%s' "$m" | sed -E 's/^<!--METRIC:[A-Za-z0-9_]+-->(.*)<!--\/METRIC-->$/\1/')
-        printf '%s\t%s\t%s\n' "$f" "$name" "$value"
+        head=$(printf '%s' "$m" | sed -E 's/^<!--METRIC:([^>]*)-->.*/\1/')
+        name=${head%@*}
+        case "$head" in
+          *@*) arms=${head#*@} ;;
+          *)   arms="-" ;;
+        esac
+        value=$(printf '%s' "$m" | sed -E 's/^<!--METRIC:[^>]*-->(.*)<!--\/METRIC-->$/\1/')
+        printf '%s\t%s\t%s\t%s\n' "$f" "$name" "$value" "$arms"
       done >> "$tmp"
 
   # An opening tag with no matching close, or a close with no open, is malformed.
@@ -74,14 +91,42 @@ for f in $files; do
   fi
 done
 
-# Unfilled markers.
-while IFS="$(printf '\t')" read -r f name value; do
+# Is version $1 at or before version $2? Compared field by field, because a
+# string comparison puts v0.10.0 before v0.9.0 and would arm a marker early.
+version_reached() {
+  awk -v a="$1" -v b="$2" '
+    BEGIN {
+      split(a, x, "."); split(b, y, ".")
+      for (i = 1; i <= 3; i++) {
+        if ((x[i] + 0) < (y[i] + 0)) exit 0
+        if ((x[i] + 0) > (y[i] + 0)) exit 1
+      }
+      exit 0
+    }'
+}
+
+# Unfilled markers. A marker naming a later tag is deferred rather than unfilled:
+# the release being cut does not promise that number.
+owed=0
+deferred=0
+while IFS="$(printf '\t')" read -r f name value arms; do
   case "$value" in
-    TBD|tbd|""|"?"|"N/A")
-      printf '%sUNFILLED%s %s: %s\n' "$yellow" "$reset" "$f" "$name"
-      unfilled=$((unfilled + 1))
-      ;;
+    TBD|tbd|""|"?"|"N/A") ;;
+    *) continue ;;
   esac
+  unfilled=$((unfilled + 1))
+  if [ "$arms" != "-" ] && [ -n "$CUTTING" ]; then
+    if version_reached "${arms#v}" "$CUTTING"; then
+      printf '%sUNFILLED%s %s: %s (owed from %s)\n' "$yellow" "$reset" "$f" "$name" "$arms"
+      owed=$((owed + 1))
+    else
+      printf '%sDEFERRED%s %s: %s arrives at %s\n' "$green" "$reset" "$f" "$name" "$arms"
+      deferred=$((deferred + 1))
+    fi
+  else
+    printf '%sUNFILLED%s %s: %s\n' "$yellow" "$reset" "$f" "$name"
+    owed=$((owed + 1))
+  fi
 done < "$tmp"
 
 # The same metric name must not carry two different values in two places. One number,
@@ -100,7 +145,23 @@ while IFS= read -r name; do
 done < "$tmp.names"
 
 total=$(wc -l < "$tmp" | tr -d ' ')
-printf '\n%s markers found, %s unfilled\n' "$total" "$unfilled"
+if [ -n "$CUTTING" ]; then
+  printf '\n%s markers found, %s unfilled: %s owed at %s, %s deferred to a later tag\n' \
+    "$total" "$unfilled" "$owed" "$CUTTING" "$deferred"
+else
+  printf '\n%s markers found, %s unfilled\n' "$total" "$unfilled"
+fi
+
+# A metric that names two different arming tags in two places has two answers to
+# "which release owes this number", and the gate would enforce whichever it read
+# first. One number, one home, one tag.
+split_arms=$(awk -F'\t' '$4 != "-" {print $2"\t"$4}' "$tmp" | sort -u \
+  | awk -F'\t' '{ if ($1 in seen && seen[$1] != $2) print $1; seen[$1] = $2 }' | sort -u)
+if [ -n "$split_arms" ]; then
+  printf '%sCONFLICT%s these metrics name more than one arming tag:\n' "$red" "$reset" >&2
+  printf '%s\n' "$split_arms" >&2
+  conflicts=$((conflicts + 1))
+fi
 
 if [ "$malformed" -gt 0 ] || [ "$conflicts" -gt 0 ]; then
   printf '%sFAIL%s malformed markers: %s, conflicting metric names: %s\n' \
@@ -108,10 +169,11 @@ if [ "$malformed" -gt 0 ] || [ "$conflicts" -gt 0 ]; then
   exit 1
 fi
 
-if [ "$MODE" = "--release" ] && [ "$unfilled" -gt 0 ]; then
-  printf '%sFAIL%s %s unfilled metric marker(s) block a tagged release.\n' \
-    "$red" "$reset" "$unfilled" >&2
-  printf 'Measure the value and commit the artifact that produced it, or remove the claim.\n' >&2
+if [ "$MODE" = "--release" ] && [ "$owed" -gt 0 ]; then
+  printf '%sFAIL%s %s unfilled metric marker(s) block this release.\n' \
+    "$red" "$reset" "$owed" >&2
+  printf 'Measure the value and commit the artifact that produced it, remove the claim,\n' >&2
+  printf 'or name the tag it arrives at:  <!--METRIC:name@v0.3.0-->TBD<!--/METRIC-->\n' >&2
   exit 1
 fi
 

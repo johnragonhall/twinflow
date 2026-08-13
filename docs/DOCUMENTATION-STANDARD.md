@@ -273,13 +273,23 @@ No document states a quantitative result that the repository has not produced.
 Every metric that is not yet measured appears as an explicit marker:
 
 ```text
-<!--METRIC:agent_eval_accuracy-->TBD<!--/METRIC-->
+<!--METRIC:agent_eval_accuracy@v0.3.0-->TBD<!--/METRIC-->
+```
+
+A marker may name the tag its number arrives at, and is then owed from that tag
+onward:
+
+```text
+<!--METRIC:agent_eval_accuracy@v0.3.0-->TBD<!--/METRIC-->
 ```
 
 `scripts/checks/metric-marker-gate.sh` counts unfilled markers. An unfilled
 marker never blocks a normal build, because the repository is public from Phase
-1 and most numbers arrive later. An unfilled marker does block a tagged
-release, where the gate runs with `--release`.
+1 and most numbers arrive with the subsystem that measures them. At a tagged
+release, where the gate runs as `--release <version>`, a marker that release
+owes blocks it and a marker naming a later tag is reported as deferred. A
+marker naming no tag is owed by every release, which is the strict reading and
+the default.
 
 This rule exists because the README is the artifact that decides whether a
 reader trusts anything else in the repository. One invented number costs more

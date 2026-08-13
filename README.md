@@ -32,7 +32,7 @@ state, not an oversight.
      a published reference value, never a result claimed for this system.
 -->
 
-**Headline numbers, unmeasured.** The agent scores <!--METRIC:agent_eval_accuracy-->TBD<!--/METRIC--> on the versioned operational eval suite, with <!--METRIC:grounding_pass_rate-->TBD<!--/METRIC--> of released numeric sentences traced to a logged query result and <!--METRIC:calibrated_abstention_rate-->TBD<!--/METRIC--> calibrated abstention.
+**Headline numbers, unmeasured.** The agent scores <!--METRIC:agent_eval_accuracy@v0.3.0-->TBD<!--/METRIC--> on the versioned operational eval suite, with <!--METRIC:grounding_pass_rate@v0.3.0-->TBD<!--/METRIC--> of released numeric sentences traced to a logged query result and <!--METRIC:calibrated_abstention_rate@v0.3.0-->TBD<!--/METRIC--> calibrated abstention.
 
 ## Architecture
 
@@ -128,7 +128,7 @@ The target: the agent never states a number it did not get from an execution. Se
 6. **Grounding checker.** A sentence carrying a number that matches no logged query result ID does not ship.
 7. **Calibrated abstention.** Below the calibrated agreement threshold the agent says the twin lacks the data to answer reliably.
 
-Rates, unfilled until the eval harness runs: eval-suite accuracy <!--METRIC:agent_eval_accuracy-->TBD<!--/METRIC-->, abstention <!--METRIC:calibrated_abstention_rate-->TBD<!--/METRIC-->, grounding pass <!--METRIC:grounding_pass_rate-->TBD<!--/METRIC-->, retry resolution <!--METRIC:retry_resolution_rate-->TBD<!--/METRIC-->. Layers 3 to 7 ship as `twinflow-accuracy`, which installs with no LLM SDK, so a team that already has an agent can take the grounding checker alone.
+Rates, unfilled until the eval harness runs: eval-suite accuracy <!--METRIC:agent_eval_accuracy@v0.3.0-->TBD<!--/METRIC-->, abstention <!--METRIC:calibrated_abstention_rate@v0.3.0-->TBD<!--/METRIC-->, grounding pass <!--METRIC:grounding_pass_rate@v0.3.0-->TBD<!--/METRIC-->, retry resolution <!--METRIC:retry_resolution_rate@v0.3.0-->TBD<!--/METRIC-->. Layers 3 to 7 ship as `twinflow-accuracy`, which installs with no LLM SDK, so a team that already has an agent can take the grounding checker alone.
 
 ## Determinism, and what it does not mean
 
