@@ -246,6 +246,14 @@ UI  BACKEND  INFRA  DOCS  FIX  SECURITY  DEPS  TEST  FEAT  REFACTOR  PERF  CHORE
 `TESTS` is accepted as `TEST`. Put the detail in bullets under a heading rather
 than inventing a heading of your own.
 
+`FIX` is reserved for a defect in code behavior, because `VAL-GATE-REG-001`
+reads it. A `FIX` category makes the commit owe a regression test whatever its
+subject type is, since a repair carried inside a feature owes one as much as a
+repair committed alone. A correction to a document, a registry assertion, or a
+comment goes under `DOCS` or `INFRA`. Those owe nothing, and reaching for `FIX`
+where no code changed turns the exemption trailer into something contributors
+paste rather than mean.
+
 ```text
 fix(mcp): reject oversized tool payloads
 
