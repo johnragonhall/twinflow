@@ -44,7 +44,7 @@ two events at one instant are ordered by the envelope key, not by the clock.
 
 ## Time compression is safe by construction
 
-`PacedClock` delays the loop *between* events and never reorders them, so a
+`PacedClock` delays the loop _between_ events and never reorders them, so a
 paced run and an unpaced run emit identical logs. Only the wall time at which
 each line appears differs. `test_pacing_does_not_change_the_tape` asserts it.
 

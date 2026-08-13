@@ -14,7 +14,7 @@ The remaining ports of foundations section 2.2 arrive with the phases that need
 them. A port with no implementation and no consumer is a name nobody tested.
 
 | Symbol                  | Kind     | What it is                                                             |
-|-------------------------|----------|------------------------------------------------------------------------|
+| ----------------------- | -------- | ---------------------------------------------------------------------- |
 | `Clock`                 | protocol | The port a component takes when it needs to know the time              |
 | `SimClock`              | class    | Integer tick time for one run, non-decreasing                          |
 | `PacedClock`            | class    | The D-02 pacer: wraps a clock and blocks so sim time tracks wall time  |

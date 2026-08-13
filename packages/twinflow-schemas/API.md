@@ -12,7 +12,7 @@ are the names this package owns. Gate `IMPORT-3` fails when `__all__` and this
 package's declared ownership disagree.
 
 | Symbol                      | Kind     | What it is                                                              |
-|-----------------------------|----------|-------------------------------------------------------------------------|
+| --------------------------- | -------- | ----------------------------------------------------------------------- |
 | `Envelope`                  | class    | The CloudEvents 1.0.2 envelope every event carries                      |
 | `Envelope.total_order_key`  | method   | The canonical replay order: sim time, producer as bytes, sequence       |
 | `PRODUCER_IDS`              | constant | The closed set of process roles that may publish an event               |
