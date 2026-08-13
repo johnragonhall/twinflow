@@ -32,6 +32,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- name what WP-P0-10 leaves in the checkout
 - render a gate document the documentation gates accept
 
 ### Security

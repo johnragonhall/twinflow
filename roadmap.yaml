@@ -423,7 +423,6 @@ work_packages:
     depends_on: []
     deliverables:
       - "scripts/checks/license-allowlist-gate.py"
-      - "sbom.cdx.json"
       - "CONTRIBUTING.md"
     gates:
       - VAL-GATE-SEC-001
