@@ -554,7 +554,7 @@ work_packages:
       - VAL-GATE-DET-002
     brick: twinflow-kernel
     release: v0.1.0
-    status: planned
+    status: done
   - id: WP-P1-01
     title: "Model one station: receiving and putaway"
     phase: P1
