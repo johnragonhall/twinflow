@@ -121,6 +121,12 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          # The unit tier runs two checks that read the commit history: the
+          # commit-message gate over every commit, which refuses a shallow
+          # clone outright, and the append-only test that walks each commit
+          # touching requirements.yaml. A depth-1 checkout hands both one
+          # commit with no parent, which is a range nothing could fail.
+          fetch-depth: 0
           # The checkout token is not needed past this step, and a
           # workspace that still holds it leaks it into any artifact
           # uploaded later.

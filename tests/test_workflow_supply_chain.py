@@ -222,3 +222,42 @@ def test_the_security_posture_is_scored_by_somebody_else():
     # which is why this reads the key rather than the string.
     triggers = document[True] if True in document else document.get("on", {})
     assert "schedule" in triggers
+
+
+# --- history-reading jobs ---------------------------------------------------
+
+CI = WORKFLOWS / "ci.yml"
+
+#: The job running the unit tier. Two checks in that tier walk the commit
+#: history: the commit-message gate refuses a shallow clone outright, and the
+#: append-only test walks every commit that touched requirements.yaml.
+HISTORY_READING_JOB = "python"
+
+
+def checkout_depth(job: dict) -> object:
+    for step in job.get("steps", []):
+        if "checkout" in str(step.get("uses", "")):
+            return (step.get("with") or {}).get("fetch-depth", 1)
+    return None
+
+
+def test_the_tier_that_reads_history_checks_out_all_of_it():
+    """Regression. A depth-1 clone hands a history walk one commit.
+
+    The default checkout depth is 1. A gate that walks every commit then walks
+    one, finds nothing to object to, and reports a pass it did not earn. That
+    is the shape doctrine D-12 refuses: a check whose range makes failure
+    impossible.
+    """
+    job = load(CI)["jobs"][HISTORY_READING_JOB]
+    assert checkout_depth(job) == 0, (
+        f"the {HISTORY_READING_JOB} job runs checks that walk the commit history "
+        f"and checks out at depth {checkout_depth(job)}"
+    )
+
+
+def test_the_commit_message_gate_refuses_a_shallow_clone():
+    # Belt and braces for the job above. If the depth regresses, the gate says
+    # so at the point of use rather than passing over one commit.
+    text = (REPO_ROOT / "scripts" / "checks" / "commit-message-gate.py").read_text(encoding="utf-8")
+    assert "is_shallow" in text, "nothing stops this gate passing vacuously on a shallow clone"
