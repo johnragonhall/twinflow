@@ -23,7 +23,8 @@ prose gate rejects a declared synonym in a task or reference topic.
 An entry marked **external** names a term owned by a standard or by an
 established body of practice. This page states the sense in which the term is
 used here. It does not quote the standard, and it is not a substitute for
-reading it. Section 10 lists each external source and where to get it.
+reading it. Section 11 names the sources this repository validates its statistics
+against. It is not a source list for every external term on this page.
 
 ## Contents
 
@@ -36,7 +37,8 @@ reading it. Section 10 lists each external source and where to get it.
 7. [Process mining](#7-process-mining)
 8. [The agent and its accuracy stack](#8-the-agent-and-its-accuracy-stack)
 9. [Repository craft](#9-repository-craft)
-10. [External sources](#10-external-sources)
+10. [Declared verbs](#10-declared-verbs)
+11. [External sources](#11-external-sources)
 
 ## 1. Simulation and determinism
 
@@ -80,7 +82,7 @@ Reproducing a run and forecasting the next hour are different properties.
 | IEC 62443    | external | The industrial automation and control systems security series. It supplies the zone and conduit model at phase 6a15.                                                         |
 | OT           | external | Operational technology. The plant-floor segment: devices, gateways, and the broker they publish to.                                                                          |
 | IT           | external | Information technology. The enterprise segment: the historian, the statistical engine, the agent, and the dashboard.                                                         |
-| bridge       | local    | The single crossing point between the OT and IT segments. Gate `VAL-GATE-RA-b` asserts no device container is reachable from the IT segment.                                 |
+| bridge       | local    | The single crossing point between the OT and IT segments. Milestone RA-b lands the test asserting no device container is reachable from the IT segment.                      |
 | edge gateway | local    | The device that collects local telemetry, buffers it across a link outage, and publishes north to the site broker.                                                           |
 | PLC          | external | Programmable logic controller. The default path models one rather than talking to one, and the README says so.                                                               |
 | OPC UA       | external | The OPC Unified Architecture protocol for industrial data exchange. A bridge is a roadmap milestone at P5, not a current capability.                                         |
@@ -123,7 +125,6 @@ Reproducing a run and forecasting the next hour are different properties.
 | reproducibility        | external | Variation seen between operators measuring the same part.                                                                                               |
 | ANOVA                  | external | Analysis of variance. It splits total variation into named sources, and it is the method behind the Gage R and R error terms.                           |
 | assumption checker     | local    | The component that tests the preconditions of a hypothesis test before the test runs, so a p-value is not reported for a test whose assumptions failed. |
-| DMAIC                  | external | The Six Sigma improvement cycle: define, measure, analyze, improve, control.                                                                            |
 | value stream map       | external | The Lean drawing of material and information flow across a process, with the waiting time between steps made visible.                                   |
 | SMED                   | external | Single-minute exchange of die. The method for cutting changeover time.                                                                                  |
 | COPQ                   | external | Cost of poor quality. The money a defect costs once scrap, rework, and warranty are counted.                                                            |
@@ -156,21 +157,20 @@ example, and names the convention in every generated report.
 
 ## 6. Planning, inventory, and supply
 
-| Term                    | Kind     | Meaning here                                                                                                                                                                     |
-| ----------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| S&OP                    | external | Sales and operations planning. The monthly cycle that reconciles demand, supply, and finance into one plan.                                                                      |
-| SIOP                    | external | Sales, inventory, and operations planning. The same cycle, named to keep inventory explicit.                                                                                     |
-| S&OE                    | external | Sales and operations execution. The weekly tick that handles what the monthly plan did not foresee.                                                                              |
-| ATP                     | external | Available to promise. Whether stock exists to commit to an order.                                                                                                                |
-| CTP                     | external | Capable to promise. Whether capacity exists to make and deliver it.                                                                                                              |
-| ABC segmentation        | external | Ranking items by value contribution, so control effort follows the money.                                                                                                        |
-| XYZ segmentation        | external | Ranking items by demand variability, which is a different question from value.                                                                                                   |
-| MEIO                    | external | Multi-echelon inventory optimization. Deciding where in a network safety stock sits, rather than setting each site alone.                                                        |
-| newsvendor              | external | The single-period stocking model that balances the cost of too much against the cost of too little.                                                                              |
-| guaranteed service time | external | The service-time framing of multi-echelon stock placement.                                                                                                                       |
-| risk pooling            | external | Holding stock centrally so variability across locations partly cancels.                                                                                                          |
-| conformal prediction    | external | A method that turns a point forecast into an interval with a stated coverage guarantee. It is what makes a forecast consumable by an optimizer.                                  |
-| forecasting arena       | local    | The harness that runs every forecasting model over the same backtest windows on this project's own series, and publishes the table. It imports no winner from a benchmark paper. |
+| Term                     | Kind     | Meaning here                                                                                                                                                                       |
+| ------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| S&OP                     | external | Sales and operations planning. The monthly cycle that reconciles demand, supply, and finance into one plan.                                                                        |
+| SIOP                     | external | Sales, inventory, and operations planning. The same cycle, named to keep inventory explicit.                                                                                       |
+| S&OE                     | external | Sales and operations execution. The weekly tick that handles what the monthly plan did not foresee.                                                                                |
+| ATP                      | external | Available to promise. Whether stock exists to commit to an order.                                                                                                                  |
+| CTP                      | external | Capable to promise. Whether capacity exists to make and deliver it.                                                                                                                |
+| ABC and XYZ segmentation | external | Two rankings of the same catalog. ABC ranks items by value contribution, so control effort follows the money. XYZ ranks them by demand variability, which is a different question. |
+| MEIO                     | external | Multi-echelon inventory optimization. Deciding where in a network safety stock sits, rather than setting each site alone.                                                          |
+| newsvendor               | external | The single-period stocking model that balances the cost of too much against the cost of too little.                                                                                |
+| guaranteed service time  | external | The service-time framing of multi-echelon stock placement.                                                                                                                         |
+| risk pooling             | external | Holding stock centrally so variability across locations partly cancels.                                                                                                            |
+| conformal prediction     | external | A method that turns a point forecast into an interval with a stated coverage guarantee. It is what makes a forecast consumable by an optimizer.                                    |
+| forecasting arena        | local    | The harness that runs every forecasting model over the same backtest windows on this project's own series, and publishes the table. It imports no winner from a benchmark paper.   |
 
 ## 7. Process mining
 
@@ -221,17 +221,34 @@ SDK. A team that already has an agent can take the grounding checker alone.
 | VAL-GATE            | local | A validation gate. A named assertion, its falsifier, and the command that runs it.                                                                               |
 | standing gate       | local | A gate that re-runs at every later phase exit, not only at the phase that introduced it.                                                                         |
 | gate status         | local | One of `declared`, `specified`, or `implemented`. The required field set widens with each, so a subsystem must declare its gates one phase before building them. |
-| doctrine ruling     | local | A binding cross-cutting decision, id `D-01` to `D-14`, that every design section obeys. Where a section disagrees, the ruling wins.                              |
-| technology decision | local | A recorded choice of tool or approach, id `D1` to `D16`, in section 1 of ARCHITECTURE.md. Distinct from a doctrine ruling despite the similar id.                |
+| doctrine ruling     | local | A binding cross-cutting decision in DOCTRINE.md, cited as `D-01` and up, that every design section obeys. Where a section disagrees, the ruling wins.            |
+| technology decision | local | A recorded choice of tool or approach in section 1 of ARCHITECTURE.md, cited as `D1` and up. Distinct from a doctrine ruling despite the similar id.             |
+| decision register   | local | One of the three places a decision lives. [adr/index.md](adr/index.md) is the index of record and holds the id range each register uses.                         |
 | metric marker       | local | An HTML comment pair holding a quantitative result. `TBD` means unmeasured, and a release cannot be tagged while it owes a marker.                               |
 | known-answer test   | local | A test that checks generated values against a frozen corpus, so a change in the generator is caught rather than absorbed.                                        |
 | property-based test | local | A test that asserts an invariant over generated inputs, rather than over one example. Hypothesis is the tool.                                                    |
 | phase-exit runner   | local | The command that runs every gate in force at a phase. A gate in that set which is not `implemented` fails the run rather than being skipped.                     |
 
-## 10. External sources
+## 10. Declared verbs
 
-Each row names where the term's owning document is published. Nothing on this
-page quotes those documents, and several of them are sold rather than published.
+`docs/style/ste-terms.yml` declares six verbs and the nouns above. One
+verb carries one meaning, and the prose gate rejects the listed synonym for it in
+a task or reference topic.
+
+| Verb        | Means here                                          | Not                                         |
+| ----------- | --------------------------------------------------- | ------------------------------------------- |
+| publish     | Send a message to a UNS topic                       | emit, push, send out, broadcast             |
+| replay      | Re-execute a recorded event log                     | rerun, playback, re-simulate                |
+| recalibrate | Adjust twin parameters from observed telemetry      | retune, adjust, sync up                     |
+| inject      | Introduce a fault from the fault catalog into a run | trigger, simulate a failure, cause          |
+| raise       | Create a finding                                    | fire, throw, generate an alert, surface     |
+| seed        | Initialize a stochastic stream from a seed value    | initialize randomness, set the random state |
+
+## 11. External sources
+
+Each row names a source this repository validates a statistic against, and what
+that source covers. Nothing on this page quotes those documents, and several of
+them are sold rather than published.
 
 | Source                                                                                  | Covers                                                                                                                           |
 | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
