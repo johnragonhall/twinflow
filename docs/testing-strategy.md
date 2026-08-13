@@ -133,10 +133,11 @@ estimating them. A coverage number arrives the same way every other number in
 this repository arrives: from a recorded run, written into a marker, with the
 commit that produced it.
 
-Mutation testing is not run. It is the technique that would answer doctrine
-D-12 mechanically rather than by a reviewer's judgment, and its absence means
-the rule is enforced by reading. That is a real limit on how strongly the rule
-holds, and it is stated here rather than left implied.
+Mutation testing is in no gate. `just mutants` runs it over the roadmap tool on
+demand, and nothing in CI calls it. It is the technique that would answer
+doctrine D-12 mechanically rather than by a reviewer's judgment, so until it
+gates something the rule is enforced by reading. That is a real limit on how
+strongly the rule holds, and it is stated here rather than left implied.
 
 The cross-platform determinism gate reports a measured divergence and asserts no
 bound. `VAL-GATE-DET-002` publishes the observed maximum on every run, and the
