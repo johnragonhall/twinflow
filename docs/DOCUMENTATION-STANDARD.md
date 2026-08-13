@@ -335,7 +335,7 @@ families of check, and nothing else.
 | Family              | Rule ids                | Severity                          | Where it applies                                                                           |
 |---------------------|-------------------------|-----------------------------------|--------------------------------------------------------------------------------------------|
 | Regular expressions | As given in the YAML    | The `severity` field of each rule | Markdown only, unless the rule sets `applies_to: all` or its pattern holds no ASCII letter |
-| Front matter        | `FM-01` through `FM-05` | Error                             | Markdown, minus the files in section 5a                                                    |
+| Front matter        | `FM-01` through `FM-06` | Error                             | Markdown, minus the files in section 5a                                                    |
 | Heading case        | `HEAD-01`               | Warning                           | Markdown                                                                                   |
 | Sentence length     | `LEN-01`, `LEN-02`      | Warning                           | Markdown, minus the files in section 5a                                                    |
 
@@ -356,6 +356,19 @@ What the front matter family checks, exactly:
 | `FM-03` | The description is under 10 words or over 30                |
 | `FM-04` | The description is more than one sentence                   |
 | `FM-05` | The description begins with the title text                  |
+| `FM-06` | `topic_type` names something outside the three in section 3 |
+
+`FM-06` is an error rather than a warning because the sentence limits are
+looked up by topic type. A type outside the three returns no profile, so
+`LEN-01`, `LEN-02`, and the word list stop running for that file and the page
+reports clean while nothing measures it. A rule that silently disables other
+rules cannot be a warning.
+
+Two rules live in `scripts/checks/prose-gate.py` rather than in the YAML,
+because each needs context a regular expression does not carry. `FM-06` reads
+the front matter block. `DASH-02` matches a double dash standing in for an em
+dash, and it has to tell that apart from a command separator, a comment banner,
+and an option cluster, which a pattern alone cannot.
 
 `audience` is required by section 3 of this page and is not checked by
 `FM-02`. A reviewer catches a missing `audience`.

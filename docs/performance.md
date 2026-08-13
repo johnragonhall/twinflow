@@ -231,5 +231,11 @@ budget, the test tiers in
 carry their own, and a tier drifting past its budget gets split rather than
 tolerated. A budget is not a measurement of this system, and neither is a
 published figure from somebody else's hardware. Until the harness runs, every
-performance number here is an unfilled marker, which is the intended state rather
-than an oversight.
+performance number about the simulated world is an unfilled marker, which is the
+intended state rather than an oversight.
+
+The build tooling is the exception, and it is a narrow one. Hook startup is
+measured, because the change that cut it had to be justified against a number
+rather than a preference. Those figures live in the header of
+`scripts/hooks/resolve-python.sh` and in the marker at the top of the justfile,
+each with the method that produced it. They say nothing about the simulation.

@@ -1,9 +1,10 @@
 # Single task entry point. CI calls these same recipes, so a green local run
 # and a green CI run mean the same thing.
 #
-# PERF: L0 rejected for these recipes, applied to the hooks. One `uv run`
-# launch costs 643ms before any code runs, against 145ms for the interpreter in
-# .venv, medians of five on this checkout. The per-launch delta is 498ms.
+# PERF: L0 rejected for these recipes, applied to the hooks. One `uv run` launch
+# costs 498ms more than the interpreter in .venv. That delta is the difference
+# between the two medians in the header of scripts/hooks/resolve-python.sh,
+# which owns them; this marker owns the end to end figures below.
 #
 # That pays in the pre-commit hook, which spends most of its time starting
 # interpreters rather than reading files. Measured end to end on this checkout
