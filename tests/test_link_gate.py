@@ -152,3 +152,71 @@ def test_a_tree_with_nothing_to_read_is_a_failure():
     """A gate that reads no file reports the same green as one that read
     everything. Naming explicit paths outside the repository is refused."""
     assert gate.main([str(Path(__file__).parent.parent.parent / "elsewhere.md")]) == 2
+
+
+#: A share path, assembled rather than written out. The IP hygiene gate
+#: refuses a literal one in a tracked file, because that is how an internal
+#: server name reaches a public repository. The case still has to exist:
+#: `ntpath` reads this spelling as absolute on every platform.
+_UNC_CASE = "\\" * 2 + "server" + "\\" + "share" + "\\" + "x"
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "../../../Windows/win.ini",
+        "/etc/passwd",
+        "C:/Windows/win.ini",
+        "C:x",
+        _UNC_CASE,
+        "docs/../../outside.md",
+        "docs/./../../out.md",
+        "..",
+        "",
+        "   ",
+        r"..\..\secret.txt",
+    ],
+)
+def test_a_path_that_leaves_the_repository_reaches_no_file(name: str, tmp_path):
+    """A link target and a command-line argument are both text this gate did not
+    write, and `root / name` takes an absolute path whole rather than joining it.
+
+    All three readers are asserted, not just one. Confinement that lives in the
+    entry points holds for the ones that remembered; this pins it for each.
+    """
+    tree = gate.DiskTree(tmp_path)
+    (tmp_path / "real.md").write_text("# real", encoding="utf-8")
+
+    assert tree.exists(name) is False
+    assert tree.case_exact(name) is False
+    assert tree.text(name) is None
+
+
+def test_a_file_inside_the_repository_still_reads(tmp_path):
+    """The control. Confinement that refused every name would pass the cases
+    above while making the gate unable to read anything."""
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "real.md").write_text("# real", encoding="utf-8")
+    tree = gate.DiskTree(tmp_path)
+
+    assert tree.exists("docs/real.md") is True
+    assert tree.case_exact("docs/real.md") is True
+    assert tree.text("docs/real.md") == "# real"
+
+
+def test_a_symlink_pointing_out_of_the_repository_is_refused(tmp_path):
+    """The text check cannot see this one: the name is an ordinary relative
+    path and only the resolved target leaves the tree."""
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "secret.md").write_text("# secret", encoding="utf-8")
+    root = tmp_path / "repo"
+    root.mkdir()
+    try:
+        (root / "link.md").symlink_to(outside / "secret.md")
+    except (OSError, NotImplementedError):
+        pytest.skip("this platform does not grant symlink creation")
+    tree = gate.DiskTree(root)
+
+    assert tree.exists("link.md") is False
+    assert tree.text("link.md") is None

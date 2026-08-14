@@ -39,6 +39,8 @@ from __future__ import annotations
 import argparse
 import contextlib
 import io
+import ntpath
+import posixpath
 import re
 import subprocess
 import sys
@@ -127,6 +129,25 @@ class Tree:
         raise NotImplementedError
 
 
+def _is_safe_relative(name: str) -> bool:
+    """Whether this text names a path inside a tree, read as text.
+
+    A link target and a command-line argument are both written by someone other
+    than this gate, and `root / name` takes an absolute path whole rather than
+    joining it. `ntpath` reads the Windows spellings as well, so a drive-
+    relative `C:x` and a UNC share are refused on every platform rather than
+    only where they happen to mean something.
+    """
+    if not name or name.isspace():
+        return False
+    if posixpath.isabs(name) or ntpath.isabs(name):
+        return False
+    if ntpath.splitdrive(name)[0]:
+        return False
+    parts = PurePosixPath(name.replace("\\", "/")).parts
+    return ".." not in parts
+
+
 class DiskTree(Tree):
     """The repository as it sits on disk.
 
@@ -142,7 +163,17 @@ class DiskTree(Tree):
         self._listing: dict[str, set[str]] = {}
 
     def _within(self, relative: str) -> Path | None:
-        """The path this names inside the repository, or nothing if it escapes."""
+        """The path this names inside the repository, or nothing if it escapes.
+
+        Two checks, in this order, because each catches what the other cannot.
+        The first reads the text before it becomes a path at all: a name that is
+        absolute, that names a drive or a share, or that carries a `..` segment
+        is refused without ever being joined to the root. The second reads the
+        resolved path afterwards, which is what catches a symlink that sits
+        inside the repository and points outside it.
+        """
+        if not _is_safe_relative(relative):
+            return None
         try:
             candidate = (self.root / relative).resolve()
         except (OSError, ValueError):

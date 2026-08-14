@@ -59,6 +59,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- refuse a path that leaves the repository before joining it
 - run the matrix legs in the shell their scripts are written in
 - exempt a bot account from the signature check
 - exempt the pull request merge ref from the subject gate
