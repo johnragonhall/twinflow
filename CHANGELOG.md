@@ -55,6 +55,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- publish one event for one command
 - hold every Sparkplug identifier to the grammar it renders into
 - hold the local model path to the loopback interface
 - demand a client certificate on both broker listeners

@@ -126,8 +126,36 @@ def test_replaying_a_command_id_returns_the_original_position(client: Client):
     again = client.post("/api/command", json_body=command()).json()
 
     assert first == again
-    assert len(client.recorded) == 2  # type: ignore[attr-defined]
-    assert client.recorded[0].id == client.recorded[1].id  # type: ignore[attr-defined]
+
+
+def test_replaying_a_command_id_publishes_nothing_a_second_time(client: Client):
+    """The event for this command is already on the log.
+
+    Its id, its producer, and its sequence are all derived from the position the
+    first call assigned, so a second envelope repeats an id the log holds. A
+    real historian refuses that with TF-S012, which turns the retry section 4.2
+    calls "the ordinary case rather than the exceptional one" into a 500.
+    """
+    client.post("/api/command", json_body=command())
+    client.post("/api/command", json_body=command())
+
+    assert len(client.recorded) == 1  # type: ignore[attr-defined]
+
+
+def test_a_replayed_command_leaves_a_log_the_invariants_accept(client: Client):
+    """The refusal above, stated as the rule it exists to keep.
+
+    `check_log_invariants` is the function VAL-GATE-ENV-001 runs, so asserting
+    against it here reads the same rule the gate reads rather than a second
+    spelling of it.
+    """
+    from twinflow.schemas import check_log_invariants
+
+    for index in range(1, 4):
+        client.post("/api/command", json_body=command(command_id=f"c-{index:04d}"))
+    client.post("/api/command", json_body=command(command_id="c-0002"))
+
+    assert check_log_invariants(client.recorded) == []  # type: ignore[attr-defined]
 
 
 def test_the_recorded_envelope_carries_sim_time_and_no_wall_clock_reading(

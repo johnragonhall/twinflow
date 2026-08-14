@@ -147,7 +147,11 @@ def create_app(
             return _invalid(exc.reasons)
 
         accepted, envelope = log.record(payload, kind=kind, sim_time=int(clock()))
-        publish(envelope)
+        # None means this command_id already holds a position, so its event is
+        # already on the log. Publishing again repeats an event id the log
+        # holds, which the historian refuses.
+        if envelope is not None:
+            publish(envelope)
         return JSONResponse(
             {
                 "command_id": accepted.command_id,

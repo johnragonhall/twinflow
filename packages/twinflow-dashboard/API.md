@@ -87,6 +87,13 @@ D-02 requires is that the reading arrive from outside, and it does.
 `app.state.recorded` rather than to a no-op. A dropped command that answered 202
 would be an audit-log hole nothing observes.
 
+`CommandLog.record` returns `(AcceptedCommand, Envelope | None)`. The envelope is
+`None` when the `command_id` already holds a position, because the event it would
+carry is already on the log: its id, its producer, and its sequence all derive
+from that position, so a second copy repeats an id and breaks the dense-sequence
+invariant of doctrine D-07. `POST /api/command` publishes exactly what `record`
+returns, so the absence is the instruction.
+
 A refused command consumes no sequence number. A counter that advanced on refusal
 would leave a gap, and `Historian.append` refuses the event after the gap rather
 than the one that caused it.

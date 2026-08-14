@@ -195,18 +195,24 @@ class CommandLog:
 
     def record(
         self, payload: Mapping[str, object], *, kind: CommandKind, sim_time: int
-    ) -> tuple[AcceptedCommand, Envelope]:
+    ) -> tuple[AcceptedCommand, Envelope | None]:
         """Give this command its `(producer_id, seq)` and mint its envelope.
 
         Replaying a `command_id` returns the original position rather than
         taking a second one. Section 4.2 calls commands idempotent by
         `command_id`, and a retry after a dropped response is the ordinary case
         rather than the exceptional one.
+
+        The envelope is `None` on a replay, because the event it would carry is
+        already on the log. Its id, its producer, and its sequence are all
+        derived from the position, so a second copy repeats an id the log holds
+        and violates the dense-sequence invariant of D-07. The caller publishes
+        exactly what this returns, so the absence is the instruction.
         """
         command_id = str(payload["command_id"])
         existing = self._by_command_id.get(command_id)
         if existing is not None:
-            return existing, self._envelope(payload, accepted=existing)
+            return existing, None
 
         accepted = AcceptedCommand(
             command_id=command_id,
