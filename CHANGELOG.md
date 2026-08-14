@@ -61,6 +61,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- assert what the tests assume, so ty can read it
 - give ty the types the runtime already guarantees
 - refuse a path that leaves the repository before joining it
 - run the matrix legs in the shell their scripts are written in
