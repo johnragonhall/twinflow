@@ -1,6 +1,6 @@
 ---
 title: LSS engine
-description: SPC, capability, MSA, hypothesis testing, findings, alarms, process mining, value stream maps, SIPOC and swimlane views, what-if ranking, and the validation registry.
+description: SPC, capability, MSA, hypothesis testing, findings, alarms, process mining, generated Lean views, what-if ranking, RCA structures, and the validation registry.
 topic_type: reference
 audience: contributors
 ---
@@ -77,32 +77,32 @@ and the text below is the changed text.
 The workflow is owned elsewhere. This section defines the API and the gate; the named section
 consumes it.
 
-| Requirement                                                                 | What it consumes                                                                        |
-|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| 1, twin OEE, takt, cycle time, bottleneck                                   | `twinflow_lss.spc`, cross-checked against the mined waiting-time contribution of 5.11.5 |
-| 3, PdM trend detection and time-to-threshold                                | `twinflow_lss.trend`, gated by VG-TRD-01, VG-TRD-02, VG-TRD-03                          |
-| 4, CV SOP violations and RFID-versus-CV disagreement                        | The finding constructor of 5.9, and attribute agreement analysis, 5.6.6                 |
-| 6, twin divergence                                                          | The `DivergenceSpec` contract of 4.6 and the residual charts of 5.2                     |
-| 6a, forecast bias on a control chart                                        | `twinflow_lss.spc` on forecast error                                                    |
-| 6a2, supplier scorecards on control charts                                  | `twinflow_lss.spc`                                                                      |
-| 6a4, return reason-code Pareto                                              | `twinflow_lss.charts.pareto`, gated by VG-CHT-01                                        |
-| 6a9, in-line SPC per production stage and golden-batch scoring              | `twinflow_lss.spc` and `twinflow_lss.batch`, gated by VG-BAT-01                         |
-| 6a11, CAPA statistical effectiveness and Z1.4-class acceptance sampling     | `twinflow_lss.hypothesis` and `twinflow_lss.sampling`, gated by VG-SAM-01 and VG-SAM-02 |
-| 6a13, price variance common cause against special cause                     | `twinflow_lss.spc`                                                                      |
-| 6a14, workforce leading indicators on control charts                        | `twinflow_lss.spc`                                                                      |
-| 6a15, MTTD, MTTR, and DORA metrics on control charts                        | `twinflow_lss.spc`                                                                      |
-| 6a16, forecast value-added                                                  | `twinflow_lss.hypothesis`                                                               |
-| 6a17, variance common cause against special cause before anyone explains it | `twinflow_lss.spc`                                                                      |
-| 7, agent tools                                                              | The tool surface of 2.7                                                                 |
-| 9, README headline claim                                                    | The generated claim block of 7.6                                                        |
-| E5, autonomy tiers                                                          | Shelve, acknowledge, and re-baseline are audited decisions, 5.10.5                      |
-| E7, idle-energy waste as an eighth-waste finding                            | The waste taxonomy of 5.12.2                                                            |
-| E8, SOP clause citation                                                     | `Finding.sop_refs`                                                                      |
-| E24, generative SOPs from alarm rationalization                             | The rationalization records of 5.10.2                                                   |
-| E26(b), governed semantic metric layer                                      | Every chart's `metric` resolves in the metric registry, 6.6                             |
-| E26(f), grounding checker                                                   | Every finding's evidence carries a `query_result_id`, 4.2                               |
-| E27, E30, E31, E43, E45                                                     | The hypothesis layer and the chart layer, unchanged                                     |
-| E1, hosted replay demo                                                      | The static on-disk formats of 4.8                                                       |
+| Requirement                                                                 | What it consumes                                                                                                         |
+|-----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| 1, twin OEE, takt, cycle time, bottleneck                                   | `twinflow_lss.spc`, cross-checked against the mined waiting-time contribution of 5.11.5                                  |
+| 3, PdM trend detection and time-to-threshold                                | `twinflow_lss.trend`, gated by VG-TRD-01, VG-TRD-02, VG-TRD-03                                                           |
+| 4, CV SOP violations and RFID-versus-CV disagreement                        | The finding constructor of 5.9, and attribute agreement analysis, 5.6.6                                                  |
+| 6, twin divergence                                                          | The `DivergenceSpec` contract of 4.6 and the residual charts of 5.2                                                      |
+| 6a, forecast bias on a control chart                                        | `twinflow_lss.spc` on forecast error                                                                                     |
+| 6a2, supplier scorecards on control charts                                  | `twinflow_lss.spc`                                                                                                       |
+| 6a4, return reason-code Pareto                                              | `twinflow_lss.charts.pareto`, gated by VG-CHT-01                                                                         |
+| 6a9, in-line SPC per production stage and golden-batch scoring              | `twinflow_lss.spc` and `twinflow_lss.batch`, gated by VG-BAT-01                                                          |
+| 6a11, CAPA statistical effectiveness and Z1.4-class acceptance sampling     | `twinflow_lss.hypothesis` and `twinflow_lss.sampling`, gated by VG-SAM-01 and VG-SAM-02, plus the RCA structures of 5.20 |
+| 6a13, price variance common cause against special cause                     | `twinflow_lss.spc`                                                                                                       |
+| 6a14, workforce leading indicators on control charts                        | `twinflow_lss.spc`                                                                                                       |
+| 6a15, MTTD, MTTR, and DORA metrics on control charts                        | `twinflow_lss.spc`                                                                                                       |
+| 6a16, forecast value-added                                                  | `twinflow_lss.hypothesis`                                                                                                |
+| 6a17, variance common cause against special cause before anyone explains it | `twinflow_lss.spc`                                                                                                       |
+| 7, agent tools                                                              | The tool surface of 2.7                                                                                                  |
+| 9, README headline claim                                                    | The generated claim block of 7.6                                                                                         |
+| E5, autonomy tiers                                                          | Shelve, acknowledge, and re-baseline are audited decisions, 5.10.5                                                       |
+| E7, idle-energy waste as an eighth-waste finding                            | The waste taxonomy of 5.12.2                                                                                             |
+| E8, SOP clause citation                                                     | `Finding.sop_refs`                                                                                                       |
+| E24, generative SOPs from alarm rationalization                             | The rationalization records of 5.10.2                                                                                    |
+| E26(b), governed semantic metric layer                                      | Every chart's `metric` resolves in the metric registry, 6.6                                                              |
+| E26(f), grounding checker                                                   | Every finding's evidence carries a `query_result_id`, 4.2                                                                |
+| E27, E30, E31, E43, E45                                                     | The hypothesis layer and the chart layer, unchanged                                                                      |
+| E1, hosted replay demo                                                      | The static on-disk formats of 4.8                                                                                        |
 
 ### 1.4 Explicitly out of scope for this section
 
@@ -115,13 +115,22 @@ the alarm layer, and the validation registry.
 
 ### 1.5 Additions beyond the source
 
-Two capabilities are additions dated 2026-08-13, and are not source
-requirements: the SIPOC and swimlane views of 5.15, and the what-if ranking of 5.16. The
-register of CON-6 is unchanged, because that file holds source atoms only. The additions close
-the two automatable gaps left on the Ahire and Jensen project map once component 5 is built.
-Each one reuses machinery this section already specifies, renders through `twinflow-artifact`,
-and carries its own gates in 7.5.9. Nothing in 1.1 changes: source coverage is stated against
-the source, and an addition neither widens it nor dilutes it.
+Sections 5.15 through 5.20 are additions dated 2026-08-13, and are not source requirements. The
+register of CON-6 is unchanged, because that file holds source atoms only. Together they close
+every automatable gap on the DMAIC project map: the SIPOC and swimlane views (5.15),
+the what-if ranking (5.16), the Analyze-phase charts with the X-Y map and HODDOW views (5.17),
+MANOVA (5.18), the schedule views (5.19), and the RCA structures (5.20). Each reuses machinery
+this section already specifies, renders through `twinflow-artifact`, and carries its own gates.
+Nothing in 1.1 changes: source coverage is stated against the source, and an addition neither
+widens it nor dilutes it.
+
+Map rows that need no new machinery resolve to existing homes: operational definitions are the
+metric registry (6.6), validated checksheets are the config-declared collection contracts with
+their MSA, Theory of Constraints capacity analysis is the bottleneck detection component 1
+already carries, and frequency distributions are the histogram. The map's facilitation tools
+(brainstorming, focus groups, Kano surveys, charters, storyboards) need humans in a room. A
+simulation with no human customers cannot generate a voice-of-customer input, and a generated
+one would be fiction, so those rows stay out of scope on purpose.
 
 ---
 
@@ -239,8 +248,9 @@ adds a DuckDB reader for the historian's Delta tables; `[matplotlib]` adds an al
 renderer whose output is excluded from the byte-identity gates and is never the default.
 
 Public API surface, the only names covered by the semver policy in C9. Every callable in the
-`spc`, `capability`, `msa`, `hypothesis`, `trend`, `charts`, `batch`, `sampling`, `ranking`, and
-`divergence` modules carries a `@val_gate(...)` decorator naming at least one registry record;
+`spc`, `capability`, `msa`, `hypothesis`, `trend`, `charts`, `batch`, `sampling`, `ranking`,
+`schedule`, `rca`, and `divergence` modules carries a `@val_gate(...)` decorator naming at least
+one registry record;
 7.5.4 states the CI test that makes that unavoidable.
 
 ```python
@@ -273,6 +283,8 @@ compare_many(groups, cfg) -> TestResult                 # k groups
 equivalence(a, b, margin, cfg) -> TestResult            # TOST
 check_assumptions(samples, cfg, crn_integrity) -> AssumptionReport
 adjust(results, method) -> list[TestResult]             # BH or Bonferroni
+correlate(x, y, method) -> TestResult                   # 5.17.6, pearson or spearman
+compare_many_multivariate(groups, cfg) -> TestResult    # 5.18, MANOVA
 
 # twinflow_lss.trend
 fit_trend(series, model) -> TrendFit                    # linear, exponential, weibull_hazard
@@ -281,6 +293,12 @@ time_to_threshold(fit, threshold) -> Interval           # point estimate, predic
 # twinflow_lss.charts
 pareto(counts) -> ParetoResult
 histogram(sample, spec, rule) -> HistogramResult        # sturges, freedman_diaconis, scott
+run_chart(series, cfg) -> RunChartResult                # 5.17.1
+box_plot(samples, by, cfg) -> BoxPlotResult             # 5.17.2
+pie(counts) -> PieResult                                # 5.17.3
+concentration(events, layout, cfg) -> ConcentrationResult   # 5.17.4
+xy_map(cfg) -> XyMap                                    # 5.17.5
+hoddow(series, cfg) -> HoddowResult                     # 5.17.5
 
 # twinflow_lss.batch
 golden_batch_score(profile, golden, cfg) -> BatchScore   # phase 3i
@@ -292,6 +310,16 @@ switching(state, history) -> SwitchingDecision
 
 # twinflow_lss.ranking
 rank_whatifs(candidates, cfg: RankingConfig) -> WhatIfRanking         # 5.16, phase P3d
+
+# twinflow_lss.schedule
+cpm(plan) -> CpmResult                                  # 5.19, critical path and PERT
+
+# twinflow_lss.rca
+fishbone(effect, cfg) -> RcaStructure                   # 5.20
+five_whys(effect, chain) -> RcaStructure
+fault_tree(top_event, nodes) -> RcaStructure
+ce_matrix(causes, ys, scores) -> RcaStructure
+tree_diagram(root, nodes) -> RcaStructure
 
 # twinflow_lss.divergence
 evaluate_divergence(paired: PairedSeries, spec: DivergenceSpec) -> DivergenceResult
@@ -412,6 +440,9 @@ render_sipoc_svg(s) -> str
 render_sipoc_table(s) -> str      # text equivalent, always written, C12
 render_swimlane_svg(s) -> str
 render_swimlane_table(s) -> str   # text equivalent, always written, C12
+build_gantt(log, cfg) -> GanttChart                            # 5.19
+render_gantt_svg(g) -> str
+render_gantt_table(g) -> str      # text equivalent, always written, C12
 ```
 
 ### 2.6 Dependency direction and layering
@@ -469,6 +500,12 @@ that id in each phase.
 | `get_sipoc(window)`                                              | `Sipoc` JSON plus SVG path (5.15)                                                                                            |
 | `get_swimlane(case_notion, window)`                              | `Swimlane` JSON plus SVG path (5.15)                                                                                         |
 | `rank_whatifs(whatif_ids, profile)`                              | `WhatIfRanking`: the Pugh table, the stoplight class per candidate, and the `TestResult` ids behind each score (5.16)        |
+| `render_chart(kind, metric, window, by)`                         | the 5.17 chart artifacts: JSON plus SVG path                                                                                 |
+| `run_manova(metrics, baseline_window, treatment_window)`         | `TestResult` with the multivariate assumption trace (5.18)                                                                   |
+| `get_gantt(window, pools)`                                       | `GanttChart` JSON plus SVG path (5.19)                                                                                       |
+| `run_cpm(plan_id)`                                               | `CpmResult` with the critical path and the PERT intervals (5.19)                                                             |
+| `record_rca(kind, payload)`                                      | `RcaStructure`, typed and evidence-linked (5.20)                                                                             |
+| `get_rca(capa_id)`                                               | the `RcaStructure` records a CAPA cites (5.20)                                                                               |
 
 ---
 
@@ -748,6 +785,30 @@ Invariants: `net_score` equals the sum of the row's criterion scores; `order` so
 resolves to a `TestResult` of 3.5; every `Sipoc` cell and every `Swimlane` node carries a
 provenance the renderer prints.
 
+### 3.10 Chart, schedule, and RCA entities
+
+Additions beyond the source, 1.5.
+
+`RunChartResult`: `median`, `runs_about_median`, `expected_runs`, `longest_run`, `n1`, `n2`,
+`patterns` (rule id to verdict). `BoxPlotResult`: per group, `min`, `q1`, `median`, `q3`, `max`,
+`fences`, `outlier_ids`, `quantile_method`. `PieResult`: labels, counts, and shares summing to 1.
+`ConcentrationResult`: per `(station_id, defect_kind)`, the count and the share. `XyMap`: rows,
+columns, and cells with `source` (`divergence_spec` | `hypothesis` | `ranking_criterion`).
+`HoddowResult`: grid kind (`hoddow` | `womsoy`), cell counts, per-cell dispersion.
+
+`ImprovementPlan`: ordered `tasks` (`task_id`, `depends_on`, `a_s`, `m_s`, `b_s`, `owner_role`),
+acyclic. `CpmResult`: per task, earliest and latest start and finish, `slack_s`,
+`on_critical_path`; per path, the PERT mean and variance. `GanttChart`: `lanes` (resource units
+in declared order), `bars` (`activity`, `case_id`, `start`, `end`), `window`, `provenance`.
+
+`RcaStructure`: `kind` (`fishbone` | `five_whys` | `fault_tree` | `ce_matrix` | `tree`),
+`effect`, `nodes` (id, text, category, `finding_ids`, `query_result_ids`), `edges` (typed:
+cause, why, `and_gate`, `or_gate`, score), `cut_sets` (fault tree only), `provenance`.
+
+Invariants: every structure is acyclic; every referenced finding and query result resolves;
+`fishbone` categories are exactly the seven Ms; shares and slacks are exact arithmetic over
+their inputs, asserted by the gates of 7.5.9.
+
 ---
 
 ## 4. Events
@@ -916,7 +977,10 @@ tests assert that the in-process object and the serialized form agree.
 
 The what-if ranking of 5.16 adds a fourth: `/schemas/whatif_ranking/v1.json`, produced by
 `twinflow-lss` and consumed by the report and the agent. It is authored with 5.16 and lands at
-P3d. The subject is new, so authoring it after P0 bumps nothing that shipped.
+P3d. The subject is new, so authoring it after P0 bumps nothing that shipped. The RCA structures
+of 5.20 add a fifth on the same terms: `/schemas/rca_structure/v1.json`, produced by
+`twinflow-lss`, consumed by the QMS workflow of 6a11, the report, and the agent, landing with
+6a11.
 
 ### 4.6 `divergence_spec/v1` (published)
 
@@ -2148,7 +2212,7 @@ count keeps the argument in the criteria list, which is config a reviewer can re
 
 #### 5.16.2 Stoplight class
 
-The stoplight is the classroom device from the Ahire and Jensen map, kept because it
+The stoplight is a classroom device, kept because it
 communicates: impact against cost on one card. The impact band derives from the net score
 (`positive`, `zero`, `negative`). The cost class is declared per what-if in its config (`low`,
 `medium`, `high`), because cost is an input a simulation cannot measure. `ranking/criteria.yaml`
@@ -2165,6 +2229,113 @@ findings are (5.9.2). The report gains section 14 behind `report.include`, exclu
 until P3d. The agent tool is `rank_whatifs` (2.7), and the ranking a reader sees is the ranking
 the gates checked, because both come from the same callable under `@val_gate` (7.5.4). Gates:
 VG-RNK-01, VG-RNK-02, VG-RNK-03.
+
+### 5.17 Analyze-phase charts
+
+Additions beyond the source, 1.5. The DMAIC project map names chart tools the source text
+does not: run charts, box plots, pie charts, concentration diagrams, an X-Y map, and
+hour-of-day views. Each is a deterministic function in `twinflow_lss.charts`, rendered through
+`twinflow_artifact.svg` with a text-equivalent table (C12), and each carries a gate. None gets
+a report section: they render on demand through the chart CLI and the agent tools, and a
+finding's evidence can name one.
+
+#### 5.17.1 Run chart
+
+`run_chart(series, cfg) -> RunChartResult`: the series against its median, with the two
+Wald-Wolfowitz run statistics: the count of runs about the median against its expected count
+`1 + 2 * n1 * n2 / (n1 + n2)`, and the longest run. The result carries the counts, the expected
+values, and a `pattern` verdict per rule. A run chart reads a series still too short for
+control limits.
+
+#### 5.17.2 Box plot
+
+`box_plot(samples, by, cfg) -> BoxPlotResult`: the five-number summary per group with Tukey
+fences at 1.5 IQR and outliers listed by id. The quantile convention is declared in the result
+(`quantile_method`, default Tukey hinges), because published quartile conventions disagree and
+a number without its convention is not reproducible.
+
+#### 5.17.3 Pie chart
+
+`pie(counts) -> PieResult`: shares of a whole, kept because the map names it. The Pareto chart
+of VG-CHT-01 stays the default for reason codes, and the pie renderer refuses more than
+`charts.pie.max_slices` slices (default 6) rather than drawing an unreadable one.
+
+#### 5.17.4 Concentration diagram
+
+`concentration(events, layout, cfg) -> ConcentrationResult`: defect counts placed on the
+station band layout of 5.12.4, one cell per station and defect kind. Events carry `station_id`
+and a defect kind. The first producer with positions is the upstream production flow of P3i,
+and the CV auditor of P4 adds a second. Until a producer exists the chart renders the layout
+with its zero counts stated, never an invented density.
+
+#### 5.17.5 X-Y map and HODDOW views
+
+`xy_map(cfg) -> XyMap`: the Measure-phase map from every X to the Ys it is hypothesized to
+move, generated from config rather than drawn. Rows are the metric registry's inputs (6.6),
+columns are the critical Ys, and a cell exists where a divergence spec, a declared hypothesis,
+or a ranking criterion names the pair. Every cell carries its source, so the map is an index
+into the config that asserted it.
+
+`hoddow(series, cfg) -> HoddowResult`: the hour-of-day, day-of-week aggregation grid (HODDOW),
+and its week-of-month, season-of-year twin (WOMSOY), as heatmap-ready tables with cell counts
+and per-cell dispersion. The map uses these to pick data-collection granularity; here they read
+any metric over any window on demand.
+
+#### 5.17.6 Correlation
+
+`correlate(x, y, method) -> TestResult` in `twinflow_lss.hypothesis`: Pearson or Spearman with
+the confidence interval through the Fisher transform, returned as the same `TestResult` schema
+the rest of the hypothesis layer publishes, with the assumption checker deciding between the
+two methods the way 5.7.2 decides between tests.
+
+### 5.18 MANOVA
+
+Addition beyond the source, 1.5. `compare_many_multivariate(groups, cfg) -> TestResult` closes
+the map's MANOVA row: multiple continuous Ys against discrete Xs, reporting Wilks' lambda with
+its F approximation, effect size, and the same assumption trace as 5.7. For two groups Wilks'
+lambda is an exact function of Hotelling's T-squared, and VG-HYP-25 holds that identity the way
+VG-HYP-12 holds the Tukey two-group identity. A published worked example for three or more
+groups is OQ-19.
+
+### 5.19 Schedule views: Gantt, operator-machine chart, CPM, and PERT
+
+Additions beyond the source, 1.5. Two generated drawings and one computed schedule.
+
+`build_gantt(log, cfg) -> GanttChart` in `twinflow-vsm`: resource-customer-machine interactions
+over a window, one lane per resource unit, one bar per activity occurrence, read from the same
+event log as 5.15.2. Filtered to one operator and one machine it is the operator-machine chart
+the map names; the artifact is the same and the filter is a parameter, not a second tool.
+
+`cpm(plan) -> CpmResult` in `twinflow_lss.schedule`: the forward and backward pass over a
+declared improvement plan (`plans/improvement/*.yaml`: tasks, dependencies, three-point
+durations), giving the critical path, per-task slack, and the PERT estimate `(a + 4m + b) / 6`
+with its variance per task and per path. The plan is config because pilot work items are
+declarations, not telemetry. An Improve-phase pilot tracked here closes the map's project
+scheduling row under the same determinism rules as everything else.
+
+### 5.20 RCA structures
+
+Additions beyond the source, 1.5, and the discharge of a debt 6a11 already holds: the CAPA
+workflow of `docs/design/production-quality.md` names Pareto, the fishbone structure, the
+five-whys chain, and the fault tree as tools this engine owns, and before this section only the
+Pareto existed.
+
+`twinflow_lss.rca` builds typed, evidence-linked structures:
+
+- `fishbone(effect, cfg)`: the 7-M skeleton (Manpower, Materials, Machines, Methods,
+  Measurement, Management, Mother Nature), each cause node carrying text plus optional links to
+  findings and query results.
+- `five_whys(effect, chain)`: an ordered chain, each step linking its evidence.
+- `fault_tree(top_event, nodes)`: AND and OR gates over declared basic events, with minimal cut
+  sets computed and listed.
+- `ce_matrix(causes, ys, scores)` and `tree_diagram(root, nodes)`: the C and E matrix and the
+  plain tree, same record, different `kind`.
+
+The structures hold judgments, so the engine does not invent their content. Causes are declared
+by whoever runs the analysis, through the agent tools or config, and what the engine adds is
+typing, evidence linkage, deterministic rendering, and the audit trail. A CAPA cannot pass
+`investigation` without a recorded tool run (6a11); these records are what that state machine
+stores. Published as `/schemas/rca_structure/v1.json`. Gates: VG-RCA-01, VG-RCA-02.
 
 ---
 
@@ -2346,6 +2517,7 @@ vsm:
 | `vsm/activity_classification.yaml`         | `/schemas/config/activity_classification.v1.json` | value-added classification plus waste type            |
 | `vsm/sipoc.yaml`                           | `/schemas/config/sipoc.v1.json`                   | the step roll-up map plus declared SIPOC columns      |
 | `ranking/criteria.yaml`                    | `/schemas/config/ranking_criteria.v1.json`        | criteria, cost classes, and the stoplight matrix      |
+| `plans/improvement/*.yaml`                 | `/schemas/config/improvement_plan.v1.json`        | tasks, dependencies, three-point durations            |
 | `divergence/specs.yaml`                    | `/schemas/divergence_spec/v1.json`                | one spec per monitored metric                         |
 | `validation/valgates.yaml`                 | `/schemas/valgate/v1.json`                        | the gate registry                                     |
 | `validation/budget.json`                   | `/schemas/config/gate_budget.v1.json`             | recorded per-gate cost, see 7.7                       |
@@ -2396,6 +2568,8 @@ Beyond per-field types, the loader enforces:
     in `hypothesis.practical_significance` (rule 7).
 18. The stoplight matrix in `ranking/criteria.yaml` covers every `(impact_band, cost_class)`
     pair exactly once.
+19. Every `plans/improvement/*.yaml` task graph is acyclic, and every `depends_on` entry names
+    a task in the same plan.
 
 ### 6.8 Error reporting (C5)
 
@@ -2845,7 +3019,7 @@ It is falsified when any generator's realized rate lies outside the band, and th
 names the generator and the test the checker selected, so a calibration failure points at the
 selection rule rather than at "the checker".
 
-#### 7.5.9 Process mining, value stream map, SIPOC and swimlane, ranking, alarm, divergence, determinism, and schema gates
+#### 7.5.9 Process mining, value stream map, SIPOC and swimlane, ranking, charts, schedule, RCA, alarm, divergence, determinism, and schema gates
 
 | Gate      | Statistic                                             | Reference                                                                                                                                   | Class                      | Tolerance and falsifier                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |-----------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -2865,6 +3039,17 @@ selection rule rather than at "the checker".
 | VG-RNK-01 | Pugh arithmetic and order                             | hand-constructed candidate sets with hand-computed scores and order, published in the test file with the derivation                         | closed_form                | exact match on every score, every net score, and the full order, including the `whatif_id` tie-break. Falsified by any cell, sum, or position differing                                                                                                                                                                                                                                                                                           |
 | VG-RNK-02 | stoplight classification                              | the declared matrix in `ranking/criteria.yaml` and constructed cases on each side of every band boundary                                    | software_invariant         | every constructed case classifies exactly as the matrix declares. Falsified by any case landing in a different class                                                                                                                                                                                                                                                                                                                              |
 | VG-RNK-03 | no green without practical significance               | none; this is a behavior assertion                                                                                                          | software_invariant         | a candidate with no criterion scoring `+1` never classifies `green`, whatever its cost class and whatever the matrix says. Falsified by one that does                                                                                                                                                                                                                                                                                             |
+| VG-CHT-03 | run chart statistics                                  | hand-constructed series with hand-computed runs and the Wald-Wolfowitz expected-runs formula, published in the test file                    | closed_form                | exact match on the run count, the expected count, and the longest run. Falsified by any of the three differing                                                                                                                                                                                                                                                                                                                                    |
+| VG-CHT-04 | box plot five-number summary                          | hand-constructed samples with hand-computed summaries under the named quantile convention                                                   | closed_form                | exact match on every quartile, fence, and outlier id. Falsified by any value differing, or by a result missing its quantile_method                                                                                                                                                                                                                                                                                                                |
+| VG-CHT-05 | pie and share arithmetic                              | constructed counts                                                                                                                          | software_invariant         | shares sum to 1 to a relative tolerance of 1e-12, every count equals its input, and an empty producer renders zero counts rather than an absent chart. Falsified by any sum, count, or empty-case behavior differing                                                                                                                                                                                                                              |
+| VG-CHT-06 | concentration recovery                                | injected defect positions of known station and kind                                                                                         | ground_truth_recovery      | every (station, kind) cell equals the injected count exactly. Falsified by any cell differing                                                                                                                                                                                                                                                                                                                                                     |
+| VG-CHT-07 | HODDOW aggregation                                    | hand-constructed series with hand-computed grids, published in the test file                                                                | closed_form                | every cell count and dispersion matches exactly, for both the HODDOW and the WOMSOY grid. Falsified by any cell differing                                                                                                                                                                                                                                                                                                                         |
+| VG-CHT-08 | X-Y map completeness                                  | none; this is a coverage assertion over the repository's own configuration                                                                  | software_invariant         | every declared pair appears exactly once with its source, and no cell exists that no config declares. Falsified by a missing pair, a duplicate, or an unsourced cell                                                                                                                                                                                                                                                                              |
+| VG-HYP-25 | MANOVA two-group identity                             | the exact relation between Wilks' lambda and Hotelling's T-squared at k = 2, stated with its derivation in the test file                    | closed_form                | lambda equals 1 / (1 + T2 / (n - 2)) to a relative tolerance of 1e-12 on constructed data. Falsified by a difference beyond the tolerance. Printed values for k > 2 are OQ-19                                                                                                                                                                                                                                                                     |
+| VG-CPM-01 | critical path, slack, and PERT arithmetic             | hand-constructed networks with hand-computed paths, slacks, and PERT estimates, published in the test file with the derivation              | closed_form                | exact match on the critical path, every slack, and every PERT mean and variance. Falsified by any of them differing                                                                                                                                                                                                                                                                                                                               |
+| VG-GNT-01 | Gantt lane and bar recovery                           | the recorded event log                                                                                                                      | ground_truth_recovery      | every bar sits in the lane of the resource that executed it with the log's start and end, and the operator-machine filter returns exactly the bars of the named pair. Falsified by a misplaced bar or a filter mismatch                                                                                                                                                                                                                           |
+| VG-RCA-01 | structure invariants                                  | none; this is a contract assertion                                                                                                          | software_invariant         | every structure is acyclic, every evidence id resolves, fishbone categories are exactly the seven Ms, and fault-tree cut sets equal the hand-computed sets for constructed trees. Falsified by any violation                                                                                                                                                                                                                                      |
+| VG-RCA-02 | chart and structure render determinism                | none; this is a behavior assertion                                                                                                          | software_invariant         | byte-identical SVG and JSON across processes for every 5.17, 5.19, and 5.20 artifact after the normalization filter, as VG-VSM-03. Falsified by any byte difference                                                                                                                                                                                                                                                                               |
 | VG-ALM-01 | rationalization completeness and priority consistency | none; this is a completeness assertion over the repository's own configuration                                                              | software_invariant         | every reachable `FindingKind` has a record, every record's declared priority equals the matrix-derived priority, every `operator_response` is non-empty, and no `severity_map` entry violates 5.10.4. Falsified by any missing record, any priority mismatch, any empty response, or any out-of-range severity map entry                                                                                                                          |
 | VG-ALM-02 | alarm metric arithmetic                               | a constructed alarm log with a declared console and a declared shift pattern, with hand-computed expected values published in the test file | software_invariant         | every metric of 5.10.6 matches its hand-computed value exactly, `operator_hours` matches the shift arithmetic exactly, and a window with no staffed shift reports null rather than a division by zero. This gate asserts nothing about any benchmark value from either alarm standard; see OQ-4. Falsified by any metric differing, or by a null-denominator window producing a number                                                            |
 | VG-ALM-03 | no-loss invariant                                     | none; this is a behavior assertion                                                                                                          | software_invariant         | every finding raised during a constructed flood is retrievable from the sink regardless of dedupe, suppression, or shelving. Falsified by a single finding missing from the sink                                                                                                                                                                                                                                                                  |
@@ -3004,6 +3189,11 @@ than executing the twin 30 times, which is what brings it inside any budget at a
 | Model drift control charts (E43), conformal coverage chart (E31), causal layer consuming the hypothesis engine (E30), AI cost per question on a control chart (E45), SOP generation from rationalization records (E24) | P6                   | Each is an E-tier consumer of an engine that already exists                                                                                                                                                                                                     |
 | SIPOC and swimlane views in `twinflow-vsm`, `vsm/sipoc.yaml`, VG-SIP-01, VG-SWM-01 to 02, report section 13                                                                                                            | P3c                  | Addition beyond the source, 1.5. Both read the mined model and the recorded log that land at P3c, and both render through the P0 emitter                                                                                                                        |
 | `twinflow_lss.ranking`, `/schemas/whatif_ranking/v1.json`, `ranking/criteria.yaml`, VG-RNK-01 to 03, report section 14                                                                                                 | P3d                  | Addition beyond the source, 1.5. A ranking needs at least two competing what-ifs, and the what-if plumbing matures with the planning layer at P3d                                                                                                               |
+| Run chart, box plot, pie, correlation, MANOVA, X-Y map, and HODDOW in `twinflow_lss`, VG-CHT-03 to 05, VG-CHT-07 to 08, VG-HYP-25                                                                                      | P2                   | Additions, 1.5. Pure functions over series and config; they land with the chart and hypothesis layers they extend                                                                                                                                               |
+| Concentration diagram, VG-CHT-06                                                                                                                                                                                       | P2, subject at P3i   | Additions, 1.5. The chart ships with the others; the first producer of defect positions is upstream production, and the CV auditor adds a second at P4                                                                                                          |
+| Gantt and operator-machine chart in `twinflow-vsm`, VG-GNT-01                                                                                                                                                          | P3c                  | Additions, 1.5. Reads the same recorded log as the swimlane                                                                                                                                                                                                     |
+| `twinflow_lss.schedule`, `plans/improvement/*.yaml`, VG-CPM-01                                                                                                                                                         | P3d                  | Additions, 1.5. Improvement plans track the pilots the what-if layer proposes                                                                                                                                                                                   |
+| `twinflow_lss.rca`, `/schemas/rca_structure/v1.json`, VG-RCA-01 to 02                                                                                                                                                  | 6a11                 | Additions, 1.5. The CAPA state machine is the consumer that makes the records load-bearing                                                                                                                                                                      |
 
 ### 8.2 Resequencing this section asked for, and what it costs
 
@@ -3181,3 +3371,9 @@ minimum needed to make VG-ALM-02 computable. It is also a small model of a staff
 `staffed_shifts` stays a static config block here or becomes a view over 6a14's roster once
 that lands, which would make the alarm rate respond to absenteeism the way it does in a real
 building.
+
+OQ-19. No published MANOVA worked example has been retrieved. VG-HYP-25 checks the two-group
+identity between Wilks' lambda and Hotelling's T-squared, which is exact and falsifiable but
+covers only k = 2. Textbook worked examples for k > 2 exist in the multivariate literature, all
+sold rather than published openly. The open decision is which one to cite and transcribe so the
+gate covers k > 2 against printed values rather than against an identity.

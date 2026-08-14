@@ -130,6 +130,19 @@ Reproducing a run and forecasting the next hour are different properties.
 | swimlane map           | external | A process drawing with one lane per resource pool, so every handoff between pools is visible.                                                           |
 | Pugh matrix            | external | A ranking of candidate changes against a datum, scoring each criterion better, same, or worse. Here the datum is the current state.                     |
 | stoplight analysis     | external | A green, yellow, or red class per candidate, from its impact and its cost. Here the matrix is declared in config and gated.                             |
+| run chart              | external | A time-ordered plot judged by run patterns about the median, used before a series is long enough for control limits.                                    |
+| box plot               | external | The five-number summary drawn as a box and whiskers, with outliers past the Tukey fences listed.                                                        |
+| concentration diagram  | external | Defect counts drawn on the physical layout, so location patterns become visible.                                                                        |
+| MANOVA                 | external | Multivariate analysis of variance. Several continuous Ys tested against discrete Xs at once.                                                            |
+| X-Y map                | external | The Measure-phase table linking each input X to the critical Ys it is hypothesized to move.                                                             |
+| HODDOW                 | external | Hour-of-day, day-of-week aggregation. WOMSOY is its week-of-month, season-of-year twin.                                                                 |
+| Gantt chart            | external | A timeline with one lane per resource and one bar per activity occurrence.                                                                              |
+| operator-machine chart | external | The Gantt chart filtered to one operator and one machine, showing their interaction.                                                                    |
+| CPM                    | external | Critical path method. The forward and backward pass giving the critical path and per-task slack.                                                        |
+| PERT                   | external | Three-point schedule estimation: mean (a + 4m + b) / 6 with a per-task variance.                                                                        |
+| fishbone diagram       | external | The 7-M cause skeleton behind an effect. Also called Ishikawa.                                                                                          |
+| five whys              | external | An ordered why-chain from effect to root cause, each step carrying its evidence.                                                                        |
+| fault tree             | external | AND and OR gates over basic events, with minimal cut sets computed.                                                                                     |
 | SMED                   | external | Single-minute exchange of die. The method for cutting changeover time.                                                                                  |
 | COPQ                   | external | Cost of poor quality. The money a defect costs once scrap, rework, and warranty are counted.                                                            |
 | capability report      | local    | The generated HTML report for a time window, naming the Gage R and R convention it used.                                                                |
