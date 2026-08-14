@@ -1184,10 +1184,16 @@ gates:
     falsified_by: "One compatibility kit failure on the edge-node profile."
     # Stays specified. A clean-room table of the specification's own tck-testable
     # ids runs against the session model in the test below, which measures the
-    # gap rather than closing it: 11 in-scope assertions fail today, 68 of the
-    # 201 edge-node assertions are out of scope for this package, and the kit
-    # this gate names is the arbiter rather than the table. Doctrine D-11 rule 1
+    # gap rather than closing it: 11 in-scope assertions fail, 56 of the 201
+    # edge-node assertions are out of scope for this package, and the kit this
+    # gate names is the arbiter rather than the table. Doctrine D-11 rule 1
     # refuses this repository as a reference for itself.
+    #
+    # The denominator moved when `wire.py` landed. Twelve assertions about the
+    # encoded payload were out of scope while this package had no codec and are
+    # now checked against the bytes, so the in-scope count is 145 rather than
+    # 133 and the same 11 failures sit under a larger denominator. A gap that
+    # shrinks because the denominator grew is not a gap that closed.
     test_path: packages/twinflow-sensors/tests/test_conformance.py
   VAL-GATE-SPARK-002:
     kind: validation

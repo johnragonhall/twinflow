@@ -147,7 +147,7 @@ and this repository is Apache-2.0. No compatibility kit source was read.
 
 `ConformanceReport.conformant` being true would mean the in-scope subset held,
 which is not conformance: the table carries 299 assertions, 201 of them on the
-edge-node profile, and this package is in scope for 133 of those. The runner
+edge-node profile, and this package is in scope for 145 of those. The runner
 so reports the denominator beside the count, and the gate reads both.
 
 Assertions the current session does not satisfy are recorded in

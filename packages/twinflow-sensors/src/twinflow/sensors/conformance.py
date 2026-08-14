@@ -91,7 +91,6 @@ class Exclusion(StrEnum):
     requirement, not a satisfied one.
     """
 
-    ENCODING = "protobuf wire encoding, which this package does not implement"
     TEMPLATES = (
         "Template, DataSet, and PropertySet wire structures, which this package does not model"
     )
@@ -127,7 +126,6 @@ _SERVER = Profile.MQTT_SERVER
 _MUST = Level.MUST
 _SHOULD = Level.SHOULD
 _MAY = Level.MAY
-_ENC = Exclusion.ENCODING
 _TPL = Exclusion.TEMPLATES
 _TRN = Exclusion.TRANSPORT
 _DEP = Exclusion.DEPLOYMENT
@@ -798,7 +796,7 @@ _ROWS: tuple[tuple[str, Profile, Level, Exclusion | None, str], ...] = (
         "tck-id-message-flow-edge-node-birth-publish-will-message-payload",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "The will payload is a Sparkplug protobuf-encoded payload.",
     ),
     (
@@ -862,7 +860,7 @@ _ROWS: tuple[tuple[str, Profile, Level, Exclusion | None, str], ...] = (
         "tck-id-message-flow-edge-node-birth-publish-nbirth-payload",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "The NBIRTH payload is a Sparkplug protobuf-encoded payload.",
     ),
     (
@@ -995,7 +993,7 @@ _ROWS: tuple[tuple[str, Profile, Level, Exclusion | None, str], ...] = (
         "tck-id-message-flow-device-birth-publish-dbirth-payload",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "The DBIRTH payload is a Sparkplug protobuf-encoded payload.",
     ),
     (
@@ -1240,7 +1238,7 @@ _ROWS: tuple[tuple[str, Profile, Level, Exclusion | None, str], ...] = (
         "tck-id-operational-behavior-data-publish-nbirth-values",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "An NBIRTH metric holds its current value, or is flagged null with no value present.",
     ),
     (
@@ -1268,7 +1266,7 @@ _ROWS: tuple[tuple[str, Profile, Level, Exclusion | None, str], ...] = (
         "tck-id-operational-behavior-data-publish-dbirth-values",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "A DBIRTH metric holds its current value, or is flagged null with no value present.",
     ),
     (
@@ -1479,7 +1477,7 @@ _ROWS: tuple[tuple[str, Profile, Level, Exclusion | None, str], ...] = (
         "tck-id-payloads-metric-datatype-value-type",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "The datatype field is encoded as an unsigned 32-bit integer.",
     ),
     (
@@ -1507,42 +1505,42 @@ _ROWS: tuple[tuple[str, Profile, Level, Exclusion | None, str], ...] = (
         "tck-id-payloads-propertyset-keys-array-size",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "A PropertySet holds as many keys as it holds values.",
     ),
     (
         "tck-id-payloads-propertyset-values-array-size",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "A PropertySet holds as many values as it holds keys.",
     ),
     (
         "tck-id-payloads-metric-propertyvalue-type-type",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "A property value's type field is encoded as an unsigned 32-bit integer.",
     ),
     (
         "tck-id-payloads-metric-propertyvalue-type-value",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "A property value's type is one of the enumerated datatypes.",
     ),
     (
         "tck-id-payloads-metric-propertyvalue-type-req",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "A property value definition in an NBIRTH or DBIRTH carries its type.",
     ),
     (
         "tck-id-payloads-propertyset-quality-value-type",
         _EDGE,
         _MUST,
-        _ENC,
+        None,
         "The Quality property's type field is the signed 32-bit integer code.",
     ),
     (
@@ -3033,9 +3031,179 @@ def _check_case_distinct_metric_names(trace: _Trace) -> str:
     return "metric names that differ only by case are refused"
 
 
+# ------------------------------------------------------- the encoded payload
+#
+# These read the bytes rather than the model, because each assertion below is
+# about what actually reaches a subscriber. A metric that survives the session
+# and is lost by the encoder is a metric the consumer never sees, and a check
+# against the model reports a pass for exactly that.
+
+
+def _encoded(message: Message) -> bytes:
+    from twinflow.sensors.wire import encode_payload
+
+    return encode_payload(message.payload)
+
+
+def _decoded(message: Message):
+    from twinflow.sensors.wire import decode_payload
+
+    return decode_payload(_encoded(message))
+
+
+def _is_protobuf_payload(select: Callable[[_Trace], Message]) -> Check:
+    """The payload encodes and decodes as protobuf without losing a metric.
+
+    A round trip rather than a byte comparison. What the assertion asks is that
+    the payload is a Sparkplug protobuf payload, and a decoder recovering the
+    same metric set, timestamp, and sequence from the bytes is the observable
+    form of that.
+    """
+
+    def check(trace: _Trace) -> str:
+        message = select(trace)
+        wire = _encoded(message)
+        restored = _decoded(message)
+        _require(
+            len(restored.metrics) == len(message.payload.metrics),
+            f"the payload encodes {len(message.payload.metrics)} metrics and decodes "
+            f"{len(restored.metrics)}",
+        )
+        _require(
+            restored.timestamp == message.payload.timestamp,
+            "the payload timestamp did not survive the round trip",
+        )
+        _require(
+            restored.seq == message.payload.seq,
+            "the payload sequence did not survive the round trip",
+        )
+        return f"{len(wire)} bytes decode back to {len(restored.metrics)} metrics"
+
+    return check
+
+
+def _birth_values_present_or_null(select: Callable[[_Trace], Message]) -> Check:
+    """Every birth metric holds a value, or is flagged null and holds none."""
+
+    def check(trace: _Trace) -> str:
+        message = select(trace)
+        restored = _decoded(message)
+        original = {m.name or m.alias: m for m in message.payload.metrics}
+        for metric in restored.metrics:
+            key = metric.name or metric.alias
+            source = original.get(key)
+            if source is None:
+                raise _CheckFailed(f"metric {key} decoded but was never published")
+            if source.value is None:
+                _require(
+                    metric.value is None,
+                    f"metric {key} was published null and decoded carrying {metric.value!r}",
+                )
+            else:
+                _require(
+                    metric.value is not None,
+                    f"metric {key} was published with a value and decoded null",
+                )
+        carrying = sum(1 for m in restored.metrics if m.value is not None)
+        return (
+            f"{carrying} of {len(restored.metrics)} birth metrics carry their value, "
+            f"and the rest are null with none present"
+        )
+
+    return check
+
+
+def _datatype_is_unsigned_varint(trace: _Trace) -> str:
+    """Metric field 4 is written as a varint, which is how a uint32 travels.
+
+    Read off the bytes. The tag for field 4 at wire type 0 is 0x20, and finding
+    it is what shows the datatype was not written as a fixed width or a string.
+    """
+    wire = _encoded(trace.nbirth)
+    _require(b"\x20" in wire, "no field-4 varint tag appears in the NBIRTH payload")
+    restored = _decoded(trace.nbirth)
+    for metric in restored.metrics:
+        _require(
+            int(metric.datatype) >= 0,
+            f"metric {metric.name or metric.alias} decoded a negative datatype",
+        )
+    return f"every datatype across {len(restored.metrics)} metrics decodes as an unsigned integer"
+
+
+def _propertyset_arrays_match(trace: _Trace) -> str:
+    """A property set holds as many keys as values, counted both ways."""
+    restored = _decoded(trace.nbirth)
+    published = {m.name: m for m in trace.nbirth.payload.metrics if m.name}
+    counted = 0
+    for metric in restored.metrics:
+        source = published.get(metric.name or "")
+        if source is None or not source.properties:
+            continue
+        _require(
+            len(metric.properties) == len(source.properties),
+            f"metric {metric.name} declared {len(source.properties)} properties and "
+            f"decoded {len(metric.properties)}",
+        )
+        counted += 1
+    _require(counted > 0, "no metric in the NBIRTH carried a property set")
+    return f"{counted} property sets decode with as many keys as values"
+
+
+def _property_type_is_enumerated(trace: _Trace) -> str:
+    """Every property value carries a type from the datatype enumeration.
+
+    A value that decoded at all is a value whose type field was written and
+    understood, because the decoder selects its reader from that field.
+    """
+    restored = _decoded(trace.nbirth)
+    seen = 0
+    for metric in restored.metrics:
+        for key, value in metric.properties.items():
+            _require(
+                value is not None,
+                f"property {key} on {metric.name} decoded with no value, so its type "
+                f"was not one the enumeration carries",
+            )
+            seen += 1
+    _require(seen > 0, "the NBIRTH carried no metric properties at all")
+    return f"{seen} property values decode with a type from the enumeration"
+
+
+def _quality_is_int32(trace: _Trace) -> str:
+    """The Quality property travels as the signed 32-bit integer code."""
+    restored = _decoded(trace.nbirth)
+    codes = [m.properties["Quality"] for m in restored.metrics if "Quality" in m.properties]
+    _require(bool(codes), "no metric carried a Quality property")
+    for code in codes:
+        _require(
+            isinstance(code, int) and -(2**31) <= code < 2**31,
+            f"a Quality property decoded as {code!r}, which is not a 32-bit integer code",
+        )
+    return f"{len(codes)} Quality properties decode as int32 codes {sorted(set(codes))}"
+
+
 #: One executable check per in-scope assertion. An assertion with no check
 #: cannot be reported as passing, which `tests/test_conformance.py` enforces.
 _CHECKS: Mapping[str, Check] = {
+    # ---------------------------------------------------- encoded payload
+    "tck-id-message-flow-edge-node-birth-publish-will-message-payload": _is_protobuf_payload(
+        lambda trace: trace.will.message
+    ),
+    "tck-id-message-flow-edge-node-birth-publish-nbirth-payload": _is_protobuf_payload(_nbirth),
+    "tck-id-message-flow-device-birth-publish-dbirth-payload": _is_protobuf_payload(_dbirth),
+    "tck-id-operational-behavior-data-publish-nbirth-values": _birth_values_present_or_null(
+        _nbirth
+    ),
+    "tck-id-operational-behavior-data-publish-dbirth-values": _birth_values_present_or_null(
+        _dbirth
+    ),
+    "tck-id-payloads-metric-datatype-value-type": _datatype_is_unsigned_varint,
+    "tck-id-payloads-propertyset-keys-array-size": _propertyset_arrays_match,
+    "tck-id-payloads-propertyset-values-array-size": _propertyset_arrays_match,
+    "tck-id-payloads-metric-propertyvalue-type-type": _property_type_is_enumerated,
+    "tck-id-payloads-metric-propertyvalue-type-value": _property_type_is_enumerated,
+    "tck-id-payloads-metric-propertyvalue-type-req": _property_type_is_enumerated,
+    "tck-id-payloads-propertyset-quality-value-type": _quality_is_int32,
     # -------------------------------------------------------- identifiers
     "tck-id-intro-group-id-string": _identifier_reaches_topic(_nbirth, 1, _GROUP_ID),
     "tck-id-intro-edge-node-id-string": _identifier_reaches_topic(_nbirth, 3, _EDGE_NODE_ID),
