@@ -186,13 +186,18 @@ def script(markup: str) -> str:
     return blocks[0]
 
 
-def make_config(**overrides) -> DashboardConfig:
+def make_config(**overrides: object) -> DashboardConfig:
     fields: dict[str, object] = {
         "run_id": "run_01jabcdefghijklmnopqrstuvw",
         "epoch": datetime(2026, 1, 1, tzinfo=UTC),
     }
     fields.update(overrides)
-    return DashboardConfig(**fields)
+    # `model_validate` rather than `DashboardConfig(**fields)`: an override may
+    # carry any field, so the mapping is typed `object`, and unpacking it into
+    # the constructor asks the checker to match `object` against every
+    # annotation on the model. This validates the same fields and raises the
+    # same refusals.
+    return DashboardConfig.model_validate(fields)
 
 
 @pytest.fixture
