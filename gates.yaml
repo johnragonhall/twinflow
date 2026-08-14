@@ -923,6 +923,14 @@ gates:
     falsified_by: >-
       A run over 300 seconds, a run that needs a cloud account, or a dashboard serving empty
       state at the end of it.
+    # Stays specified, and the block is real work rather than bookkeeping. This
+    # gate times a quickstart that ends on a live dashboard serving non-empty
+    # state, and the garage tier has never started: five of its seven services
+    # named a command that did not exist, because the fourth seam of
+    # ARCHITECTURE.md section 2 has no port in this tree. ADR-0003 records the
+    # decision and WP-P1-23 through WP-P1-26 carry the work. Until a tier runs
+    # there is nothing to time, and a budget asserted against a stack that does
+    # not start would measure the wrong thing rather than nothing.
   VAL-GATE-RECALL-001:
     kind: budget
     status: declared
@@ -965,6 +973,13 @@ gates:
       The release ritual completes inside the release wall-time budget on the pinned reference
       runner, and the measured duration is published on ops.release.tagged.v1 whatever it is.
     falsified_by: "A ritual run over the published budget on the reference runner."
+    # Stays specified, and structurally so. This gate measures the release
+    # ritual, and the ritual is what runs the phase-exit check that reads this
+    # gate. Arming it before the ritual has run leaves a budget asserted against
+    # a duration nothing has measured, which is the ceiling-by-assumption the
+    # noise floor above refuses. tools/measure_release_ritual.py records the
+    # duration on ops.release.tagged.v1 at every tag whatever it is, so the
+    # budget arrives from measurement rather than ahead of it.
   VAL-GATE-RET-001:
     kind: invariant
     status: declared

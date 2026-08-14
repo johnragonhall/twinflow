@@ -782,6 +782,9 @@ work_packages:
       - { id: "9", partial: true, note: "the first README" }
       - { id: "C8", partial: false }
       - { id: "CON-8", partial: false }
+    # No dependency on WP-P1-26. These four documents are writable today; it is
+    # VAL-GATE-QS-001 that waits on a tier which starts, and gates.yaml carries
+    # that reason where a reader of the gate finds it.
     depends_on: []
     deliverables:
       - "README.md"
@@ -824,6 +827,79 @@ work_packages:
     brick: twinflow-config
     release: v0.2.0
     status: done
+  # The four below are the transport ADR-0003 records, split so each one lands
+  # something that can be asserted on its own. They exist because the garage
+  # tier was asserted statically and had never been started: five of its seven
+  # services name a command that does not exist, and the missing piece is not
+  # five entry points but the fourth seam of ARCHITECTURE.md section 2.
+  - id: WP-P1-23
+    title: "Add the Network port and its in-memory transport"
+    phase: P1
+    wave: 23
+    covers:
+      - {
+          id: "ARCH-2",
+          partial: true,
+          note: "the port a broker is reached through, and the simulation adapter behind it",
+        }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-kernel/src/twinflow/kernel/_impl/network.py"
+    gates: []
+    brick: twinflow-kernel
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-24
+    title: "Reach the garage-tier broker over mTLS through the production adapter"
+    phase: P1
+    wave: 24
+    covers:
+      - { id: "ARCH-2", partial: true, note: "the client against Mosquitto" }
+      - { id: "2", partial: true, note: "the two P1 devices publishing for real" }
+    depends_on:
+      - WP-P1-23
+    deliverables:
+      - "packages/twinflow-kernel/src/twinflow/kernel/_impl/real/mqtt.py"
+    gates: []
+    brick: twinflow-kernel
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-25
+    title: "Write a recorded run to disk and read it back"
+    phase: P1
+    wave: 25
+    covers:
+      - {
+          id: "E4",
+          partial: true,
+          note: "E4a the read-back half, without which a served run cannot outlive its process",
+        }
+    depends_on: []
+    deliverables:
+      - "packages/twinflow-storage/src/twinflow/storage/adapters/__init__.py"
+    gates: []
+    brick: twinflow-storage
+    release: v0.2.0
+    status: planned
+  - id: WP-P1-26
+    title: "Start every service the garage tier declares"
+    phase: P1
+    wave: 26
+    covers:
+      - { id: "A3", partial: true, note: "the garage tier as a thing that runs" }
+      - { id: "RA-b", partial: true, note: "the runtime half of rules 2 and 5" }
+    depends_on:
+      - WP-P1-23
+      - WP-P1-24
+      - WP-P1-25
+    deliverables:
+      - "packages/twinflow-sensors/src/twinflow/sensors/__main__.py"
+      - "packages/twinflow-storage/src/twinflow/storage/__main__.py"
+      - "packages/twinflow-agent/src/twinflow/agent/__main__.py"
+    gates: []
+    brick: null
+    release: v0.2.0
+    status: planned
   - id: WP-P2-01
     title: "Build the statistical core and validate it against the published references"
     phase: P2
