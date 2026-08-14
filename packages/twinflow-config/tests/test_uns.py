@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -38,21 +39,31 @@ PORTAL = UnsPath(
 )
 
 
-def _with_equipment(bad: object) -> UnsPath:
+def _with_equipment(bad: str) -> UnsPath:
     return UnsPath(
         enterprise="twinflow",
         site="dc-01",
         area="receiving",
         line="inbound-line-01",
-        equipment=bad,  # ty: ignore[invalid-argument-type]  the refusal is the test
+        equipment=bad,
         parameter="read_rate",
     )
 
 
-def _with_site(bad: object) -> UnsPath:
+def _from_config(**levels: Any) -> UnsPath:
+    """The six levels as a config file supplies them.
+
+    A YAML scalar arrives as whatever the parser made of it, so the values are
+    as wide here as they are at the boundary this models. Every level a
+    hand-written call site passes is a `str`, and the helpers below say so.
+    """
+    return UnsPath(**levels)
+
+
+def _with_site(bad: str) -> UnsPath:
     return UnsPath(
         enterprise="twinflow",
-        site=bad,  # ty: ignore[invalid-argument-type]  the refusal is the test
+        site=bad,
         area="receiving",
         line="inbound-line-01",
         equipment="portal-03",
@@ -60,14 +71,14 @@ def _with_site(bad: object) -> UnsPath:
     )
 
 
-def _with_parameter(bad: object) -> UnsPath:
+def _with_parameter(bad: str) -> UnsPath:
     return UnsPath(
         enterprise="twinflow",
         site="dc-01",
         area="receiving",
         line="inbound-line-01",
         equipment="portal-03",
-        parameter=bad,  # ty: ignore[invalid-argument-type]  the refusal is the test
+        parameter=bad,
     )
 
 
@@ -192,7 +203,14 @@ def test_an_empty_level_is_refused():
 def test_a_level_that_is_not_a_string_names_no_level():
     """A YAML author writing `site: 01` hands this an int, not a string."""
     with pytest.raises(NamingError) as caught:
-        _with_site(1)
+        _from_config(
+            enterprise="twinflow",
+            site=1,
+            area="receiving",
+            line="inbound-line-01",
+            equipment="portal-03",
+            parameter="read_rate",
+        )
     assert caught.value.code == "TF-S001"
 
 

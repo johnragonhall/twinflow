@@ -119,7 +119,7 @@ def test_a_tool_call_cannot_be_built_around_an_unvalidated_payload():
 def test_a_tool_call_is_immutable_once_built(registry):
     call = registry.bind(QUERY_METRIC, selection())
     with pytest.raises(AttributeError):
-        call.args = None  # type: ignore[misc]
+        call.args = None
 
 
 def test_the_argument_digest_is_a_function_of_the_validated_arguments(registry):

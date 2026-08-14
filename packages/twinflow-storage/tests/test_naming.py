@@ -71,11 +71,13 @@ def test_every_series_carries_the_placement_it_is_the_record_for():
 
 
 def test_a_placement_is_immutable():
+    # The level is reached by name, because that is how something reaches it
+    # outside this file: a config loader walks a mapping and sets what it
+    # finds. A literal assignment states the same attempt as source the type
+    # checker refuses before the test can run it.
+    level = "isa95"
     with pytest.raises((AttributeError, TypeError)):
-        # Assigning a read-only property is exactly what this asserts is
-        # refused, so the checker is told to allow the line it should
-        # otherwise reject.
-        HISTORIAN.isa95 = "L3"  # ty: ignore[invalid-assignment]
+        setattr(HISTORIAN, level, "L3")
 
 
 def test_a_placement_refuses_a_level_it_does_not_recognise():

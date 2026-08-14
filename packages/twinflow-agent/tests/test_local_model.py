@@ -445,9 +445,8 @@ def test_a_redirect_off_loopback_is_refused():
 
 def test_the_transport_opener_does_not_follow_redirects():
     """The refusal above only matters while the transport uses this opener."""
-    assert any(
-        # `OpenerDirector.handlers` is set in its constructor and typeshed does
-        # not declare it, so the attribute is real and only the stub is short.
-        isinstance(handler, local_model._RefuseRedirect)
-        for handler in local_model._OPENER.handlers  # ty: ignore[unresolved-attribute]
-    )
+    # `OpenerDirector` sets `handlers` in its constructor and typeshed does not
+    # declare it, so the attribute is read by name: the stub is short, and
+    # asking for it dynamically says that rather than overriding the checker.
+    handlers = vars(local_model._OPENER)["handlers"]
+    assert any(isinstance(handler, local_model._RefuseRedirect) for handler in handlers)
