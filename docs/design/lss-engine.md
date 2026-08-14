@@ -1,6 +1,6 @@
 ---
 title: LSS engine
-description: SPC, capability, measurement system analysis, hypothesis testing, the findings stream, alarm management, process mining, value stream maps, and the validation registry.
+description: SPC, capability, MSA, hypothesis testing, findings, alarms, process mining, value stream maps, SIPOC and swimlane views, what-if ranking, and the validation registry.
 topic_type: reference
 audience: contributors
 ---
@@ -112,6 +112,16 @@ QMS workflow (NCR and CAPA lifecycle) is 6a11. OEE computation is component 1. T
 values that decide when a twin divergence matters belong to component 6; the contract those
 values fill in is authored here, in 4.6. This section owns the mathematics, the finding contract,
 the alarm layer, and the validation registry.
+
+### 1.5 Additions beyond the source
+
+Two capabilities are additions dated 2026-08-13, and are not source
+requirements: the SIPOC and swimlane views of 5.15, and the what-if ranking of 5.16. The
+register of CON-6 is unchanged, because that file holds source atoms only. The additions close
+the two automatable gaps left on the Ahire and Jensen project map once component 5 is built.
+Each one reuses machinery this section already specifies, renders through `twinflow-artifact`,
+and carries its own gates in 7.5.9. Nothing in 1.1 changes: source coverage is stated against
+the source, and an addition neither widens it nor dilutes it.
 
 ---
 
@@ -229,7 +239,7 @@ adds a DuckDB reader for the historian's Delta tables; `[matplotlib]` adds an al
 renderer whose output is excluded from the byte-identity gates and is never the default.
 
 Public API surface, the only names covered by the semver policy in C9. Every callable in the
-`spc`, `capability`, `msa`, `hypothesis`, `trend`, `charts`, `batch`, `sampling`, and
+`spc`, `capability`, `msa`, `hypothesis`, `trend`, `charts`, `batch`, `sampling`, `ranking`, and
 `divergence` modules carries a `@val_gate(...)` decorator naming at least one registry record;
 7.5.4 states the CI test that makes that unavoidable.
 
@@ -279,6 +289,9 @@ golden_batch_score(profile, golden, cfg) -> BatchScore   # phase 3i
 z14_plan(lot_size, aql, inspection_level, severity) -> SamplingPlan   # phase 6a11
 oc_curve(plan) -> OcCurve
 switching(state, history) -> SwitchingDecision
+
+# twinflow_lss.ranking
+rank_whatifs(candidates, cfg: RankingConfig) -> WhatIfRanking         # 5.16, phase P3d
 
 # twinflow_lss.divergence
 evaluate_divergence(paired: PairedSeries, spec: DivergenceSpec) -> DivergenceResult
@@ -376,7 +389,8 @@ rather than as a foreign class.
 
 ### 2.5 `twinflow-vsm` (import `twinflow_vsm`)
 
-Current-state and future-state value stream maps as generated artifacts.
+Current-state and future-state value stream maps, plus the SIPOC and swimlane views of 5.15, as
+generated artifacts.
 
 ```
 pip install twinflow-vsm
@@ -393,6 +407,12 @@ build_future_state(current: ValueStreamMap, whatif: WhatIfResult, cfg) -> ValueS
 diff(current, future) -> VsmDiff
 render_svg(vsm) -> str
 render_table(vsm) -> str          # text equivalent, always written, C12
+build_sipoc(model, contribution, topology, cfg) -> Sipoc       # 5.15.1
+build_swimlane(log, model, cfg) -> Swimlane                    # 5.15.2
+render_sipoc_svg(s) -> str
+render_sipoc_table(s) -> str      # text equivalent, always written, C12
+render_swimlane_svg(s) -> str
+render_swimlane_table(s) -> str   # text equivalent, always written, C12
 ```
 
 ### 2.6 Dependency direction and layering
@@ -447,6 +467,9 @@ that id in each phase.
 | `run_conformance(case_notion, window)`                           | fitness, precision, deviation list                                                                                           |
 | `get_variants(case_notion, window, top_n)`                       | `VariantTable`                                                                                                               |
 | `shelve_alarm(alarm_id, reason, duration_s)`                     | `ShelveRecord`, needs autonomy tier L2 or above (E5)                                                                         |
+| `get_sipoc(window)`                                              | `Sipoc` JSON plus SVG path (5.15)                                                                                            |
+| `get_swimlane(case_notion, window)`                              | `Swimlane` JSON plus SVG path (5.15)                                                                                         |
+| `rank_whatifs(whatif_ids, profile)`                              | `WhatIfRanking`: the Pugh table, the stoplight class per candidate, and the `TestResult` ids behind each score (5.16)        |
 
 ---
 
@@ -705,6 +728,27 @@ sum(triangle.wait_time_s)`, each to a relative tolerance of 1e-9;
 `process_cycle_efficiency == process_time_s / lead_time_s` and lies in `[0, 1]`; Little's Law
 holds at steady state within the Monte Carlo interval that VG-VSM-02 measures.
 
+### 3.9 SIPOC, swimlane, and ranking entities
+
+Additions beyond the source, 1.5.
+
+`Sipoc`: `steps` (ordered, the mined model rolled up per `vsm/sipoc.yaml`), `suppliers`,
+`inputs`, `outputs`, `customers` (each a list of `{name, provenance}`, where `provenance` is
+`mined` or `declared`), `window`, `case_notion`, `provenance` (model id, config hash, run seed).
+
+`Swimlane`: `lanes` (resource pools in declared order), `nodes` (`activity`, `lane`,
+`occurrence_share`), `edges` (mined control flow), `handoffs` (per lane pair, the count of edges
+crossing it), `window`, `provenance`.
+
+`WhatIfRanking`: `datum` (the current state), `criteria` (ordered metric ids), `rows` (per
+candidate: `whatif_id`, per-criterion score in `{-1, 0, +1}`, `net_score`, `cost_class`,
+`stoplight`, `test_result_ids`), `order`, `provenance`.
+
+Invariants: `net_score` equals the sum of the row's criterion scores; `order` sorts by
+`net_score` descending with ties broken by `whatif_id` ascending; every `test_result_ids` entry
+resolves to a `TestResult` of 3.5; every `Sipoc` cell and every `Swimlane` node carries a
+provenance the renderer prints.
+
 ---
 
 ## 4. Events
@@ -870,6 +914,10 @@ with `finding/v1`.
 Each carries the envelope of 4.1 when published as an event and the same field set when passed
 in-process, and the generated pydantic binding ships in `twinflow-contracts`. Round-trip contract
 tests assert that the in-process object and the serialized form agree.
+
+The what-if ranking of 5.16 adds a fourth: `/schemas/whatif_ranking/v1.json`, produced by
+`twinflow-lss` and consumed by the report and the agent. It is authored with 5.16 and lands at
+P3d. The subject is new, so authoring it after P0 bumps nothing that shipped.
 
 ### 4.6 `divergence_spec/v1` (published)
 
@@ -1955,14 +2003,18 @@ Sections, in Minitab's order because the layout is the recognition cue:
 12. Validation appendix: the gate table with every gate's id, statistic, reference class,
     reference, and status, plus the generated claim block of 7.6 and the list of any deferred
     gates named in full.
+13. SIPOC and swimlane views: each SVG inline plus its text-equivalent table (5.15).
+14. What-if ranking: the Pugh table with the stoplight class per candidate, each score linking
+    to its `TestResult` (5.16).
 
 Sections 10 and 11 need `twinflow-procmine` and `twinflow-vsm`, which land at P3c, and section 9
-needs the divergence spec, which lands with component 6. The report does not silently omit a
-section it cannot produce. `report.include` defaults exclude `procmine`, `vsm`, and `divergence`
-until their phase, and any section named in `report.include` but unavailable renders as a named
-placeholder block reading "not available in this build: twinflow-procmine is not installed". The
-golden file stays stable across phases and a missing section is visible rather than
-inferred.
+needs the divergence spec, which lands with component 6. Section 13 lands at P3c with
+`twinflow-vsm`, and section 14 at P3d with the ranking module. The report does not silently omit
+a section it cannot produce. `report.include` defaults exclude `procmine`, `vsm`,
+`sipoc_swimlane`, `ranking`, and `divergence` until their phase, and any section named in
+`report.include` but unavailable renders as a named placeholder block reading "not available in
+this build: twinflow-procmine is not installed". The golden file stays stable across phases and a
+missing section is visible rather than inferred.
 
 Accessibility (C12): semantic headings, every chart followed by its data table, severity encoded
 by shape and label in addition to color, a color-blind-safe palette, and a print stylesheet.
@@ -2023,6 +2075,97 @@ The reason the weaker cross-platform claim is the honest one: the distributions 
 round to ticks, which makes the tape sensitive to one-unit-in-last-place differences in `log`,
 `exp`, and `erfinv` across platforms and SIMD dispatch. A cross-platform byte-identity claim
 cannot be supported and is not made.
+
+### 5.15 SIPOC and swimlane views
+
+Addition beyond the source, 1.5. Two more drawings that consultants hand-draw in the Define phase, generated
+here from data the engine already has. Both live in `twinflow-vsm`, both render through
+`twinflow_artifact.svg` with a fixed layout, and every rule of 5.14 binds them.
+
+#### 5.15.1 SIPOC
+
+`build_sipoc(model, contribution, topology, cfg) -> Sipoc`, entities in 3.9.
+
+The process column is mined, never hand-drawn. The discovered model of 5.11.2 is rolled up to
+high-level steps through `vsm/sipoc.yaml`, a map from activity to step. The map is config for the
+same reason the activity classification of 5.12.2 is config: the roll-up is a judgment call a
+reader may argue with, and the file is where they argue. A SIPOC wants few steps, and how few is
+the map author's call.
+
+The input and output columns derive from the twin's station graph where a material flow is
+recorded, and from `vsm/sipoc.yaml` where one is not. The supplier and customer columns are
+declared in the same file, sourced from the ERP stub's supplier list (6b) and the demand model.
+Every cell carries `provenance: mined` or `provenance: declared`, so a reader sees which columns
+the data earned and which the config asserted. A SIPOC that hides that difference would
+overclaim, and overclaiming is what the validation registry exists to prevent.
+
+#### 5.15.2 Swimlane
+
+`build_swimlane(log, model, cfg) -> Swimlane`, entities in 3.9.
+
+Lanes are the twin's resource pools, in the declared pool order. Each activity sits in the lane
+of the resource that executed it in the event log, read from the `resource` column of 3.7. Edges
+follow the mined control flow. An edge whose source and target lanes differ is a handoff, and
+the handoff count per lane pair prints on the map, because handoffs are where a Lean reader
+looks first. An activity executed by more than one pool in the window is drawn once per pool
+with its occurrence share, never merged, so the map cannot hide a split responsibility.
+
+#### 5.15.3 Rendering and placement
+
+`render_sipoc_svg`, `render_swimlane_svg`, and their table twins follow 5.12.4 exactly: fixed
+pitch, no layout engine, byte-stable output, `<title>` and `<desc>` on every group, and a
+Markdown table beside every SVG (C12). `sipoc.json` and `swimlane.json` are the golden-file
+targets. The capability report gains section 13 behind `report.include`, excluded by default
+until P3c under the placeholder rule of 5.13.
+
+Neither view invents data. The SIPOC's declared cells come from config, the swimlane's lanes
+come from the twin, and both artifacts name the mined model id, the config hash, and the run
+seed in `provenance` (D-01). Gates: VG-SIP-01, VG-SWM-01, VG-SWM-02.
+
+### 5.16 What-if ranking
+
+Addition beyond the source, 1.5. The Improve-phase step between many candidate what-ifs and the one
+future-state map of 5.12.3: a Pugh matrix with the current state as the datum, and a stoplight
+class per candidate. `rank_whatifs` lives in `twinflow_lss.ranking` and returns a
+`WhatIfRanking` (3.9), published as `/schemas/whatif_ranking/v1.json`. Candidates arrive as
+`whatif_result/v1` (4.7), one per competing change, each carrying the baseline and treatment
+sample references the hypothesis layer reads.
+
+#### 5.16.1 Scoring
+
+The datum is the current state. The criteria are metric ids from `ranking/criteria.yaml`, each
+resolving in the metric registry (6.6) and each carrying a practical-significance margin under
+rule 7 of 6.7. Per candidate and criterion, the score is `+1` when the candidate's `TestResult`
+shows an improvement that is both statistically and practically significant, `-1` when it shows
+a worsening under the same two bars, and `0` otherwise, including every case where the
+assumption checker refused the test. The family for the 5.7.5 adjustment is every
+candidate-criterion pair in the call, so shopping ten what-ifs does not buy ten uncorrected
+chances at significance.
+
+The score is a function of `TestResult` verdicts the hypothesis layer already produces, so the
+ranking adds no new statistics and no new ways to be wrong about significance. There are no
+weights. A weighted sum invites tuning the weights until a favorite wins; an unweighted Pugh
+count keeps the argument in the criteria list, which is config a reviewer can read.
+
+#### 5.16.2 Stoplight class
+
+The stoplight is the classroom device from the Ahire and Jensen map, kept because it
+communicates: impact against cost on one card. The impact band derives from the net score
+(`positive`, `zero`, `negative`). The cost class is declared per what-if in its config (`low`,
+`medium`, `high`), because cost is an input a simulation cannot measure. `ranking/criteria.yaml`
+declares the full matrix from `(impact_band, cost_class)` to `green`, `yellow`, or `red`, and
+rule 18 of 6.7 refuses a matrix with a hole. A candidate with no criterion scoring `+1` can
+never classify `green`, whatever its declared cost (VG-RNK-03).
+
+#### 5.16.3 Order and determinism
+
+`order` sorts by `net_score` descending, ties broken by `whatif_id` ascending, stated here so
+the tie-break is a contract rather than an accident (D-03). The ranking is a pure function of
+its inputs and the config hash, reads no wall clock (D-01), and is content-addressed the way
+findings are (5.9.2). The report gains section 14 behind `report.include`, excluded by default
+until P3d. The agent tool is `rank_whatifs` (2.7), and the ranking a reader sees is the ranking
+the gates checked, because both come from the same callable under `@val_gate` (7.5.4). Gates:
+VG-RNK-01, VG-RNK-02, VG-RNK-03.
 
 ---
 
@@ -2189,6 +2332,8 @@ vsm:
   demand_rate_source: twin # twin | forecast
   shift_available_time_s: 27000
   render: { pitch_px: 220, ladder_height_px: 80, theme: print_safe }
+  sipoc: vsm/sipoc.yaml # roll-up map plus declared columns, 5.15.1
+  swimlane: { lane_source: resource_pool } # 5.15.2
 ```
 
 ### 6.5 Standalone files
@@ -2200,6 +2345,8 @@ vsm:
 | `alarms/consoles.yaml`                     | `/schemas/config/consoles.v1.json`                | console patterns and staffed shifts                   |
 | `findings/next_tool_policy.yaml`           | `/schemas/config/next_tool_policy.v1.json`        | tool chains with optional evidence predicates         |
 | `vsm/activity_classification.yaml`         | `/schemas/config/activity_classification.v1.json` | value-added classification plus waste type            |
+| `vsm/sipoc.yaml`                           | `/schemas/config/sipoc.v1.json`                   | the step roll-up map plus declared SIPOC columns      |
+| `ranking/criteria.yaml`                    | `/schemas/config/ranking_criteria.v1.json`        | criteria, cost classes, and the stoplight matrix      |
 | `divergence/specs.yaml`                    | `/schemas/divergence_spec/v1.json`                | one spec per monitored metric                         |
 | `validation/valgates.yaml`                 | `/schemas/valgate/v1.json`                        | the gate registry                                     |
 | `validation/budget.json`                   | `/schemas/config/gate_budget.v1.json`             | recorded per-gate cost, see 7.7                       |
@@ -2244,6 +2391,12 @@ Beyond per-field types, the loader enforces:
     extra to install.
 15. `study_var_multiplier` is 5.15 only when `rescale_thresholds` is true, else the diagnostic of
     5.6.1 fires.
+16. Every activity in `vsm/sipoc.yaml`'s roll-up map exists in the twin's station graph, and
+    every station-graph activity maps to exactly one SIPOC step.
+17. Every criterion in `ranking/criteria.yaml` resolves in the metric registry and has an entry
+    in `hypothesis.practical_significance` (rule 7).
+18. The stoplight matrix in `ranking/criteria.yaml` covers every `(impact_band, cost_class)`
+    pair exactly once.
 
 ### 6.8 Error reporting (C5)
 
@@ -2693,7 +2846,7 @@ It is falsified when any generator's realized rate lies outside the band, and th
 names the generator and the test the checker selected, so a calibration failure points at the
 selection rule rather than at "the checker".
 
-#### 7.5.9 Process mining, value stream map, alarm, divergence, determinism, and schema gates
+#### 7.5.9 Process mining, value stream map, SIPOC and swimlane, ranking, alarm, divergence, determinism, and schema gates
 
 | Gate      | Statistic                                             | Reference                                                                                                                                   | Class                      | Tolerance and falsifier                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |-----------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -2707,6 +2860,12 @@ selection rule rather than at "the checker".
 | VG-VSM-01 | current-state lead time and process cycle efficiency  | the twin's ground-truth value-added and total time accounting, from the checked-in recorded run                                             | ground_truth_recovery      | lead time agrees to a relative tolerance of 1e-9 and process cycle efficiency to 1e-9, because both derive from the same recorded events. Falsified by either                                                                                                                                                                                                                                                                                     |
 | VG-VSM-02 | Little's Law                                          | Little, "A Proof for the Queuing Formula L = lambda W", _Operations Research_ 9(3), 1961                                                    | published_reference        | at steady state, WIP and `throughput * lead_time` agree within the 95 percent interval measured over 30 seeded replications of the recorded scenario. Noise floor: the measured standard error of the ratio across the 30 replications, printed each run. `retrieved_by_author: false` on the paper; the theorem statement is standard and the gate's assertion is the equality it states. Falsified when the interval excludes 1.0 for the ratio |
 | VG-VSM-03 | render determinism                                    | none; this is a behavior assertion                                                                                                          | software_invariant         | byte-identical SVG and JSON across processes for the same input after the normalization filter. Falsified by any byte difference                                                                                                                                                                                                                                                                                                                  |
+| VG-SIP-01 | SIPOC recovery and provenance                         | the twin's station graph, the checked-in mined model, and `vsm/sipoc.yaml`                                                                  | ground_truth_recovery      | every step equals the roll-up of the mined model exactly, every derived input and output equals the station graph's material flow exactly, every declared cell equals the config, and every cell carries a provenance. Falsified by any cell differing, or by a cell missing its provenance                                                                                                                                                       |
+| VG-SWM-01 | lane assignment and handoff count                     | the recorded event log's `resource` column                                                                                                  | ground_truth_recovery      | every node sits in the lane of the resource that executed it, and each lane-pair handoff count equals the count derived from the log exactly. Falsified by a misplaced node or a differing count                                                                                                                                                                                                                                                  |
+| VG-SWM-02 | render determinism                                    | none; this is a behavior assertion                                                                                                          | software_invariant         | byte-identical SVG and JSON across processes for the same input after the normalization filter, as VG-VSM-03. Falsified by any byte difference                                                                                                                                                                                                                                                                                                    |
+| VG-RNK-01 | Pugh arithmetic and order                             | hand-constructed candidate sets with hand-computed scores and order, published in the test file with the derivation                         | closed_form                | exact match on every score, every net score, and the full order, including the `whatif_id` tie-break. Falsified by any cell, sum, or position differing                                                                                                                                                                                                                                                                                           |
+| VG-RNK-02 | stoplight classification                              | the declared matrix in `ranking/criteria.yaml` and constructed cases on each side of every band boundary                                    | software_invariant         | every constructed case classifies exactly as the matrix declares. Falsified by any case landing in a different class                                                                                                                                                                                                                                                                                                                              |
+| VG-RNK-03 | no green without practical significance               | none; this is a behavior assertion                                                                                                          | software_invariant         | a candidate with no criterion scoring `+1` never classifies `green`, whatever its cost class and whatever the matrix says. Falsified by one that does                                                                                                                                                                                                                                                                                             |
 | VG-ALM-01 | rationalization completeness and priority consistency | none; this is a completeness assertion over the repository's own configuration                                                              | software_invariant         | every reachable `FindingKind` has a record, every record's declared priority equals the matrix-derived priority, every `operator_response` is non-empty, and no `severity_map` entry violates 5.10.4. Falsified by any missing record, any priority mismatch, any empty response, or any out-of-range severity map entry                                                                                                                          |
 | VG-ALM-02 | alarm metric arithmetic                               | a constructed alarm log with a declared console and a declared shift pattern, with hand-computed expected values published in the test file | software_invariant         | every metric of 5.10.6 matches its hand-computed value exactly, `operator_hours` matches the shift arithmetic exactly, and a window with no staffed shift reports null rather than a division by zero. This gate asserts nothing about any benchmark value from either alarm standard; see OQ-4. Falsified by any metric differing, or by a null-denominator window producing a number                                                            |
 | VG-ALM-03 | no-loss invariant                                     | none; this is a behavior assertion                                                                                                          | software_invariant         | every finding raised during a constructed flood is retrievable from the sink regardless of dedupe, suppression, or shelving. Falsified by a single finding missing from the sink                                                                                                                                                                                                                                                                  |
@@ -2844,6 +3003,8 @@ than executing the twin 30 times, which is what brings it inside any budget at a
 | E21 decision register binds `decision_register_ref`; E5 binds `autonomy_tier` to the tier model                                                                                                                        | P6                   | The fields exist from v1 (4.3) and carry local values from P2, so binding the register is a value change rather than a schema change                                                                                                                            |
 | E26(b) governed semantic layer built on the P0 metric registry; E26(f) grounding checker walks agent answers                                                                                                           | P6                   | Neither adds an identifier. Both add governance over identifiers that already exist                                                                                                                                                                             |
 | Model drift control charts (E43), conformal coverage chart (E31), causal layer consuming the hypothesis engine (E30), AI cost per question on a control chart (E45), SOP generation from rationalization records (E24) | P6                   | Each is an E-tier consumer of an engine that already exists                                                                                                                                                                                                     |
+| SIPOC and swimlane views in `twinflow-vsm`, `vsm/sipoc.yaml`, VG-SIP-01, VG-SWM-01 to 02, report section 13                                                                                                            | P3c                  | Addition beyond the source, 1.5. Both read the mined model and the recorded log that land at P3c, and both render through the P0 emitter                                                                                                                        |
+| `twinflow_lss.ranking`, `/schemas/whatif_ranking/v1.json`, `ranking/criteria.yaml`, VG-RNK-01 to 03, report section 14                                                                                                 | P3d                  | Addition beyond the source, 1.5. A ranking needs at least two competing what-ifs, and the what-if plumbing matures with the planning layer at P3d                                                                                                               |
 
 ### 8.2 Resequencing this section asked for, and what it costs
 

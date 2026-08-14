@@ -126,6 +126,10 @@ Reproducing a run and forecasting the next hour are different properties.
 | ANOVA                  | external | Analysis of variance. It splits total variation into named sources, and it is the method behind the Gage R and R error terms.                           |
 | assumption checker     | local    | The component that tests the preconditions of a hypothesis test before the test runs, so a p-value is not reported for a test whose assumptions failed. |
 | value stream map       | external | The Lean drawing of material and information flow across a process, with the waiting time between steps made visible.                                   |
+| SIPOC                  | external | Suppliers, inputs, process, outputs, customers. The one-page scoping table for a process. Here the process column is mined and the rest is declared.    |
+| swimlane map           | external | A process drawing with one lane per resource pool, so every handoff between pools is visible.                                                           |
+| Pugh matrix            | external | A ranking of candidate changes against a datum, scoring each criterion better, same, or worse. Here the datum is the current state.                     |
+| stoplight analysis     | external | A green, yellow, or red class per candidate, from its impact and its cost. Here the matrix is declared in config and gated.                             |
 | SMED                   | external | Single-minute exchange of die. The method for cutting changeover time.                                                                                  |
 | COPQ                   | external | Cost of poor quality. The money a defect costs once scrap, rework, and warranty are counted.                                                            |
 | capability report      | local    | The generated HTML report for a time window, naming the Gage R and R convention it used.                                                                |
