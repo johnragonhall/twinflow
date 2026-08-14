@@ -240,6 +240,19 @@ measure-row-bytes seed="20260813" readings="20000":
 measure-ritual:
     uv run python tools/measure_release_ritual.py --out artifacts/measured/release_ritual.json
 
+# Sparkplug B edge-node conformance, as a report rather than a gate.
+#
+# The arbiter VAL-GATE-SPARK-001 names is the Eclipse Technology Compatibility
+# Kit, which is a Java suite under EPL-2.0 that this repository does not vendor.
+# This runs a clean-room table of the specification's own tck-testable ids
+# against the session model, so the gap is measurable rather than unknown. It is
+# not the kit, so it does not arm the gate, and it exits non-zero while
+# in-scope assertions fail.
+#
+#   just sparkplug-conformance
+sparkplug-conformance:
+    uv run python -m twinflow.sensors.conformance
+
 # The frozen vector against every numpy in the declared pin range. Budget: 3 minutes.
 kat-invariance:
     sh scripts/checks/kat-invariance.sh

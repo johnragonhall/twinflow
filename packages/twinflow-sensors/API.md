@@ -124,6 +124,37 @@ restated in ARCHITECTURE.md 5.1 and `docs/design/iot-fleet.md` 5.4. No test
 compares the encoder against the encoder, and none of them is evidence of
 conformance.
 
+## Sparkplug B conformance table and runner (`conformance`)
+
+| Symbol                                 | What it is                                                                         |
+| -------------------------------------- | ---------------------------------------------------------------------------------- |
+| `ASSERTIONS`                           | Every v3.0.0 assertion identifier, keyed by the id the specification anchors       |
+| `Assertion`                            | One row: id, profile, level, the requirement in this repository's words, exclusion |
+| `Profile`                              | `EDGE_NODE`, `HOST_APPLICATION`, `MQTT_SERVER`                                     |
+| `Level`                                | The requirement strength a row carries, as the specification grades it             |
+| `Exclusion`                            | Why a row is out of scope here, one reason per named missing capability            |
+| `SPEC_VERSION`, `SPEC_ASSERTION_COUNT` | `"3.0.0"`, `299`                                                                   |
+| `assertions_for(profile)`              | The rows of one conformance profile                                                |
+| `in_scope_assertions()`                | The rows this repository answers for                                               |
+| `exclusions_by_reason(profile)`        | The out-of-scope ids of one profile, grouped by reason                             |
+| `run_edge_node_conformance(clock)`     | Plays one session and rules on every in-scope assertion                            |
+| `ConformanceReport`, `AssertionResult` | The per-assertion verdicts and the observation behind each                         |
+| `Coverage`, `edge_node_coverage()`     | The denominator: profile total, in scope, passed, failed, exclusions               |
+| `format_report(report)`                | The report as text; `python -m twinflow.sensors.conformance` prints it             |
+
+The identifiers are published facts and the statements are written here rather
+than copied, because the specification and its compatibility kit are EPL-2.0
+and this repository is Apache-2.0. No compatibility kit source was read.
+
+`ConformanceReport.conformant` being true would mean the in-scope subset held,
+which is not conformance: the table carries 299 assertions, 201 of them on the
+edge-node profile, and this package is in scope for 133 of those. The runner
+so reports the denominator beside the count, and the gate reads both.
+
+Assertions the current session does not satisfy are recorded in
+`tests/test_conformance.py` as `KNOWN_FAILURES` rather than excluded from the
+table, so fixing one or introducing a twelfth fails a test.
+
 ## RFID portal (`portal`)
 
 | Symbol                  | What it is                                                                 |

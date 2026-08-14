@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- measure the Sparkplug conformance gap against the specification
 - measure the ritual rather than assume its ceiling
 - arm the documentation gate on the clauses its source states
 - arm the accessibility gate against axe-core
