@@ -44,7 +44,7 @@ def _with_equipment(bad: object) -> UnsPath:
         site="dc-01",
         area="receiving",
         line="inbound-line-01",
-        equipment=bad,  # type: ignore[arg-type]
+        equipment=bad,  # ty: ignore[invalid-argument-type]  the refusal is the test
         parameter="read_rate",
     )
 
@@ -52,7 +52,7 @@ def _with_equipment(bad: object) -> UnsPath:
 def _with_site(bad: object) -> UnsPath:
     return UnsPath(
         enterprise="twinflow",
-        site=bad,  # type: ignore[arg-type]
+        site=bad,  # ty: ignore[invalid-argument-type]  the refusal is the test
         area="receiving",
         line="inbound-line-01",
         equipment="portal-03",
@@ -67,7 +67,7 @@ def _with_parameter(bad: object) -> UnsPath:
         area="receiving",
         line="inbound-line-01",
         equipment="portal-03",
-        parameter=bad,  # type: ignore[arg-type]
+        parameter=bad,  # ty: ignore[invalid-argument-type]  the refusal is the test
     )
 
 

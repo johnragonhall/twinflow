@@ -20,7 +20,7 @@ from urllib.parse import urlencode
 import pytest
 
 from twinflow.kernel import SimClock, SimInstant
-from twinflow.schemas import Envelope
+from twinflow.schemas import Envelope, ProducerId
 from twinflow.storage import ConfigSnapshot, Historian
 
 #: The sim epoch. Declared rather than read from a clock, for the reason
@@ -34,7 +34,7 @@ OTHER_RUN_ID = "run_01jzzzzzzzzzzzzzzzzzzzzzzz"
 #: Two producers emitting at overlapping sim instants, which is the only shape
 #: that can tell a three-part cursor from a two-part one. With one producer any
 #: cursor implementation passes.
-TAPE: tuple[tuple[str, int, int, str], ...] = (
+TAPE: tuple[tuple[ProducerId, int, int, str], ...] = (
     # producer, sim_ts, seq, subject
     ("sim", 0, 0, "twinflow.twin.model_built"),
     ("sim", 10, 1, "twinflow.twin.pallet_created"),
@@ -67,7 +67,7 @@ def make_snapshot(run_id: str = RUN_ID) -> ConfigSnapshot:
 
 def make_event(
     *,
-    producer: str,
+    producer: ProducerId,
     sim_ts: int,
     seq: int,
     subject: str,
@@ -91,7 +91,7 @@ def make_event(
 
 
 def build_historian(
-    tape: tuple[tuple[str, int, int, str], ...] = TAPE,
+    tape: tuple[tuple[ProducerId, int, int, str], ...] = TAPE,
     *,
     run_id: str = RUN_ID,
 ) -> Historian:

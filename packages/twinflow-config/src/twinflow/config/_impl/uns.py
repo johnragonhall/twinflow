@@ -198,7 +198,12 @@ class UnsPath:
                 f"a UNS prefix names {identifier_levels}, so it has "
                 f"{len(identifier_levels)} levels; got {len(prefix)}: {tuple(prefix)!r}",
             )
-        return cls(*prefix, parameter)
+        # Named rather than splatted. The check above already fixed the
+        # length, and `cls(*prefix, parameter)` states that only to a reader:
+        # a `Sequence` carries no count, so nothing else can tell that the
+        # positional arguments come to six.
+        enterprise, site, area, line, equipment = prefix
+        return cls(enterprise, site, area, line, equipment, parameter)
 
     @classmethod
     def from_facility(cls, facility: Mapping[str, Any]) -> Iterator[UnsPath]:

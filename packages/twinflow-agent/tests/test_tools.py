@@ -40,7 +40,7 @@ def selection(**overrides: object) -> MetricSelection:
         "time_window": TimeWindow(start_sim_ticks=0, end_sim_ticks=3_600_000_000),
     }
     kwargs.update(overrides)
-    return MetricSelection(**kwargs)  # type: ignore[arg-type]
+    return MetricSelection.model_validate(kwargs)
 
 
 @pytest.fixture

@@ -22,7 +22,13 @@ from pathlib import Path
 import pytest
 
 from twinflow.kernel import SimClock, SimInstant
-from twinflow.schemas import Envelope, check_log_invariants, in_total_order, log_hash
+from twinflow.schemas import (
+    Envelope,
+    ProducerId,
+    check_log_invariants,
+    in_total_order,
+    log_hash,
+)
 from twinflow.storage import (
     EVENT_TABLE,
     STORED_BYTES_MEASURED_ON,
@@ -66,7 +72,7 @@ def event(
     *,
     seq: int,
     sim_ts: int,
-    producer: str = "sim",
+    producer: ProducerId = "sim",
     run_id: str = RUN_ID,
     subject: str = "twinflow.telemetry.sensor_reading",
     event_id: str | None = None,

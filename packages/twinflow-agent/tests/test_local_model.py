@@ -18,6 +18,7 @@ import json
 import sys
 import urllib.error
 import urllib.request
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -69,7 +70,13 @@ class FakeTransport:
         self.payloads: list[dict[str, Any]] = []
         self.timeouts: list[float] = []
 
-    def post_json(self, url: str, payload: dict[str, Any], *, timeout_s: float) -> dict[str, Any]:
+    # `Mapping`, not `dict`, because that is what `JsonHttpTransport` accepts.
+    # A fake that takes less than its port is a fake the port cannot stand in
+    # for, and the suite would be asserting against a narrower contract than
+    # the one the module publishes.
+    def post_json(
+        self, url: str, payload: Mapping[str, Any], *, timeout_s: float
+    ) -> dict[str, Any]:
         self.urls.append(url)
         self.payloads.append(json.loads(json.dumps(payload)))
         self.timeouts.append(timeout_s)
@@ -281,6 +288,10 @@ def test_the_registry_binds_a_call_through_the_local_adapter(repo_root):
     call = registry.bind_structured(QUERY_METRIC, prompt_only, adapter=local, max_retries=1)
 
     assert isinstance(call, ToolCall)
+    # `ToolCall.args` is whichever model the tool declared, so naming the one
+    # `query_metric` declares is part of the assertion rather than scaffolding
+    # around it.
+    assert isinstance(call.args, MetricSelection)
     assert call.args.metric == "twin.throughput.units_per_hour"
 
 
@@ -435,5 +446,8 @@ def test_a_redirect_off_loopback_is_refused():
 def test_the_transport_opener_does_not_follow_redirects():
     """The refusal above only matters while the transport uses this opener."""
     assert any(
-        isinstance(handler, local_model._RefuseRedirect) for handler in local_model._OPENER.handlers
+        # `OpenerDirector.handlers` is set in its constructor and typeshed does
+        # not declare it, so the attribute is real and only the stub is short.
+        isinstance(handler, local_model._RefuseRedirect)
+        for handler in local_model._OPENER.handlers  # ty: ignore[unresolved-attribute]
     )

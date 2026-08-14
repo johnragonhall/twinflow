@@ -21,6 +21,7 @@ from twinflow.sensors import (
     REBIRTH_METRIC,
     DataType,
     EdgeNodeSession,
+    Message,
     MessageType,
     MetricSpec,
     Quality,
@@ -235,12 +236,24 @@ def test_seq_increments_by_one_across_births_and_data():
     assert observed == [0, 1, 2, 3]
 
 
+def seq_of(message: Message) -> int:
+    """The payload's sequence number.
+
+    `Payload.seq` is optional because the specification leaves it off some
+    message types, so reading it as an `int` here asserts that a birth or a
+    data message carries one rather than assuming it.
+    """
+    seq = message.payload.seq
+    assert seq is not None, f"a {message.payload!r} carries a sequence number"
+    return seq
+
+
 def test_seq_wraps_back_to_zero_after_255():
     session = make_session()
     session.connect()
     session.node_birth()
     session.device_birth("portal-03")
-    seen = [session.device_data("portal-03", {"read_rate": 0.9}).payload.seq for _ in range(300)]
+    seen = [seq_of(session.device_data("portal-03", {"read_rate": 0.9})) for _ in range(300)]
     # The session had already spent seq 0 and seq 1 on the two births.
     assert seen[:3] == [2, 3, 4]
     assert seen[253] == 255

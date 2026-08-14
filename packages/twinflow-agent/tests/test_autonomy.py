@@ -59,19 +59,31 @@ class FakeClock:
         self.advance_ticks(seconds * self._tick_hz)
 
 
-def make_session(**overrides: object) -> tuple[AutonomySession, AuditLog, FakeClock]:
+def make_session(
+    *,
+    default_tier: AutonomyTier = AutonomyTier.L1,
+    allow_write_tools: bool = True,
+    max_grant_questions: int = 20,
+    max_grant_sim_seconds: int = 3600,
+) -> tuple[AutonomySession, AuditLog, FakeClock]:
+    """One session wired to a fake clock, with the knobs the tests turn.
+
+    The parameters are named rather than collected into a mapping and splatted:
+    `AutonomySession` takes a tier, two counts and a flag, and a mapping typed
+    loosely enough to hold all of them describes none of them.
+    """
     clock = FakeClock()
     audit = AuditLog(run_id="run-1", clock=clock, epoch=EPOCH)
-    kwargs: dict[str, object] = {
-        "session_id": "session-1",
-        "audit": audit,
-        "clock": clock,
-        "allow_write_tools": True,
-        "max_grant_questions": 20,
-        "max_grant_sim_seconds": 3600,
-    }
-    kwargs.update(overrides)
-    return AutonomySession(**kwargs), audit, clock  # type: ignore[arg-type]
+    session = AutonomySession(
+        session_id="session-1",
+        audit=audit,
+        clock=clock,
+        default_tier=default_tier,
+        allow_write_tools=allow_write_tools,
+        max_grant_questions=max_grant_questions,
+        max_grant_sim_seconds=max_grant_sim_seconds,
+    )
+    return session, audit, clock
 
 
 def grant_for(session: AutonomySession, **overrides: object) -> AutonomyGrant:
@@ -88,7 +100,7 @@ def grant_for(session: AutonomySession, **overrides: object) -> AutonomyGrant:
         "decision_id": "decision-9",
     }
     kwargs.update(overrides)
-    return AutonomyGrant(**kwargs)  # type: ignore[arg-type]
+    return AutonomyGrant.model_validate(kwargs)
 
 
 # --------------------------------------------------------------------------
@@ -501,15 +513,15 @@ def test_a_decision_carries_a_whole_grant_or_no_grant():
         "decision_id": "decision-9",
         "reason": "accept decision-9",
     }
-    assert ElevationDecided(**approved).grant_id == "grant-1"
+    assert ElevationDecided.model_validate(approved).grant_id == "grant-1"
 
     for absent in ("granted_tier", "expires_after_questions", "expires_at_sim_time", "decision_id"):
         with pytest.raises(ValidationError):
-            ElevationDecided(**{**approved, absent: None})
+            ElevationDecided.model_validate({**approved, absent: None})
 
     # The other direction: no grant id, and a tier it did not grant.
     with pytest.raises(ValidationError):
-        ElevationDecided(**{**approved, "grant_id": None})
+        ElevationDecided.model_validate({**approved, "grant_id": None})
 
 
 def test_an_elevated_change_cannot_be_recorded_without_the_human_behind_it():
@@ -532,20 +544,20 @@ def test_an_elevated_change_cannot_be_recorded_without_the_human_behind_it():
         "after_sha256": "b" * 64,
         "reason": "accept decision-9",
     }
-    assert ChangeAttribution(**attributed).approver == HUMAN
+    assert ChangeAttribution.model_validate(attributed).approver == HUMAN
 
     for absent in ("grant_id", "approver", "decision_id"):
         with pytest.raises(ValidationError):
-            ChangeAttribution(**{**attributed, absent: None})
+            ChangeAttribution.model_validate({**attributed, absent: None})
 
     # An approver that is not a human is the same defect as no approver at all.
     with pytest.raises(ValidationError):
-        ChangeAttribution(**{**attributed, "approver": AGENT})
+        ChangeAttribution.model_validate({**attributed, "approver": AGENT})
 
     # The control. At the floor tier there is no approval to name, and the same
     # record with every approval field absent validates.
-    at_the_floor = ChangeAttribution(
-        **{
+    at_the_floor = ChangeAttribution.model_validate(
+        {
             **attributed,
             "authority_tier": AutonomyTier.L1,
             "grant_id": None,

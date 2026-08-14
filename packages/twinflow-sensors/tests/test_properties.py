@@ -22,6 +22,7 @@ from twinflow.sensors import (
     EdgeNodeSession,
     EpcPrefixFilter,
     InventoryAccumulator,
+    Message,
     MessageType,
     MetricSpec,
     SparkplugIds,
@@ -62,14 +63,26 @@ def session_with(names: list[str]) -> EdgeNodeSession:
 # --------------------------------------------------------------- sequence wrap
 
 
+def seq_of(message: Message) -> int:
+    """The payload's sequence number.
+
+    `Payload.seq` is optional because the specification leaves it off some
+    message types, so reading it as an `int` here asserts that a birth or a
+    data message carries one rather than assuming it.
+    """
+    seq = message.payload.seq
+    assert seq is not None, f"a {message.payload!r} carries a sequence number"
+    return seq
+
+
 @settings(max_examples=200, deadline=None)
 @given(publishes=st.integers(min_value=0, max_value=1_200))
 def test_seq_stays_in_the_byte_the_specification_gives_it(publishes):
     session = session_with(["read_rate"])
     session.connect()
-    seen = [session.node_birth().payload.seq, session.device_birth("portal-03").payload.seq]
+    seen = [seq_of(session.node_birth()), seq_of(session.device_birth("portal-03"))]
     for _ in range(publishes):
-        seen.append(session.device_data("portal-03", {"read_rate": 0.9}).payload.seq)
+        seen.append(seq_of(session.device_data("portal-03", {"read_rate": 0.9})))
     assert all(0 <= value <= 255 for value in seen)
 
 
@@ -78,9 +91,9 @@ def test_seq_stays_in_the_byte_the_specification_gives_it(publishes):
 def test_consecutive_seq_values_differ_by_exactly_one_modulo_256(publishes):
     session = session_with(["read_rate"])
     session.connect()
-    seen = [session.node_birth().payload.seq, session.device_birth("portal-03").payload.seq]
+    seen = [seq_of(session.node_birth()), seq_of(session.device_birth("portal-03"))]
     for _ in range(publishes):
-        seen.append(session.device_data("portal-03", {"read_rate": 0.9}).payload.seq)
+        seen.append(seq_of(session.device_data("portal-03", {"read_rate": 0.9})))
     steps = {(b - a) % 256 for a, b in zip(seen[:-1], seen[1:], strict=True)}
     assert steps == {1}
 
@@ -107,7 +120,13 @@ def test_dbirth_establishes_an_alias_for_every_metric_a_device_will_ever_publish
     session.connect()
     session.node_birth()
     dbirth = session.device_birth("portal-03")
-    assert sorted(metric.name for metric in dbirth.payload.metrics) == sorted(names)
+    # `Metric.name` is optional because a DDATA metric may address itself by
+    # alias alone. A DBIRTH is the message that establishes those aliases, so
+    # every metric in one names itself, and that is asserted before the names
+    # are compared rather than assumed by the comparison.
+    published = [metric.name for metric in dbirth.payload.metrics]
+    assert all(name is not None for name in published)
+    assert sorted(name for name in published if name is not None) == sorted(names)
     assert all(metric.alias is not None for metric in dbirth.payload.metrics)
     assert all(metric.datatype is not None for metric in dbirth.payload.metrics)
 
