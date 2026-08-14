@@ -845,10 +845,11 @@ work_packages:
     depends_on: []
     deliverables:
       - "packages/twinflow-kernel/src/twinflow/kernel/_impl/network.py"
+      - "packages/twinflow-kernel/tests/test_network.py"
     gates: []
     brick: twinflow-kernel
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-24
     title: "Reach the garage-tier broker over mTLS through the production adapter"
     phase: P1
