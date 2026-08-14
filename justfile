@@ -230,6 +230,16 @@ kat-check:
 measure-row-bytes seed="20260813" readings="20000":
     uv run python tools/measure_row_bytes.py --seed {{seed}} --readings {{readings}}
 
+# Measure the release ritual step by step and derive its ceiling, which is what
+# VAL-GATE-RELBUD-001 reads. Every step runs: a ceiling from a subset is not the
+# ritual's ceiling. It refuses to emit a number when a step does not pass,
+# because a duration measured over a failed run is not a measurement of the
+# ritual.
+#
+#   just measure-ritual
+measure-ritual:
+    uv run python tools/measure_release_ritual.py --out artifacts/measured/release_ritual.json
+
 # The frozen vector against every numpy in the declared pin range. Budget: 3 minutes.
 kat-invariance:
     sh scripts/checks/kat-invariance.sh

@@ -165,19 +165,18 @@ def test_something_that_is_not_a_handle_is_refused():
     assert cla_gate.check_signature(_document_with(""), "not a handle") is not None
 
 
-def test_trailers_refuses_an_unsigned_commit(tmp_path):
+def test_trailers_refuses_an_unsigned_commit(tmp_path, monkeypatch):
     signed, unsigned = _repo_with_two_commits(tmp_path)
-    assert unsigned in _unsigned_in(tmp_path)
-    assert signed not in _unsigned_in(tmp_path)
+    assert unsigned in _unsigned_in(tmp_path, monkeypatch)
+    assert signed not in _unsigned_in(tmp_path, monkeypatch)
 
 
-def _unsigned_in(repo: Path) -> str:
-    original = cla_gate.REPO_ROOT
-    cla_gate.REPO_ROOT = repo
-    try:
-        return "\n".join(cla_gate.check_trailers("HEAD~2..HEAD"))
-    finally:
-        cla_gate.REPO_ROOT = original
+def _unsigned_in(repo: Path, monkeypatch: pytest.MonkeyPatch) -> str:
+    # The gate is imported by file name, so its module object is opaque and
+    # the repository root it reads is module state. `monkeypatch` swaps it
+    # and restores it, which is what a hand-written try and finally did.
+    monkeypatch.setattr(cla_gate, "REPO_ROOT", repo)
+    return "\n".join(cla_gate.check_trailers("HEAD~2..HEAD"))
 
 
 def _repo_with_two_commits(repo: Path) -> tuple[str, str]:
