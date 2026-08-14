@@ -30,7 +30,17 @@ them. A port with no implementation and no consumer is a name nobody tested.
 | `EnvironmentState`      | class    | The exogenous state at one instant, as normalized fractions            |
 | `NullEnvironmentDriver` | class    | The P0 driver: calm at every instant, and never random                 |
 | `CALM`                  | constant | The neutral state every caller sees when no driver is installed        |
+| `Scenario`              | class    | One scenario file: id, title, epoch, tick rate, seed, and stations     |
+| `Station`               | class    | One station in a scenario, and the work that arrives at it             |
+| `load_scenario`         | function | Read a scenario file. Needs a YAML parser, which is an extra           |
+| `run_scenario`          | function | Run one scenario and return its event log                              |
 | `__version__`           | constant | The distribution version, read by the build so the two cannot disagree |
+
+`Scenario`, `Station`, `load_scenario`, and `run_scenario` are the SCN-F1
+runner. The determinism contract is a kernel contract, so the smallest process
+that can fail `VAL-GATE-DET-001` sits beside the clock and the seam every draw
+goes through, and `python -m twinflow.kernel simulate` is the thin entry point
+over `run_scenario`.
 
 ## Private
 

@@ -20,7 +20,7 @@ retrofitted.
 Requirements covered in full:
 
 | Req                    | Source text                                                                                                                                                                                                                                | Owned here                                                                                                                                                                                                                                                         |
-|------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | C1                     | Determinism: single seed, splittable per-subsystem child seeds, byte-identical event logs, seed recorded per demo and eval, CI repeated-run hash check                                                                                     | Yes, complete                                                                                                                                                                                                                                                      |
 | C2                     | Sim-time versus wall-clock: one sim-clock service, configurable compression, all timestamps sim-time, wall-clock mapping per run, dashboard speed control                                                                                  | Yes, complete (dashboard widget markup is the dashboard section's, the control protocol is here)                                                                                                                                                                   |
 | C3                     | Schema registry: `/schemas` versioned machine-validated contracts for every cross-package event type, additive-only within a major, CI producer/consumer drift tests                                                                       | Yes, complete                                                                                                                                                                                                                                                      |
@@ -70,7 +70,7 @@ Requirements touched here but owned elsewhere, listed so the boundary is explici
 ruling won. Every place a ruling lands is marked in the text with its id.
 
 | Ruling | What it fixes here                                                                        | Where                     |
-|--------|-------------------------------------------------------------------------------------------|---------------------------|
+| ------ | ----------------------------------------------------------------------------------------- | ------------------------- |
 | D-01   | `RunManifest` splits into a hashed core and an unhashed provenance sidecar                | 3.3, 4.1, 5.4             |
 | D-02   | Wall-clock reads are legal in four named places and never reach a payload or a branch     | 3.1, 5.3, 5.9             |
 | D-03   | No collection whose iteration order can reach an event, a hash, or a branch is a `set`    | 3.6, 5.9, 7.2             |
@@ -171,7 +171,7 @@ environment and imports it, so the claim is tested rather than asserted.
 Optional extras:
 
 | Extra      | Pulls in                                           | Enables                                                               |
-|------------|----------------------------------------------------|-----------------------------------------------------------------------|
+| ---------- | -------------------------------------------------- | --------------------------------------------------------------------- |
 | `sim`      | `simpy`                                            | `SimEventLoop`, `SimClock`, simulation-mode runtime                   |
 | `mqtt`     | `aiomqtt`, `paho-mqtt`                             | `MqttNetwork` and `MqttEventBus` production adapters                  |
 | `otel`     | `opentelemetry-sdk`, `opentelemetry-exporter-otlp` | production tracing bridge                                             |
@@ -346,7 +346,7 @@ Purpose: the tools CI runs that are not library code. Never a runtime dependency
 Console scripts:
 
 | Script              | Purpose                                                                        |
-|---------------------|--------------------------------------------------------------------------------|
+| ------------------- | ------------------------------------------------------------------------------ |
 | `tf-lint-det`       | the nondeterminism AST lint (section 5.9)                                      |
 | `tf-schemas gen`    | generate Pydantic and Rust serde bindings from `/schemas`                      |
 | `tf-schemas check`  | registry drift, additive-only compat, producer/consumer contract check         |
@@ -384,16 +384,19 @@ every concrete storage adapter in the workspace is declared here and nowhere els
 declares the ports and the in-memory implementations; this package declares everything that talks
 to a real system.
 
-Adapters shipped: `DuckDbTableStore`, `DeltaTableStore` (delta-rs), `PostgresTableStore`,
+The adapter set this package owns: `DuckDbTableStore`, `DeltaTableStore` (delta-rs), `PostgresTableStore`,
 `PostgresEventLog`, `PostgresKeyValue`, `LocalFileKeyValue`, `LocalNdjsonEventLog`,
 `LocalBlobStore`, `S3BlobStore`, `KafkaEventBus` (the implemented enterprise example for the
 `EventBus` port of D-08), and `KafkaEventLog`. Stub adapters with a documented conformance target: `SnowflakeTableStore`,
 `DatabricksSqlTableStore`, `AzureIotHubIngress`, `AwsIotCoreIngress`.
 
 Extras: `delta` pulls `deltalake`, `duckdb`, and `pyarrow`; `postgres` pulls `asyncpg`; `kafka`
-pulls `aiokafka`; `s3` pulls `boto3`. The base install of `twinflow-storage` has only
-`twinflow-kernel` and ships only `LocalNdjsonEventLog`, `LocalBlobStore`, and `LocalFileKeyValue`,
-so the take-one-brick promise survives here too.
+pulls `aiokafka`; `s3` pulls `boto3`. The base install of `twinflow-storage` takes three workspace
+packages and no driver, `twinflow-config`, `twinflow-kernel`, and `twinflow-schemas`, and its
+public surface is the historian rather than any adapter above: `Historian`, `ConfigSnapshot`,
+`TableFormat`, `SeriesName`, and the naming that places the historian in the Purdue map. Each
+adapter lands with the phase whose port it serves, so the take-one-brick promise survives here
+too.
 
 License positions for the two storage libraries that carry the most weight, read from the Python
 Package Index on 2026-08-09: `deltalake` 1.6.2 is Apache-2.0 and `duckdb` 1.5.5 is MIT. Both are
@@ -435,7 +438,7 @@ fleet, procmine, forecast, optimize, causal, cv, agent)` -> `storage` -> `config
 6. The flagship README carries the "use just this part" table:
 
 | You are                                        | Install                                 | You get                                                                        |
-|------------------------------------------------|-----------------------------------------|--------------------------------------------------------------------------------|
+| ---------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------ |
 | A quality manager who wants SPC as code        | `pip install twinflow-lss`              | control charts, capability, Gage R&R, hypothesis tests, findings               |
 | An AI team who wants the grounding checker     | `pip install twinflow-agent[grounding]` | execution-grounded answers, semantic metrics layer, grounding gate, abstention |
 | An IoT team who wants a device fleet simulator | `pip install twinflow-sensors`          | catalog-driven sensor simulation, failure modes, Sparkplug B publishing        |
@@ -946,11 +949,11 @@ name; those are `RunProvenance` and live in `manifest.json`.
 
 ```json
 {
-  "event_count": 184213,
-  "event_log_hash": "b2:...",
-  "finished_sim_ts": 86400000000,
-  "exit": "completed|horizon|aborted|error",
-  "error": null
+    "event_count": 184213,
+    "event_log_hash": "b2:...",
+    "finished_sim_ts": 86400000000,
+    "exit": "completed|horizon|aborted|error",
+    "error": null
 }
 ```
 
@@ -965,13 +968,13 @@ merged log, so it is a checksum rather than a counter any single producer mainta
 
 ```json
 {
-  "fault": {
-    "kind": "PARTITION",
-    "scope": { "groups": [["dev-*"], ["broker", "historian"]] },
-    "params": {}
-  },
-  "phase": "start|end",
-  "affected_links": 52
+    "fault": {
+        "kind": "PARTITION",
+        "scope": { "groups": [["dev-*"], ["broker", "historian"]] },
+        "params": {}
+    },
+    "phase": "start|end",
+    "affected_links": 52
 }
 ```
 
@@ -979,11 +982,11 @@ merged log, so it is a checksum rather than a counter any single producer mainta
 
 ```json
 {
-  "from": 1.0,
-  "to": "asap",
-  "requested_by": "dashboard|api|agent|cli",
-  "actor": "user:demo",
-  "sim_ts": 3600000000
+    "from": 1.0,
+    "to": "asap",
+    "requested_by": "dashboard|api|agent|cli",
+    "actor": "user:demo",
+    "sim_ts": 3600000000
 }
 ```
 
@@ -993,18 +996,18 @@ Consumed by the dashboard speed control and by the E5 audit trail.
 
 ```json
 {
-  "checkpoint_id": "ckpt_01J...",
-  "sim_ts": 43200000000,
-  "size_bytes": 8412331,
-  "state_hash": "b2:...",
-  "resumable_from_schema_snapshot": "b2:...",
-  "covered_subsystems": [
-    "kernel.scheduler",
-    "kernel.rng",
-    "kernel.network",
-    "kernel.storage"
-  ],
-  "resumable": false
+    "checkpoint_id": "ckpt_01J...",
+    "sim_ts": 43200000000,
+    "size_bytes": 8412331,
+    "state_hash": "b2:...",
+    "resumable_from_schema_snapshot": "b2:...",
+    "covered_subsystems": [
+        "kernel.scheduler",
+        "kernel.rng",
+        "kernel.network",
+        "kernel.storage"
+    ],
+    "resumable": false
 }
 ```
 
@@ -1022,14 +1025,14 @@ Phase 0 and produces truthful checkpoints from Phase 0.
 
 ```json
 {
-  "config_hash": "b2:...",
-  "schema_version": "1.3",
-  "profile": "profiles/midmarket_3pl.yaml",
-  "overlays": ["scenarios/peak_day.yaml"],
-  "sets": ["simulation.speed=asap"],
-  "changed_keys": ["resources.labor.pickers.count"],
-  "applied_by": "cli|api|agent",
-  "autonomy_tier": "L1|L2|L3"
+    "config_hash": "b2:...",
+    "schema_version": "1.3",
+    "profile": "profiles/midmarket_3pl.yaml",
+    "overlays": ["scenarios/peak_day.yaml"],
+    "sets": ["simulation.speed=asap"],
+    "changed_keys": ["resources.labor.pickers.count"],
+    "applied_by": "cli|api|agent",
+    "autonomy_tier": "L1|L2|L3"
 }
 ```
 
@@ -1042,15 +1045,15 @@ its history.
 
 ```json
 {
-  "path": "profiles/x.yaml",
-  "errors": [
-    {
-      "code": "TF-C012",
-      "message": "...",
-      "origin": { "file": "...", "line": 214, "col": 7 },
-      "suggestion": "conveyor_speed"
-    }
-  ]
+    "path": "profiles/x.yaml",
+    "errors": [
+        {
+            "code": "TF-C012",
+            "message": "...",
+            "origin": { "file": "...", "line": 214, "col": 7 },
+            "suggestion": "conveyor_speed"
+        }
+    ]
 }
 ```
 
@@ -1058,13 +1061,13 @@ its history.
 
 ```json
 {
-  "domain": "historian",
-  "from_version": 6,
-  "to_version": 7,
-  "migration": "0007_add_energy_kwh",
-  "rows_touched": 1240113,
-  "duration_ms": 8412,
-  "check": "passed"
+    "domain": "historian",
+    "from_version": 6,
+    "to_version": 7,
+    "migration": "0007_add_energy_kwh",
+    "rows_touched": 1240113,
+    "duration_ms": 8412,
+    "check": "passed"
 }
 ```
 
@@ -1072,13 +1075,13 @@ its history.
 
 ```json
 {
-  "subscription_id": "whs_01J...",
-  "event_id": "evt_01J...",
-  "attempt_number": 2,
-  "outcome": "delivered|failed|dropped",
-  "status_code": 503,
-  "latency_ticks": 412000,
-  "next_retry_sim_ts": 3600412000
+    "subscription_id": "whs_01J...",
+    "event_id": "evt_01J...",
+    "attempt_number": 2,
+    "outcome": "delivered|failed|dropped",
+    "status_code": 503,
+    "latency_ticks": 412000,
+    "next_retry_sim_ts": 3600412000
 }
 ```
 
@@ -1086,15 +1089,15 @@ its history.
 
 ```json
 {
-  "method": "POST",
-  "route": "/api/v1/whatif",
-  "status": 202,
-  "principal": "apikey:demo",
-  "scopes": ["whatif:run"],
-  "idempotency_key": "ik_...",
-  "latency_ticks": 91000,
-  "request_hash": "b2:...",
-  "response_hash": "b2:..."
+    "method": "POST",
+    "route": "/api/v1/whatif",
+    "status": 202,
+    "principal": "apikey:demo",
+    "scopes": ["whatif:run"],
+    "idempotency_key": "ik_...",
+    "latency_ticks": 91000,
+    "request_hash": "b2:...",
+    "response_hash": "b2:..."
 }
 ```
 
@@ -1142,25 +1145,25 @@ line in `schemas/registry.yaml` and an owning package.
 # schemas/registry.yaml
 producer_ids: [sim, api, dashboard, agent, device-agent, cli] # the closed set of E3
 subjects:
-  - subject: twinflow.telemetry.sensor_reading
-    owner: twinflow-sensors
-    versions: ["1.0", "1.1", "1.2", "1.3"]
-    current: "1.3"
-    status: active # active | reserved | deprecated
-    compat: additive-only
-    since_phase: 3
-    producers: [twinflow-sensors, crates/twinflow-device-agent]
-    producer_ids: [sim, device-agent]
-    consumers:
-      [
-        twinflow-fleet,
-        twinflow-lss,
-        twinflow-twin,
-        twinflow-api,
-        twinflow-storage,
-      ]
-    partition_key: device_id
-    retention: historian
+    - subject: twinflow.telemetry.sensor_reading
+      owner: twinflow-sensors
+      versions: ["1.0", "1.1", "1.2", "1.3"]
+      current: "1.3"
+      status: active # active | reserved | deprecated
+      compat: additive-only
+      since_phase: 3
+      producers: [twinflow-sensors, crates/twinflow-device-agent]
+      producer_ids: [sim, device-agent]
+      consumers:
+          [
+              twinflow-fleet,
+              twinflow-lss,
+              twinflow-twin,
+              twinflow-api,
+              twinflow-storage,
+          ]
+      partition_key: device_id
+      retention: historian
 ```
 
 `producer_ids` at the top of the file is the closed set E3 draws `twinflowproducerid` from, and the
@@ -1178,7 +1181,7 @@ One codebase, two runtimes. The difference is entirely which implementations `Ru
 binds.
 
 | Port        | Simulation mode                                                                               | Production mode                                                                                                                                                   |
-|-------------|-----------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ----------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Clock       | `SimClock` over the `SimEventLoop`, optionally wrapped in `PacedClock`                        | `RealClock` (`time.monotonic_ns` for durations, `datetime.now(UTC)` for the anchor only)                                                                          |
 | Rng         | `SplittableRng(base_seed, replication_index)`                                                 | `SplittableRng(base_seed, replication_index)`, same class; production runs are seeded too, because a production device agent that draws jitter stays reproducible |
 | Network     | `InMemoryNetwork` with `FaultSchedule`                                                        | `MqttNetwork` over aiomqtt to Mosquitto, EMQX, or NanoMQ                                                                                                          |
@@ -1258,7 +1261,7 @@ tie-break rule, which `heapq` supplies in a few lines and which would not have j
 dependency:
 
 | SimPy element                                        | Used for                                                             |
-|------------------------------------------------------|----------------------------------------------------------------------|
+| ---------------------------------------------------- | -------------------------------------------------------------------- |
 | `Environment.now` and the timeout heap               | the loop's time source and timer heap                                |
 | `(time, priority, eid)` ordering with monotonic eid  | the total order over simultaneous events                             |
 | `Resource`, `PriorityResource`, `PreemptiveResource` | station servers, dock doors, AMR charge points, forklifts            |
@@ -1330,7 +1333,7 @@ demo at one hundredth of real time is a legitimate request. It is not what a pro
 determinism gate may use, and applying D-13 the arithmetic is written down rather than assumed.
 
 | Consumer | Scenario                       | Speed range             | Worst-case wall time              | Budget |
-|----------|--------------------------------|-------------------------|-----------------------------------|--------|
+| -------- | ------------------------------ | ----------------------- | --------------------------------- | ------ |
 | Operator | any                            | `[0.01, 100000]`        | unbounded, and that is the point  | none   |
 | DET-4    | `SCN-F0`, 60 simulated seconds | `asap` and 50           | 60 / 50 = 1.2 s for the paced arm | 6 min  |
 | INV-K9   | `SCN-F0`, 60 simulated seconds | log-uniform `[60, 1e5]` | 60 / 60 x 25 examples = 25 s      | 5 min  |
@@ -1353,10 +1356,10 @@ Wall-clock mapping: recorded once per run in `RunManifest.wall_clock_anchor`:
 
 ```json
 {
-  "sim_ts": 0,
-  "utc": "2026-03-02T06:00:00Z",
-  "tz": "America/Chicago",
-  "dst_offset_minutes": -360
+    "sim_ts": 0,
+    "utc": "2026-03-02T06:00:00Z",
+    "tz": "America/Chicago",
+    "dst_offset_minutes": -360
 }
 ```
 
@@ -1373,7 +1376,7 @@ stronger one alone. A vague determinism claim is worse than none, and an unachie
 than vague.
 
 | Tier                | Conditions                                                           | Guarantee                                                                                                                                          | Gate                       |
-|---------------------|----------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|
+| ------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
 | A. Byte-identical   | same seed, same resolved config, same platform, same pinned lockfile | the canonical event log is byte-identical, and so is `event_log_hash`                                                                              | DET-1, hash equality       |
 | B. Value-equivalent | same seed and resolved config, different OS or CPU                   | business events are identical in count, order, subject, and every integer and quantised field; continuous fields agree within a measured tolerance | DET-2, reported divergence |
 
@@ -1493,7 +1496,7 @@ schemas/
 JSON Schema 2020-12. Custom annotation keywords, all prefixed `x-twinflow-`:
 
 | Keyword                    | Meaning                                                                                  |
-|----------------------------|------------------------------------------------------------------------------------------|
+| -------------------------- | ---------------------------------------------------------------------------------------- |
 | `x-twinflow-precision`     | decimal places a float is quantised to before serialization                              |
 | `x-twinflow-unit`          | the SI unit the number is expressed in, validated against pint                           |
 | `x-twinflow-open-enum`     | consumers must tolerate unknown members; only such enums may gain members within a major |
@@ -1510,7 +1513,7 @@ breaking, MINOR are additive.
 Compatibility rules, enforced by `tf-schemas check`:
 
 | Change                                   | Within a major                                                        |
-|------------------------------------------|-----------------------------------------------------------------------|
+| ---------------------------------------- | --------------------------------------------------------------------- |
 | Add an optional property with a default  | Allowed, MINOR bump                                                   |
 | Add a required property                  | Rejected                                                              |
 | Remove a property                        | Rejected                                                              |
@@ -1653,6 +1656,7 @@ plus `historian volume not yet measured, run just measure-row-bytes`. An unattri
 in operator-facing output is the same defect as an unattributed round number in the README, and it
 is caught by the same lint. The current unfilled value is
 <!--METRIC:historian_stored_bytes_per_sensor_reading@v0.4.0-->TBD<!--/METRIC-->, which the release gate
+
 refuses to tag from v0.4.0 onward while it still reads TBD. The tag it names is the one its
 producer arrives at: foundations 5.5 places `twinflow.telemetry.sensor_reading` at `since_phase: 3`,
 which `roadmap.yaml` maps to v0.4.0, and the Delta writer `EVENT_TABLE` names is the `delta` extra
@@ -1722,7 +1726,7 @@ exits 2. `--check` reports what would change without writing.
 **CHANGELOG compatibility table**, maintained per release in `CHANGELOG.md`:
 
 | Release | facility.yaml schema | event schema snapshot | historian version | reads runs from | reads configs from |
-|---------|----------------------|-----------------------|-------------------|-----------------|--------------------|
+| ------- | -------------------- | --------------------- | ----------------- | --------------- | ------------------ |
 | v0.3.0  | 1.0                  | s-2026.03             | 4                 | >= v0.1.0       | >= v0.1.0          |
 | v0.4.0  | 1.1                  | s-2026.05             | 6                 | >= v0.1.0       | >= v0.1.0          |
 
@@ -1733,7 +1737,7 @@ exits 2. `--check` reports what would change without writing.
 Four versioned contracts and what governs each:
 
 | Contract                   | Version carrier                                                                | Breaking change means                                                                                                                  |
-|----------------------------|--------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| -------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Python package public API  | the release version, lockstep across all bricks                                | removing or renaming a symbol in `__all__`, changing a signature incompatibly, tightening an input type, loosening an output guarantee |
 | REST / GraphQL / MCP       | URL major (`/api/v1`), GraphQL SDL with `@deprecated`, MCP tool schema version | removing a route, field, or tool; adding a required parameter; changing a status code class; narrowing a response type                 |
 | Event schemas              | per-subject `MAJOR.MINOR`, snapshot id in the manifest                         | anything in the rejected column of section 5.5                                                                                         |
@@ -1796,7 +1800,7 @@ step and as CI gate `LINT-1`.
 Rules:
 
 | Code   | Bans                                                                                                                                                                      | Rationale                                     |
-|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
 | TFD001 | `time.time`, `time.time_ns`, `time.monotonic`, `time.perf_counter`, `time.sleep`, `datetime.now`, `datetime.utcnow`, `date.today`, `pandas.Timestamp.now`                 | wall clock leak                               |
 | TFD002 | `random.*`, `numpy.random.*` module-level functions, `numpy.random.seed`, `secrets.*`, `uuid.uuid1`, `uuid.uuid4`, `os.urandom`                                           | unseeded randomness                           |
 | TFD003 | `socket`, `requests`, `httpx`, `urllib`, `aiomqtt`, `asyncpg`, `duckdb`, `deltalake` imports                                                                              | real IO outside adapters                      |
@@ -1820,35 +1824,35 @@ Scope and exemptions:
 - Exempt paths are declared once, in the root `pyproject.toml`, each with a reason string so a
   reader can tell an adapter from an oversight:
 
-  ```toml
-  [tool.twinflow.det]
-  adapter_paths = [
-    { path = "packages/twinflow-kernel/src/twinflow/kernel/_impl/real/**", reason = "production adapters" },
-    { path = "packages/twinflow-kernel/src/twinflow/kernel/_impl/paced.py", reason = "the D-02 pacer" },
-    { path = "packages/twinflow-kernel/src/twinflow/kernel/_impl/memtable.py", reason = "embedded DuckDB over Arrow buffers, pinned to one thread" },
-    { path = "packages/twinflow-storage/src/twinflow/storage/adapters/**", reason = "storage adapters" },
-    { path = "packages/twinflow-api/src/twinflow/api/_server/**", reason = "ASGI server boundary" },
-    { path = "packages/twinflow-cli/src/twinflow/cli/_entry.py", reason = "process entry point" },
-    { path = "tools/**", reason = "build tooling, never imported at runtime" },
-  ]
-  ```
+    ```toml
+    [tool.twinflow.det]
+    adapter_paths = [
+      { path = "packages/twinflow-kernel/src/twinflow/kernel/_impl/real/**", reason = "production adapters" },
+      { path = "packages/twinflow-kernel/src/twinflow/kernel/_impl/paced.py", reason = "the D-02 pacer" },
+      { path = "packages/twinflow-kernel/src/twinflow/kernel/_impl/memtable.py", reason = "embedded DuckDB over Arrow buffers, pinned to one thread" },
+      { path = "packages/twinflow-storage/src/twinflow/storage/adapters/**", reason = "storage adapters" },
+      { path = "packages/twinflow-api/src/twinflow/api/_server/**", reason = "ASGI server boundary" },
+      { path = "packages/twinflow-cli/src/twinflow/cli/_entry.py", reason = "process entry point" },
+      { path = "tools/**", reason = "build tooling, never imported at runtime" },
+    ]
+    ```
 
-  The two kernel entries are the ones a reader checks first, because both are simulation-mode
-  code rather than production adapters. `paced.py` reads the real monotonic clock and is the pacer
-  D-02 permits; `memtable.py` imports DuckDB, which `TFD003` otherwise bans, and pins it to one
-  thread with insertion order preserved so it contributes no nondeterminism. Both carry the inline
-  annotation below in addition to the path entry, because they sit inside the kernel package.
+    The two kernel entries are the ones a reader checks first, because both are simulation-mode
+    code rather than production adapters. `paced.py` reads the real monotonic clock and is the pacer
+    D-02 permits; `memtable.py` imports DuckDB, which `TFD003` otherwise bans, and pins it to one
+    thread with insertion order preserved so it contributes no nondeterminism. Both carry the inline
+    annotation below in addition to the path entry, because they sit inside the kernel package.
 
 - Inline escape hatch, required form:
 
-  ```python
-  # twinflow: allow-nondeterminism(TFD003) reason="aiomqtt is the production transport" \
-  #           owner="@jack" expires="2027-01-01" adr="docs/adr/0004-mqtt-adapter.md"
-  ```
+    ```python
+    # twinflow: allow-nondeterminism(TFD003) reason="aiomqtt is the production transport" \
+    #           owner="@jack" expires="2027-01-01" adr="docs/adr/0004-mqtt-adapter.md"
+    ```
 
-  `reason` and `owner` are mandatory. `expires` is mandatory outside `adapter_paths`, and `LINT-2`
-  fails on an expired annotation, which stops the escape hatch becoming a permanent hole. Inside
-  the kernel package an `adr` link is also mandatory.
+    `reason` and `owner` are mandatory. `expires` is mandatory outside `adapter_paths`, and `LINT-2`
+    fails on an expired annotation, which stops the escape hatch becoming a permanent hole. Inside
+    the kernel package an `adr` link is also mandatory.
 
 - Every annotation is inventoried by `just lint-det --report`, and the count is printed in CI
   output so the number is visible in every PR.
@@ -1877,20 +1881,20 @@ together with the list of files that do exist.
 ```yaml
 # resolved from deployment.network
 topology:
-  zones:
-    ot: { nodes: ["dev-*", "broker-ot", "gw-area-*"] }
-    dmz: { nodes: ["broker-ot", "historian", "twin-sync"] }
-    it: { nodes: ["analytics", "agent", "dashboard", "api"] }
-  links:
-    - {
-        from: "ot",
-        to: "dmz",
-        via: "broker-ot",
-        base_latency: "2 ms",
-        jitter: { dist: "lognormal", mu: -6.9, sigma: 0.4 },
-      }
-    - { from: "dmz", to: "it", via: "historian", base_latency: "1 ms" }
-  # no ot -> it link exists; a publish across it raises NoRouteToNode
+    zones:
+        ot: { nodes: ["dev-*", "broker-ot", "gw-area-*"] }
+        dmz: { nodes: ["broker-ot", "historian", "twin-sync"] }
+        it: { nodes: ["analytics", "agent", "dashboard", "api"] }
+    links:
+        - {
+              from: "ot",
+              to: "dmz",
+              via: "broker-ot",
+              base_latency: "2 ms",
+              jitter: { dist: "lognormal", mu: -6.9, sigma: 0.4 },
+          }
+        - { from: "dmz", to: "it", via: "historian", base_latency: "1 ms" }
+    # no ot -> it link exists; a publish across it raises NoRouteToNode
 ```
 
 Delivery semantics: MQTT QoS 0, 1, and 2 are modeled, including QoS 1 duplicate delivery on
@@ -1905,7 +1909,7 @@ in the `e2e` job from Phase 0. `SCN-F2` asserts what exists at each phase and sa
 is which, rather than asserting a Phase 4 capability from Phase 0:
 
 | Phase  | What SCN-F2 asserts about the broker outage                                                                                                                                                                                                |
-|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 0 to 3 | the outage is injected and healed on schedule, `fault_injected` brackets it, publishes during the outage raise `BrokerUnavailable` at the caller, no message is delivered twice after heal, and delivery order after heal is publish order |
 | 4      | the above, plus zero message loss end to end: every reading published during the outage is present in the historian after reconnect, with the device buffer as the mechanism                                                               |
 
@@ -1946,9 +1950,9 @@ which is reference-architecture fidelity item (b):
 
 ```yaml
 networks:
-  ot_net: { internal: true } # devices + broker-ot + area gateways
-  dmz_net: { internal: true } # broker-ot + historian + twin-sync + otel-collector
-  it_net: {} # analytics + agent + api + dashboard + postgres
+    ot_net: { internal: true } # devices + broker-ot + area gateways
+    dmz_net: { internal: true } # broker-ot + historian + twin-sync + otel-collector
+    it_net: {} # analytics + agent + api + dashboard + postgres
 ```
 
 `broker-ot` is on `ot_net` and `dmz_net`. `historian` is on `dmz_net` and `it_net`. No device
@@ -1969,7 +1973,7 @@ path.
 Adapter seam table, which is what A3 actually asks to be made explicit:
 
 | Port                             | Garage               | Growth                   | Enterprise                                     | Shipped state                                                                                                        |
-|----------------------------------|----------------------|--------------------------|------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| -------------------------------- | -------------------- | ------------------------ | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `Network` (MQTT, Sparkplug)      | Mosquitto            | EMQX                     | EMQX at the OT edge, bridged into the log      | Mosquitto, EMQX, NanoMQ (E36 tier-1 gateway) implemented; `AzureIotHubIngress` and `AwsIotCoreIngress` ship as stubs |
 | `EventBus` (analytics fan-out)   | MQTT over Mosquitto  | MQTT over EMQX           | Kafka                                          | `MqttEventBus` implemented; `KafkaEventBus` is the implemented enterprise example                                    |
 | `TableStore`                     | DuckDB + local Delta | Postgres + local Delta   | Delta on ADLS/S3, Databricks SQL, Snowflake    | DuckDB, Delta, Postgres implemented; `DatabricksSqlTableStore` and `SnowflakeTableStore` ship as stubs               |
@@ -2024,7 +2028,7 @@ longer, which is what stops a port added later from arriving without a suite.
 `facility.yaml` top-level blocks and their owning section:
 
 | Block            | Owner                       | Contents                                                                                     |
-|------------------|-----------------------------|----------------------------------------------------------------------------------------------|
+| ---------------- | --------------------------- | -------------------------------------------------------------------------------------------- |
 | `schema_version` | this section                | `"1.3"`                                                                                      |
 | `facility`       | this section                | `id, name, timezone, geo, uom_system, site_type`                                             |
 | `simulation`     | this section                | `seed, mode, tick_hz, horizon, warmup, speed, snapshot`                                      |
@@ -2048,40 +2052,40 @@ Types for the blocks this section owns:
 ```yaml
 schema_version: "1.3" # string, MAJOR.MINOR, must be a known version
 facility:
-  id: mid3pl-01 # slug, ^[a-z][a-z0-9-]{2,31}$
-  name: "Mid-market 3PL building" # string, 1..120 chars
-  timezone: America/Chicago # IANA zone, validated against zoneinfo
-  geo: { lat: 41.88, lon: -87.63 } # optional, floats, needed by E42 and E40
-  uom_system: metric # metric | us_customary, controls report rendering only
-  site_type: distribution_center # distribution_center | micro_fulfillment | factory | crossdock
+    id: mid3pl-01 # slug, ^[a-z][a-z0-9-]{2,31}$
+    name: "Mid-market 3PL building" # string, 1..120 chars
+    timezone: America/Chicago # IANA zone, validated against zoneinfo
+    geo: { lat: 41.88, lon: -87.63 } # optional, floats, needed by E42 and E40
+    uom_system: metric # metric | us_customary, controls report rendering only
+    site_type: distribution_center # distribution_center | micro_fulfillment | factory | crossdock
 simulation:
-  seed: 42 # int 0..2**64-1, required unless --seed given
-  mode: simulation # simulation | production
-  tick_hz: 1000000 # 1000 | 1000000 | 1000000000
-  horizon: "30 d" # duration string, > 0, <= 100 y
-  warmup: "1 d" # duration string, >= 0, < horizon
-  speed: asap # asap | float in [0.01, 100000]
-  snapshot: { every: "8 h", keep: 5 } # optional
+    seed: 42 # int 0..2**64-1, required unless --seed given
+    mode: simulation # simulation | production
+    tick_hz: 1000000 # 1000 | 1000000 | 1000000000
+    horizon: "30 d" # duration string, > 0, <= 100 y
+    warmup: "1 d" # duration string, >= 0, < horizon
+    speed: asap # asap | float in [0.01, 100000]
+    snapshot: { every: "8 h", keep: 5 } # optional
 deployment:
-  tier: growth # garage | growth | enterprise
-  adapters:
-    network: emqx # must name a registered adapter for this port
-    table_store: postgres
-    event_log: postgres
-    blob_store: local
-    inference: ollama
-  network:
-    topology: purdue_three_zone # names a topology in deploy/topologies/
+    tier: growth # garage | growth | enterprise
+    adapters:
+        network: emqx # must name a registered adapter for this port
+        table_store: postgres
+        event_log: postgres
+        blob_store: local
+        inference: ollama
+    network:
+        topology: purdue_three_zone # names a topology in deploy/topologies/
 integrations:
-  rest: { enabled: true, bind: "127.0.0.1:8080", auth: apikey }
-  graphql: { enabled: true, max_depth: 12, max_complexity: 2000 }
-  webhooks:
-    - id: ops-slack
-      url: "http://localhost:9001/hook" # http allowed only at garage tier
-      subjects: ["twinflow.lss.finding"]
-      filter: "severity >= high" # CEL-style expression, validated at load
-      secret_ref: "env:WEBHOOK_SECRET_OPS"
-      delivery: { max_attempts: 6, backoff: exponential, timeout: "5 s" }
+    rest: { enabled: true, bind: "127.0.0.1:8080", auth: apikey }
+    graphql: { enabled: true, max_depth: 12, max_complexity: 2000 }
+    webhooks:
+        - id: ops-slack
+          url: "http://localhost:9001/hook" # http allowed only at garage tier
+          subjects: ["twinflow.lss.finding"]
+          filter: "severity >= high" # CEL-style expression, validated at load
+          secret_ref: "env:WEBHOOK_SECRET_OPS"
+          delivery: { max_attempts: 6, backoff: exponential, timeout: "5 s" }
 ```
 
 Validation rules worth naming because they catch real mistakes: `warmup < horizon` (`TF-C041`);
@@ -2095,7 +2099,7 @@ tier is `TF-C210`; `secret_ref` must be `env:NAME`, `file:PATH`, or `k8s:NAME`, 
 and a README section:
 
 | Profile                        | Shape                                                                                                                          | Devices | Purpose                                                                                                                |
-|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------|---------|------------------------------------------------------------------------------------------------------------------------|
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `profiles/micro_fulfillment/`  | 1 dock, 3 stations, no automation, 1 shift, 1 SKU class                                                                        | 6       | proves the floor: a startup can model their unit in one screen of YAML. It is also the Phase 1 walking-skeleton target |
 | `profiles/midmarket_3pl/`      | 8 docks, 24 stations, sortation plus 6 AMRs, 2 shifts, 2 customers, wholesale plus parcel                                      | ~120    | the everyday case, and the default for demos and the E1 replay recording                                               |
 | `profiles/enterprise_network/` | 2 DCs plus 1 upstream factory plus a transport network, full automation, 3 shifts, cross-dock and e-commerce and returns flows | ~600    | proves the ceiling and is the E13 multi-site and A4 scaling target                                                     |
@@ -2134,7 +2138,7 @@ what the twin cannot yet represent about their building.
 `just api-spec`.
 
 | Route                             | Method            | Notes                                                                                                                                                                                               |
-|-----------------------------------|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/api/v1/runs`                    | GET, POST         | list runs; POST starts a run from a profile plus scenario plus seed, returns 202 and a job                                                                                                          |
 | `/api/v1/runs/{id}`               | GET, DELETE       | the `RunManifest`                                                                                                                                                                                   |
 | `/api/v1/runs/{id}/events`        | GET               | cursor-paginated canonical event stream, filterable by subject and sim-time range                                                                                                                   |
@@ -2232,7 +2236,7 @@ requirement is recorded here because this section declares the group.
 `justfile` recipes, each a one-line delegation to `tools/` so local and CI run identical code:
 
 | Recipe                                                       | Does                                                                                                  |
-|--------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
 | `just bootstrap`                                             | `uv sync --all-packages`, install git hooks, pull compose images                                      |
 | `just fmt` / `just fmt-check`                                | ruff format, rustfmt                                                                                  |
 | `just lint`                                                  | ruff check, `lint-det`, `lint-imports`, `check-profile-branches`, `check-measured-claims`, commitlint |
@@ -2263,7 +2267,7 @@ Any recipe a contributor needs that is not in `just --list` is a bug. The README
 **CI matrix** (GitHub Actions):
 
 | Job                     | Matrix                                                         | Trigger                                            | Budget        |
-|-------------------------|----------------------------------------------------------------|----------------------------------------------------|---------------|
+| ----------------------- | -------------------------------------------------------------- | -------------------------------------------------- | ------------- |
 | `lint`                  | ubuntu, py3.13                                                 | every PR                                           | 3 min         |
 | `typecheck`             | ubuntu, py3.13                                                 | every PR                                           | 3 min         |
 | `unit`                  | {ubuntu, macos, windows} x {3.12, 3.13, 3.14}                  | every PR, path-filtered to `packages/**`           | 90 s per cell |
@@ -2326,16 +2330,16 @@ File: `metrics.yaml`, named by `metrics.catalog` in `facility.yaml`, validated a
 ```yaml
 schema_version: "1.0"
 metrics:
-  - id: twin.throughput.units_per_hour
-    title: "Units per hour"
-    unit: 1/h # x-twinflow-unit, resolved by pint
-    grain: [facility, station, shift] # the dimensions it may be sliced by
-    direction: higher_is_better # higher_is_better | lower_is_better | target_is_best
-    precision: 2 # x-twinflow-precision, decimal places when serialized
-    owner: twinflow-twin # the package that produces the inputs
-    since: "0.1.0"
-    expression: null # owned by the AI-layer section (E26b)
-    status: active # active | deprecated
+    - id: twin.throughput.units_per_hour
+      title: "Units per hour"
+      unit: 1/h # x-twinflow-unit, resolved by pint
+      grain: [facility, station, shift] # the dimensions it may be sliced by
+      direction: higher_is_better # higher_is_better | lower_is_better | target_is_best
+      precision: 2 # x-twinflow-precision, decimal places when serialized
+      owner: twinflow-twin # the package that produces the inputs
+      since: "0.1.0"
+      expression: null # owned by the AI-layer section (E26b)
+      status: active # active | deprecated
 ```
 
 ```python
@@ -2366,7 +2370,7 @@ which is what makes a `spec_limits` entry recorded in a run last year still mean
 Validation rules, all producing the line-numbered rendering of 5.6:
 
 | Code      | Condition                                                                       |
-|-----------|---------------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------------- |
 | `TF-C103` | a `spec_limits` key names a metric id that is not in the registry               |
 | `TF-C150` | two definitions share an id                                                     |
 | `TF-C151` | `unit` does not parse under pint                                                |
@@ -2404,7 +2408,7 @@ Every key this section reads, its type, and its validation rule. Keys owned by o
 listed in the block table of 5.12 and validated by their registered schemas.
 
 | Key                                             | Type                  | Default                            | Validation                                                                                                      |
-|-------------------------------------------------|-----------------------|------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| ----------------------------------------------- | --------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `schema_version`                                | string `MAJOR.MINOR`  | required                           | must be a known facility schema version; unknown gives `TF-C002` with the upgrade command in the suggestion     |
 | `facility.id`                                   | slug                  | required                           | `^[a-z][a-z0-9-]{2,31}$`, unique across a multi-site config                                                     |
 | `facility.name`                                 | string                | required                           | 1..120 chars                                                                                                    |
@@ -2524,7 +2528,7 @@ Each is a named test in `tests/property/`, run under the `ci` Hypothesis profile
 example database.
 
 | Invariant                             | Statement                                                                                                                                                                                                                              | Generator                                                                                                      |
-|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | INV-K1 monotone clock                 | for any interleaving of scheduled sleeps and immediate callbacks, `clock.now()` observed in emission order is non-decreasing                                                                                                           | random schedules of 1..200 tasks with durations 0..1e9 ticks                                                   |
 | INV-K2 tick arithmetic                | `t + d1 + d2 == t + (d1 + d2)` and durations parsed from strings round-trip to the same tick value                                                                                                                                     | random instants and durations                                                                                  |
 | INV-K3 stream independence            | draws from stream A are unchanged by any number of draws from stream B, in any interleaving                                                                                                                                            | random stream name pairs and interleavings                                                                     |
@@ -2552,7 +2556,7 @@ example database.
 ### 7.3 Determinism gates
 
 | Gate   | What it does                                                                                                                                                                                                                                                 | Failure means                                                                                                                                     |
-|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | DET-1  | run `SCN-F1` twice in separate processes on the same runner, each with its own `--out`, compare `event_log_hash` byte for byte                                                                                                                               | a nondeterminism the lint missed                                                                                                                  |
 | DET-2  | compare `SCN-F1` logs produced on ubuntu and macos runners in two stages: first `rng_draw_counts_sha256`, then, only if those match, integer and quantised fields byte for byte and continuous fields against the measured `cross_platform_tolerance` of 5.4 | stage one, stream desynchronisation; stage two, a platform-dependent numeric path. The two are named separately because they need different fixes |
 | DET-3  | run `SCN-F1` at `PYTHONHASHSEED=0` and `PYTHONHASHSEED=12345`, compare logs                                                                                                                                                                                  | a set or hash iteration order leak                                                                                                                |
@@ -2567,7 +2571,7 @@ example database.
 ### 7.4 Seeded end-to-end scenarios
 
 | Id     | Profile           | Seed     | Description                                                                                                                                                        | Asserts                                                                                                                                                                                                                     |
-|--------|-------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------ | ----------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | SCN-F0 | micro_fulfillment | 42       | 60 simulated seconds, no faults, one arrival and one station cycle                                                                                                 | the paced-clock properties only: DET-4 and INV-K9. It exists because a paced run costs wall time in proportion to its simulated span, and the arithmetic of 5.3 shows a 1 sim day scenario cannot fit the job budget (D-13) |
 | SCN-F1 | micro_fulfillment | 42       | 1 sim day, no faults                                                                                                                                               | manifest completeness, `run_started`/`run_finished` bracket the log, DET-1, DET-2, DET-3, DET-9                                                                                                                             |
 | SCN-F2 | midmarket_3pl     | 1337     | 1 sim day with a 90 s broker outage at t=4 h                                                                                                                       | zero message loss with device buffering, fault events present, DET-5                                                                                                                                                        |
@@ -2595,7 +2599,7 @@ deterministic", so the gates here validate the standards-bearing components rath
 authority. Each names its source and its tolerance.
 
 | Gate    | Reference (published, citable)                                                                                                                             | What is asserted                                                                                                                                                                                                                                                                                                                                                          | Tolerance                                   |
-|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------|
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
 | VAL-F1  | JSON Schema Test Suite, draft 2020-12 (json-schema-org/JSON-Schema-Test-Suite)                                                                             | our validator configuration passes every case for the keywords the registry uses, and correctly rejects the negative cases                                                                                                                                                                                                                                                | exact, 100 percent of the filtered case set |
 | VAL-F2  | Semantic Versioning 2.0.0 specification, including its precedence examples                                                                                 | the version comparator orders the specification's own example list identically, and the bump calculator matches a table derived from the spec text                                                                                                                                                                                                                        | exact                                       |
 | VAL-F3  | RFC 9457 Problem Details for HTTP APIs; RFC 9110 conditional requests; RFC 8288 Link header                                                                | error bodies, ETag/If-None-Match handling, and Link pagination headers conform                                                                                                                                                                                                                                                                                            | exact field and header shape                |
@@ -2660,7 +2664,7 @@ to that gate.
 ### 7.6 Named CI gates owned by this section
 
 | Gate     | Assertion                                                                                                          |
-|----------|--------------------------------------------------------------------------------------------------------------------|
+| -------- | ------------------------------------------------------------------------------------------------------------------ |
 | LINT-1   | `tf-lint-det` clean                                                                                                |
 | LINT-2   | no expired nondeterminism annotation; every annotation has reason and owner                                        |
 | LINT-3   | conventional commits and `import-linter` contracts clean                                                           |
@@ -2727,7 +2731,7 @@ dropped.
 **Phase 0, contracts that cannot be retrofitted.** This is the agreed resequencing.
 
 | Piece                                                                                   | Why it must be first                                                                                                                                               |
-|-----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Kernel ports (clock, RNG, network, storage, ids, env)                                   | every subsystem is written against them from its first line; retrofitting dependency injection across 20 packages is a rewrite                                     |
 | `SimEventLoop` and `SimClock` (C2)                                                      | the scheduler determines how all async code is written                                                                                                             |
 | `SplittableRng` with name-addressed streams (C1)                                        | if streams were creation-order addressed, every golden file recorded before the last subsystem was added would be invalid                                          |

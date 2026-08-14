@@ -125,6 +125,7 @@ nav:
       - Performance standard: performance.md
       - Testing strategy: testing-strategy.md
       - Testing policy: testing-policy.md
+      - Test index: tests.md
       - Code review policy: code-review.md
       - Documentation standard: DOCUMENTATION-STANDARD.md
 

@@ -80,7 +80,7 @@ The broker bridge is the only crossing point between the two segments, and secti
 Each row is a separately installable package, so taking one brick does not drag in the rest.
 
 | Part                  | What it does                                                                                                                                                                     | Package              | Lands in               |
-|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------|------------------------|
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ---------------------- |
 | Process twin          | Discrete-event model of receiving and putaway on SimPy, with takt, cycle time, WIP, utilization, OEE, and the bottleneck, all from `facility.yaml`                               | `twinflow-twin`      | P1, flow metrics at P2 |
 | Simulated IoT fleet   | Edge devices publishing Sparkplug B into an ISA-95 unified namespace, from a YAML sensor catalog with declared failure modes                                                     | `twinflow-sensors`   | P1, breadth at P3      |
 | Fleet health          | Device registry, severity-occurrence-detection scoring, and trend detection on motor temperature, vibration, and current                                                         | `twinflow-fleet`     | P3                     |
@@ -106,7 +106,7 @@ Remove any of the three and this is a simulation with a dashboard.
 No statistic merges without a validation gate that checks it against a published reference value. The registry that holds those gates lands at P0, ahead of the first statistic, and each family goes to the reference that covers it.
 
 | Statistic family                                              | Reference                                                  | Coverage, as the source states it                                                          |
-|---------------------------------------------------------------|------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| ------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | Univariate statistics, ANOVA, linear and nonlinear regression | NIST Statistical Reference Datasets                        | "univariate statistics, linear regression, nonlinear regression, and analysis of variance" |
 | Control charts, process capability, acceptance sampling       | NIST/SEMATECH e-Handbook of Statistical Methods, chapter 6 | Chapter 6 is "Process or Product Monitoring and Control", covering all three               |
 | Gage R and R                                                  | The CRAN documentation for the R SixSigma package          | Both published F-test error terms for the operator effect                                  |
@@ -142,8 +142,10 @@ Determinism of the run is not predictability of the operation. No distribution i
 Planned. The commands below are the committed interface, and each is kept honest as it lands.
 
 ```bash
-just demo            # zero-container: twin, in-process broker, dashboard, agent
-docker compose up    # full stack, OT and IT segments bridged at one crossing point
+just demo    # zero-container: twin, in-process broker, dashboard, agent
+
+# full stack, OT and IT segments bridged at one crossing point
+docker compose -f deploy/garage/docker-compose.yaml up
 ```
 
 Gate `VAL-GATE-QS-001` holds the first path to under 300 seconds from a clean container on the CI reference runner, ending on a live dashboard serving non-empty state. Both paths run locally with no cloud account, and the default agent path uses a local model with constrained decoding, so the demo runs with no API key.
@@ -165,7 +167,7 @@ I deploy IoT tracking fleets in industrial settings and apply Lean Six Sigma to 
 Start with [docs/reading-guide.md](docs/reading-guide.md). It gives three routes through this repository, sized to fifteen minutes, one hour, and a full contributor onboarding, and each step names what it is evidence of.
 
 | Document                                             | Contents                                                                                        |
-|------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | [docs/reading-guide.md](docs/reading-guide.md)       | Where to start, what is built today, and the commands that check each claim on this page        |
 | [docs/glossary.md](docs/glossary.md)                 | Every domain term, marked as defined here or owned by a named external standard                 |
 | [ARCHITECTURE.md](ARCHITECTURE.md)                   | Layer map, ISA-95 and Purdue assignments, real-world counterparts, and decisions with rationale |

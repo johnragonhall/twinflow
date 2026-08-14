@@ -112,7 +112,7 @@ are stable enough for the C9 compatibility promises to mean something.
 
 | Phase                             | Tag     | Delivers                                                                                                                                                                                                                                           | Depends on            | Status      |
 |-----------------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|-------------|
-| P0 Contracts                      | v0.1.0  | Determinism at both tiers, sim clock, schema registry and the event envelope, test tiers, config validation, release automation, monorepo tooling, package topology, the governed metrics layer, the environment driver seam, and the roadmap tool | nothing               | in progress |
+| P0 Contracts                      | v0.1.0  | Determinism at both tiers, sim clock, schema registry and the event envelope, test tiers, config validation, release automation, monorepo tooling, package topology, the governed metrics layer, the environment driver seam, and the roadmap tool | nothing               | done        |
 | P1 Walking skeleton               | v0.2.0  | One station, two devices publishing Sparkplug B into the UNS, the event-sourced historian, one agent tool, the dashboard stub, the REST API, the public community documents, and the contributor agreement check                                   | P0                    | in progress |
 | P2 The judge                      | v0.3.0  | The Lean Six Sigma engine, twin-vs-reality sync, the what-if tool, the accuracy stack core, the eval harness, and the hosted browser replay demo                                                                                                   | P1                    | not started |
 | P3 Breadth and the business loop  | v0.4.0  | Sensor catalog breadth, fleet health and predictive maintenance, the ERP and CMMS loop, RF read-zone physics, the MCP server with its threat model and red-team suite, counterfactual replay, and the docs site                                    | P2                    | not started |
@@ -147,12 +147,12 @@ are stable enough for the C9 compatibility promises to mean something.
 | P6-W5 Economics and environment   | v1.5.0  | ESG and CSRD reporting, insurance and risk transfer, AI FinOps, failure runbooks and config compliance audits, the weather driver, the 3D factory view, and the enterprise facility profile                                                        | P6-W4                 | not started |
 | P6-W6 Completion and proof        | v1.6.0  | The full labeled dataset corpus with cards, the published scaling curves, the milestone coverage proof, and the capability report regenerated across every subsystem                                                                               | P6-W5                 | not started |
 
-Two phases carry a status other than `not started`. P0 is the contract work now under way. P1 is
-open alongside it because the repository is public from Phase 1, so the P1 documents that an
-outside visitor reads first, this file, [README.md](README.md),
-[ARCHITECTURE.md](ARCHITECTURE.md), [SUPPORT.md](SUPPORT.md), and the issue forms, are already
-committed. From v0.1.0 onward exactly one phase is open at a time, because two open phases mean
-two release branches and the repository is public.
+Two phases carry a status other than `not started`. P0 is done, and v0.1.0 tags the contracts it
+fixes. P1 is the one open phase, which is what v0.1.0 onward allows: exactly one phase is open at
+a time, because two open phases mean two release branches and the repository is public. The P1
+documents an outside visitor reads first, this file, [README.md](README.md),
+[ARCHITECTURE.md](ARCHITECTURE.md), [SUPPORT.md](SUPPORT.md), and the issue forms, are committed,
+because the repository is public from Phase 1.
 
 ## 4. Phase detail
 

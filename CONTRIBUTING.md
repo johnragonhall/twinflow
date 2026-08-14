@@ -33,7 +33,7 @@ problem blocks a commit. Turn it off for one commit with
 have keeps working. Run it again after a pull that touches `scripts/hooks/`.
 
 | Hook          | What it does                                                                                          |
-|---------------|-------------------------------------------------------------------------------------------------------|
+| ------------- | ----------------------------------------------------------------------------------------------------- |
 | `pre-commit`  | Runs the prose, determinism, and language linters over the staged files. A finding blocks the commit. |
 | `commit-msg`  | Checks the subject shape, rejects a non-ASCII subject, and checks the body headings.                  |
 | `post-commit` | Writes the changelog entry and folds it into the commit you just made.                                |
@@ -56,7 +56,7 @@ The `just` recipes wrap the commands below. Run the underlying command if you
 do not have `just` installed.
 
 | Recipe               | Runs                                                                                                                    |
-|----------------------|-------------------------------------------------------------------------------------------------------------------------|
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | `just`               | Lists every recipe, with its description (same as `just --list`)                                                        |
 | `just install`       | `uv sync`                                                                                                               |
 | `just test`          | The fast tier below                                                                                                     |
@@ -86,7 +86,7 @@ Each tier has a budget. A tier that drifts past its budget gets split, or moved
 to a nightly run. A slow gate is a gate people learn to skip.
 
 | Tier        | Command                                                            | Budget       |
-|-------------|--------------------------------------------------------------------|--------------|
+| ----------- | ------------------------------------------------------------------ | ------------ |
 | Fast        | `uv run pytest -m "not slow and not integration and not property"` | Under 60 s   |
 | Property    | `uv run pytest -m property`                                        | Under 5 min  |
 | Determinism | `sh scripts/determinism-check.sh --runs 3`                         | Under 2 min  |
@@ -129,7 +129,7 @@ Two workflows share this work, and they do not cover the same ground. Read the
 `Enforced by` column before you assume a green tick covers your change.
 
 | Target      | Tool                                     | Config                     | Enforced by                                                          |
-|-------------|------------------------------------------|----------------------------|----------------------------------------------------------------------|
+| ----------- | ---------------------------------------- | -------------------------- | -------------------------------------------------------------------- |
 | IP hygiene  | `scripts/checks/banned-terms-gate.py`    | `.ip-denylist`             | `pre-commit`, staged files, before `LINT_OK`; `lint.yml`, whole tree |
 | Regression  | `scripts/checks/regression-test-gate.py` | `scripts/hooks/commit-msg` | `commit-msg`, `lint.yml` over the range, and `just gate regression`  |
 | Commit log  | `scripts/checks/commit-message-gate.py`  | `scripts/hooks/commit-msg` | `just gate phase-exit` via CC-001; the hook applies the rules inline |
@@ -224,7 +224,7 @@ The subject is `type(scope): description`, in ASCII, lowercase after the colon,
 with no trailing period.
 
 | Type       | Use for                               |
-|------------|---------------------------------------|
+| ---------- | ------------------------------------- |
 | `feat`     | A new capability                      |
 | `fix`      | A bug fix                             |
 | `refactor` | A restructure with no behavior change |
@@ -303,7 +303,7 @@ writes the bullet into the `[Unreleased]` section. It then amends your commit,
 so the edit lands inside it. No separate sync commit appears in the log.
 
 | Commit type                         | Changelog heading |
-|-------------------------------------|-------------------|
+| ----------------------------------- | ----------------- |
 | `feat`                              | Added             |
 | `fix`                               | Fixed             |
 | `perf`                              | Changed           |
@@ -349,13 +349,14 @@ The table below is the allowlist. Read the `Applies to` column: two rows turn
 on where the dependency sits, not only on its SPDX id.
 
 | SPDX id        | Applies to          | Decision | Reason                                                                                        |
-|----------------|---------------------|----------|-----------------------------------------------------------------------------------------------|
+| -------------- | ------------------- | -------- | --------------------------------------------------------------------------------------------- |
 | `MIT`          | Any dependency      | Accepted | Permissive, with no condition Apache-2.0 redistribution breaks.                               |
 | `BSD-2-Clause` | Any dependency      | Accepted | Permissive, same reasoning as MIT.                                                            |
 | `BSD-3-Clause` | Any dependency      | Accepted | Permissive, plus a no-endorsement clause that costs nothing here.                             |
 | `ISC`          | Any dependency      | Accepted | Permissive, functionally MIT.                                                                 |
 | `Apache-2.0`   | Any dependency      | Accepted | The outbound license of this project.                                                         |
 | `Python-2.0`   | Any dependency      | Accepted | Permissive, and unavoidable on the standard library path.                                     |
+| `PSF-2.0`      | Any dependency      | Accepted | The Python license under its other SPDX id. `typing_extensions` declares this spelling.       |
 | `0BSD`         | Any dependency      | Accepted | Permissive with no attribution condition at all. Reaches the tree through numpy.              |
 | `Zlib`         | Any dependency      | Accepted | Permissive, and its only condition is not misrepresenting origin. Reaches the tree via numpy. |
 | `CC0-1.0`      | Any dependency      | Accepted | A public-domain dedication, so it imposes no condition on redistribution.                     |
@@ -391,16 +392,38 @@ settles it. The project writes its own process mining under Apache-2.0. PM4Py
 stays available as a development-only comparison oracle, never shipped and
 never served.
 
-### How the allowlist is checked today
+### How the allowlist is checked
 
-There is no automated license gate yet, because the repository has no
-dependency manifest to resolve. Until one exists, the maintainer reads the
-license of each new dependency by hand against the table above.
+`scripts/checks/license-allowlist-gate.py` enforces the table. It runs in
+`just lint`, in `scripts/ci-local.sh`, and in the release workflow, and gate
+`VAL-GATE-SEC-001` names it. Milestone C11 in `ROADMAP.md` is the milestone it
+satisfies.
 
-Milestone C11 in `ROADMAP.md` sequences the automated form: a resolver run over
-the manifest on every change, with a failure on any license outside the table.
-Release gate `VAL-GATE-SEC-001` names the same allowlist, including the
-MPL-2.0 row.
+The gate parses the allowlist out of this file rather than carrying a second
+copy, so the table a contributor reads is the table CI enforces. It reads
+metadata from the installed distributions, which `uv` resolves from `uv.lock`,
+so it reports what would actually ship rather than what a manifest claims. It
+takes an SPDX id from the `License-Expression` field, from a license
+classifier, or from the legacy `License` field, in that order.
+
+An expression is resolved rather than pattern-matched, because the two
+operators mean opposite things to a redistributor. `AND` binds every term, so
+every term has to be accepted: numpy ships
+`BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0`. `OR` lets the recipient
+pick, so one accepted term carries the whole: `packaging` ships
+`Apache-2.0 OR BSD-2-Clause`.
+
+Placement is computed rather than assumed, which is what the two MPL-2.0 rows
+turn on. A distribution reachable from a workspace package's runtime
+dependencies is shipped at run time; everything else is development tooling. A
+dependency guarded by an extra is not counted, because nobody who omits the
+extra receives it.
+
+One license carries two spellings, so the table carries both rows. PyPI
+metadata spells the Python license `PSF-2.0` and `Python-2.0`, and the gate
+reads them as one id.
+
+A refused license fails the run, and so does a license that matches no row.
 
 Anything not in the table needs a decision before the dependency lands. Open a
 [discussion](https://github.com/johnragonhall/twinflow/discussions) naming the

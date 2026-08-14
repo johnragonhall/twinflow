@@ -170,6 +170,12 @@ motor above its alarm limit is a real motor in trouble; a motor at -270 C is a
 broken sensor. Only the second belongs here, so the band is wide enough to
 contain every alarm the twin might raise.
 
+## Package metadata
+
+| Symbol        | What it is                                                             |
+| ------------- | ---------------------------------------------------------------------- |
+| `__version__` | The distribution version, read by the build so the two cannot disagree |
+
 ## Layering
 
 `twinflow.sensors` sits in the `domain` layer. It imports `twinflow.kernel` for

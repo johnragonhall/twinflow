@@ -25,20 +25,24 @@ Pick the route that matches the time you have.
 
 ## 1. Before you start: what is built
 
-Phase P0 is the contract phase. It ships no product. It fixes the decisions a
-later phase cannot change without invalidating every run already recorded.
+Phase P0 is the contract phase, it is done, and v0.1.0 tags it. It carries no
+product of its own, because its job is to fix the decisions a later phase cannot
+change without invalidating every run already recorded. Phase P1 is the one open
+phase, and the running parts arrive with it.
 
-| Question            | Answer today                                                                                                                |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| What is tagged      | v0.1.0, the P0 contracts release                                                                                            |
-| What installs       | `twinflow-schemas`, `twinflow-rng`, `twinflow-kernel`, `twinflow-config`, and the `twinflow-roadmap` tool, each alone       |
-| What runs           | A determinism scenario, `SCN-F1`, which writes an event log and matches its own hash across two runs                        |
-| What does not exist | The station model, the device fleet, the statistical engine, the agent, and the dashboard                                   |
-| Gates               | Every gate in force at the P0 exit is implemented and runnable. [gates.md](gates.md) generates the counts from `gates.yaml` |
+| Question            | Answer today                                                                                                                                                                                                                           |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What is tagged      | v0.1.0, the P0 contracts release. P1 is open and untagged                                                                                                                                                                              |
+| What installs       | Eleven workspace members, each alone: the ten `twinflow-*` packages and the `twinflow-roadmap` tool. Each one carries a `tests/test_brick_isolated.py` that proves it                                                                  |
+| What runs           | `SCN-F1`, a determinism scenario that writes an event log and matches its own hash across two runs, and `just demo`, the headless ten-minute demo over the shipped packages                                                            |
+| What exists         | The station model, an RFID portal and a temperature sensor, the Sparkplug B session, the event-sourced historian, the REST API, one agent tool, and the dashboard                                                                      |
+| What does not exist | The statistical engine, which is what phase P2 delivers                                                                                                                                                                                |
+| Gates               | Every gate in force at the P0 exit is implemented and runnable. Four of the gates in force at P1 are specified rather than implemented, so P1 has an unarmed set to close. [gates.md](gates.md) generates the counts from `gates.yaml` |
 
-A reader who wants a running warehouse will not find one. A reader who wants to
-see how someone sets up a system so that its later numbers can be trusted is in
-the right place.
+A reader who wants a running warehouse will not find one: one station, two
+devices, and a dashboard tile are the P1 scope, not a facility. A reader who
+wants to see how someone sets up a system so that its later numbers can be
+trusted is in the right place.
 
 ## 2. Route A: fifteen minutes
 
@@ -94,7 +98,7 @@ This route is for an engineer judging depth. Read in this order.
 
 Read
 [CONTRIBUTING.md](https://github.com/johnragonhall/twinflow/blob/main/CONTRIBUTING.md)
-first, then these four in any order:
+first, then these six in any order:
 
 | Document                                                                             | Why you need it                                                      |
 | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
