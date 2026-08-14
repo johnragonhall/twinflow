@@ -127,5 +127,23 @@ def test_an_aggregate_that_misses_a_job_is_a_finding():
     assert any("aggregate" in f for f in findings)
 
 
+def test_the_windows_leg_runs_the_shell_its_scripts_are_written_in():
+    """Another shape of "looks complete and does not run".
+
+    Every `run:` body in this workflow is POSIX shell, and each step reads its
+    inputs from the environment so that a workflow expression never becomes
+    shell source. PowerShell is the default shell on a Windows runner, and it
+    reads `"$PYTHON_VERSION"` as an undefined PowerShell variable rather than
+    as the environment, so the step receives an empty string and the leg dies
+    at setup with nothing tested.
+    """
+    _, workflow = fixtures()
+    images = workflow["jobs"]["python"]["strategy"]["matrix"]["os"]
+    assert any("windows" in image for image in images), (
+        "the matrix carries a Windows leg, which is what makes the shell load-bearing"
+    )
+    assert workflow["defaults"]["run"]["shell"] == "bash"
+
+
 def test_this_repository_passes_its_own_gate():
     assert gate.main([]) == 0

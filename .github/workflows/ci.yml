@@ -33,6 +33,17 @@ on:
 permissions:
   contents: read
 
+# Every `run:` body here is POSIX shell, and steps read their inputs as
+# environment variables rather than interpolating them, so that a workflow
+# expression never becomes shell source. On a Windows runner the default shell
+# is PowerShell, where `"$PYTHON_VERSION"` names an undefined PowerShell
+# variable instead of the environment, and the step receives an empty string.
+# Declaring bash once holds every leg of the matrix to the one shell the
+# scripts are written in.
+defaults:
+  run:
+    shell: bash
+
 # A newer push on the same ref supersedes the run in flight.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -59,6 +59,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- run the matrix legs in the shell their scripts are written in
 - exempt a bot account from the signature check
 - exempt the pull request merge ref from the subject gate
 - publish one event for one command
