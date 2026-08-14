@@ -16,12 +16,15 @@ from __future__ import annotations
 import ast
 import json
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import Any
 
 import pytest
 from pydantic import ValidationError
 
+from twinflow.agent import local_model
 from twinflow.agent.local_model import (
     DEFAULT_OLLAMA_BASE_URL,
     ConstraintNotHonored,
@@ -367,3 +370,70 @@ def test_a_running_ollama_answers_within_the_schema():
     except OllamaUnavailable as error:
         pytest.skip(f"no local Ollama daemon: {error}")
     assert out.metric == "twin.throughput.units_per_hour"
+
+
+# ------------------------------------------------------- the base URL is loopback
+
+# The module ships no certificate authority bundle, and ADR-0002 rests the whole
+# no-third-party-dependency argument on that being safe because loopback
+# verifies no certificate. A base URL naming another host posts the prompt and
+# the schema off this machine over a connection nothing here can authenticate.
+
+
+@pytest.mark.parametrize(
+    "base_url",
+    [
+        "http://169.254.169.254",
+        "http://10.0.0.5:11434",
+        "https://attacker.example",
+        "http://localhost@evil.example",
+        "http://evil.example#localhost",
+        "http://127.0.0.1.evil.example",
+    ],
+)
+def test_a_base_url_off_this_machine_is_refused(base_url: str):
+    with pytest.raises(ValueError, match="loopback"):
+        local_model._chat_url(base_url)
+
+
+@pytest.mark.parametrize(
+    "base_url",
+    [
+        "http://127.0.0.1:11434",
+        "http://localhost:11434",
+        "http://[::1]:11434",
+        "http://127.0.0.2:11434",
+    ],
+)
+def test_a_loopback_base_url_is_accepted(base_url: str):
+    """The control. A check that refused every host would pass the six cases
+    above while making the local path unreachable."""
+    assert local_model._chat_url(base_url).endswith("/api/chat")
+
+
+def test_the_scheme_refusal_still_stands():
+    """`urlopen` opens file: and ftp:, so the scheme is checked as well as the
+    host. Neither check subsumes the other: `file:///etc/passwd` names no host
+    and `http://evil.example` names a legal scheme."""
+    for base_url in ("file:///etc/passwd", "ftp://127.0.0.1/x"):
+        with pytest.raises(ValueError):
+            local_model._chat_url(base_url)
+
+
+def test_a_redirect_off_loopback_is_refused():
+    """The host check reads the URL a caller configured. A redirect is a second
+    URL, and the stdlib handler follows one to ftp as readily as to https."""
+    handler = local_model._RefuseRedirect()
+    request = urllib.request.Request("http://127.0.0.1:11434/api/chat")
+
+    with pytest.raises(urllib.error.HTTPError, match="refused"):
+        handler.redirect_request(
+            request, None, 302, "Found", {}, "http://169.254.169.254/latest/meta-data"
+        )
+
+
+def test_the_transport_opener_does_not_follow_redirects():
+    """The refusal above only matters while the transport uses this opener."""
+    assert any(
+        isinstance(handler, local_model._RefuseRedirect) for handler in local_model._OPENER.handlers
+    )

@@ -75,6 +75,7 @@ seed, which is the part of the answer's reproducibility this package controls.
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import urllib.error
 import urllib.parse
@@ -114,6 +115,32 @@ _START_HINT = (
     f"an answer produced without the schema constraint would not carry the "
     f"guarantee this seam exists to provide."
 )
+
+
+class _RefuseRedirect(urllib.request.HTTPRedirectHandler):
+    """Answer a redirect by refusing it.
+
+    `_chat_url` checks the scheme and the host of the URL a caller configured.
+    A redirect is a second URL nothing checked, and the stdlib handler will
+    follow one to `ftp:` as readily as to `https:`, so following it would spend
+    both refusals on the first hop only. Ollama does not redirect its own chat
+    endpoint, which makes a redirect here a sign the address is not Ollama.
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: ANN001, ANN201
+        raise urllib.error.HTTPError(
+            req.full_url,
+            code,
+            f"redirect to {newurl!r} refused: the chat endpoint is reached directly, "
+            f"and a redirect leaves the loopback address this adapter checked",
+            headers,
+            fp,
+        )
+
+
+#: Every request this module makes goes through this opener, which refuses
+#: redirects. Built once, at import.
+_OPENER = urllib.request.build_opener(_RefuseRedirect)
 
 
 class OllamaError(Exception):
@@ -163,8 +190,9 @@ class UrllibJsonTransport:
         self, url: str, payload: Mapping[str, Any], *, timeout_s: float
     ) -> Mapping[str, Any]:
         body = json.dumps(dict(payload), ensure_ascii=False).encode("utf-8")
-        # The scheme reached _chat_url before it reached here, so this cannot be
-        # a file: or ftp: URL however the base URL was configured.
+        # `_chat_url` checks the scheme and the host, so this is an http or
+        # https URL on loopback. `_OPENER` holds that for the whole exchange by
+        # refusing redirects, which are a second URL neither check reads.
         request = urllib.request.Request(
             url,
             data=body,
@@ -172,7 +200,7 @@ class UrllibJsonTransport:
             headers={"Content-Type": "application/json", "Accept": "application/json"},
         )
         try:
-            with urllib.request.urlopen(request, timeout=timeout_s) as response:
+            with _OPENER.open(request, timeout=timeout_s) as response:
                 raw = response.read()
         except urllib.error.HTTPError as error:
             detail = error.read().decode("utf-8", "replace").strip()
@@ -306,11 +334,37 @@ class OllamaStructuredOutput:
             ) from error
 
 
+def _is_loopback(host: str) -> bool:
+    """Whether this host names the local machine and nothing else.
+
+    Literal addresses and the one reserved name, never a resolution. A lookup
+    would put the answer in DNS, where it can differ between the check and the
+    request and between two runs of one seed. `localhost` is reserved to
+    loopback by RFC 6761 section 6.3, which is a stronger guarantee than asking
+    the resolver what it thinks today.
+    """
+    if host == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(host.strip("[]")).is_loopback
+    except ValueError:
+        return False
+
+
 def _chat_url(base_url: str) -> str:
     """The chat endpoint, with the base URL checked before it reaches urlopen.
 
-    The scheme check is not decoration. `urlopen` also opens `file:` and `ftp:`,
-    so an unchecked base URL turns a configuration value into a file read.
+    Two checks, and both are load-bearing. `urlopen` also opens `file:` and
+    `ftp:`, so the scheme check keeps a configuration value from becoming a file
+    read. The host check keeps this adapter on the interface its own argument
+    rests on: this module ships no certificate authority bundle, because a
+    request to loopback verifies no certificate, and that is the whole reason
+    the local path costs no third-party distribution. A base URL naming another
+    host posts the prompt and the schema off this machine over a connection
+    nothing here can authenticate.
+
+    A hosted model is reached through the same seam by a different adapter, per
+    WP-P2-13, rather than by pointing this one at a remote address.
     """
     parts = urllib.parse.urlsplit(base_url)
     if parts.scheme not in ("http", "https"):
@@ -320,6 +374,14 @@ def _chat_url(base_url: str) -> str:
         )
     if not parts.netloc:
         raise ValueError(f"the Ollama base URL {base_url!r} names no host")
+    host = parts.hostname
+    if host is None or not _is_loopback(host):
+        raise ValueError(
+            f"the Ollama base URL {base_url!r} names host {host!r}, which is not loopback. "
+            f"This adapter ships no certificate authority bundle because loopback needs "
+            f"none, so it cannot authenticate another host. Reach a hosted model through "
+            f"the structured-output seam instead"
+        )
     return base_url.rstrip("/") + "/api/chat"
 
 
