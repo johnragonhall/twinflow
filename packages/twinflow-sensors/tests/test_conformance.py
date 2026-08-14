@@ -131,9 +131,6 @@ def test_every_in_scope_assertion_is_ruled_on(report: conf.ConformanceReport) ->
 #: Written down rather than tolerated, so a change to the session that fixes
 #: one, or breaks a twelfth, fails this test rather than passing quietly.
 KNOWN_FAILURES: Mapping[str, str] = {
-    "tck-id-case-sensitivity-metric-names": "two metric names may differ only by case",
-    "tck-id-message-flow-edge-node-birth-publish-nbirth-payload-bdSeq": "bdSeq is UInt64",
-    "tck-id-message-flow-edge-node-birth-publish-will-message-payload-bdSeq": "bdSeq is UInt64",
     "tck-id-operational-behavior-data-commands-rebirth-name-aliases": "the rebirth is aliased",
     "tck-id-operational-behavior-edge-node-intentional-disconnect-ndeath": "no close sends it",
     "tck-id-payloads-dbirth-order": "data may precede a sibling device's DBIRTH",
@@ -146,7 +143,7 @@ KNOWN_FAILURES: Mapping[str, str] = {
 
 
 def test_the_run_fails_exactly_the_recorded_assertions(report: conf.ConformanceReport) -> None:
-    """The failures are the eleven written down, and no others."""
+    """The failures are the eight written down, and no others."""
     assert sorted(result.assertion_id for result in report.failures) == sorted(KNOWN_FAILURES)
 
 
@@ -408,6 +405,15 @@ def _mutate_rebirth_opens_a_session(patch: pytest.MonkeyPatch) -> None:
     patch.setattr(EdgeNodeSession, "rebirth", reconnecting)
 
 
+def _mutate_case_insensitive_names(patch: pytest.MonkeyPatch) -> None:
+    """Let two metric names that differ only by case sit on one owner.
+
+    The pair is what a consumer keying its tag store by a case-folded name
+    merges, reporting one channel's readings under the other's.
+    """
+    patch.setattr("twinflow.sensors.sparkplug._refuse_case_collisions", lambda _specs: None)
+
+
 def _mutate_no_refusals(patch: pytest.MonkeyPatch) -> None:
     """Publish anything in any order, refusing nothing."""
     patch.setattr(EdgeNodeSession, "_require_connected", lambda _self: None)
@@ -609,6 +615,7 @@ MUTATIONS: Mapping[str, Mutation] = {
     "any command triggers a rebirth": _mutate_rebirth_on_any_command,
     "a rebirth skips the device births": _mutate_rebirth_only_nbirth,
     "a rebirth opens a new session": _mutate_rebirth_opens_a_session,
+    "metric names may differ only by case": _mutate_case_insensitive_names,
     "nothing is refused": _mutate_no_refusals,
     "undeclared metrics are published": _mutate_undeclared_metrics,
     "every metric is republished": _mutate_republish_everything,

@@ -69,6 +69,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- repair three conformance failures in the session model
 - assert what the tests assume, so ty can read it
 - give ty the types the runtime already guarantees
 - refuse a path that leaves the repository before joining it

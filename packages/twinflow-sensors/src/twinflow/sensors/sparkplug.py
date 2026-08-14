@@ -514,6 +514,32 @@ class MirrorRecord:
 AliasKey = tuple[str | None, str]
 
 
+def _refuse_case_collisions(specs: Mapping[AliasKey, MetricSpec]) -> None:
+    """Refuse two metric names on one owner that differ only by case.
+
+    The specification treats a metric name as case sensitive, so `Temperature`
+    and `temperature` are two metrics. A consumer keying its tag store by a
+    case-folded name silently merges them and reports one channel's readings
+    under the other's. Refusing the pair at construction is the only point
+    where the catalog author is still around to rename one.
+
+    Scoped per owner rather than across the node, because a device and the node
+    above it are different owners and a name may legitimately appear on both.
+    """
+    seen: dict[tuple[str | None, str], str] = {}
+    for device_id, name in specs:
+        key = (device_id, name.casefold())
+        clash = seen.get(key)
+        if clash is not None and clash != name:
+            owner = f"device {device_id!r}" if device_id else "the edge node"
+            raise ValueError(
+                f"{owner} declares {clash!r} and {name!r}, which differ only by case. "
+                f"A consumer that case-folds its tag names merges the two and reports "
+                f"one channel's readings under the other's name"
+            )
+        seen[key] = name
+
+
 class EdgeNodeSession:
     """One MQTT client session for one edge node and the devices below it.
 
@@ -577,6 +603,7 @@ class EdgeNodeSession:
         for device_id, device_specs in self._devices.items():
             for spec in device_specs:
                 specs[(device_id, spec.name)] = spec
+        _refuse_case_collisions(specs)
         self._specs = specs
         ordered = sorted(specs, key=lambda key: ((key[0] or "").encode(), key[1].encode()))
         self._aliases = {key: index for index, key in enumerate(ordered, start=FIRST_ALIAS)}
@@ -618,7 +645,7 @@ class EdgeNodeSession:
                         Metric(
                             name=BDSEQ_METRIC,
                             alias=self._aliases[(None, BDSEQ_METRIC)],
-                            datatype=DataType.UInt64,
+                            datatype=DataType.Int64,
                             value=self._bdseq,
                             timestamp=self._now(),
                         ),
@@ -920,7 +947,7 @@ class EdgeNodeSession:
 _CONTROL_METRICS: tuple[MetricSpec, ...] = (
     MetricSpec(
         name=BDSEQ_METRIC,
-        datatype=DataType.UInt64,
+        datatype=DataType.Int64,
         unit="1",
         description="Birth-death sequence correlating this NBIRTH with its NDEATH.",
     ),
