@@ -35,7 +35,12 @@ COPY schemas/ schemas/
 # plain sync installs the root's own dependencies and prunes every member, and
 # the container then fails on an import that reads as broken code rather than as
 # a missing install. WORKSPACE-1 documents the same trap for `uv run`.
-RUN uv sync --frozen --all-packages --no-dev
+#
+# `--all-extras` brings in the `mqtt` extra, which is where ADR-0003 puts
+# paho-mqtt. Doctrine D-10 keeps it out of the base install so a reader running
+# a scenario resolves no client, and this tier is the case that does need one:
+# every service here reaches a broker over TLS.
+RUN uv sync --frozen --all-packages --all-extras --no-dev
 
 # Run as a non-root user. A device container that is compromised should not be
 # root inside the OT segment, which is the segment with the least monitoring.

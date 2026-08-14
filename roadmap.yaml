@@ -861,10 +861,12 @@ work_packages:
       - WP-P1-23
     deliverables:
       - "packages/twinflow-kernel/src/twinflow/kernel/_impl/real/mqtt.py"
+      - "packages/twinflow-kernel/src/twinflow/kernel/mqtt.py"
+      - "packages/twinflow-kernel/tests/test_mqtt.py"
     gates: []
     brick: twinflow-kernel
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-25
     title: "Write a recorded run to disk and read it back"
     phase: P1

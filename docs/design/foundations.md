@@ -1846,8 +1846,9 @@ Scope and exemptions:
 - Inline escape hatch, required form:
 
     ```python
-    # twinflow: allow-nondeterminism(TFD003) reason="aiomqtt is the production transport" \
-    #           owner="@jack" expires="2027-01-01" adr="docs/adr/0004-mqtt-adapter.md"
+    # twinflow: allow-nondeterminism(TFD003) reason="paho-mqtt is the production transport" \
+    #           owner="@jack" expires="2027-01-01" \
+    #           adr="docs/adr/0003-the-network-port-and-its-mqtt-adapter.md"
     ```
 
     `reason` and `owner` are mandatory. `expires` is mandatory outside `adapter_paths`, and `LINT-2`

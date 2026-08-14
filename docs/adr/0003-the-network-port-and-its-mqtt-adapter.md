@@ -9,7 +9,7 @@ audience: contributors
 
 ## Status
 
-`proposed`, 2026-08-14.
+`accepted`, 2026-08-14.
 
 ## Context
 
@@ -55,12 +55,13 @@ the matching reason: it reads `loop.time()` and would not compress at all. A
 client whose own timeouts run on the event loop's clock puts a second,
 uncompressible time source underneath the seam.
 
-`docs/design/foundations.md` section 5.4 illustrates the escape-hatch annotation
+`docs/design/foundations.md` section 5.4 illustrated the escape-hatch annotation
 form with the string `reason="aiomqtt is the production transport"` and a link
-to `docs/adr/0004-mqtt-adapter.md`. Both are contents of a worked example rather
-than a decision: no record was written, no number was reserved, and section 2 of
-the decision index assigns numbers in order, which makes this record 0003. The
-example is left as it stands, and this section is the note that the two differ.
+to `docs/adr/0004-mqtt-adapter.md`. Both were contents of a worked example
+rather than a decision: no record stood behind either, and section 2 of the
+decision index assigns numbers in order, which makes this record 0003. The
+example now names the client this record chooses and the number this record
+holds, so a reader who copies the sample annotation copies a true one.
 
 Licensing and release facts below were read from the PyPI JSON API on
 2026-08-14.
@@ -104,25 +105,31 @@ and still imports no transport. The garage tier gets a runtime, which is what
 turns VAL-GATE-QS-001 from unarmable into merely unmet.
 
 What it costs. A dependency now needs watching, and its most recent release is
-2024-04-29, which is the oldest of the three candidates. The license is held by
-a choice this project makes rather than by the dependency's own metadata. So the
-allowlist gate has to record which half of the dual license was taken, and a
-tool reading `EPL-2.0 OR BSD-3-Clause` and matching the first token would refuse
-the build. The in-memory bus is a second implementation of message delivery, and
-two implementations of one contract disagree unless something asserts they do
-not.
+2024-04-29, which is the oldest of the three candidates. The in-memory bus is a
+second implementation of message delivery, and two implementations of one
+contract disagree unless something asserts they do not.
 
-The obligation this creates: `paho-mqtt` is taken under BSD-3-Clause, and the
-NOTICE file and the allowlist row both have to say so. A future release that
-drops the BSD-3-Clause half returns this decision to the table.
+The allowlist needs no new row, which is worth stating because the opposite is
+the natural guess. CONTRIBUTING.md already resolves an SPDX expression rather
+than pattern-matching it, and says why: `OR` lets the recipient pick, so one
+accepted term carries the whole, exactly as it already does for `packaging` at
+`Apache-2.0 OR BSD-2-Clause`. `BSD-3-Clause` is an accepted row, so
+`EPL-2.0 OR BSD-3-Clause` resolves to accepted with no edit. A dependency behind
+an extra is not counted at all, because nobody who omits the extra receives it.
+
+The obligation this creates: this record is where the half taken is written
+down, since nothing in the resolved metadata distinguishes a project that took
+BSD-3-Clause from one that took EPL-2.0. A future release dropping the
+BSD-3-Clause half returns the decision to the table.
 
 ## Validation
 
-VAL-GATE-SEC-001 holds the license half: the allowlist gate refuses a resolved
-dependency with no row, and the row added for `paho-mqtt` names BSD-3-Clause as
-the half taken. VAL-GATE-DET-001 holds the determinism half, because a run over
-the in-memory bus is part of the hashed event log and a nondeterministic
-delivery order changes the hash.
+VAL-GATE-SEC-001 holds the license half. The allowlist gate reads metadata from
+the installed distributions rather than from a manifest, refuses a resolved
+dependency matching no row, and resolves `OR` by accepting on one accepted term.
+VAL-GATE-DET-001 holds the determinism half, because a run over the in-memory
+bus is part of the hashed event log and a nondeterministic delivery order
+changes the hash.
 
 Nothing yet holds the claim that the two adapters implement one contract. That
 is stated plainly here rather than left implied. Until a shared conformance

@@ -101,7 +101,7 @@ Nothing is deleted, which is the same rule the roadmap runs on.
 | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | -------- | ---------- |
 | [ADR-0001](0001-record-architecture-decisions.md)                          | Record architecture decisions                                                   | accepted | 2026-08-13 |
 | [ADR-0002](0002-implement-the-agent-seam-rather-than-adopt-pydantic-ai.md) | twinflow implements the agent seam rather than adopting Pydantic AI             | accepted | 2026-08-13 |
-| [ADR-0003](0003-the-network-port-and-its-mqtt-adapter.md)                  | The Network port lives in the kernel and its production adapter wraps paho-mqtt | proposed | 2026-08-14 |
+| [ADR-0003](0003-the-network-port-and-its-mqtt-adapter.md)                  | The Network port lives in the kernel and its production adapter wraps paho-mqtt | accepted | 2026-08-14 |
 
 Use [template.md](template.md) to write a new one.
 
