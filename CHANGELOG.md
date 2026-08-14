@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- start the device services on the session they can honestly hold
 - measure the twelve payload assertions the codec puts in reach
 - encode a Sparkplug payload onto the wire, from the specification
 - let a recorded run outlive the process that made it
