@@ -106,7 +106,7 @@ jobs:
       # to those bytes. A few minutes of cold install is the correct price for
       # a release whose inputs came only from the commit being released.
       - name: Install uv
-        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: false
 
