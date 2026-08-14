@@ -658,7 +658,7 @@ work_packages:
       - VAL-GATE-SPARK-001
     brick: twinflow-sensors
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-04
     title: "Stand up the garage-tier compose with Purdue segmentation"
     phase: P1
@@ -759,7 +759,7 @@ work_packages:
       - VAL-GATE-A11Y-001
     brick: twinflow-dashboard
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-11
     title: "Publish the layer map with ISA-95 and Purdue levels"
     phase: P1
