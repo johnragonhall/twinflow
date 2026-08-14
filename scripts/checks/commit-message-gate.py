@@ -25,10 +25,14 @@ or the reverse, which is worse.
 
 WHAT IS EXEMPT, AND WHY
 -----------------------
-The root commit only. GitHub writes "Initial commit" when it creates a
-repository from the web, before any hook exists to refuse it, and rewriting the
-root commit rewrites every hash in the history. Nothing else is exempt: a merge
-commit's subject is written by whoever merged, and the hook asks them for
+The root commit, and the pull request merge ref. GitHub writes "Initial
+commit" when it creates a repository from the web, before any hook exists to
+refuse it, and rewriting the root commit rewrites every hash in the history.
+On a pull request, CI checks out refs/pull/N/merge, a synthetic two-parent
+commit GitHub titles with the two full hashes it merged. No person writes that
+subject and it never reaches a branch, so refusing it refuses every pull
+request regardless of content. Nothing else is exempt: a real merge commit's
+subject is written by whoever merged, and the hook asks them for
 `chore(merge): ...`.
 
 BUMPS BELOW 1.0.0
@@ -62,6 +66,11 @@ _SUBJECT = re.compile(
     r"^(?P<type>[a-z]+)(?:\((?P<scope>[a-z0-9_-]+)\))?(?P<breaking>!)?: (?P<description>.+)$"
 )
 
+#: The subject GitHub writes on the synthetic refs/pull/N/merge commit a
+#: pull_request run checks out. Both hashes are the full forty characters, so
+#: a subject a person typed over an abbreviated pair does not match it.
+_PULL_REQUEST_MERGE = re.compile(r"^Merge [0-9a-f]{40} into [0-9a-f]{40}$")
+
 #: Types that add a capability. Everything else the hook accepts is a patch.
 MINOR_TYPES = frozenset({"feat"})
 
@@ -80,6 +89,10 @@ class Commit:
     @property
     def is_root(self) -> bool:
         return self.parents == 0
+
+    @property
+    def is_pull_request_merge(self) -> bool:
+        return self.parents == 2 and _PULL_REQUEST_MERGE.match(self.subject) is not None
 
     def __repr__(self) -> str:  # pragma: no cover - diagnostics only
         return f"Commit({self.sha[:8]}, {self.subject!r})"
@@ -158,7 +171,7 @@ def commits_in(revision_range: str | None) -> list[Commit]:
 
 def subject_findings(commit: Commit, types: frozenset[str]) -> list[str]:
     """What is wrong with one commit's subject, if anything."""
-    if commit.is_root:
+    if commit.is_root or commit.is_pull_request_merge:
         return []
 
     match = _SUBJECT.match(commit.subject)

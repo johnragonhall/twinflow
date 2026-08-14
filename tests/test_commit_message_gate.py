@@ -70,11 +70,36 @@ def test_a_non_conventional_subject_fails(subject):
     assert gate.subject_findings(commit(subject), TYPES) != []
 
 
-def test_the_root_commit_is_the_only_exemption():
+def test_the_root_commit_is_exempt_and_only_as_a_root():
     # GitHub writes "Initial commit" before any hook exists to refuse it, and
     # rewriting the root rewrites every hash after it.
     assert gate.subject_findings(commit("Initial commit", parents=0), TYPES) == []
     assert gate.subject_findings(commit("Initial commit", parents=1), TYPES) != []
+
+
+def test_the_pull_request_merge_ref_is_exempt():
+    # On a pull request, CI checks out refs/pull/N/merge, whose subject GitHub
+    # writes from the two hashes it merged. No person writes it and it never
+    # reaches a branch, so refusing it refuses every pull request.
+    subject = f"Merge {'a' * 40} into {'b' * 40}"
+    assert gate.subject_findings(commit(subject, parents=2), TYPES) == []
+
+
+@pytest.mark.parametrize(
+    "subject,parents",
+    [
+        # A merge subject a person writes stays refused: the hook asks them
+        # for chore(merge), and the button subjects below parse as nothing.
+        ("Merge branch 'main' into feature", 2),
+        ("Merge pull request #4 from octocat/feature", 2),
+        # Abbreviated hashes are not what GitHub writes on the merge ref.
+        ("Merge a1b2c3d into e4f5a6b", 2),
+        # The merge-ref subject over one parent is a commit somebody typed.
+        (f"Merge {'a' * 40} into {'b' * 40}", 1),
+    ],
+)
+def test_a_merge_subject_a_person_writes_stays_refused(subject, parents):
+    assert gate.subject_findings(commit(subject, parents=parents), TYPES) != []
 
 
 @pytest.mark.parametrize(
