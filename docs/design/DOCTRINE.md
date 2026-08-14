@@ -238,7 +238,7 @@ adoption story with something the ecosystem actually lacks.
 
 PM4Py remains available as a development-only validation oracle, compared against in CI
 without being distributed or served, which gives the conformance gates a real external
-reference under D-11. That arrangement needs the owner's own legal read before release.
+reference under D-11. That arrangement needs a legal read before release.
 
 No other locked dependency has this problem. SimPy is MIT, deltalake is Apache-2.0, DuckDB
 is MIT, statsforecast is Apache-2.0, Optuna is MIT, and DoWhy is MIT.

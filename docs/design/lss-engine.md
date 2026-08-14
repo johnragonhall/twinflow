@@ -344,8 +344,7 @@ Importing either would place the whole work under AGPL and end the dual license.
 PM4Py appears in exactly one place: a development-only test group, `[oracle]`, installed by the
 CI job that runs VG-PM-03 and by nothing else. That job compares this package's fitness and
 precision against PM4Py's on the same log and publishes any disagreement. Its output is a
-comparison table, not a distributed artifact. OQ-1 records the legal read the owner still owes
-that arrangement.
+comparison table, not a distributed artifact. OQ-1 records the legal read still owed to that arrangement.
 
 Public API:
 
@@ -2926,7 +2925,7 @@ provenance headers.
 Worked-example datasets from paid quality manuals are small factual tables. They are transcribed
 with a full citation to the edition and page, and the manual itself is never redistributed. The
 same rule governs any vendor documentation example: small datasets, cited by document and page,
-never bulk-redistributed. OQ-7 asks whether the owner wants a stricter policy.
+never bulk-redistributed. OQ-7 records the open choice between a stricter policy and this one.
 
 No GPL-licensed package's data files are vendored. Where a cross-check against such a package is
 wanted, only the scalar expected values are stored, with the citation. OQ-2 covers the one case
@@ -3044,7 +3043,7 @@ under Apache-2.0. What remains open is the narrower arrangement in 2.4: PM4Py in
 development-only CI job, imported by a comparison test, never distributed and never served, so
 that VG-PM-03 has an independent implementation to disagree with. That is the ordinary reading of
 AGPL section 13, which reaches users interacting over a network with a modified version, and this
-job serves nobody. The owner must confirm that reading before release, and must decide whether the
+job serves nobody. That reading needs confirmation before release, plus a decision on whether the
 comparison table published from that job counts as distribution of PM4Py's output.
 
 OQ-2. Where the second Gage R and R reference output lives. VG-MSA-02 needs published output for
@@ -3063,7 +3062,7 @@ X-bar and s limits, and its p chart example uses a constant subgroup size. VG-SP
 and VG-SPC-07 are closed-form or published-formula gates rather than published-reference
 gates, and the published-reference count in 7.6 reflects that. A published table covering the full
 constant set at n = 2 to 25 exists in the AIAG statistical process control manual and in ASTM and
-ISO documents, all sold rather than published openly. The open question is whether the owner wants
+ISO documents, all sold rather than published openly. The open decision is whether
 to buy one, transcribe the table with its citation, and promote these three gates to
 `published_reference`, or leave them as they are with this paragraph as the explanation.
 
@@ -3075,8 +3074,8 @@ the same date. Neither body text has been read here, so the widely quoted number
 carries as configured defaults, the flood threshold of 10 alarms in 10 minutes, the manageable
 long-run average, and the target share for the top ten contributors, are attributed rather than
 asserted, and no gate checks any of them. VG-ALM-02 checks the arithmetic and the denominator, not
-the benchmark. The open question is whether the owner buys both documents, transcribes the
-benchmark table with its edition and clause, and promotes those numbers from configured defaults
+the benchmark. The open question is whether to buy both documents, transcribe the
+benchmark table with its edition and clause, and promote those numbers from configured defaults
 to cited constants. Until then the report caption reads "target from EEMUA 191, edition and clause
 to be confirmed", which is honest and slightly embarrassing, which is the correct combination.
 
@@ -3085,8 +3084,8 @@ example in section 6.1.6 gives Cp, Cpk, Cpu, Cpl, and the k factor, all of which
 against printed values. It gives the Cpm formula and no numeric example, and it gives no Pp or Ppk
 example at all. VG-CAP-02 and VG-CAP-07 are closed-form gates against the identities
 that must hold. A vendor documentation capability example would supply the missing numbers. The
-open question is which document, cited by page, and whether the owner accepts the reference-data
-policy of 7.7 for it.
+open question is which document, cited by page, and whether the reference-data
+policy of 7.7 is accepted for it.
 
 OQ-6. No published studentized range table has been retrieved. VG-HYP-12 checks Tukey HSD through
 the two-group identity `q(2, df) = sqrt(2) * t(df)`, which is exact and falsifiable but covers
@@ -3096,7 +3095,7 @@ values rather than against an identity.
 
 OQ-7. Reference-material policy wording. The brief says "encode the small datasets and cite; do
 not bulk-redistribute" for vendor documentation examples. `VALIDATION.md` needs one explicit
-policy paragraph a reader can check the repository against. Does the owner want a stricter version,
+policy paragraph a reader can check the repository against. Which is wanted: the stricter version,
 expected values only with no dataset transcription at all and the test reading a locally provided
 file, which is safer but makes those gates unrunnable by a stranger; or the current version, which
 keeps `git clone && just validate` working for everyone?
@@ -3134,9 +3133,9 @@ threshold.
 
 OQ-12. Multivariate control at 60 to 80 sensor types. A Hotelling T-squared chart needs a stable
 covariance estimate, and the dimension grows with the sensor catalog. This section scopes T-squared
-to per-equipment sensor groups with an optional PCA reduction and a stated maximum dimension. The
-owner may want a different boundary, or may want multivariate monitoring handled entirely by the
-anomaly-detection layer rather than by the SPC layer, in which case the two need an explicit
+to per-equipment sensor groups with an optional PCA reduction and a stated maximum dimension. A
+different boundary may be right, or multivariate monitoring may belong entirely to the
+anomaly-detection layer rather than to the SPC layer, in which case the two need an explicit
 division of labor so the same drift is not reported twice.
 
 OQ-13. The divergence spec's parameter values. 4.6 authors the `DivergenceSpec` contract, 5.2
@@ -3159,7 +3158,7 @@ This section makes `SpecLimits.derivation` a required free-text field and prints
 index, so the number is at least defensible. The open question is whether the repository also
 ships a derived spec-limit mode, with the upper limit taken from takt, from the customer
 promise time in 6a12, or from a percentile of a golden period, which would make the capability
-claim stronger and adds a policy decision the owner may want to make explicitly.
+claim stronger and adds a policy decision worth making explicitly.
 
 OQ-16. Rationalization authority in a single-maintainer public repository. ISA-18.2 assumes a
 cross-functional rationalization team. Proposed substitute: CODEOWNERS on
@@ -3171,8 +3170,7 @@ is right.
 OQ-17. Design of experiments. The source's hypothesis-testing bullet covers comparison of before
 and after, not experimental design. A Black Belt toolkit conventionally includes factorial
 screening and response surface methods, and E9's optimization engine partly overlaps them. Nothing
-about design of experiments appears in the source, so nothing has been invented here. When the
-owner wants it, it is a roadmap milestone with a natural home in this brick and a natural
+about design of experiments appears in the source, so nothing has been invented here. When wanted, it is a roadmap milestone with a natural home in this brick and a natural
 validation reference in the e-Handbook's chapter 5 worked examples, sequenced after E9 so the two
 do not duplicate search machinery.
 

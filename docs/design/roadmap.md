@@ -1450,7 +1450,7 @@ the package index, and AGPL section 13 reaches a served dashboard, MCP server, a
 Owning the miner is what makes `VAL-GATE-PM-003` possible: PM4Py stays available as a
 development-only oracle, compared against in CI without being distributed or served, which gives
 the discovery and conformance gates a real external reference under D-11 that a self-written
-miner otherwise could not have. That arrangement is subject to the owner's legal read before
+miner otherwise could not have. That arrangement is subject to a legal read before
 release, recorded as an open question in section 9.
 
 | Gate              | Kind       | Assertion                                                                                                                                                                                                                                                                                                                               | Falsified by                                                                        | Phase |
@@ -1670,7 +1670,7 @@ cannot be deferred past the tag that freezes the schemas.
    distributed and served code and uses it in CI only, which is what gives `VAL-GATE-PM-003` an
    external reference. Running an AGPL-3.0 tool inside a test job of an Apache-2.0 project is a
    different question from linking it, and this section is not the place that answers it. The
-   ruling records that the arrangement needs the owner's own legal read before release. If the
+   ruling records that the arrangement needs a legal read before release. If the
    read comes back against it, PM-003 is replaced by a gate against a permissively licensed
    miner or by a transcribed published benchmark result, and `twinflow-procmine` still ships.
 

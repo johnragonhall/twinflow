@@ -5,7 +5,7 @@ name: CI
 #
 # CI COST NOTE (deliberate divergence)
 # -----------------------------------
-# The owner's private monorepo carries a cost guard that blocks GitHub-hosted
+# A private upstream monorepo carries a cost guard that blocks GitHub-hosted
 # workflows and pins CI to a self-hosted runner, because that repository is
 # private and Actions minutes are billed against the account.
 #

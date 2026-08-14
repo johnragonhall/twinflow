@@ -261,7 +261,7 @@ two release branches and the repository is public.
   package per algorithm rather than a wrapper, its runtime dependency set holds no AGPL package,
   and PM4Py moves to a development-only validation oracle that CI compares against and that
   nothing distributes or serves. That oracle is what gives `PM-003` a real external reference
-  under doctrine D-11. The arrangement needs the owner's own legal reading before release.
+  under doctrine D-11. The arrangement needs a legal reading before release.
 - The in-house engine closes a loop no external library closes. The twin is the designed reference
   model, so conformance is measured against a known ground-truth process and the recovery of that
   process is reportable, which is what `PM-001` and `PM-002` assert.

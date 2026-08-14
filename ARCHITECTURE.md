@@ -91,7 +91,7 @@ PM4Py 2.7.23.3 and `pm4pyminimal` 2.7.23.3 are both AGPL-3.0, read from their pa
 
 `twinflow-procmine` therefore implements the directly-follows graph, the inductive miner, token-based replay, alignment-based conformance as A star search over the synchronous product net, variant analysis, rework-loop detection, and per-activity cycle-time contribution.
 
-Doctrine ruling D-14 records why this is an upgrade rather than a substitute. The twin is the designed reference model, so conformance is measured against a known ground-truth process and the repository can report how well discovery recovers it. No external library closes that loop, because no external library owns the reference model. PM4Py stays available as a development-only validation oracle, compared against in CI without being distributed or served, which gives the conformance gates a real external reference under doctrine ruling D-11. That arrangement needs the owner's own legal read before release.
+Doctrine ruling D-14 records why this is an upgrade rather than a substitute. The twin is the designed reference model, so conformance is measured against a known ground-truth process and the repository can report how well discovery recovers it. No external library closes that loop, because no external library owns the reference model. PM4Py stays available as a development-only validation oracle, compared against in CI without being distributed or served, which gives the conformance gates a real external reference under doctrine ruling D-11. That arrangement needs a legal read before release.
 
 ### D9 note: not LangChain, and not Pydantic AI either
 

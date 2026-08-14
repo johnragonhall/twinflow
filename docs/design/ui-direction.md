@@ -102,7 +102,7 @@ recovered later.
 - Two of them are genuinely hard rather than tedious: a virtualised grid that
   keeps `aria-rowcount` honest at 500 devices, and roving focus across the plan
   view, the fleet table, and the findings list. That cost is real whatever the
-  architecture. The seven prior vendoring passes in the owner's research
+  architecture. The seven prior vendoring passes in the private research
   repository cover several hundred components and record no virtualisation
   implementation at all. Option 2 would have bought a component kit and still
   left this to hand.
@@ -1109,7 +1109,7 @@ referenced, and then as inspiration.
 
 ### 12.3 The corpus is inspiration by architecture, not by license
 
-The seven completed vendoring passes in the owner's private research repository
+The seven completed vendoring passes in the private research repository
 cover roughly 550 vendored files, with licenses read from LICENSE files at pinned
 commits rather than assumed. Most of that corpus is MIT and would be vendorable
 under the rules above.

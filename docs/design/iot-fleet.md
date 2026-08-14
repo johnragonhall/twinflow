@@ -3662,7 +3662,7 @@ summary rather than the raw result, and the README claim changes accordingly.
 recorded in `THIRD_PARTY_NOTICES.md`, and excluded from the Apache-2.0 relicensing sweep. EPL-2.0
 is a file-level weak copyleft, so vendoring one file and keeping it under its own license is the
 ordinary arrangement, and the generated Python module derived from it inherits the question. This
-needs the owner's own legal read before release, on the same footing as D-14's note about PM4Py
+needs a legal read before release, on the same footing as D-14's note about PM4Py
 as a development-only oracle. The alternative is to generate the codec from a hand-written schema
 that is not a derivative of the Eclipse file, which costs work and loses the guarantee that the
 wire format matches the specification's own definition byte for byte.

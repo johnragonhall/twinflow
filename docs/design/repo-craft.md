@@ -698,7 +698,7 @@ The author's private monorepo carries two rules that must not travel to twinflow
    macOS runners, permitting only `runs-on: [self-hosted, superapp]`.
 
 Both rules exist because that repo is private, where GitHub Actions minutes are metered and macOS
-minutes bill at ten times the Linux rate, and because the owner controls origin pushes there.
+minutes bill at ten times the Linux rate, and because origin pushes there are restricted.
 
 twinflow is public and Apache-2.0, with a separately negotiated commercial license available. The
 quality bar in the source needs a passing CI badge, a natural commit history, tagged releases with
@@ -1828,7 +1828,7 @@ wheel and never reachable from a served surface. Three checks hold that line:
   the loader refuses any other linkage for a license in `deny`.
 
 Each fails the release rather than warning. Whether a development-only AGPL oracle is acceptable
-at all is a legal question rather than an engineering one, and D-14 says it needs the owner's own
+at all is a legal question rather than an engineering one, and D-14 says it needs a
 legal read before release; open question 1 records that.
 
 SBOM. `cyclonedx-py` produces a CycloneDX 1.6 JSON SBOM per Python artifact;
@@ -2740,7 +2740,7 @@ D-11 condition 5 none of them is recorded anywhere else as a passing gate.
    under Apache-2.0 rather than wrapping a copyleft engine. What stays open is narrower and is not
    an engineering call: whether keeping PM4Py as a development-only conformance oracle, compared
    against in CI, never distributed in a wheel and never reachable from a served surface, is
-   acceptable to the owner's own reading of the AGPL. LIC-GATE-03a, 03b, and 03c mechanize the
+   acceptable under the AGPL reading made before release. LIC-GATE-03a, 03b, and 03c mechanize the
    boundary that reading would rely on, so the checks exist either way. If the answer is no, the
    oracle is dropped, VAL-PM-002 keeps the published algorithm of Leemans, Fahland, and van der
    Aalst as its only anchor, and the gate says so. The capability does not change under either
@@ -2755,7 +2755,7 @@ D-11 condition 5 none of them is recorded anywhere else as a passing gate.
    `https://cran.r-project.org/web/packages/SixSigma/index.html` on 2026-08-09, HTTP 200), which
    is why its bundled dataset cannot be copied into an Apache-2.0 repository even though its
    printed output can be cited. This section states the mechanism (encode the numeric study data
-   only, cite by edition and page, mark `redistributable: false`). The owner confirms which dataset
+   only, cite by edition and page, mark `redistributable: false`). The open decision is which dataset
    backs each gate and on what rights basis.
 
 3. **The cross-platform divergence tolerance.** D-05 settles the shape of the claim: byte-identical
@@ -2786,14 +2786,13 @@ D-11 condition 5 none of them is recorded anywhere else as a passing gate.
 
 6. **Windows in the pull-request matrix.** The author develops on Windows, so a Windows-only
    regression is likely, and catching it in the nightly run means catching it late. This section
-   puts one Windows unit cell in the pull-request matrix and the rest in nightly. The owner
-   confirms whether the five-minute quickstart is also proven on Windows every pull request, which
+   puts one Windows unit cell in the pull-request matrix and the rest in nightly. The open decision is whether the five-minute quickstart is also proven on Windows every pull request, which
    would add about six minutes to the wall-time budget.
 
 7. **The post-commit changelog amend on a public repository.** The inherited hook amends HEAD to
    fold the CHANGELOG bullet into the commit. This section adds a guard that refuses to amend a
    commit already contained in a remote branch. That guard is enough for the normal flow. The
-   open item is whether the owner wants amend-based sync at all on a public repository, against a
+   open item is whether amend-based sync belongs on a public repository at all, against a
    separate `docs(changelog)` commit that never rewrites history. Amending keeps the history clean,
    which the source values, and it is the reason the private repo does it.
 
@@ -2814,8 +2813,8 @@ D-11 condition 5 none of them is recorded anywhere else as a passing gate.
 11. **Phases with no statistical content.** "No phase closes until its statistics validate" is
     clear for Phase 2 and the analytics phases. Phase 0, Phase 4, and Phase 5 have little or no
     statistical content. This section makes such a phase declare `val_gates: []` with a non-empty
-    `no_gates_justification`, so the absence is recorded rather than silent. The owner confirms
-    that reading, or names the non-statistical gates those phases carry instead.
+    `no_gates_justification`, so the absence is recorded rather than silent. What remains is to confirm
+    that reading, or to name the non-statistical gates those phases carry instead.
 
 12. **Code coverage.** The source never mentions coverage, and a coverage badge is something a
     reader expects. A global coverage threshold tends to produce tests written for the number. This

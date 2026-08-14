@@ -21,7 +21,7 @@ Use GitHub private vulnerability reporting. Open
 maintainer. It opens a draft advisory, which the maintainer publishes when the
 fix ships, and the published advisory is then the public record.
 
-Private reporting is a per-repository setting that the owner turns on. If the
+Private reporting is a per-repository setting. If the
 button is missing, open a public issue containing only the sentence "I have a
 security report" and no technical detail. The maintainer will open a private
 channel from there.

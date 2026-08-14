@@ -4333,5 +4333,5 @@ inventing an answer here.
     numeric inputs and the published answers with a citation and reproduce no prose, table, or layout.
     Individual facts and figures are not themselves copyrightable, which is the basis for that
     treatment, but it is the same class of question D-14 settled for PM4Py and it deserves the same
-    treatment: the owner's own legal read before release. If the answer is no, the gates need a
+    treatment: a legal read before release. If the answer is no, the gates need a
     differently licensed source of worked examples, and they are not dropped.
