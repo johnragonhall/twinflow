@@ -179,6 +179,37 @@ def test_the_log_satisfies_the_env_001_invariants_the_gate_runs():
     assert historian.violations() == []
 
 
+def test_violations_reports_a_broken_log_and_not_only_the_ones_append_kept_out():
+    """The gate's report, on a log that has something to report.
+
+    `append` refuses every ENV-001 defect at the seam, so a historian filled
+    through it holds no log that `violations` can find anything in, and every
+    other test here can only watch it answer with an empty list. A reporter that
+    answered with an empty list unconditionally would look the same.
+
+    The log is assembled directly to get past that. It is the shape a historian
+    restored from a file it did not write can be in, which is the case the gate
+    exists for: `append` guards this process, and `violations` is what reads a
+    log this process did not produce.
+    """
+    historian, _ = open_historian()
+    historian._events.extend(
+        (
+            event(seq=0, sim_ts=0, event_id="e-0"),
+            event(seq=2, sim_ts=1, event_id="e-0"),
+        )
+    )
+
+    reported = historian.violations()
+
+    assert [violation.rule for violation in reported] == [
+        "ENV-001-duplicate-id",
+        "ENV-001-not-dense",
+    ]
+    assert "e-0" in reported[0].message
+    assert reported == check_log_invariants(historian.events())
+
+
 def test_the_hash_is_the_schemas_log_hash_and_not_a_second_definition():
     historian, _ = open_historian()
     historian.append(event(seq=0, sim_ts=0))

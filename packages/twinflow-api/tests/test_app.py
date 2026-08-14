@@ -10,12 +10,14 @@ list from a route with no producer behind it is a lie a dashboard would render.
 from __future__ import annotations
 
 import json
+import re
 
 import pytest
 
 from twinflow.agent import AuditLog, AutonomySession, AutonomyTier
 from twinflow.api import (
     API_PREFIX,
+    NOT_INSTALLED,
     MetricDefinition,
     MetricRegistry,
     create_api,
@@ -32,6 +34,20 @@ METRICS = MetricRegistry(
             title="Overall equipment effectiveness",
             unit="ratio",
             expression=None,
+        ),
+    )
+)
+
+#: A registry whose metric carries an expression. The shipped registry declares
+#: none, and the route answers a registered metric differently depending on
+#: whether it has one, so the second answer needs a registry that can produce it.
+METRICS_WITH_AN_EXPRESSION = MetricRegistry(
+    (
+        MetricDefinition(
+            metric_id="oee",
+            title="Overall equipment effectiveness",
+            unit="ratio",
+            expression="run_time / planned_time",
         ),
     )
 )
@@ -58,6 +74,7 @@ def make_client(
     historian: Historian | None = None,
     tier: AutonomyTier | None = AutonomyTier.L1,
     at: int = 40,
+    metrics: MetricRegistry = METRICS,
 ) -> Client:
     clock = SimClock()
     clock.advance_to(SimInstant(at))
@@ -65,7 +82,7 @@ def make_client(
     app = create_api(
         runs=runs,
         clock=clock,
-        metrics=METRICS,
+        metrics=metrics,
         resolved_config={"facility": {"site_type": "warehouse"}},
         autonomy=None if tier is None else make_session(clock, tier),
     )
@@ -257,6 +274,36 @@ def test_a_stale_etag_gets_the_new_body(client: Client):
     assert response.status_code == 200
 
 
+def test_the_if_none_match_wildcard_is_honored_as_rfc_9110_defines_it():
+    """`*` means "any current representation", and RFC 9110 section 13.1.2 makes
+    it a match whenever the resource exists.
+
+    A server that compared the header against its ETag as an opaque string would
+    treat `*` as one more stale tag and send the whole body, which is a
+    conditional request the client wrote correctly and the server ignored.
+    """
+    client = make_client()
+
+    for path in (f"{API_PREFIX}/runs/{RUN_ID}", "/healthz", f"{API_PREFIX}/config"):
+        response = client.get(path, headers={"If-None-Match": "*"})
+        assert response.status_code == 304, path
+        assert response.content == b"", path
+        assert response.headers["etag"] == client.get(path).headers["etag"], path
+
+
+def test_one_offered_tag_among_several_is_a_match():
+    """A client that holds several representations sends them as a list, and a
+    server matching the header whole would miss every one of them."""
+    client = make_client()
+    etag = client.get(f"{API_PREFIX}/runs/{RUN_ID}").headers["etag"]
+
+    matched = client.get(
+        f"{API_PREFIX}/runs/{RUN_ID}", headers={"If-None-Match": f'"stale", {etag}'}
+    )
+
+    assert matched.status_code == 304
+
+
 # --------------------------------------------------------------------- metrics
 
 
@@ -272,6 +319,31 @@ def test_an_unregistered_metric_is_404_and_a_registered_one_with_no_expression_i
     pending = client.get(f"{API_PREFIX}/metrics/oee")
     assert pending.status_code == 501
     assert "E26b" in pending.json()["detail"]
+
+
+def test_a_registered_metric_carrying_an_expression_says_the_evaluator_is_missing():
+    """The other half of the 501, and a different fact from the null expression.
+
+    A null expression is a definition this project has not finished writing. An
+    expression with no evaluator is a definition that is finished and a
+    requirement that is not, and the detail says which of the two a client is
+    waiting on rather than making both read the same.
+    """
+    client = make_client(metrics=METRICS_WITH_AN_EXPRESSION)
+
+    response = client.get(f"{API_PREFIX}/metrics/oee")
+
+    assert response.status_code == 501
+    detail = response.json()["detail"]
+    assert "carries an expression" in detail
+    assert "E26b" in detail
+
+    # The registry is the only difference. The same id against the shipped
+    # registry answers 501 for the other reason.
+    assert (
+        "is registered and its expression is null"
+        in (make_client().get(f"{API_PREFIX}/metrics/oee").json()["detail"])
+    )
 
 
 def test_both_metric_answers_are_problem_documents_carrying_their_code(client: Client):
@@ -424,47 +496,51 @@ def test_the_stream_refuses_an_unknown_run(client: Client):
 # ------------------------------------------------------- routes not built here
 
 
-@pytest.mark.parametrize(
-    ("path", "declared"),
-    [
-        ("/twin/state", "/twin/state"),
-        ("/twin/stations/pack-1", "/twin/stations/{station_id}"),
-        ("/fleet/devices", "/fleet/devices"),
-        ("/findings", "/findings"),
-        ("/scenarios", "/scenarios"),
-        ("/whatif", "/whatif"),
-        ("/webhooks", "/webhooks"),
-        ("/runs/anything/speed", "/runs/{run_id}/speed"),
-    ],
-)
-def test_a_route_this_phase_did_not_build_says_so_with_tf_a020(
-    client: Client, path: str, declared: str
+@pytest.mark.parametrize(("path", "reason"), NOT_INSTALLED, ids=[p for p, _ in NOT_INSTALLED])
+def test_every_route_this_phase_did_not_build_says_so_with_tf_a020(
+    client: Client, path: str, reason: str
 ):
-    """An empty list from /findings reads as "this run is clean", which is a
-    stronger claim than "the engine that produces findings is not built".
+    """The declared-but-absent list, driven against the app one entry at a time.
 
-    Foundations section 4 already fixes the answer: a router the build did not
-    install returns 404 with a `TF-A020 router not installed` problem document.
-    A bare framework 404 would be indistinguishable from a typo in the path.
+    An empty list from /findings reads as "this run is clean", which is a
+    stronger claim than "the engine that produces findings is not built".
+    Foundations section 4 fixes the answer: a router the build did not install
+    returns 404 with a `TF-A020 router not installed` problem document, and a
+    bare framework 404 is indistinguishable from a typo in the path.
+
+    Parametrizing over `NOT_INSTALLED` rather than over a hand-written sample is
+    what ties the data to the app. A path added to the list and never installed,
+    or one dropped from the install loop, fails here under its own name.
     """
-    response = client.get(API_PREFIX + path)
+    assert reason.strip(), "a refusal with no reason is a route nobody decided about"
+    concrete = re.sub(r"\{[a-z_]+\}", "placeholder", path)
+
+    response = client.get(API_PREFIX + concrete)
 
     assert response.status_code == 404
     assert response.headers["content-type"].startswith("application/problem+json")
     body = response.json()
     assert body["code"] == "TF-A020"
-    assert declared in body["detail"]
+    assert path in body["detail"]
+    assert reason in body["detail"]
 
 
-def test_every_route_the_design_declares_is_either_built_or_refused_by_name(client: Client):
-    """The gap between what section 5.13 declares and what this release serves
-    is written down as data, so a route cannot go missing quietly."""
-    from twinflow.api import NOT_INSTALLED
-
+def test_the_declared_but_absent_list_names_each_route_once(client: Client):
+    """The list is data a reader trusts, so a path repeated in it would install
+    two routes for one path and leave the second unreachable."""
     declared = [path for path, _ in NOT_INSTALLED]
+
     assert len(declared) == len(set(declared))
-    for _, reason in NOT_INSTALLED:
-        assert reason.strip(), "a refusal with no reason is a route nobody decided about"
+    assert declared, "an empty list would make every assertion about it vacuous"
+
+
+def test_an_unbuilt_route_refuses_every_method_it_is_registered_for(client: Client):
+    """A GET that refuses and a POST that 405s would tell a client the route is
+    half there. Section 4's answer is the same whichever verb asked."""
+    for method in ("GET", "POST", "PATCH", "DELETE"):
+        response = client.request(method, f"{API_PREFIX}/findings")
+        assert response.status_code == 404, method
+        assert response.json()["code"] == "TF-A020", method
 
 
 # ------------------------------------------------------------- the openapi doc

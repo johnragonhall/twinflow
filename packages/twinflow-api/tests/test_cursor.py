@@ -14,6 +14,7 @@ dropped the producer component.
 from __future__ import annotations
 
 import base64
+import json
 
 import pytest
 
@@ -38,9 +39,10 @@ def test_the_encoding_is_base64_and_carries_all_three_components():
 
     raw = base64.urlsafe_b64decode(encode_cursor(cursor) + "==").decode("utf-8")
 
-    assert "10" in raw
-    assert "device-agent" in raw
-    assert "7" in raw
+    # Read back as JSON rather than searched for substrings. "10" and "7" both
+    # appear in the encoding of a cursor that swapped sim_ts and seq, so a
+    # containment check cannot tell that cursor from this one.
+    assert json.loads(raw) == {"p": "device-agent", "s": 7, "t": 10}
 
 
 def test_two_events_at_one_instant_from_two_producers_get_different_cursors():
@@ -74,16 +76,45 @@ def test_a_seq_of_ten_sorts_after_a_seq_of_two():
     "text",
     [
         "",
+        # Refused by the JSON step rather than the base64 one: the decoder
+        # discards characters outside the alphabet, so "!!" is dropped and what
+        # is left decodes to bytes that are not JSON.
         "not-base64-!!",
         base64.urlsafe_b64encode(b"[]").decode("ascii"),
         base64.urlsafe_b64encode(b'{"t":1,"p":"sim"}').decode("ascii"),
         base64.urlsafe_b64encode(b'{"t":-1,"p":"sim","s":0}').decode("ascii"),
+        # A negative sequence, which is the other half of the counter guard. The
+        # row above it only exercises the sim instant.
+        base64.urlsafe_b64encode(b'{"t":0,"p":"sim","s":-1}').decode("ascii"),
         base64.urlsafe_b64encode(b'{"t":1,"p":"nobody","s":0}').decode("ascii"),
+        # A JSON `true`. bool subclasses int, so a plain isinstance check admits
+        # it and it then compares as the sequence 1: the trap cursor.py names.
+        base64.urlsafe_b64encode(b'{"p":"sim","s":true,"t":0}').decode("ascii"),
+        # The counters as text. A cursor carrying "0" sorts against integers by
+        # raising, not by comparing, so this has to be refused before it is used.
+        base64.urlsafe_b64encode(b'{"p":"sim","s":"0","t":0}').decode("ascii"),
     ],
 )
 def test_a_cursor_that_did_not_come_from_this_server_is_refused(text: str):
     """A refused cursor is a 400, and a silently accepted one is a wrong page."""
     with pytest.raises(CursorError):
+        decode_cursor(text)
+
+
+@pytest.mark.parametrize("text", ["a!!!", "café"])
+def test_a_token_that_is_not_base64url_is_refused_at_the_decoding_step(text: str):
+    """The base64 step, reached and named.
+
+    Reaching it takes more than punctuation: `urlsafe_b64decode` discards
+    characters outside the alphabet, so most junk arrives at the JSON step
+    instead. What reaches this step is a token whose alphabet characters cannot
+    form whole base64 quanta, and one carrying a byte outside ASCII.
+
+    The message is asserted because the refusal is what the branch is for. A
+    decoder that swallowed the failure and carried on with a substitute payload
+    would still refuse these two, one step later and for the wrong reason.
+    """
+    with pytest.raises(CursorError, match="is not base64url"):
         decode_cursor(text)
 
 

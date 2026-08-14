@@ -181,6 +181,47 @@ def test_the_structured_adapter_gives_up_rather_than_returning_something_unvalid
         PydanticStructuredOutput().structured(MetricSelection, emit, max_retries=2)
 
 
+def test_the_adapter_spends_the_whole_retry_budget_and_not_one_attempt_more():
+    """`max_retries` bounds the model calls from both sides.
+
+    An adapter that stopped early would refuse a call the caller paid for and
+    would have accepted on the next attempt, and one that kept going would bill
+    a caller who asked for two retries for eight. Neither shows up in a test
+    that only asserts what the adapter finally raised, so the emissions are
+    counted. The Ollama adapter is held to the same count by the payloads its
+    transport recorded.
+    """
+    for max_retries in (0, 1, 3):
+        attempts = 0
+
+        def emit(_feedback: str | None) -> object:
+            nonlocal attempts
+            attempts += 1
+            return {"metric": "still wrong"}
+
+        with pytest.raises(ValidationError):
+            PydanticStructuredOutput().structured(MetricSelection, emit, max_retries=max_retries)
+
+        assert attempts == max_retries + 1, f"budget {max_retries} bought {attempts} attempts"
+
+
+def test_a_negative_retry_budget_is_refused_before_the_model_is_called():
+    """A budget below zero empties the attempt range, so an unguarded loop falls
+    straight out of it having validated nothing. The refusal is what keeps the
+    adapter's promise total: it returns a validated model or it raises."""
+    attempts = 0
+
+    def emit(_feedback: str | None) -> object:
+        nonlocal attempts
+        attempts += 1
+        return {"metric": "twin.throughput.units_per_hour"}
+
+    with pytest.raises(ValueError, match="max_retries cannot be negative"):
+        PydanticStructuredOutput().structured(MetricSelection, emit, max_retries=-1)
+
+    assert attempts == 0
+
+
 def test_binding_through_the_adapter_yields_a_validated_call(registry):
     emissions = [
         {"metric": "wrong"},
