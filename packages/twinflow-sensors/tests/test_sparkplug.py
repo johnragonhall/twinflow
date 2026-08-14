@@ -18,6 +18,7 @@ from twinflow.kernel import SimClock, SimInstant
 from twinflow.sensors import (
     NAMESPACE,
     QOS_BY_TOPIC_CLASS,
+    REBIRTH_METRIC,
     DataType,
     EdgeNodeSession,
     MessageType,
@@ -463,3 +464,82 @@ def test_sparkplug_ids_refuse_a_group_id_that_is_not_three_colon_joined_levels()
         SparkplugIds(
             group_id="twinflow:dc-01", edge_node_id="inbound-line-01", device_id="portal-03"
         ).to_uns_path("read_rate")
+
+
+# ------------------------------------------- an identifier cannot change a topic
+
+# Every one of these values is joined into an MQTT topic with `/`. A level
+# carrying `/`, `+`, or `#` addresses a topic other than the one the caller
+# named, or subscribes where it meant to publish. `for_path` derives these from
+# a validated UnsPath; the direct constructor is the one SparkplugEdgeNode
+# takes, so it makes the same promise.
+
+
+@pytest.mark.parametrize(
+    ("group_id", "edge_node_id", "device_id"),
+    [
+        ("a:b:c", "node/+", "device"),
+        ("a:b:c", "node", "device/#/x"),
+        ("a:b:c", "node", "+"),
+        ("a/b:c", "node", "device"),
+        ("a:b:c#", "node", "device"),
+        ("a:b", "node", "device"),
+        ("a:b:c:d", "node", "device"),
+        ("a:b:c", "Node", "device"),
+        ("a:b:c", "node id", "device"),
+        ("a:b:c", "", "device"),
+    ],
+)
+def test_an_identifier_that_would_change_the_topic_is_refused(
+    group_id: str, edge_node_id: str, device_id: str
+):
+    with pytest.raises(ValueError):
+        SparkplugIds(group_id=group_id, edge_node_id=edge_node_id, device_id=device_id)
+
+
+def test_the_addressing_of_a_real_point_still_constructs():
+    """The control. A refusal that caught every value would pass the ten cases
+    above and make the module unusable."""
+    ids = SparkplugIds(
+        group_id="twinflow:dc-01:receiving",
+        edge_node_id="inbound-line-01",
+        device_id="conveyor-02",
+    )
+
+    assert ids.to_uns_path("motor_temp_c").topic.count("/") == 5
+
+
+def test_an_empty_device_id_addresses_the_node_itself():
+    """A node message carries no fifth topic element, which is what an empty
+    device id means here. Refusing it would refuse every NBIRTH."""
+    assert SparkplugIds(group_id="a-1:b-1:c-1", edge_node_id="n-1", device_id="").device_id == ""
+
+
+def test_a_device_id_passed_straight_to_topic_for_is_held_to_the_grammar():
+    """The override reaches the topic without passing through SparkplugIds."""
+    ids = SparkplugIds(group_id="a-1:b-1:c-1", edge_node_id="n-1", device_id="")
+
+    with pytest.raises(ValueError):
+        topic_for(ids, MessageType.DDATA, device_id="d-1/#")
+
+
+def test_a_state_topic_will_not_carry_a_wildcard():
+    with pytest.raises(ValueError):
+        state_topic_for("host/#")
+    assert state_topic_for("primary-host").endswith("primary-host")
+
+
+@pytest.mark.parametrize("name", ["a/b#", "temp+", "#", "Device Temp/#"])
+def test_a_metric_name_will_not_carry_an_mqtt_wildcard(name: str):
+    """A metric name keys the alias table and reaches the payload, so a wildcard
+    there is a collision waiting for the first subscriber that filters on it."""
+    with pytest.raises(ValueError):
+        MetricSpec(name=name, datatype=DataType.Double, unit="degC")
+
+
+def test_a_metric_name_may_still_carry_a_slash():
+    """A metric name is not an ISA-95 identifier. The specification's own
+    `Node Control/Rebirth` carries a slash, so the rule here is narrower."""
+    assert (
+        MetricSpec(name=REBIRTH_METRIC, datatype=DataType.Boolean, unit="").name == REBIRTH_METRIC
+    )

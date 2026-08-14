@@ -60,6 +60,11 @@ NAMESPACE = "spBv1.0"
 #: reversible rather than merely conventional.
 GROUP_DELIMITER = ":"
 
+#: The two characters MQTT reads as wildcards. `MetricSpec` refuses a name
+#: carrying either. A slash is legal in a metric name, because the
+#: specification's own `Node Control/Rebirth` carries one.
+RESERVED_IN_TOPIC = ("+", "#")
+
 #: `seq` and `bdSeq` are both one byte wide, so both wrap at the same modulus.
 SEQUENCE_MODULUS = 256
 
@@ -243,6 +248,20 @@ def qos_and_retain_for(message_type: MessageType) -> tuple[int, bool]:
     return (row.qos, row.retain)
 
 
+def _refuse_bad_identifier(value: str, field: str, whole: str) -> None:
+    """Refuse an identifier that would change the topic it is joined into.
+
+    `UnsPath.is_identifier` is the predicate, so the grammar keeps one home in
+    `twinflow.config` and this module states no second reading of it.
+    """
+    if not UnsPath.is_identifier(value):
+        raise ValueError(
+            f"{field} {whole!r} carries {value!r}, which is not a lowercase kebab-case "
+            f"identifier. A Sparkplug topic joins these with '/', so a level holding "
+            f"'/', '+', or '#' addresses a topic other than the one named"
+        )
+
+
 @dataclass(frozen=True, slots=True)
 class SparkplugIds:
     """The three identifiers a Sparkplug topic is addressed by.
@@ -255,6 +274,31 @@ class SparkplugIds:
     group_id: str
     edge_node_id: str
     device_id: str
+
+    def __post_init__(self) -> None:
+        """Check the three identifiers against the ISA-95 grammar.
+
+        Each is joined into a topic with `/`, so an identifier carrying `/`,
+        `+`, or `#` addresses a topic other than the one the caller named, or
+        subscribes where it meant to publish. `SparkplugEdgeNode` takes this
+        constructor directly, so the check belongs here rather than in
+        `for_path`.
+
+        `UnsPath.is_identifier` is the predicate, so the grammar keeps one home
+        in `twinflow.config`.
+        """
+        for level in self.group_id.split(GROUP_DELIMITER):
+            _refuse_bad_identifier(level, "group_id", self.group_id)
+        if len(self.group_id.split(GROUP_DELIMITER)) != 3:
+            raise ValueError(
+                f"group_id {self.group_id!r} does not split into three ISA-95 levels on "
+                f"{GROUP_DELIMITER!r}; enterprise, site, and area are joined into it"
+            )
+        _refuse_bad_identifier(self.edge_node_id, "edge_node_id", self.edge_node_id)
+        # An empty device_id addresses the edge node itself, which is what a
+        # node message is. Anything else is a level in a topic.
+        if self.device_id:
+            _refuse_bad_identifier(self.device_id, "device_id", self.device_id)
 
     def to_uns_path(self, parameter: str) -> UnsPath:
         """Recover the ISA-95 path, given back the parameter the topic dropped.
@@ -311,6 +355,9 @@ def topic_for(ids: SparkplugIds, message_type: MessageType, *, device_id: str | 
         )
     parts = [NAMESPACE, ids.group_id, str(message_type), ids.edge_node_id]
     if device_id is not None:
+        # An override reaches the topic without passing through SparkplugIds,
+        # so it is held to the same grammar the three addressed identifiers are.
+        _refuse_bad_identifier(device_id, "device_id", device_id)
         parts.append(device_id)
     return "/".join(parts)
 
@@ -323,6 +370,7 @@ def state_topic_for(host_id: str) -> str:
     """
     if not host_id:
         raise ValueError("a STATE topic needs a host application id")
+    _refuse_bad_identifier(host_id, "host_id", host_id)
     return f"{NAMESPACE}/{MessageType.STATE}/{host_id}"
 
 
@@ -356,6 +404,13 @@ class MetricSpec:
     def __post_init__(self) -> None:
         if not self.name:
             raise ValueError("a metric needs a name")
+        if any(reserved in self.name for reserved in RESERVED_IN_TOPIC):
+            raise ValueError(
+                f"metric name {self.name!r} carries one of {RESERVED_IN_TOPIC}, which MQTT "
+                f"reads as a level separator or a wildcard. A metric name keys the alias "
+                f"table and appears in the payload, so a reserved character there is a "
+                f"collision waiting for the first subscriber that filters on it"
+            )
         if self.eng_low is not None and self.eng_high is not None and self.eng_low >= self.eng_high:
             raise ValueError(
                 f"metric {self.name!r} has eng_low {self.eng_low} at or above "
