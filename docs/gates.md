@@ -330,9 +330,9 @@ Declared at P6-W6, owned by docs/design/foundations.md. Its assertion is specifi
 
 ### `VAL-GATE-DOC-001`
 
-**Asserts.** The docs link check passes, mkdocs builds, the README opens with the pitch and one measured number, and the prose gate reports no em-dashes.
+**Asserts.** The docs link check passes, mkdocs builds, the README opens with the pitch and one measured number, every filled metric marker resolves to a committed artifact under artifacts/measured/ that names its tool, seed, and run id, and the prose gate reports no em-dashes.
 
-**Falsified by.** A broken link, a failed build, or one prose gate finding.
+**Falsified by.** A broken link, a failed build, one prose gate finding, or a number in the docs that no committed artifact produced.
 
 ### `VAL-GATE-DOCSITE-001`
 

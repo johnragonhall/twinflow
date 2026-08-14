@@ -1652,9 +1652,18 @@ Until that measurement exists, the field is absent and the message degrades to t
 plus `historian volume not yet measured, run just measure-row-bytes`. An unattributed round number
 in operator-facing output is the same defect as an unattributed round number in the README, and it
 is caught by the same lint. The current unfilled value is
-<!--METRIC:historian_stored_bytes_per_sensor_reading@v0.2.0-->TBD<!--/METRIC-->, which the release gate
-
-refuses to tag while it still reads TBD.
+<!--METRIC:historian_stored_bytes_per_sensor_reading@v0.4.0-->TBD<!--/METRIC-->, which the release gate
+refuses to tag from v0.4.0 onward while it still reads TBD. The tag it names is the one its
+producer arrives at: foundations 5.5 places `twinflow.telemetry.sensor_reading` at `since_phase: 3`,
+which `roadmap.yaml` maps to v0.4.0, and the Delta writer `EVENT_TABLE` names is the `delta` extra
+of 2.7 rather than a base install. A marker owed at a tag whose producer does not exist is a claim
+no measurement can discharge, and the three exits the gate offers are to measure it, to drop the
+claim, or to name the tag it arrives at. Dropping it would delete a number the plan owes, which
+ENGINEERING rule 4 refuses, so it names the tag. `tools/measure_row_bytes.py` fills it, and today it
+refuses. It prints the two reasons rather than assuming them. `twinflow.telemetry.sensor_reading` is
+absent from `schemas/registry.yaml`, so nothing fixes the payload whose bytes would be counted. The
+writer `EVENT_TABLE` names is not installed, so there is no Delta table to measure. A Parquet byte
+count belongs to the encoder that produced it, and a substitute encoder measures itself.
 
 JSON format is the same content under `{"errors": [...], "warnings": [...]}` for CI and editor
 integration. Exit codes: 0 clean, 1 errors present, 2 warnings present with `--strict-warnings`,

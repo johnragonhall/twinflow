@@ -59,3 +59,23 @@ subjects:
         status: current
         since: "0.1.0"
         parallel_until: null
+
+  ops/release_tagged:
+    description: >-
+      The record step 12 of the release ritual publishes: what the tag claimed
+      and what the ritual cost. Two gates read it. VAL-GATE-RELBUD-001 reads the
+      measured ritual duration, and step 8 asserts that the headline value,
+      unit, seed, and run id in README equal the headline_metric carried here,
+      which is why README is the one generated file step 8's cleanliness check
+      deliberately leaves out.
+    owner: twinflow-roadmap
+    versions:
+      - version: "1.0"
+        file: ops/release_tagged/v1.json
+        status: current
+        # v0.2.0 rather than v0.1.0. VAL-GATE-RELBUD-001 is first standing at
+        # P1, and a subject published a tag before the gate that reads it is a
+        # contract with no consumer, which is the state IMPORT-3 exists to keep
+        # out of the workspace.
+        since: "0.2.0"
+        parallel_until: null

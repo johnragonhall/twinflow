@@ -630,7 +630,7 @@ work_packages:
     gates: []
     brick: twinflow-twin
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-02
     title: "Publish one RFID portal and one temperature sensor onto UNS topics"
     phase: P1
@@ -644,7 +644,7 @@ work_packages:
     gates: []
     brick: twinflow-sensors
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-03
     title: "Emit Sparkplug B payloads with metric aliasing"
     phase: P1
@@ -672,7 +672,7 @@ work_packages:
     gates: []
     brick: null
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-05
     title: "Name the historian and treat it as the L2 system of record"
     phase: P1
@@ -685,7 +685,7 @@ work_packages:
     gates: []
     brick: twinflow-storage
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-06
     title: "Record an append-only event log with a per-run config snapshot"
     phase: P1
@@ -695,12 +695,11 @@ work_packages:
       - { id: "ARCH-3", partial: true, note: "the batch path table format" }
     depends_on: []
     deliverables:
-      - "metric:historian_stored_bytes_per_sensor_reading"
       - "packages/twinflow-storage/src/twinflow/storage/historian.py"
     gates: []
     brick: twinflow-storage
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-07
     title: "Ship the first agent tool with structured outputs"
     phase: P1
@@ -719,7 +718,7 @@ work_packages:
     gates: []
     brick: twinflow-agent
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-08
     title: "Record autonomy tier metadata and the change-attribution audit event"
     phase: P1
@@ -732,7 +731,7 @@ work_packages:
     gates: []
     brick: twinflow-agent
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-09
     title: "Serve the REST API the dashboard reads through"
     phase: P1
@@ -745,7 +744,7 @@ work_packages:
     gates: []
     brick: twinflow-api
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-10
     title: "Ship the dashboard stub and its accessibility floor"
     phase: P1
@@ -774,7 +773,7 @@ work_packages:
       - VAL-GATE-TIER-001
     brick: null
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-12
     title: "Write the README and the community documents"
     phase: P1
@@ -811,7 +810,7 @@ work_packages:
       - VAL-GATE-CLA-001
     brick: null
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-14
     title: "Ship the micro-fulfillment facility profile"
     phase: P1
@@ -824,7 +823,7 @@ work_packages:
     gates: []
     brick: twinflow-config
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P2-01
     title: "Build the statistical core and validate it against the published references"
     phase: P2
@@ -1272,6 +1271,20 @@ work_packages:
     gates:
       - VAL-GATE-DOCSITE-001
     brick: null
+    release: v0.4.0
+    status: planned
+  - id: WP-P3-21
+    title: "Publish the sensor reading subject and measure the historian's stored bytes"
+    phase: P3
+    wave: 21
+    covers: []
+    depends_on:
+      - WP-P1-06
+    deliverables:
+      - "metric:historian_stored_bytes_per_sensor_reading"
+      - "schemas/telemetry/sensor_reading/v1.json"
+    gates: []
+    brick: twinflow-storage
     release: v0.4.0
     status: planned
   - id: WP-P3b-01

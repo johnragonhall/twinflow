@@ -383,10 +383,24 @@ def test_the_stored_bytes_metric_is_unmeasured_and_says_so():
 
 @pytest.mark.skipif(not FOUNDATIONS.is_file(), reason="installed without the repository")
 def test_the_code_and_the_marker_agree_about_whether_the_number_exists():
-    marker = f"<!--METRIC:{STORED_BYTES_METRIC}@v0.2.0-->TBD<!--/METRIC-->"
-    text = FOUNDATIONS.read_text(encoding="utf-8")
+    """The constant here and the marker in the design page say the same thing.
 
-    assert (marker in text) == (STORED_BYTES_PER_READING is None)
+    The tag the marker names is read out of the document rather than written
+    here. Which release owes the number is a scheduling decision that moves with
+    the work package that measures it, and a copy of it in this test would make
+    that move a test failure instead of a plan edit. What this asserts is the
+    part that must never drift: an unmeasured constant and an unfilled marker,
+    or a measured one and a filled marker, and never one of each.
+    """
+    import re
+
+    text = FOUNDATIONS.read_text(encoding="utf-8")
+    marker = re.search(
+        rf"<!--METRIC:{re.escape(STORED_BYTES_METRIC)}@v[0-9.]+-->(.*?)<!--/METRIC-->", text
+    )
+
+    assert marker is not None, f"{STORED_BYTES_METRIC} has no marker in {FOUNDATIONS.name}"
+    assert (marker.group(1) == "TBD") == (STORED_BYTES_PER_READING is None)
 
 
 def test_the_hash_is_held_between_calls_and_released_by_append():

@@ -397,3 +397,27 @@ def test_query_metric_runs_through_the_registry_end_to_end(registry):
     result = registry.invoke(call, tier=AutonomyTier.L1)
     assert result.value.metric.id == "twin.throughput.units_per_hour"
     assert result.value.result_ids == ()
+
+
+def test_a_tool_call_hashes_over_the_same_canonical_bytes_as_the_rest_of_the_system():
+    """One system with two canonical forms has none.
+
+    `twinflow-schemas` computes the determinism hash with `json.dumps` at its
+    default `ensure_ascii`, and the historian, the cursor, and the ETag all
+    follow it. A tool call carrying a non-ASCII argument has to reach the same
+    bytes, or the same value hashes two ways depending on which subsystem asked.
+    """
+    import hashlib
+    import json
+
+    from twinflow.agent.tools import _canonical_sha256
+
+    class Args(BaseModel):
+        note: str
+
+    args = Args(note="café µm")
+    expected = hashlib.sha256(
+        json.dumps({"note": "café µm"}, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+    assert _canonical_sha256(args) == expected

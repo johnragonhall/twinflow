@@ -105,6 +105,12 @@ lint:
     uv run python scripts/checks/import-boundary-gate.py
     uv run python tools/gen_importlinter.py --check
     uv run python tools/gen_schemas.py --check
+    # The provenance half of the measured-number rule. metric-marker-gate.sh asks
+    # whether a marker is filled; this asks whether a filled one is telling the
+    # truth: that its value resolves to a committed artifact naming the tool, the
+    # seed, and the run id that produced it.
+    uv run python tools/check_measured_claims.py --selftest
+    uv run python tools/check_measured_claims.py
     uv run python scripts/checks/license-allowlist-gate.py
     uv run python scripts/checks/license-bytes-gate.py
     uv run python scripts/checks/ci-matrix-gate.py
@@ -178,7 +184,13 @@ roadmap-gate:
 # REL-001 for a tag about to be cut. Without a version it checks the
 # unreleased section only, which is what CI runs on every push.
 release-check version="":
+    #!/usr/bin/env sh
+    set -eu
     uv run python scripts/checks/release-gate.py {{version}}
+    # Without a version there is no tag being cut, so no marker is owed yet.
+    if [ -n '{{version}}' ]; then
+        uv run python tools/check_measured_claims.py --release '{{version}}'
+    fi
 
 # The behavioral half of TWF-RNG-002. Budget: 20 seconds.
 det-hashseed:
@@ -187,6 +199,14 @@ det-hashseed:
 # The cross-language known-answer corpus, regenerated in memory and diffed.
 kat-check:
     uv run python tools/gen_rng_kat.py --check
+
+# Measure the historian's stored bytes per sensor reading over a seeded
+# scenario. Exit 3 means a precondition of the measurement is absent, and the
+# tool prints which one. It never prints a number it did not measure.
+#
+#   just measure-row-bytes
+measure-row-bytes seed="20260813" readings="20000":
+    uv run python tools/measure_row_bytes.py --seed {{seed}} --readings {{readings}}
 
 # The frozen vector against every numpy in the declared pin range. Budget: 3 minutes.
 kat-invariance:

@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "twinflow:schemas/ops/release_tagged/v1.json",
+  "title": "twinflow release tagged",
+  "description": "Published by the last step of the release ritual (docs/design/roadmap.md 5.11 step 12), after the tag exists and before the workflow exits. It is the record of what a tag claimed and what the ritual cost, and two gates read it: VAL-GATE-RELBUD-001 reads ritual.duration_s, and step 8 asserts that the value, unit, seed, and run id step 5 wrote into README equal headline_metric here. That second read is why headline_metric carries the seed and the run id rather than the number alone. A headline figure with no run behind it is a guess wearing a unit, and a comparison between two unattributed numbers passes without proving anything.",
+  "x-twinflow-pii": false,
+  "x-twinflow-since": "0.2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tag",
+    "phase",
+    "commit",
+    "headline_metric",
+    "ritual",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "enum": ["1.0"] },
+    "tag": {
+      "description": "The tag this ritual cut, with its leading v, matching phases[].release_tag in roadmap.yaml.",
+      "type": "string",
+      "pattern": "^v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "phase": {
+      "description": "The phase whose exit this tag is, resolved against roadmap.yaml. Carried because the release-only steps of 5.11 arrive one phase at a time, and a reader comparing two rituals has to know which steps the earlier one even had.",
+      "type": "string",
+      "minLength": 1
+    },
+    "commit": {
+      "description": "The commit the tag points at. Forty lowercase hex characters, never a short sha: a prefix that is unique today collides as history grows, and this record outlives the repository state that made it unambiguous.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "headline_metric": { "$ref": "#/$defs/headline_metric" },
+    "ritual": { "$ref": "#/$defs/ritual" },
+    "provenance": { "$ref": "#/$defs/provenance" }
+  },
+  "$defs": {
+    "headline_metric": {
+      "description": "The one number README opens with, regenerated from a seeded run by step 5. Required and never null: VAL-GATE-DOC-001 obliges README to open with the pitch and one measured number, so a release with no headline metric cannot pass its own doc gate, and a nullable field here would let the ritual publish that state as though it were normal.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "value", "unit", "seed", "run_id", "artifact"],
+      "properties": {
+        "name": {
+          "description": "The metric marker this number fills, matching the name inside the METRIC comment in the docs. No dots: the governed-metric identifier space of foundations 5.15 is <domain>.<area>.<name>, and a marker name is not an entry in it.",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "value": {
+          "description": "The measured value. A number, never a string and never null. A release that has not measured its headline metric does not publish a placeholder here; it does not tag.",
+          "type": "number"
+        },
+        "unit": {
+          "description": "Parseable by pint, or \"1\" for a dimensionless ratio, which is the rule the governed metrics layer already states for its own unit field.",
+          "type": "string",
+          "minLength": 1,
+          "x-twinflow-unit": "any"
+        },
+        "seed": {
+          "description": "The base seed of the run that produced the value. Present because a claim is reproducible or it is not a measurement, and the seed is half of what a reader needs to reproduce it.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "run_id": {
+          "description": "The run the value was measured on, the other half. artifacts/runs/<run_id>/ holds its manifest and its tape.",
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact": {
+          "description": "The committed file the number was read from, repo-relative. tools/check_measured_claims.py resolves the marker through this path, which is what makes a hand-typed value detectable: a number with no artifact behind it has nowhere to have come from.",
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_][A-Za-z0-9_./-]*$"
+        }
+      }
+    },
+    "ritual": {
+      "description": "What the ritual of 5.11 cost on the pinned reference runner. duration_s is published whatever it is, per the assertion of VAL-GATE-RELBUD-001: the gate compares it against a ceiling, and a ritual that withheld its duration when it ran long would leave that gate with nothing that could falsify it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "duration_s",
+        "ceiling_s",
+        "margin_ratio",
+        "noise_floor_s",
+        "reference_runner",
+        "steps"
+      ],
+      "properties": {
+        "duration_s": {
+          "description": "Measured wall time of the whole ritual. Never null, and never derived from the step sum: a step carrying no independent budget is inside this number and outside that sum, which is the arithmetic roadmap.md 7.5 spends a paragraph on.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "ceiling_s": {
+          "description": "The recorded sum of the ritual's steps plus margin_ratio, from release.ceiling_s in ci_budget.yaml. Null while any step there is still measured_s null, because a ceiling computed from nulls is a number nobody measured and a gate asserting it passes because nothing can fail it.",
+          "type": ["number", "null"],
+          "exclusiveMinimum": 0,
+          "default": null
+        },
+        "margin_ratio": {
+          "description": "The margin roadmap.md 7.5 states rather than hides inside a round ceiling. 1.25 at present.",
+          "type": "number",
+          "exclusiveMinimum": 1
+        },
+        "noise_floor_s": {
+          "description": "The run-to-run standard deviation of the ritual duration over the releases cut so far, which gates.yaml requires published beside the measured value. Null until at least two releases have been cut on one runner: a standard deviation over a single sample is zero, and zero here would read as a runner with no variance at all.",
+          "type": ["number", "null"],
+          "minimum": 0,
+          "default": null
+        },
+        "reference_runner": { "$ref": "#/$defs/reference_runner" },
+        "steps": {
+          "description": "One entry per step of 5.11, in ritual order, so a release that grew past its ceiling fails as a defect naming the step that grew rather than as a timeout.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/step" }
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "measured_s"],
+      "properties": {
+        "id": {
+          "description": "The step id, matching release.steps[].id in ci_budget.yaml.",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "measured_s": {
+          "description": "What this step took. Null means the step did not run at this tag, which is the normal case for the release-only steps that arrive one phase at a time. Null is not zero and it is not an estimate.",
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "budget_s": {
+          "description": "The declared per-job budget, where the step has one. Declared and measured are separate fields for the reason ci_budget.yaml states at the top of itself: a chosen number must never read as an observed one.",
+          "type": ["number", "null"],
+          "exclusiveMinimum": 0,
+          "default": null
+        },
+        "arrives_with": {
+          "description": "The work package or phase that makes this step run at all, where it does not run yet. Present so an unmeasured step reads as scheduled rather than as forgotten.",
+          "type": ["string", "null"],
+          "default": null
+        }
+      }
+    },
+    "reference_runner": {
+      "description": "The runner the durations above were measured on, mirroring reference_runner in ci_budget.yaml. A runner change moves every measured duration at once, so a duration published without the runner beside it cannot be compared with the one before it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "image_version"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "image_version": {
+          "description": "The ImageVersion the run reported. Null when the ritual did not run on the pinned label, which is a fact about the measurement rather than a failure of it.",
+          "type": ["string", "null"],
+          "default": null
+        }
+      }
+    },
+    "provenance": {
+      "description": "The sidecar half. Doctrine D-01 keeps wall-clock time and machine identity out of anything a determinism hash covers. This subject records a release rather than a run's tape, so the values are legal here, and they are gathered under one key so that stays visible to a reader rather than resting on this paragraph. ritual.duration_s is a duration and not an instant, and it belongs with the measurement the gate reads.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tagged_wall_utc", "workflow_run_url"],
+      "properties": {
+        "tagged_wall_utc": {
+          "description": "When the tag was created, RFC 3339 with an explicit UTC offset.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "workflow_run_url": {
+          "description": "The release workflow run that published this record, so the durations above lead back to their logs. Null only for a local dry run of the pipeline.",
+          "type": ["string", "null"],
+          "default": null
+        }
+      }
+    }
+  }
+}

@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- publish the tagged-release contract and schedule the owed number
 - run the ten-minute demo headless and arm its gate
 - ship the stub on an accessibility floor
 - serve the surface the dashboard reads through

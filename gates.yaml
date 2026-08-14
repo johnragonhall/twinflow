@@ -332,8 +332,12 @@ gates:
     owner_section: "docs/DOCUMENTATION-STANDARD.md"
     assertion: >-
       The docs link check passes, mkdocs builds, the README opens with the pitch and one
-      measured number, and the prose gate reports no em-dashes.
-    falsified_by: "A broken link, a failed build, or one prose gate finding."
+      measured number, every filled metric marker resolves to a committed artifact under
+      artifacts/measured/ that names its tool, seed, and run id, and the prose gate reports
+      no em-dashes.
+    falsified_by: >-
+      A broken link, a failed build, one prose gate finding, or a number in the docs that no
+      committed artifact produced.
   VAL-GATE-DOCSITE-001:
     kind: policy
     status: declared

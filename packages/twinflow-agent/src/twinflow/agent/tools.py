@@ -622,10 +622,15 @@ def _canonical_sha256(model: BaseModel) -> str:
 
     Sorted rather than declaration-ordered so the value survives a field being
     reordered in the model, which is a change no recorded run should notice.
+
+    `ensure_ascii` is left at its default, which is the spelling every other
+    canonical encoding in this repository uses: the determinism hash in
+    `twinflow-schemas`, the historian's snapshot hash, and the API's cursor and
+    ETag. A tool call carrying a non-ASCII argument would otherwise hash here
+    over different bytes than the same value hashes over anywhere else, and one
+    system with two canonical forms has none.
     """
-    payload = json.dumps(
-        model.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), ensure_ascii=False
-    )
+    payload = json.dumps(model.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
