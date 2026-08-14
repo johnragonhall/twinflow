@@ -109,7 +109,11 @@ lint:
     # tracked Markdown file resolves to a committed file. A broken link in the
     # published documentation is the one defect a reader meets before any code.
     uv run python scripts/checks/link-gate.py --selftest
-    uv run python scripts/checks/link-gate.py
+    # VAL-GATE-DOC-001. Composes the link check, the prose gate, and the
+    # measured-claims check, and carries the README clause that arms itself at
+    # the tag its input arrives at.
+    uv run python scripts/checks/docs-gate.py --selftest
+    uv run python scripts/checks/docs-gate.py
     uv run python scripts/checks/spelling-gate.py --selftest
     uv run python scripts/checks/spelling-gate.py --all
     uv run python scripts/checks/workspace-members-gate.py

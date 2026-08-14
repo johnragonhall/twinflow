@@ -330,18 +330,23 @@ gates:
     command: "uv run pytest tests/test_compare_runs.py -q"
   VAL-GATE-DOC-001:
     kind: invariant
-    status: specified
+    status: implemented
     first_phase: P1
     standing: true
     owner_section: "docs/DOCUMENTATION-STANDARD.md"
     assertion: >-
-      The docs link check passes, mkdocs builds, the README opens with the pitch and one
-      measured number, every filled metric marker resolves to a committed artifact under
-      artifacts/measured/ that names its tool, seed, and run id, and the prose gate reports
-      no em-dashes.
+      The docs link check passes, the prose gate reports zero errors, and every filled metric
+      marker resolves to a committed artifact under artifacts/measured/ that names its tool,
+      seed, and run id. From v0.3.0 the first three lines of README carry the E1 replay URL
+      and exactly one metric marker resolving to a headline_metric in ops.release.tagged.v1,
+      which is the tag the bundle and the seeded number first exist at. The docs site build is
+      asserted by VAL-GATE-DOCSITE-001 from v0.4.0, per docs/design/roadmap.md 5.3.
     falsified_by: >-
-      A broken link, a failed build, one prose gate finding, or a number in the docs that no
-      committed artifact produced.
+      A broken link, one prose gate finding, a number in the docs that no committed artifact
+      produced, or from v0.3.0 an opening README that carries no replay URL or more than one
+      metric marker.
+    test_path: tests/test_docs_gate.py
+    command: "uv run python scripts/checks/docs-gate.py"
   VAL-GATE-DOCSITE-001:
     kind: policy
     status: declared

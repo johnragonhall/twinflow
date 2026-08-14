@@ -57,7 +57,7 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-DEMO-001`        | P1          | budget       | yes      | implemented | docs/design/repo-craft.md                 |
 | `VAL-GATE-DET-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.2            |
 | `VAL-GATE-DET-002`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.2            |
-| `VAL-GATE-DOC-001`         | P1          | invariant    | yes      | specified   | docs/DOCUMENTATION-STANDARD.md            |
+| `VAL-GATE-DOC-001`         | P1          | invariant    | yes      | implemented | docs/DOCUMENTATION-STANDARD.md            |
 | `VAL-GATE-DOCSITE-001`     | P3          | policy       | no       | declared    | docs/design/repo-craft.md                 |
 | `VAL-GATE-DORA-001`        | 6a15        | invariant    | no       | declared    | docs/design/back-office.md                |
 | `VAL-GATE-DRIFT-001`       | P6-W2       | invariant    | no       | declared    | docs/design/ai-layer.md                   |
@@ -332,9 +332,11 @@ Declared at P6-W6, owned by docs/design/foundations.md. Its assertion is specifi
 
 ### `VAL-GATE-DOC-001`
 
-**Asserts.** The docs link check passes, mkdocs builds, the README opens with the pitch and one measured number, every filled metric marker resolves to a committed artifact under artifacts/measured/ that names its tool, seed, and run id, and the prose gate reports no em-dashes.
+**Asserts.** The docs link check passes, the prose gate reports zero errors, and every filled metric marker resolves to a committed artifact under artifacts/measured/ that names its tool, seed, and run id. From v0.3.0 the first three lines of README carry the E1 replay URL and exactly one metric marker resolving to a headline_metric in ops.release.tagged.v1, which is the tag the bundle and the seeded number first exist at. The docs site build is asserted by VAL-GATE-DOCSITE-001 from v0.4.0, per docs/design/roadmap.md 5.3.
 
-**Falsified by.** A broken link, a failed build, one prose gate finding, or a number in the docs that no committed artifact produced.
+**Falsified by.** A broken link, one prose gate finding, a number in the docs that no committed artifact produced, or from v0.3.0 an opening README that carries no replay URL or more than one metric marker.
+
+**Runs.** `uv run python scripts/checks/docs-gate.py`, tested by `tests/test_docs_gate.py`.
 
 ### `VAL-GATE-DOCSITE-001`
 
