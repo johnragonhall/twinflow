@@ -56,6 +56,17 @@ test-e2e:
     uv run pytest packages/twinflow-kernel/tests/test_scenario.py tests/test_compare_runs.py -q
     sh scripts/determinism-check.sh --strict --runs 3
 
+# VAL-GATE-DEMO-001: the ten-minute scripted demo, headless, over the shipped
+# packages end to end. Every beat asserts on an observable, and the harness
+# refuses to run at all when a wait appears in it. Budget: 600 seconds.
+#
+#   just demo      one pass
+#   just demo 5    five, which is what produces the run-to-run deviation
+#                  section 7.5 asks to be published beside the measurement
+demo runs="1":
+    uv run python scripts/demo/ten_minute_demo.py --runs {{runs}}
+    uv run pytest tests/test_demo.py -q
+
 # Write one run of SCN-F1 to a file, which is what the cross-platform legs
 # upload for DET-002 to compare.
 #

@@ -93,3 +93,24 @@ def test_the_two_spellings_of_a_distribution_name_are_one_name():
         gate.check_sbom({"components": [{"name": "Typing_Extensions"}]}, ("typing-extensions",))
         == []
     )
+
+
+@pytest.mark.parametrize(
+    ("spelling", "canonical"),
+    [
+        ("typing__extensions", "typing-extensions"),
+        ("zope.interface", "zope-interface"),
+        ("a.b_c", "a-b-c"),
+        ("A__B", "a-b"),
+        ("ruamel...yaml", "ruamel-yaml"),
+    ],
+)
+def test_a_run_of_separators_collapses_to_one(spelling: str, canonical: str):
+    """PEP 503 replaces runs of `-`, `_`, and `.` with a single `-`.
+
+    Mapping each character on its own leaves `typing__extensions` as
+    `typing--extensions`, which compares unequal to the lock's spelling and
+    reports a shipped distribution as absent from an SBOM that carries it.
+    """
+    assert gate.normalize(spelling) == canonical
+    assert gate.check_sbom({"components": [{"name": spelling}]}, (canonical,)) == []

@@ -54,7 +54,7 @@ because the registry already promised it at the phase it starts at.
 | `VAL-GATE-COVER-001`       | P6-W6       | invariant    | no       | declared    | docs/design/roadmap.md                    |
 | `VAL-GATE-CV-001`          | P4          | invariant    | no       | declared    | docs/design/twin-core.md                  |
 | `VAL-GATE-DATA-001`        | P6-W6       | invariant    | no       | declared    | docs/design/foundations.md                |
-| `VAL-GATE-DEMO-001`        | P1          | budget       | yes      | specified   | docs/design/repo-craft.md                 |
+| `VAL-GATE-DEMO-001`        | P1          | budget       | yes      | implemented | docs/design/repo-craft.md                 |
 | `VAL-GATE-DET-001`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.2            |
 | `VAL-GATE-DET-002`         | P0          | invariant    | yes      | implemented | docs/design/foundations.md 5.2            |
 | `VAL-GATE-DOC-001`         | P1          | invariant    | yes      | specified   | docs/DOCUMENTATION-STANDARD.md            |
@@ -307,6 +307,8 @@ Declared at P6-W6, owned by docs/design/foundations.md. Its assertion is specifi
 **Falsified by.** A run over 600 seconds, or one beat that asserts on a sleep.
 
 **Noise floor.** The run-to-run standard deviation of the demo wall time over five runs on the reference runner, published beside the measured value.
+
+**Runs.** `just demo`, tested by `tests/test_demo.py`.
 
 ### `VAL-GATE-DET-001`
 

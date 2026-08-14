@@ -278,7 +278,7 @@ gates:
     owner_section: "docs/design/foundations.md"
   VAL-GATE-DEMO-001:
     kind: budget
-    status: specified
+    status: implemented
     first_phase: P1
     standing: true
     owner_section: "docs/design/repo-craft.md"
@@ -289,6 +289,8 @@ gates:
       The ten-minute scripted demo runs headless and green in under 600 seconds, with each
       scripted beat asserting on an observable rather than on a sleep.
     falsified_by: "A run over 600 seconds, or one beat that asserts on a sleep."
+    test_path: tests/test_demo.py
+    command: "just demo"
   VAL-GATE-DET-001:
     kind: invariant
     status: implemented

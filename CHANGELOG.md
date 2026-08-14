@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- run the ten-minute demo headless and arm its gate
 - ship the stub on an accessibility floor
 - serve the surface the dashboard reads through
 - ship the first tool and the autonomy tier it runs under

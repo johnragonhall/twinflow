@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from collections.abc import Iterable
@@ -53,8 +54,14 @@ class GateError(Exception):
 
 def normalize(name: str) -> str:
     """PEP 503 name normalization, so `typing_extensions` and
-    `typing-extensions` are one name."""
-    return "".join("-" if character in "-_." else character for character in name.strip().lower())
+    `typing-extensions` are one name.
+
+    PEP 503 replaces *runs* of `-`, `_`, and `.` with a single `-`. Mapping each
+    character on its own leaves `typing__extensions` as `typing--extensions`,
+    which compares unequal to the lock's spelling and reports a shipped
+    distribution as absent from the SBOM.
+    """
+    return re.sub(r"[-_.]+", "-", name.strip().lower())
 
 
 def components_in(document: dict) -> set[str]:
@@ -137,6 +144,12 @@ SELFTEST_CASES: tuple[tuple[str, dict, tuple[str, ...], bool], ...] = (
         "an underscore spelling is the same name",
         {"components": [{"name": "typing_extensions"}]},
         ("typing-extensions",),
+        False,
+    ),
+    (
+        "a run of separators collapses to one, as PEP 503 says",
+        {"components": [{"name": "typing__extensions"}, {"name": "zope.interface"}]},
+        ("typing-extensions", "zope-interface"),
         False,
     ),
     (
