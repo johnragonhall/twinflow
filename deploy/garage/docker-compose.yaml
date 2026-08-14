@@ -56,7 +56,7 @@
 # tree: `twinflow.kernel` publishes `Clock` and none of the other four ports
 # ARCHITECTURE.md section 6 gives it, and no MQTT client is a dependency of any
 # package here. The devices below publish value objects and something above has
-# to wire them to a transport; that something is the subject of ADR 0004.
+# to wire them to a transport; that something is the subject of ADR-0003.
 #
 # Until then those three services are asserted statically and do not run.
 
