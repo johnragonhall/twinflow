@@ -1182,21 +1182,14 @@ gates:
       The edge-node profile passes with zero failures against a device emitting NBIRTH, DBIRTH,
       NDATA, and NDEATH with metric aliasing.
     falsified_by: "One compatibility kit failure on the edge-node profile."
-    # Stays specified. A clean-room table of the specification's own tck-testable
-    # ids runs against the session model in the test below, which measures the
-    # gap rather than closing it: 8 in-scope assertions fail, 56 of the 201
-    # edge-node assertions are out of scope for this package, and the kit this
-    # gate names is the arbiter rather than the table. Doctrine D-11 rule 1
-    # refuses this repository as a reference for itself.
-    #
-    # The denominator moved when `wire.py` landed. Twelve assertions about the
-    # encoded payload were out of scope while this package had no codec and are
-    # now checked against the bytes, so the in-scope count is 145 rather than
-    # 133. Three of the failures underneath are repaired in the session model
-    # rather than in the measurement: bdSeq carries Int64 as the specification
-    # requires, and two metric names on one owner may no longer differ only by
-    # case. The remaining 8 are recorded in the test as KNOWN_FAILURES, each
-    # with its reason, so fixing one or introducing a ninth fails the suite.
+    # Stays specified, and the reason is the arbiter rather than the result. A
+    # clean-room table of the specification's own tck-testable ids runs against
+    # the session model in the test below and every in-scope assertion passes:
+    # 145 of the 201 edge-node assertions, 0 failing. That is not conformance.
+    # 56 edge-node assertions sit outside this package's scope, the Eclipse
+    # compatibility kit this gate names has not been run, and doctrine D-11
+    # rule 1 refuses this repository as a reference for itself. A green table
+    # this repository wrote is evidence about the subset it chose to measure.
     test_path: packages/twinflow-sensors/tests/test_conformance.py
   VAL-GATE-SPARK-002:
     kind: validation

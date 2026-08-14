@@ -69,6 +69,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- satisfy the remaining eight edge-node assertions
 - repair three conformance failures in the session model
 - assert what the tests assume, so ty can read it
 - give ty the types the runtime already guarantees

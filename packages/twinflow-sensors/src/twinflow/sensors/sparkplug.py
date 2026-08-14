@@ -561,10 +561,17 @@ class EdgeNodeSession:
         clock: Clock,
         node_metrics: Sequence[MetricSpec] = (),
         devices: Mapping[str, Sequence[MetricSpec]] | None = None,
+        epoch_ms: int = 0,
     ) -> None:
         self._ids_group = group_id
         self._edge_node_id = edge_node_id
         self._clock = clock
+        #: The UTC instant sim time is counted from, in epoch milliseconds. The
+        #: specification wants a UTC reading on the wire and doctrine D-02 wants
+        #: the clock to be a port, and both hold at once when the epoch arrives
+        #: as configuration: two runs of one seed carry the same epoch, so the
+        #: timestamps stay a function of the inputs rather than of the host.
+        self._epoch_ms = epoch_ms
         self._node_metrics = tuple(node_metrics)
         # A dict, not a set, and every derived order below is sorted. D-03
         # bans an iteration order that can reach a value a second process has
@@ -664,7 +671,15 @@ class EdgeNodeSession:
         return SparkplugIds(group_id=self._ids_group, edge_node_id=self._edge_node_id, device_id="")
 
     def _now(self) -> int:
-        return int(self._clock.now())
+        """The current instant as UTC epoch milliseconds.
+
+        The sim clock counts ticks from zero, and the wire wants a UTC reading,
+        so the epoch this session was configured with is what turns one into
+        the other. A session left at epoch zero publishes 1970, which the
+        conformance runner reads as a simulation instant and refuses.
+        """
+        elapsed_ms = int(self._clock.now()) * 1000 // self._clock.tick_hz
+        return self._epoch_ms + elapsed_ms
 
     def _next_seq(self) -> int:
         """Hand out the next sequence number and wrap it back to zero after 255.
@@ -678,12 +693,73 @@ class EdgeNodeSession:
         self._seq = (self._seq + 1) % SEQUENCE_MODULUS
         return value
 
+    def _require_all_born(self) -> None:
+        """Refuse data until the NBIRTH and every DBIRTH have gone out.
+
+        A subscriber builds its whole model from the birth certificates, so a
+        data message naming a device it has not been told about arrives with no
+        datatype, no engineering range, and no alias table to read it through.
+        Refusing here is the only point where the publisher is still around to
+        be ordered correctly.
+        """
+        self._require_connected()
+        if not self._node_born:
+            raise RuntimeError(
+                "no NBIRTH has gone out, so a subscriber has no namespace to read this data against"
+            )
+        unborn = sorted(set(self._devices) - self._born)
+        if unborn:
+            raise RuntimeError(
+                f"devices {unborn} have sent no DBIRTH, and a subscriber that receives "
+                f"data first has no birth certificate to read it against"
+            )
+
     def _require_connected(self) -> None:
         if not self._connected:
             raise RuntimeError(
                 "this session has not been opened; call connect() first so the "
                 "NDEATH will is registered before anything is published"
             )
+
+    def disconnect(self) -> Message:
+        """Close the session, handing back the NDEATH to publish before going.
+
+        A node that shuts down on purpose publishes its own death rather than
+        leaving it to the broker's will delivery. The two are indistinguishable
+        to a subscriber, so a fleet view built on the will alone cannot tell a
+        planned restart from a node that fell off the network, and every
+        deliberate stop reads as an outage.
+
+        The bdSeq is the one the will carries, because a subscriber matches a
+        death to its birth by that number and a fresh one would match nothing.
+        """
+        self._require_connected()
+        message = Message(
+            topic=topic_for(self.ids, MessageType.NDEATH),
+            message_type=MessageType.NDEATH,
+            payload=Payload(
+                timestamp=self._now(),
+                # No seq, for the reason the will gives: a death composed as the
+                # session ends carries the bdSeq that identifies it, and the
+                # sequence belongs to the message flow it is leaving.
+                seq=None,
+                metrics=(
+                    Metric(
+                        name=BDSEQ_METRIC,
+                        alias=self._aliases[(None, BDSEQ_METRIC)],
+                        datatype=DataType.Int64,
+                        value=self._bdseq,
+                        timestamp=self._now(),
+                    ),
+                ),
+            ),
+            qos=QOS_BY_TOPIC_CLASS[MessageType.NDEATH].qos,
+            retain=QOS_BY_TOPIC_CLASS[MessageType.NDEATH].retain,
+        )
+        self._connected = False
+        self._node_born = False
+        self._born.clear()
+        return message
 
     # -------------------------------------------------------------- the births
 
@@ -729,7 +805,13 @@ class EdgeNodeSession:
     def _birth_metric(self, device_id: str | None, spec: MetricSpec) -> Metric:
         return Metric(
             name=spec.name,
-            alias=self._aliases[(device_id, spec.name)],
+            # The rebirth command is addressed by name and never by alias. A
+            # host sends it to a node it may have no birth certificate for,
+            # which is the whole point of asking for a rebirth, so an alias
+            # would name a table the sender has not been given.
+            alias=None
+            if device_id is None and spec.name == REBIRTH_METRIC
+            else self._aliases[(device_id, spec.name)],
             datatype=spec.datatype,
             value=self._birth_value(device_id, spec),
             timestamp=self._now(),
@@ -747,9 +829,7 @@ class EdgeNodeSession:
 
     def node_data(self, changed: Mapping[str, Any]) -> Message:
         """Publish NDATA: changed node metrics, by alias, name excluded."""
-        self._require_connected()
-        if not self._node_born:
-            raise RuntimeError("NDATA before NBIRTH: the alias table is not established yet")
+        self._require_all_born()
         return self._message(MessageType.NDATA, self._data_metrics(None, changed), device_id=None)
 
     def device_data(self, device_id: str, changed: Mapping[str, Any]) -> Message:
@@ -758,7 +838,7 @@ class EdgeNodeSession:
         Report by exception: only what the caller hands over is published, and
         an unchanged metric is simply absent rather than republished.
         """
-        self._require_connected()
+        self._require_all_born()
         if device_id not in self._born:
             raise RuntimeError(
                 f"device {device_id!r} has published no DBIRTH in this session, so a "

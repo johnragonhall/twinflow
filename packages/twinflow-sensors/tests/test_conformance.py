@@ -27,6 +27,7 @@ import pytest
 
 from twinflow.kernel import SimClock, SimInstant
 from twinflow.sensors import conformance as conf
+from twinflow.sensors import sparkplug
 from twinflow.sensors.sparkplug import (
     BDSEQ_METRIC,
     REBIRTH_METRIC,
@@ -130,27 +131,28 @@ def test_every_in_scope_assertion_is_ruled_on(report: conf.ConformanceReport) ->
 #: The assertions the session does not satisfy today, each with the reason.
 #: Written down rather than tolerated, so a change to the session that fixes
 #: one, or breaks a twelfth, fails this test rather than passing quietly.
-KNOWN_FAILURES: Mapping[str, str] = {
-    "tck-id-operational-behavior-data-commands-rebirth-name-aliases": "the rebirth is aliased",
-    "tck-id-operational-behavior-edge-node-intentional-disconnect-ndeath": "no close sends it",
-    "tck-id-payloads-dbirth-order": "data may precede a sibling device's DBIRTH",
-    "tck-id-payloads-ddata-order": "data may precede a sibling device's DBIRTH",
-    "tck-id-payloads-ndata-order": "data may precede a sibling device's DBIRTH",
-    "tck-id-payloads-metric-timestamp-in-UTC": "the clock port reads simulation time",
-    "tck-id-payloads-timestamp-in-UTC": "the clock port reads simulation time",
-    "tck-id-payloads-ndeath-will-message-publisher": "no close publishes NDEATH",
-}
+#: The session satisfies every in-scope assertion, so this is empty. It stays
+#: as the place a failure is written down with its reason, and the test below
+#: fails on a regression rather than letting one pass quietly.
+KNOWN_FAILURES: Mapping[str, str] = {}
 
 
 def test_the_run_fails_exactly_the_recorded_assertions(report: conf.ConformanceReport) -> None:
-    """The failures are the eight written down, and no others."""
+    """The failures are the ones written down, and no others."""
     assert sorted(result.assertion_id for result in report.failures) == sorted(KNOWN_FAILURES)
 
 
-def test_the_report_is_not_reported_as_conformant(report: conf.ConformanceReport) -> None:
-    """A run with failures does not read as a pass."""
-    assert not report.conformant
+def test_a_clean_run_is_still_not_a_conformance_claim(report: conf.ConformanceReport) -> None:
+    """`conformant` means the in-scope subset held, which is a smaller claim.
+
+    56 edge-node assertions sit outside this package's scope and the Eclipse
+    Technology Compatibility Kit has not been run, so a report with no failures
+    is evidence about the subset measured here and nothing wider. The gate reads
+    the denominator beside the count for exactly this reason.
+    """
     assert report.coverage.failed == len(KNOWN_FAILURES)
+    assert report.coverage.edge_node_out_of_scope > 0
+    assert report.coverage.edge_node_in_scope < report.coverage.edge_node_total
     assert report.coverage.passed + report.coverage.failed == report.coverage.in_scope_total
 
 
@@ -405,6 +407,37 @@ def _mutate_rebirth_opens_a_session(patch: pytest.MonkeyPatch) -> None:
     patch.setattr(EdgeNodeSession, "rebirth", reconnecting)
 
 
+def _mutate_epoch_is_zero(patch: pytest.MonkeyPatch) -> None:
+    """Count sim time from 1970, so a timestamp is not a UTC reading."""
+    patch.setattr(conf, "_EPOCH_MS", 0)
+
+
+def _mutate_data_before_every_birth(patch: pytest.MonkeyPatch) -> None:
+    """Let data go out while a declared device has sent no DBIRTH."""
+    patch.setattr(EdgeNodeSession, "_require_all_born", lambda self: self._require_connected())
+
+
+def _mutate_no_close(patch: pytest.MonkeyPatch) -> None:
+    """Leave a deliberate shutdown's death to the broker's will delivery."""
+    patch.delattr(EdgeNodeSession, "disconnect", raising=False)
+
+
+def _mutate_rebirth_is_aliased(patch: pytest.MonkeyPatch) -> None:
+    """Give the rebirth command an alias a requesting host cannot resolve."""
+
+    def aliased(self: EdgeNodeSession, device_id: str | None, spec: MetricSpec) -> Metric:
+        return Metric(
+            name=spec.name,
+            alias=self._aliases[(device_id, spec.name)],
+            datatype=spec.datatype,
+            value=self._birth_value(device_id, spec),
+            timestamp=self._now(),
+            properties=spec.properties(),
+        )
+
+    patch.setattr(EdgeNodeSession, "_birth_metric", aliased)
+
+
 def _mutate_case_insensitive_names(patch: pytest.MonkeyPatch) -> None:
     """Let two metric names that differ only by case sit on one owner.
 
@@ -616,6 +649,10 @@ MUTATIONS: Mapping[str, Mutation] = {
     "a rebirth skips the device births": _mutate_rebirth_only_nbirth,
     "a rebirth opens a new session": _mutate_rebirth_opens_a_session,
     "metric names may differ only by case": _mutate_case_insensitive_names,
+    "sim time is counted from 1970": _mutate_epoch_is_zero,
+    "data precedes a declared device's birth": _mutate_data_before_every_birth,
+    "no close publishes an NDEATH": _mutate_no_close,
+    "the rebirth command is aliased": _mutate_rebirth_is_aliased,
     "nothing is refused": _mutate_no_refusals,
     "undeclared metrics are published": _mutate_undeclared_metrics,
     "every metric is republished": _mutate_republish_everything,
@@ -833,9 +870,20 @@ def test_a_utc_clock_clears_the_two_utc_assertions() -> None:
     assert "tck-id-payloads-metric-timestamp-in-UTC" not in failing
 
 
-def test_the_simulation_clock_is_why_the_utc_assertions_fail() -> None:
-    """The same run under the simulation clock does not satisfy them."""
-    report = conf.run_edge_node_conformance(SimClock())
-    failing = {result.assertion_id for result in report.failures}
-    assert "tck-id-payloads-timestamp-in-UTC" in failing
-    assert "tck-id-payloads-metric-timestamp-in-UTC" in failing
+def test_the_epoch_is_what_makes_a_sim_instant_a_utc_reading() -> None:
+    """A session counting from epoch zero publishes 1970 and is refused.
+
+    The two claims hold together because the epoch is configuration: the clock
+    stays a port per doctrine D-02, and the timestamps stay a function of the
+    inputs rather than of the host, which a wall-clock read here would break.
+    """
+    session = sparkplug.EdgeNodeSession(
+        group_id=conf._GROUP_ID,
+        edge_node_id=conf._EDGE_NODE_ID,
+        clock=SimClock(),
+        node_metrics=conf._NODE_METRICS,
+        devices=conf._DEVICE_METRICS,
+    )
+    session.connect()
+
+    assert session.node_birth().payload.timestamp < conf._UTC_FLOOR_MS

@@ -97,6 +97,20 @@ def test_the_host_state_topic_has_its_own_shape():
     assert state_topic_for("twinflow-primary") == "spBv1.0/STATE/twinflow-primary"
 
 
+def born_session(*args, **kwargs):
+    """A connected session with the NBIRTH and every DBIRTH already out.
+
+    Data waits for every declared device to birth, so a test that publishes
+    data opens its session through here rather than repeating the four calls.
+    """
+    session = make_session(*args, **kwargs)
+    session.connect()
+    session.node_birth()
+    for device in ("conveyor-02", "portal-03"):
+        session.device_birth(device)
+    return session
+
+
 # ----------------------------------------------------------------- birth rules
 
 
@@ -111,7 +125,13 @@ def test_nbirth_carries_seq_zero_every_node_metric_and_the_session_bdseq():
     assert "sf_dropped_records" in names
     assert "bdSeq" in names
     assert "Node Control/Rebirth" in names
-    assert all(metric.alias is not None for metric in nbirth.payload.metrics)
+    # Every metric but the rebirth command carries an alias. That one is
+    # addressed by name, because a host asking for a rebirth may hold no
+    # birth certificate and so no alias table to name it through.
+    aliased = [m for m in nbirth.payload.metrics if m.name != "Node Control/Rebirth"]
+    assert all(metric.alias is not None for metric in aliased)
+    rebirth = next(m for m in nbirth.payload.metrics if m.name == "Node Control/Rebirth")
+    assert rebirth.alias is None
     assert all(metric.datatype is not None for metric in nbirth.payload.metrics)
 
 
@@ -171,10 +191,7 @@ def test_the_alias_table_is_assigned_from_a_byte_wise_sort_not_from_hash_order()
 
 
 def test_ddata_references_by_alias_and_excludes_the_metric_name():
-    session = make_session()
-    session.connect()
-    session.node_birth()
-    session.device_birth("portal-03")
+    session = born_session()
     ddata = session.device_data("portal-03", {"read_rate": 0.987})
 
     assert ddata.message_type is MessageType.DDATA
@@ -186,10 +203,7 @@ def test_ddata_references_by_alias_and_excludes_the_metric_name():
 
 
 def test_ddata_reports_by_exception_and_carries_only_the_metrics_handed_to_it():
-    session = make_session()
-    session.connect()
-    session.node_birth()
-    session.device_birth("portal-03")
+    session = born_session()
     ddata = session.device_data("portal-03", {"unique_epcs": 41})
     assert [metric.alias for metric in ddata.payload.metrics] == [
         session.alias_table()[("portal-03", "unique_epcs")]
@@ -197,9 +211,7 @@ def test_ddata_reports_by_exception_and_carries_only_the_metrics_handed_to_it():
 
 
 def test_ndata_carries_node_metrics_by_alias_with_the_name_excluded():
-    session = make_session()
-    session.connect()
-    session.node_birth()
+    session = born_session()
     ndata = session.node_data({"sf_dropped_records": 7})
     assert ndata.message_type is MessageType.NDATA
     assert ndata.payload.metrics[0].name is None
@@ -207,10 +219,7 @@ def test_ndata_carries_node_metrics_by_alias_with_the_name_excluded():
 
 
 def test_a_metric_absent_from_dbirth_may_never_appear_in_ddata():
-    session = make_session()
-    session.connect()
-    session.node_birth()
-    session.device_birth("portal-03")
+    session = born_session()
     with pytest.raises(KeyError, match="never appear"):
         session.device_data("portal-03", {"invented_metric": 1.0})
 
@@ -249,15 +258,13 @@ def seq_of(message: Message) -> int:
 
 
 def test_seq_wraps_back_to_zero_after_255():
-    session = make_session()
-    session.connect()
-    session.node_birth()
-    session.device_birth("portal-03")
+    session = born_session()
     seen = [seq_of(session.device_data("portal-03", {"read_rate": 0.9})) for _ in range(300)]
-    # The session had already spent seq 0 and seq 1 on the two births.
-    assert seen[:3] == [2, 3, 4]
-    assert seen[253] == 255
-    assert seen[254] == 0
+    # The session had already spent seq 0, 1, and 2 on the NBIRTH and the two
+    # DBIRTHs that data now waits for.
+    assert seen[:3] == [3, 4, 5]
+    assert seen[252] == 255
+    assert seen[253] == 0
     assert max(seen) == 255
     assert min(seen) == 0
 
@@ -311,10 +318,7 @@ def test_publishing_before_connect_is_refused():
 
 
 def test_a_rebirth_resets_seq_to_zero_and_republishes_the_node_and_every_device():
-    session = make_session()
-    session.connect()
-    session.node_birth()
-    session.device_birth("portal-03")
+    session = born_session()
     session.device_data("portal-03", {"read_rate": 0.9})
 
     messages = session.rebirth()
@@ -386,10 +390,7 @@ def test_every_row_with_no_specification_rule_id_carries_a_written_basis():
 def test_the_json_mirror_is_derived_from_the_same_metric_model():
     """ARCHITECTURE section 5.1: the two namespaces cannot disagree."""
     clock = SimClock(tick_hz=1_000)
-    session = make_session(clock)
-    session.connect()
-    session.node_birth()
-    session.device_birth("portal-03")
+    session = born_session(clock)
     clock.advance_to(SimInstant(4_500))
     ddata = session.device_data("portal-03", {"read_rate": 0.987})
 
@@ -406,10 +407,7 @@ def test_the_json_mirror_is_derived_from_the_same_metric_model():
 
 
 def test_the_mirror_resolves_an_alias_the_way_a_subscriber_must():
-    session = make_session()
-    session.connect()
-    session.node_birth()
-    session.device_birth("conveyor-02")
+    session = born_session()
     ddata = session.device_data("conveyor-02", {"motor_temp_c": 71.4})
     assert ddata.payload.metrics[0].name is None
     assert session.mirror_records(ddata)[0].topic.endswith("/conveyor-02/motor_temp_c")

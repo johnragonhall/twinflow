@@ -2270,6 +2270,13 @@ class _Trace:
         return session
 
 
+#: The UTC instant the harness counts sim time from, as epoch milliseconds:
+#: 2026-01-01T00:00:00Z. A constant rather than a wall-clock read, so two
+#: runs of this harness publish the same timestamps and the run stays a
+#: function of its inputs.
+_EPOCH_MS = 1767225600000
+
+
 def _new_session(clock: Clock) -> EdgeNodeSession:
     """The edge node under test."""
     return EdgeNodeSession(
@@ -2278,6 +2285,7 @@ def _new_session(clock: Clock) -> EdgeNodeSession:
         clock=clock,
         node_metrics=_NODE_METRICS,
         devices=_DEVICE_METRICS,
+        epoch_ms=_EPOCH_MS,
     )
 
 

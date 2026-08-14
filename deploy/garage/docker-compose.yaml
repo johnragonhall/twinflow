@@ -45,20 +45,23 @@
 # which stays untracked: *.pem and *.key are gitignored, and a committed private
 # key is a compromised private key.
 #
-# THREE COMMANDS ARE AHEAD OF THEIR CODE
+# ONE COMMAND IS AHEAD OF ITS CODE
 #
 # `twinflow.api` and `twinflow.dashboard` carry a `__main__` and start. The
 # `api` process serves an empty run set and reports itself unready through
 # `/readyz` until a storage adapter can read a recorded run back off disk.
 #
-# `twinflow.sensors`, `twinflow.storage`, and `twinflow.agent` do not start, and
-# the reason is not a missing entry point. There is no Network port in this
-# tree: `twinflow.kernel` publishes `Clock` and none of the other four ports
-# ARCHITECTURE.md section 6 gives it, and no MQTT client is a dependency of any
-# package here. The devices below publish value objects and something above has
-# to wire them to a transport; that something is the subject of ADR-0003.
+# `twinflow.storage` does not start. The historian needs a `ConfigSnapshot`,
+# whose `config_hash`, `schema_snapshot_hash`, and `faults_hash` are each
+# defined over something another package owns, and no producer of them exists
+# yet. It is asserted statically until one does.
 #
-# Until then those three services are asserted statically and do not run.
+# There is no `agent` service, and its absence is deliberate. ROADMAP P1 asks
+# for one agent tool, autonomy tier metadata, and structured outputs, all of
+# which WP-P1-07 and WP-P1-08 deliver as a library. No work package scopes an
+# agent process, and the loop one would run waits on the findings stream at P2
+# and closed-loop autonomy at P6-W4. A container here would be a service the
+# plan never asked for.
 
 name: twinflow-garage
 
@@ -218,19 +221,6 @@ services:
       TWINFLOW_EPOCH: ${TWINFLOW_EPOCH:?set the sim epoch as an ISO 8601 instant}
     ports:
       - "127.0.0.1:8080:8080"
-    networks: [it]
-    depends_on: [api]
-
-  # The agent service. It reaches a hosted model, which is why it is on `it` and
-  # never on `ot`: section 6 places the hosted LLM agent at tier 3, outside the
-  # OT boundary by design.
-  agent:
-    <<: *twinflow-image
-    labels:
-      com.twinflow.role: app
-    command: ["python", "-m", "twinflow.agent"]
-    environment:
-      TWINFLOW_API_URL: http://api:8000
     networks: [it]
     depends_on: [api]
 
