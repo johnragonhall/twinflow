@@ -387,3 +387,25 @@ def test_the_code_and_the_marker_agree_about_whether_the_number_exists():
     text = FOUNDATIONS.read_text(encoding="utf-8")
 
     assert (marker in text) == (STORED_BYTES_PER_READING is None)
+
+
+def test_the_hash_is_held_between_calls_and_released_by_append():
+    """`hash` orders and serializes the whole log, and `GET /runs` asks once per
+    run on every request, so the value is held rather than recomputed.
+
+    An append-only log makes the hash a function of state that exactly one
+    method changes. This asserts both halves: asking twice gives one answer, and
+    the answer moves when the log does. Without the second half the value would
+    be a cache that goes stale silently, which is worse than recomputing it.
+    """
+    historian, _ = open_historian()
+    for index in range(8):
+        historian.append(event(seq=index, sim_ts=index))
+
+    first = historian.hash()
+    assert historian.hash() == first
+
+    historian.append(event(seq=8, sim_ts=8))
+
+    assert historian.hash() != first
+    assert historian.hash() == log_hash(historian.events())

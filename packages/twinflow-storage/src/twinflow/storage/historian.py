@@ -308,6 +308,10 @@ class Historian:
         self._clock = clock
         self._snapshot = snapshot
         self._events: list[Envelope] = []
+        #: The tier-one hash of the log as it currently stands, or None when
+        #: the log has changed since it was last computed. `append` is the only
+        #: thing that changes the log, so it is the only thing that clears this.
+        self._hash: str | None = None
         self._received: dict[str, SimInstant] = {}
         self._next_seq: dict[str, int] = {}
         self._sealed = False
@@ -373,6 +377,7 @@ class Historian:
             )
 
         self._events.append(event)
+        self._hash = None
         self._received[event.id] = now
         self._next_seq[producer] = expected + 1
 
@@ -429,8 +434,18 @@ class Historian:
         return check_log_invariants(self._events)
 
     def hash(self) -> str:
-        """The tier-one determinism hash of doctrine D-05, over this log."""
-        return log_hash(self._events)
+        """The tier-one determinism hash of doctrine D-05, over this log.
+
+        Held until `append` changes the log. The hash orders and serializes
+        every event, so it costs the whole log each time it is asked for, and
+        the API asks once per run on every request to `GET /runs`. An
+        append-only log makes the value a function of state that exactly one
+        method changes, which is what makes holding it safe rather than a
+        cache with an invalidation problem.
+        """
+        if self._hash is None:
+            self._hash = log_hash(self._events)
+        return self._hash
 
     def seal(
         self,

@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
@@ -90,7 +90,10 @@ def check_log_invariants(events: Sequence[Envelope]) -> list[LogViolation]:
         expected = list(range(len(sequences)))
         if sequences != expected:
             missing = sorted(set(expected) - set(sequences))
-            repeated = sorted({s for s in sequences if sequences.count(s) > 1})
+            # Counter rather than `count` per element: this branch runs only
+            # when the log is already broken, and a quadratic scan makes the
+            # report slowest exactly when there is a defect worth reporting.
+            repeated = sorted(s for s, n in Counter(sequences).items() if n > 1)
             detail = []
             if missing:
                 detail.append(f"missing {missing}")
