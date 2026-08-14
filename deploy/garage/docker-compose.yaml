@@ -47,11 +47,18 @@
 #
 # THREE COMMANDS ARE AHEAD OF THEIR CODE
 #
-# twinflow.sensors, twinflow.storage, twinflow.api, twinflow.dashboard, and
-# twinflow.agent are delivered by WP-P1-02, WP-P1-06, WP-P1-09, WP-P1-10, and
-# WP-P1-07. Each command below follows the one module entry point this tree
-# already has, `python -m twinflow.kernel`. Until those packages carry a
-# `__main__`, this file is asserted statically and does not start.
+# `twinflow.api` and `twinflow.dashboard` carry a `__main__` and start. The
+# `api` process serves an empty run set and reports itself unready through
+# `/readyz` until a storage adapter can read a recorded run back off disk.
+#
+# `twinflow.sensors`, `twinflow.storage`, and `twinflow.agent` do not start, and
+# the reason is not a missing entry point. There is no Network port in this
+# tree: `twinflow.kernel` publishes `Clock` and none of the other four ports
+# ARCHITECTURE.md section 6 gives it, and no MQTT client is a dependency of any
+# package here. The devices below publish value objects and something above has
+# to wire them to a transport; that something is the subject of ADR 0004.
+#
+# Until then those three services are asserted statically and do not run.
 
 name: twinflow-garage
 
@@ -179,6 +186,10 @@ services:
     command: ["python", "-m", "twinflow.api"]
     environment:
       TWINFLOW_PROFILE: /etc/twinflow/facility.yaml
+      # The published mapping below is what narrows the reach to the host's
+      # loopback address, so the process inside binds every interface.
+      TWINFLOW_BIND: 0.0.0.0
+      TWINFLOW_HISTORIAN_ROOT: /var/lib/twinflow
     volumes:
       - ../../profiles/micro_fulfillment.yaml:/etc/twinflow/facility.yaml:ro
       - historian-data:/var/lib/twinflow:ro
@@ -196,6 +207,15 @@ services:
     command: ["python", "-m", "twinflow.dashboard"]
     environment:
       TWINFLOW_API_URL: http://api:8000
+      TWINFLOW_BIND: 0.0.0.0
+      # No default for either. Section 6.2 of the dashboard design page defaults
+      # neither `run_id` nor `epoch`, because a value read from a wall clock at
+      # start puts a different one into two runs of one seed, and a run id this
+      # file chose would attribute an operator's command to a run nobody can
+      # find. Compose refuses to start the tier until both are set, which is the
+      # same refusal `python -m twinflow.dashboard` makes on its own.
+      TWINFLOW_RUN_ID: ${TWINFLOW_RUN_ID:?set the run this dashboard is attached to}
+      TWINFLOW_EPOCH: ${TWINFLOW_EPOCH:?set the sim epoch as an ISO 8601 instant}
     ports:
       - "127.0.0.1:8080:8080"
     networks: [it]
