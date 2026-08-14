@@ -7,6 +7,16 @@ lets a run be replayed rather than described.
 
 from __future__ import annotations
 
+from twinflow.storage.adapters import (
+    ARRIVALS_FILE,
+    EVENTS_FILE,
+    PROVENANCE_FILE,
+    SNAPSHOT_FILE,
+    ArchiveError,
+    discover_runs,
+    read_run,
+    write_run,
+)
 from twinflow.storage.historian import (
     EVENT_TABLE,
     PROVENANCE_MARKERS,
@@ -41,15 +51,20 @@ from twinflow.storage.naming import (
 __version__ = "0.1.0"
 
 __all__ = [
+    "ARRIVALS_FILE",
+    "ArchiveError",
     "Column",
     "ConfigSnapshot",
+    "EVENTS_FILE",
     "EVENT_TABLE",
     "HISTORIAN",
     "Historian",
     "HistorianError",
     "LayerPlacement",
+    "PROVENANCE_FILE",
     "PROVENANCE_MARKERS",
     "PURDUE_LEVELS",
+    "SNAPSHOT_FILE",
     "STORED_BYTES_MEASURED_ON",
     "STORED_BYTES_METRIC",
     "STORED_BYTES_PER_READING",
@@ -57,7 +72,10 @@ __all__ = [
     "SnapshotProvenance",
     "TableFormat",
     "__version__",
+    "discover_runs",
     "provenance_leaks",
+    "read_run",
     "rows_for",
     "series_for",
+    "write_run",
 ]

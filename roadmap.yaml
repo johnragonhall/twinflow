@@ -880,10 +880,12 @@ work_packages:
     depends_on: []
     deliverables:
       - "packages/twinflow-storage/src/twinflow/storage/adapters/__init__.py"
+      - "packages/twinflow-storage/src/twinflow/storage/adapters/files.py"
+      - "packages/twinflow-storage/tests/test_adapters.py"
     gates: []
     brick: twinflow-storage
     release: v0.2.0
-    status: planned
+    status: done
   - id: WP-P1-26
     title: "Start every service the garage tier declares"
     phase: P1

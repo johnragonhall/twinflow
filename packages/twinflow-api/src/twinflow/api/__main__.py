@@ -7,28 +7,28 @@
 as environment, so every flag below reads its default from one, and the flag is
 what a reader drives it by hand with.
 
-WHAT THIS PROCESS SERVES TODAY
+WHAT THIS PROCESS SERVES
 
-Nothing, and it says so through `/readyz`. `create_api` takes a mapping of run
-id to `Historian`, and `Historian` is an in-memory object: no adapter in this
-tree reads one back off disk, so `_recorded_runs` returns an empty mapping and
-`/readyz` answers 503 with the reason `create_api` already carries. That is the
-honest state rather than a defect of this module. A liveness probe passing over
-an empty mapping would put a process into rotation with nothing to serve, which
-is the failure `readyz` exists to refuse.
+Every run directory under `--historian-root`, read back by
+`twinflow.storage.discover_runs`. A root holding nothing is not an error: the
+mapping comes back empty, `/readyz` answers 503 with the reason `create_api`
+carries, and the process stays live. A liveness probe passing over an empty
+mapping would put a container into rotation with nothing to serve, which is the
+failure `readyz` exists to refuse.
 
-`_recorded_runs` is the seam the storage adapter fills. It is a named function
-rather than a literal so that the run source has one place to arrive, and so a
-reader looking for "where do the runs come from" finds the answer rather than
-an empty dict inline.
+A directory that fails to load fails the start. `read_run` re-hashes the log it
+replayed and compares it to the sidecar, so a run that has been edited or
+truncated raises rather than being served, and this process would rather not
+start than publish a `log_hash` describing a log nobody has.
 
-WHY THE CLOCK IS A `SimClock` AT ZERO
+WHY THE CLOCK IS A `SimClock` AT THE LAST ARRIVAL
 
 Doctrine D-02 makes the clock a port, and `create_api` stamps every instant it
 reports from the injected one. A wall clock here would put the host's time into
 `/healthz` and into every ETag the section 5.13 rules make a content hash. The
-clock advances when a run is loaded, which is the same edit that gives
-`_recorded_runs` a body.
+clock starts at the latest arrival across the runs loaded, because a surface
+reporting sim instant zero while serving events stamped later would describe a
+present that precedes its own data.
 
 uvicorn is imported inside `main` for the reason `twinflow.dashboard.serve`
 gives: nothing in this package imports it at module scope, so a reader
@@ -41,10 +41,11 @@ from __future__ import annotations
 import argparse
 import os
 from collections.abc import Mapping
+from pathlib import Path
 
 from twinflow.api.app import create_api
-from twinflow.kernel import DEFAULT_TICK_HZ, SimClock
-from twinflow.storage import Historian
+from twinflow.kernel import DEFAULT_TICK_HZ, SimClock, SimInstant
+from twinflow.storage import Historian, discover_runs
 
 #: Where the historian's recorded runs land in the garage tier. Read from the
 #: environment so the container's mount point and a local checkout can differ.
@@ -60,15 +61,30 @@ DEFAULT_PORT = 8000
 def _recorded_runs(root: str) -> Mapping[str, Historian]:
     """The runs on disk under `root`, as historians.
 
-    Empty until a storage adapter exists to read one back. `Historian` holds
-    its log in memory and seals it there; `twinflow/storage/adapters/`, the
-    path `docs/design/foundations.md` reserves for exactly this, carries no
-    module yet. Returning an empty mapping rather than raising is deliberate:
-    the process is live, answers `/healthz` and `/version`, and reports itself
-    unready, which is three true statements instead of a crash loop.
+    Sorted by run id, because `discover_runs` reads the directory in sorted
+    order per doctrine D-03, so two `api` containers over one volume list their
+    runs the same way and a cursor pages identically on both.
     """
-    del root
-    return {}
+    return discover_runs(Path(root))
+
+
+def _clock_for(runs: Mapping[str, Historian], tick_hz: int) -> SimClock:
+    """A clock at the latest arrival across every run loaded.
+
+    Zero would have this surface reporting a present that precedes its own
+    data, and `create_api` reads `clock.now()` for `/healthz`. The reading is
+    taken from the runs rather than from the wall, so two processes over one
+    volume report the same instant.
+    """
+    clock = SimClock(tick_hz=tick_hz)
+    arrivals = [
+        int(historian.received_at(event.id))
+        for historian in runs.values()
+        for event in historian.events()
+    ]
+    if arrivals:
+        clock.advance_to(SimInstant(max(arrivals)))
+    return clock
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -101,10 +117,8 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
-    app = create_api(
-        runs=_recorded_runs(args.historian_root),
-        clock=SimClock(tick_hz=args.tick_hz),
-    )
+    runs = _recorded_runs(args.historian_root)
+    app = create_api(runs=runs, clock=_clock_for(runs, args.tick_hz))
 
     import uvicorn
 

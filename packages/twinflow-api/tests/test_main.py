@@ -8,16 +8,21 @@ that decides what this surface has to serve.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from twinflow.api.__main__ import (
     DEFAULT_BIND,
     DEFAULT_HISTORIAN_ROOT,
     DEFAULT_PORT,
+    _clock_for,
     _recorded_runs,
     build_parser,
 )
-from twinflow.kernel import DEFAULT_TICK_HZ, SimClock
+from twinflow.api.app import create_api
+from twinflow.kernel import DEFAULT_TICK_HZ
+from twinflow.storage import Historian, write_run
 
 from .conftest import Client
 
@@ -56,22 +61,63 @@ def test_a_flag_beats_the_environment(monkeypatch: pytest.MonkeyPatch):
     assert args.port == 8123
 
 
-def test_the_run_source_is_empty_while_no_storage_adapter_exists():
-    """`Historian` holds its log in memory and no module reads one back off
-    disk, so this returns nothing. The test states the gap rather than asserting
-    a placeholder is correct: it fails the day an adapter lands, which is the
-    day this function owes a body."""
-    assert dict(_recorded_runs(DEFAULT_HISTORIAN_ROOT)) == {}
+def test_a_root_that_holds_nothing_yields_no_runs(tmp_path: Path):
+    """An `api` container starting before anything has been recorded is the
+    ordinary first run of the tier rather than an error."""
+    assert dict(_recorded_runs(str(tmp_path))) == {}
+    assert dict(_recorded_runs(str(tmp_path / "absent"))) == {}
 
 
-def test_the_surface_reports_itself_unready_over_an_empty_run_source():
+def test_the_surface_reports_itself_unready_over_an_empty_run_source(tmp_path: Path):
     """A process with nothing to serve is live and not ready, and both are true
     at once. A readyz that passed here would put this container into rotation
     answering 404 for every run a caller asks for."""
     from twinflow.api.app import create_api
 
-    app = create_api(runs=_recorded_runs(DEFAULT_HISTORIAN_ROOT), clock=SimClock())
-    client = Client(app)
+    runs = _recorded_runs(str(tmp_path))
+    client = Client(create_api(runs=runs, clock=_clock_for(runs, DEFAULT_TICK_HZ)))
 
     assert client.get("/healthz").status_code == 200
     assert client.get("/readyz").status_code == 503
+
+
+def test_a_recorded_run_is_read_back_and_served(tmp_path: Path, historian: Historian):
+    """The end WP-P1-25 is for: a run that outlived its process, loaded into
+    the shape `create_api` takes, answering on the versioned routes."""
+    provenance = historian.seal(
+        started_wall_utc=None,
+        finished_wall_utc=None,
+        host="reference-runner",
+        packages={"twinflow-api": "0.1.0"},
+    )
+    write_run(historian, provenance, tmp_path)
+
+    runs = _recorded_runs(str(tmp_path))
+    client = Client(create_api(runs=runs, clock=_clock_for(runs, DEFAULT_TICK_HZ)))
+
+    assert client.get("/readyz").status_code == 200
+    listed = client.get("/api/v1/runs").json()
+    assert [row["run_id"] for row in listed["runs"]] == [historian.snapshot.run_id]
+    assert listed["runs"][0]["log_hash"] == historian.hash()
+
+
+def test_the_clock_starts_at_the_latest_arrival_rather_than_at_zero(
+    tmp_path: Path, historian: Historian
+):
+    """A surface reporting sim instant zero while serving events stamped later
+    would describe a present that precedes its own data."""
+    provenance = historian.seal(
+        started_wall_utc=None,
+        finished_wall_utc=None,
+        host="reference-runner",
+        packages={},
+    )
+    write_run(historian, provenance, tmp_path)
+    runs = _recorded_runs(str(tmp_path))
+
+    latest = max(
+        int(runs[historian.snapshot.run_id].received_at(event.id))
+        for event in runs[historian.snapshot.run_id].events()
+    )
+
+    assert int(_clock_for(runs, DEFAULT_TICK_HZ).now()) == latest
