@@ -4,7 +4,8 @@ Gate VAL-GATE-A11Y-001 is checked here against the rendered markup rather than
 against a description of it. That needs a parser, and it deliberately does not
 need a browser: the three clauses this tier can falsify are properties of the
 document and the stylesheet, and the clause that needs a browser is named in
-`twinflow.dashboard.accessibility` as out of reach from here.
+`twinflow.dashboard.accessibility` as out of reach from here and is asserted by
+`browser/axe-gate.mjs` instead.
 
 `html.parser` rather than a dependency, because section 2.1 of the design page
 fixes this package's dependency list at four names and a test tier that added a

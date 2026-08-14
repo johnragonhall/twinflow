@@ -250,10 +250,15 @@ def render_tests(roadmap: Roadmap) -> str:
     ]
     lines += table(["Test", "What it proves", "Gate"], rows)
 
+    # Absent means absent from the tree, read off the filesystem rather than
+    # off the index above. That index holds `test_*.py` only, so a gate whose
+    # evidence is a shell script, a browser suite, or a fixture would be listed
+    # here as missing while sitting in the repository.
     named = {path for gate in roadmap.gates.values() for path in gate.test_paths()}
-    orphans = sorted(named - {relative.as_posix() for relative in test_files(roadmap)})
+    orphans = sorted(path for path in named if not (roadmap.root / path).exists())
     if orphans:
         lines += [
+            "",
             "## Named by a gate and absent from the tree",
             "",
             "`roadmap validate` reports each of these. The list sits here so a",

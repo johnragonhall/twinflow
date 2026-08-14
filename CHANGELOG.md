@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- arm the accessibility gate against axe-core
 - publish the tagged-release contract and schedule the owed number
 - run the ten-minute demo headless and arm its gate
 - ship the stub on an accessibility floor

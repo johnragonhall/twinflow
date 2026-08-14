@@ -6,17 +6,20 @@ validation gate needs external evidence and doctrine D-12 says a test that canno
 fail is worse than no test, and the honest thing is to name the boundary rather
 than to write a check that looks like it covers all four.
 
-| Clause                            | Where it can be checked                         |
+| Clause                            | Where it is checked                             |
 |-----------------------------------|-------------------------------------------------|
-| Zero critical and serious in axe  | A browser tier. axe-core needs a real DOM       |
+| Zero critical and serious in axe  | tests/browser/axe-gate.mjs, in a browser        |
 | Demo path completable by keyboard | Statically, for reachability and focus order    |
 | Severity never by color alone     | Statically, against the rendered markup         |
 | Reduced motion honored            | Statically, against the stylesheet              |
 
-The middle two and the last are what this package's tests assert. The first is
-not, and no assertion in this repository should be read as evidence for it: a
-hand-written subset of axe rules is a subset chosen by the same person who wrote
-the markup, which is the self-reference D-11 forbids a gate from resting on.
+The middle two and the last are what this package's pytest tier asserts. The
+first needs computed style, layout boxes, and an accessibility tree, so it lives
+in a second tier that drives a browser. No Python assertion here is evidence for
+it, and none tries to be: a hand-written subset of axe rules is a subset chosen
+by the same person who wrote the markup, which is the self-reference D-11
+forbids a gate from resting on. The browser tier runs the published rule set
+unmodified, which is why it satisfies the clause and a subset would not.
 
 The keyboard clause is split as well, and the split matters. Reachability, focus
 order, and the absence of a positive `tabindex` are properties of the document

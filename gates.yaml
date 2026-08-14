@@ -69,7 +69,7 @@ gates:
     command: "uv run pytest tests/test_workflow_supply_chain.py -q -k analysis"
   VAL-GATE-A11Y-001:
     kind: validation
-    status: specified
+    status: implemented
     first_phase: P1
     standing: true
     owner_section: "docs/design/ui-direction.md"
@@ -82,6 +82,10 @@ gates:
     falsified_by: >-
       One critical or serious axe-core violation, one demo step unreachable by keyboard, or one
       severity encoded by color alone.
+    test_path:
+      - packages/twinflow-dashboard/tests/test_accessibility_floor.py
+      - packages/twinflow-dashboard/tests/browser/axe-gate.mjs
+    command: "just a11y"
   VAL-GATE-ABC-001:
     kind: invariant
     status: declared

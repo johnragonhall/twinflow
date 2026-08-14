@@ -30,7 +30,7 @@ because the registry already promised it at the phase it starts at.
 
 | Gate                       | First phase | Kind         | Standing | Status      | Owner                                     |
 |----------------------------|-------------|--------------|----------|-------------|-------------------------------------------|
-| `VAL-GATE-A11Y-001`        | P1          | validation   | yes      | specified   | docs/design/ui-direction.md               |
+| `VAL-GATE-A11Y-001`        | P1          | validation   | yes      | implemented | docs/design/ui-direction.md               |
 | `VAL-GATE-ABC-001`         | 6a17        | invariant    | no       | declared    | docs/design/back-office.md                |
 | `VAL-GATE-ABSENT-SEAM-001` | 6a14        | invariant    | no       | declared    | docs/design/human-sustain.md              |
 | `VAL-GATE-ACT-001`         | P1          | policy       | yes      | implemented | docs/design/repo-craft.md                 |
@@ -183,6 +183,8 @@ because the registry already promised it at the phase it starts at.
 **Falsified by.** One critical or serious axe-core violation, one demo step unreachable by keyboard, or one severity encoded by color alone.
 
 **Reference.** Web Content Accessibility Guidelines 2.1, W3C recommendation, level AA. <https://www.w3.org/TR/WCAG21/>
+
+**Runs.** `just a11y`, tested by `packages/twinflow-dashboard/tests/test_accessibility_floor.py`, `packages/twinflow-dashboard/tests/browser/axe-gate.mjs`.
 
 ### `VAL-GATE-ABC-001`
 

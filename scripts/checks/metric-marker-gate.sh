@@ -58,109 +58,159 @@ files=$(git ls-files --cached --others --exclude-standard '*.md' 2>/dev/null \
 [ -z "$files" ] && files=$(find . -name '*.md' -not -path './.git/*')
 [ -z "$files" ] && { echo "no markdown files"; exit 0; }
 
-unfilled=0
-malformed=0
+# One grep over every file, one awk over its output. The alternation makes grep report
+# three tokens: a whole well formed marker, a bare opening tag, and a bare closing tag.
+# Leftmost-longest matching means a well formed marker is reported whole and its own
+# opening and closing tags are not reported again, so a marker counts once toward the
+# balance and a stray tag is the only thing that can unbalance it.
+#
+#   <!--METRIC:name-->value<!--/METRIC-->   a marker, with the name optionally naming
+#                                           the tag its number arrives at: name@v0.3.0
+#   <!--METRIC:                             an opening tag no marker claimed
+#   <!--/METRIC-->                          a closing tag no marker claimed
+#
+# awk holds every marker and every per-file tag count, then reports malformed files,
+# unfilled markers, and metrics that disagree with themselves. Counting the whole
+# corpus in one process is what keeps this gate off the critical path of every release
+# check: a per-file loop spawns processes in proportion to the documentation, and this
+# repository's markdown is the input that grows.
 tmp=$(mktemp) || exit 1
-trap 'rm -f "$tmp" "$tmp.names"' EXIT
+trap 'rm -f "$tmp"' EXIT
 
-for f in $files; do
-  # A well formed marker: <!--METRIC:name-->value<!--/METRIC-->, with the name
-  # optionally naming the tag its number arrives at: name@v0.3.0.
-  # Extract the parts together so a mismatched pair is visible.
-  grep -oE '<!--METRIC:[A-Za-z0-9_]+(@v[0-9]+\.[0-9]+\.[0-9]+)?-->[^<]*<!--/METRIC-->' "$f" 2>/dev/null \
-    | while IFS= read -r m; do
-        head=$(printf '%s' "$m" | sed -E 's/^<!--METRIC:([^>]*)-->.*/\1/')
-        name=${head%@*}
-        case "$head" in
-          *@*) arms=${head#*@} ;;
-          *)   arms="-" ;;
-        esac
-        value=$(printf '%s' "$m" | sed -E 's/^<!--METRIC:[^>]*-->(.*)<!--\/METRIC-->$/\1/')
-        printf '%s\t%s\t%s\t%s\n' "$f" "$name" "$value" "$arms"
-      done >> "$tmp"
+# shellcheck disable=SC2086
+# $files holds a newline-separated list of tracked paths and has to split
+# into one argument per file. Quoting it hands grep a single argument naming
+# a file whose name is every path joined together.
+grep -oHE \
+  -e '<!--METRIC:[A-Za-z0-9_]+(@v[0-9]+\.[0-9]+\.[0-9]+)?-->[^<]*<!--/METRIC-->' \
+  -e '<!--METRIC:' \
+  -e '<!--/METRIC-->' \
+  $files 2>/dev/null \
+| awk -v red="$red" -v yellow="$yellow" -v green="$green" -v reset="$reset" \
+      -v cutting="$CUTTING" -v summary="$tmp" '
+  # Is version a at or before version b? Compared field by field, because a string
+  # comparison puts v0.10.0 before v0.9.0 and would arm a marker early.
+  function reached(a, b,   x, y, i) {
+    split(a, x, "."); split(b, y, ".")
+    for (i = 1; i <= 3; i++) {
+      if ((x[i] + 0) < (y[i] + 0)) return 1
+      if ((x[i] + 0) > (y[i] + 0)) return 0
+    }
+    return 1
+  }
+  # Names carrying more than one distinct value in second, sorted. The list is short
+  # enough that an insertion sort beats reaching for sort(1) and another process.
+  function conflicting(count, out,   name, k, j) {
+    k = 0
+    for (name in count) {
+      if (count[name] < 2) continue
+      for (j = k; j > 0 && out[j] > name; j--) out[j + 1] = out[j]
+      out[j + 1] = name
+      k++
+    }
+    return k
+  }
+  {
+    i = index($0, ":<!--")
+    f = substr($0, 1, i - 1)
+    token = substr($0, i + 1)
+    if (!(f in seen)) { seen[f] = 1; files[++nfiles] = f; opens[f] = 0; closes[f] = 0 }
+    if (token == "<!--METRIC:") { opens[f]++; next }
+    if (token == "<!--/METRIC-->") { closes[f]++; next }
 
-  # An opening tag with no matching close, or a close with no open, is malformed.
-  # Count occurrences, not matching lines: two markers can share a line, and grep -c
-  # would report that line once and hide the imbalance.
-  opens=$(grep -o '<!--METRIC:' "$f" 2>/dev/null | wc -l | tr -d ' ')
-  closes=$(grep -o '<!--/METRIC-->' "$f" 2>/dev/null | wc -l | tr -d ' ')
-  if [ "$opens" != "$closes" ]; then
-    printf '%sMALFORMED%s %s: %s opening tags, %s closing tags\n' \
-      "$red" "$reset" "$f" "$opens" "$closes" >&2
-    malformed=$((malformed + 1))
-  fi
-done
+    opens[f]++; closes[f]++
+    body = substr(token, 12)                       # past "<!--METRIC:"
+    cut = index(body, "-->")
+    head = substr(body, 1, cut - 1)
+    rest = substr(body, cut + 3)
+    value = substr(rest, 1, length(rest) - 14)     # short of "<!--/METRIC-->"
+    at = index(head, "@")
+    if (at) { name = substr(head, 1, at - 1); arms = substr(head, at + 1) }
+    else    { name = head; arms = "-" }
 
-# Is version $1 at or before version $2? Compared field by field, because a
-# string comparison puts v0.10.0 before v0.9.0 and would arm a marker early.
-version_reached() {
-  awk -v a="$1" -v b="$2" '
-    BEGIN {
-      split(a, x, "."); split(b, y, ".")
-      for (i = 1; i <= 3; i++) {
-        if ((x[i] + 0) < (y[i] + 0)) exit 0
-        if ((x[i] + 0) > (y[i] + 0)) exit 1
+    n++
+    mfile[n] = f; mname[n] = name; mvalue[n] = value; marms[n] = arms
+    if (!((name SUBSEP value) in valueseen)) { valueseen[name SUBSEP value] = 1; values[name]++ }
+    if (arms != "-" && !((name SUBSEP arms) in armseen)) { armseen[name SUBSEP arms] = 1; tags[name]++ }
+  }
+  END {
+    # An opening tag with no matching close, or a close with no open, is malformed.
+    # Tags are counted, not lines: two markers can share a line, and a line count
+    # would report that line once and hide the imbalance.
+    malformed = 0
+    for (k = 1; k <= nfiles; k++) {
+      f = files[k]
+      if (opens[f] == closes[f]) continue
+      printf "%sMALFORMED%s %s: %d opening tags, %d closing tags\n", \
+        red, reset, f, opens[f], closes[f] > "/dev/stderr"
+      malformed++
+    }
+
+    # Unfilled markers. A marker naming a later tag is deferred rather than unfilled:
+    # the release being cut does not promise that number.
+    unfilled = 0; owed = 0; deferred = 0
+    for (k = 1; k <= n; k++) {
+      value = mvalue[k]
+      if (value != "TBD" && value != "tbd" && value != "" && value != "?" && value != "N/A") continue
+      unfilled++
+      arms = marms[k]
+      if (arms != "-" && cutting != "") {
+        arm = arms; sub(/^v/, "", arm)
+        if (reached(arm, cutting)) {
+          printf "%sUNFILLED%s %s: %s (owed from %s)\n", yellow, reset, mfile[k], mname[k], arms
+          owed++
+        } else {
+          printf "%sDEFERRED%s %s: %s arrives at %s\n", green, reset, mfile[k], mname[k], arms
+          deferred++
+        }
+      } else {
+        printf "%sUNFILLED%s %s: %s\n", yellow, reset, mfile[k], mname[k]
+        owed++
       }
-      exit 0
-    }'
-}
+    }
 
-# Unfilled markers. A marker naming a later tag is deferred rather than unfilled:
-# the release being cut does not promise that number.
-owed=0
-deferred=0
-while IFS="$(printf '\t')" read -r f name value arms; do
-  case "$value" in
-    TBD|tbd|""|"?"|"N/A") ;;
-    *) continue ;;
-  esac
-  unfilled=$((unfilled + 1))
-  if [ "$arms" != "-" ] && [ -n "$CUTTING" ]; then
-    if version_reached "${arms#v}" "$CUTTING"; then
-      printf '%sUNFILLED%s %s: %s (owed from %s)\n' "$yellow" "$reset" "$f" "$name" "$arms"
-      owed=$((owed + 1))
+    # The same metric name must not carry two different values in two places. One
+    # number, one home. A reader who sees the same metric disagree with itself stops
+    # trusting both.
+    conflicts = 0
+    split("", bad)
+    count = conflicting(values, bad)
+    for (k = 1; k <= count; k++) {
+      printf "%sCONFLICT%s metric \"%s\" has different values in different files:\n", \
+        red, reset, bad[k] > "/dev/stderr"
+      for (j = 1; j <= n; j++)
+        if (mname[j] == bad[k]) printf "    %s = %s\n", mfile[j], mvalue[j] > "/dev/stderr"
+      conflicts++
+    }
+
+    if (cutting != "")
+      printf "\n%d markers found, %d unfilled: %d owed at %s, %d deferred to a later tag\n", \
+        n, unfilled, owed, cutting, deferred
     else
-      printf '%sDEFERRED%s %s: %s arrives at %s\n' "$green" "$reset" "$f" "$name" "$arms"
-      deferred=$((deferred + 1))
-    fi
-  else
-    printf '%sUNFILLED%s %s: %s\n' "$yellow" "$reset" "$f" "$name"
-    owed=$((owed + 1))
-  fi
-done < "$tmp"
+      printf "\n%d markers found, %d unfilled\n", n, unfilled
 
-# The same metric name must not carry two different values in two places. One number,
-# one home. A reader who sees the same metric disagree with itself stops trusting both.
-awk -F'\t' '{print $2"\t"$3}' "$tmp" | sort -u | awk -F'\t' '
-  { if ($1 in seen && seen[$1] != $2) { print $1; } seen[$1] = $2 }
-' | sort -u > "$tmp.names"
+    # A metric that names two different arming tags in two places has two answers to
+    # "which release owes this number", and the gate would enforce whichever it read
+    # first. One number, one home, one tag.
+    split("", bad)
+    count = conflicting(tags, bad)
+    if (count) {
+      printf "%sCONFLICT%s these metrics name more than one arming tag:\n", \
+        red, reset > "/dev/stderr"
+      for (k = 1; k <= count; k++) print bad[k] > "/dev/stderr"
+      conflicts++
+    }
 
-conflicts=0
-while IFS= read -r name; do
-  [ -z "$name" ] && continue
-  printf '%sCONFLICT%s metric "%s" has different values in different files:\n' \
-    "$red" "$reset" "$name" >&2
-  awk -F'\t' -v n="$name" '$2 == n { printf "    %s = %s\n", $1, $3 }' "$tmp" >&2
-  conflicts=$((conflicts + 1))
-done < "$tmp.names"
+    printf "%d %d %d\n", malformed, conflicts, owed > summary
+  }'
 
-total=$(wc -l < "$tmp" | tr -d ' ')
-if [ -n "$CUTTING" ]; then
-  printf '\n%s markers found, %s unfilled: %s owed at %s, %s deferred to a later tag\n' \
-    "$total" "$unfilled" "$owed" "$CUTTING" "$deferred"
-else
-  printf '\n%s markers found, %s unfilled\n' "$total" "$unfilled"
-fi
-
-# A metric that names two different arming tags in two places has two answers to
-# "which release owes this number", and the gate would enforce whichever it read
-# first. One number, one home, one tag.
-split_arms=$(awk -F'\t' '$4 != "-" {print $2"\t"$4}' "$tmp" | sort -u \
-  | awk -F'\t' '{ if ($1 in seen && seen[$1] != $2) print $1; seen[$1] = $2 }' | sort -u)
-if [ -n "$split_arms" ]; then
-  printf '%sCONFLICT%s these metrics name more than one arming tag:\n' "$red" "$reset" >&2
-  printf '%s\n' "$split_arms" >&2
-  conflicts=$((conflicts + 1))
+# read is a shell builtin, so carrying the counts back out of awk costs no process.
+# An empty summary means awk never reached its END block, so there is no clean corpus
+# to report and the run is a failure rather than a pass.
+if ! read -r malformed conflicts owed < "$tmp"; then
+  printf '%sFAIL%s the marker scan produced no summary
+' "$red" "$reset" >&2
+  exit 1
 fi
 
 if [ "$malformed" -gt 0 ] || [ "$conflicts" -gt 0 ]; then

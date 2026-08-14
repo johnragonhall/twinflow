@@ -1,0 +1,15 @@
+{
+  "name": "twinflow-dashboard-axe-gate",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The browser tier of gate VAL-GATE-A11Y-001. Development and CI only.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "axe-gate": "node axe-gate.mjs"
+  },
+  "devDependencies": {
+    "axe-core": "4.12.1",
+    "playwright": "1.61.1"
+  }
+}

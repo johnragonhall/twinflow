@@ -67,6 +67,19 @@ demo runs="1":
     uv run python scripts/demo/ten_minute_demo.py --runs {{runs}}
     uv run pytest tests/test_demo.py -q
 
+# VAL-GATE-A11Y-001, the axe-core clause. The other three clauses are asserted
+# by the pytest tier against the rendered markup; this one needs computed style,
+# layout boxes, and an accessibility tree, so it drives headless chromium and
+# runs the published rule set unmodified over the shipped page.
+#
+# axe-core is MPL-2.0. CONTRIBUTING.md accepts that for development only, which
+# is what this is: the packages install under tests/browser/, they are
+# gitignored, every wheel target is src/twinflow, and nothing under src imports
+# them.
+a11y:
+    cd packages/twinflow-dashboard/tests/browser && npm ci --no-audit --no-fund
+    node packages/twinflow-dashboard/tests/browser/axe-gate.mjs
+
 # Write one run of SCN-F1 to a file, which is what the cross-platform legs
 # upload for DET-002 to compare.
 #
@@ -92,6 +105,11 @@ lint:
     uv run ruff check .
     uv run ruff format --check .
     uv run python scripts/checks/prose-gate.py --all
+    # VAL-GATE-DOC-001, the link half: every relative link and image in every
+    # tracked Markdown file resolves to a committed file. A broken link in the
+    # published documentation is the one defect a reader meets before any code.
+    uv run python scripts/checks/link-gate.py --selftest
+    uv run python scripts/checks/link-gate.py
     uv run python scripts/checks/spelling-gate.py --selftest
     uv run python scripts/checks/spelling-gate.py --all
     uv run python scripts/checks/workspace-members-gate.py

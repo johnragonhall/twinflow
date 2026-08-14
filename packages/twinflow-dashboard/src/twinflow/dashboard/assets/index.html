@@ -12,8 +12,10 @@
 
   Gate VAL-GATE-A11Y-001 is the floor this file is held to. Three of its clauses
   are checked against this markup and this stylesheet by the tests in
-  packages/twinflow-dashboard/tests/. The axe-core clause is not, and nothing in
-  this repository should be read as evidence for it.
+  packages/twinflow-dashboard/tests/. The axe-core clause is checked by
+  packages/twinflow-dashboard/tests/browser/axe-gate.mjs, which serves this file
+  to headless chromium and runs the published rule set over it unmodified. No
+  Python assertion is evidence for that clause.
 -->
 <html lang="en" data-theme="light" data-contrast="normal" data-tf-motion="full">
   <head>

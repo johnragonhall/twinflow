@@ -11,8 +11,10 @@ asserted below, each against the rendered markup rather than against a
 description of it. The first is not. axe-core is JavaScript and needs a DOM, and
 a hand-written subset of its rules would be a subset chosen by the same hand that
 wrote the markup, which is the self-reference doctrine D-11 refuses to let a
-validation gate rest on. Nothing in this file is evidence for that clause and
-README.md says so in the same words.
+validation gate rest on. Nothing in this file is evidence for that clause.
+`browser/axe-gate.mjs` runs the published rule set unmodified in headless
+chromium, which is where that evidence comes from, and README.md says so in the
+same words.
 
 Doctrine D-12 is the other constraint these assertions are written against. Each
 one below fails on a specific, named change: delete a control and the demo-path

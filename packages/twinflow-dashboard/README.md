@@ -65,19 +65,43 @@ The gate asserts four things:
 
 | Clause                            | Status in this release                                   |
 | --------------------------------- | -------------------------------------------------------- |
-| Zero critical and serious in axe  | Not checked. Nothing here is evidence for it             |
+| Zero critical and serious in axe  | Checked by the browser tier in `tests/browser/`          |
 | Demo path completable by keyboard | Reachability and focus order checked; completability not |
 | Severity never by color alone     | Checked against the rendered markup                      |
 | Reduced motion honored            | Checked against the stylesheet                           |
 
-The first row is the important one. axe-core is JavaScript and needs a real DOM,
-which the Python unit tier does not have. A hand-written subset of axe rules
-would be a subset chosen by the same hand that wrote the markup, and doctrine
-D-11 refuses to let a validation gate rest on this repository being a reference
-for itself. So no such subset was written, and this package makes no claim about
-that clause.
+The first row is the important one, and it is the reason there are two tiers.
+axe-core is JavaScript and needs a real DOM, which the Python unit tier does not
+have. A hand-written subset of axe rules would be a subset chosen by the same
+hand that wrote the markup, and doctrine D-11 refuses to let a validation gate
+rest on this repository being a reference for itself. So the rule set is the
+published one, run unmodified:
 
-What is checked, and what each check goes red on:
+```sh
+npm --prefix packages/twinflow-dashboard/tests/browser ci
+node packages/twinflow-dashboard/tests/browser/axe-gate.mjs --selftest
+node packages/twinflow-dashboard/tests/browser/axe-gate.mjs
+```
+
+`axe-gate.mjs` serves `src/twinflow/dashboard/assets/index.html` over loopback
+and loads it in headless chromium. It runs axe-core over eight states: the light
+and dark palettes at both contrast settings, the same four with the provenance
+note and the plan table open, and the settings dialog. A violation axe-core
+rates critical or serious in any state fails the run. That is the gate's own
+falsifying condition, quoted from its registry row.
+
+`--selftest` audits a temporary copy of the page with one image stripped of its
+alt attribute. It fails when axe-core does not report that image, so a green run
+is a run that could have gone red.
+
+`axe-core` is MPL-2.0 and `playwright` is Apache-2.0. Both are pinned to an
+exact version in `tests/browser/package-lock.json` and both are development
+dependencies: the wheel builds from `src/twinflow` only, nothing under `src/`
+imports them, and the run-time dependency list below is unchanged by them. That
+is the `Development only` row of the CONTRIBUTING.md allowlist, and the
+`Shipped at run time` row still reads Refused.
+
+What the Python tier checks, and what each check goes red on:
 
 - Every landmark of the frame is present and in the tab order section 10 fixes.
   Remove a region and the assertion names the gap.
@@ -109,15 +133,22 @@ recorded below.
 
 `starlette`, `uvicorn`, `pydantic`, `twinflow-schemas`, and nothing else, which
 is the list section 2.1 of the design page fixes. No HTTP client: the browser
-reads the API and this process serves a file. The test tier adds no dependency
-either, driving the ASGI application directly rather than through a client
-library built on `httpx`, which pulls the MPL-2.0 `certifi`.
+reads the API and this process serves a file. The Python test tier adds no
+dependency either, driving the ASGI application directly rather than through a
+client library built on `httpx`, which pulls the MPL-2.0 `certifi`.
+
+The browser tier is the one place a name outside that list appears. It appears
+in `tests/browser/package.json` rather than in `pyproject.toml`, because node is
+a development tool here and not a runtime. `pip install twinflow-dashboard`
+followed by `twinflow-dashboard demo` still installs four names and needs no
+node at all.
 
 ## What the orchestrator still owes this package
 
 - `schemas/ui/command/v1.json` and `schemas/lss/finding.v1.json`, so `CT-UI-2`
   and `CT-UI-3` become the three-way checks the design specifies.
-- A browser test tier that can run axe-core, without which the first clause of
-  VAL-GATE-A11Y-001 has no evidence.
+- The `justfile` recipe and the CI job that call `tests/browser/axe-gate.mjs`,
+  and the `gates.yaml` status that follows from them. The tier runs; the wiring
+  that makes it run on every push lives outside this package.
 - An `ACCESSIBILITY.md`, which section 10 of the design page says is where the
   deliberate divergence between visual order and DOM order is recorded.

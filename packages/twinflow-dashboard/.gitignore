@@ -13,3 +13,8 @@ __pycache__/
 .pytest_cache/
 build/
 dist/
+
+# The browser tier of gate VAL-GATE-A11Y-001 installs its pinned node packages
+# here. They are development and CI only: `npm ci` puts them back from
+# tests/browser/package-lock.json, and nothing under src/ imports them.
+tests/browser/node_modules/
