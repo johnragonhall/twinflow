@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- encode a Sparkplug payload onto the wire, from the specification
 - let a recorded run outlive the process that made it
 - reach a broker over mTLS through the production adapter
 - add the NETWORK seam and the bus that stands behind it in simulation

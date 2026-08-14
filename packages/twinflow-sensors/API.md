@@ -111,13 +111,12 @@ written at all: this repository is never a reference for itself.
 
 Specifically still owed:
 
-| Owed                                                                 | Why it is not here                                                                                                                                                                   |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Protobuf wire encoding and decoding                                  | Needs the vendored EPL-2.0 `sparkplug_b.proto` under `schemas/iot/sparkplug/`, which this work package does not own                                                                  |
-| A `DataType` table generated from that `.proto`                      | `sensor-catalog.md` D.3.2 asks for generation with a test that fails on drift. The values here are transcribed from that section by hand                                             |
-| `ConformanceMatrix` reading `schemas/iot/sparkplug/conformance.yaml` | The file lives under the contract directory, which this work package does not own. `QOS_BY_TOPIC_CLASS` is the in-code stand-in and will be checked against that file once it exists |
-| A committed TCK result under `artifacts/tck/`                        | Requires a Java and Maven job and a real broker                                                                                                                                      |
-| The `seq`-discontinuity gap detector on the consumer side            | This package is the producer half                                                                                                                                                    |
+| Owed                                                                 | Why it is not here                                                                                                                                                                            |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A `DataType` table generated from a machine-readable schema          | `sensor-catalog.md` D.3.2 asks for generation with a test that fails on drift. The values here are transcribed from that section by hand, and `wire.py` reads them rather than restating them |
+| `ConformanceMatrix` reading `schemas/iot/sparkplug/conformance.yaml` | The file lives under the contract directory, which this work package does not own. `QOS_BY_TOPIC_CLASS` is the in-code stand-in and will be checked against that file once it exists          |
+| A committed TCK result under `artifacts/tck/`                        | Requires a Java and Maven job and a real broker                                                                                                                                               |
+| The `seq`-discontinuity gap detector on the consumer side            | This package is the producer half                                                                                                                                                             |
 
 The tests here assert the session rules against the normative statements
 restated in ARCHITECTURE.md 5.1 and `docs/design/iot-fleet.md` 5.4. No test

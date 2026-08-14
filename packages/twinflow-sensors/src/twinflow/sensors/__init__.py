@@ -89,6 +89,13 @@ from twinflow.sensors.temperature import (
     TemperatureSensor,
     TemperatureSensorConfig,
 )
+from twinflow.sensors.wire import (
+    WireError,
+    decode_metric,
+    decode_payload,
+    encode_metric,
+    encode_payload,
+)
 
 #: Read by tool.hatch.version, so this is the only place the version is written.
 __version__ = "0.1.0"
@@ -143,11 +150,16 @@ __all__ = [
     "TemperatureSensor",
     "TemperatureSensorConfig",
     "WillRegistration",
+    "WireError",
     "__version__",
     "assertions_for",
     "beta_scaled",
+    "decode_metric",
+    "decode_payload",
     "diagnose_portal",
     "edge_node_coverage",
+    "encode_metric",
+    "encode_payload",
     "exclusions_by_reason",
     "format_report",
     "in_scope_assertions",

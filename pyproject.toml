@@ -56,6 +56,12 @@ dev = [
     # Boundary rules A1.1 to A1.3. The contracts it reads are generated from
     # [tool.twinflow.layers] below by tools/gen_importlinter.py.
     "import-linter>=2.0",
+    # The cross-check in packages/twinflow-sensors/tests/test_wire.py drives
+    # Google's protobuf runtime over a descriptor built from the field numbers
+    # specification 6.4.1 prints. BSD-3-Clause, development only, and never a
+    # runtime dependency: nothing in any src/ imports it, and those tests skip
+    # rather than fail when it is absent.
+    "protobuf>=5",
     # Every workspace member is also a dev dependency of the root, and that is
     # load-bearing rather than tidy. This root is a virtual project, so a plain
     # `uv sync` installs only the root's own dependencies and prunes everything

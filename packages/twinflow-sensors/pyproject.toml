@@ -3,10 +3,10 @@ name = "twinflow-sensors"
 description = "A UHF RFID portal, a temperature sensor, and the Sparkplug B session that publishes them onto an ISA-95 unified namespace."
 requires-python = ">=3.12"
 # No third-party dependency at all, which is worth stating rather than leaving
-# as an accident. The Sparkplug session model here is protobuf-free: the wire
-# codec needs the vendored EPL-2.0 sparkplug_b.proto under schemas/, and that
-# lands with the codec rather than here (see API.md, "What this package does
-# not claim"). numpy is not declared either, because nothing in src/ imports
+# as an accident. That now covers the wire codec too: `wire.py` implements the
+# encoding from section 6.4.1 of the Sparkplug specification, which prints the
+# schema in full, so no protobuf runtime is resolved and the EPL-2.0
+# sparkplug_b.proto is neither vendored nor read. numpy is not declared either, because nothing in src/ imports
 # it: a bit generator arrives as an injected parameter and is used through its
 # .beta() method, so the type is the caller's problem and not this package's
 # dependency.

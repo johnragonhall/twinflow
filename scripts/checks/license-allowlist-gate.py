@@ -65,6 +65,8 @@ _NORMALISE = {
     "BSD": "BSD-3-Clause",
     "BSD-3-Clause": "BSD-3-Clause",
     "BSD 3-Clause": "BSD-3-Clause",
+    # protobuf spells it this way round in its legacy License field.
+    "3-Clause BSD License": "BSD-3-Clause",
     "BSD-2-Clause": "BSD-2-Clause",
     "ISC": "ISC",
     "MPL-2.0": "MPL-2.0",
