@@ -161,12 +161,17 @@ python scripts/checks/cla-gate.py trailers --range main..HEAD
 The job checks out the merge result, so a signatory line added by the pull
 request under review counts as present.
 
-Three carve-outs sit in the job, and none of them is visible from the table.
+Four carve-outs sit in the job, and none of them is visible from the table.
 
 The repository owner is exempt from `Signature present`. The owner already
 holds the copyright, so there is no license for the owner to grant. The step
 compares the pull request author's handle against the repository owner's
 handle, and exits early when the two match.
+
+Bot accounts are exempt from `Signature present`. A GitHub App writes under a
+bracketed handle, such as `dependabot[bot]`, that no user account can hold. A
+machine holds no copyright, so it has no license to grant. The step exits
+early when the author's handle ends in `[bot]`.
 
 Merge commits are exempt from `Trailer present`. A merge carries no authored
 content, and the GitHub "Update branch" button writes one that a contributor

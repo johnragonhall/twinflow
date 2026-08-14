@@ -150,6 +150,17 @@ def test_the_copyright_holder_is_not_asked_for_a_signature():
     assert cla_gate.check_signature(_document_with(""), "mona", owner="mona") is None
 
 
+def test_a_bot_is_not_asked_for_a_signature():
+    """Section 7: a machine holds no copyright, so no line is owed. The
+    bracketed handle is one no user account can hold, so the exemption is not
+    a suffix a person can claim."""
+    assert cla_gate.check_signature(_document_with(""), "dependabot[bot]") is None
+
+
+def test_a_bare_bot_suffix_with_no_handle_before_it_is_refused():
+    assert cla_gate.check_signature(_document_with(""), "[bot]") is not None
+
+
 def test_something_that_is_not_a_handle_is_refused():
     assert cla_gate.check_signature(_document_with(""), "not a handle") is not None
 

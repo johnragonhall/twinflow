@@ -119,6 +119,12 @@ def check_line_shape(text: str) -> list[str]:
 
 def check_signature(text: str, author: str, *, owner: str = "") -> str | None:
     """Ask whether one handle has signed. Returns a reason when it has not."""
+    # A GitHub App writes under a bracketed handle, such as dependabot[bot],
+    # that no user account can hold, so the suffix is not one a person can
+    # claim to dodge a signature. A machine holds no copyright and has no
+    # license to grant, the same reasoning that exempts the owner.
+    if author.endswith("[bot]") and _HANDLE.match(author.removesuffix("[bot]")):
+        return None
     if not _HANDLE.match(author):
         return f"author handle {author!r} is not a GitHub handle"
     if owner and author.lower() == owner.lower():
@@ -187,6 +193,10 @@ def _selftest() -> int:
         failures.append("signature asked the copyright holder for a signature")
     if check_signature(good, "not a handle") is None:
         failures.append("signature accepted something that is not a GitHub handle")
+    if check_signature(good, "dependabot[bot]") is not None:
+        failures.append("signature asked a bot for a signature no machine can give")
+    if check_signature(good, "[bot]") is None:
+        failures.append("signature accepted a bare [bot] suffix with no handle before it")
 
     # An empty list is the state this repository is in, and it must not read as
     # a pass that proves something. It proves only that nothing is malformed.
@@ -235,7 +245,7 @@ def main(argv: list[str]) -> int:
         if reason:
             print(f"[cla] {reason}")
             return 1
-        print(f"[cla] @{args.author} has signed, or holds the copyright")
+        print(f"[cla] @{args.author} has signed, or owes no signature")
         return 0
 
     unsigned = check_trailers(args.rev_range)

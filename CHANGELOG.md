@@ -58,6 +58,8 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- exempt a bot account from the signature check
+- exempt the pull request merge ref from the subject gate
 - publish one event for one command
 - hold every Sparkplug identifier to the grammar it renders into
 - hold the local model path to the loopback interface
