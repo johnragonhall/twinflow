@@ -18,6 +18,7 @@ here freely: the hook only ever adds.
 
 ### Added
 
+- add the NETWORK seam and the bus that stands behind it in simulation
 - start the two garage services whose code is already here
 - measure the Sparkplug conformance gap against the specification
 - measure the ritual rather than assume its ceiling

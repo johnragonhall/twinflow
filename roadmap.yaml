@@ -886,8 +886,11 @@ work_packages:
     phase: P1
     wave: 26
     covers:
+      # RA-b is complete at WP-P1-04 and is not re-covered here. That
+      # requirement asks for the segmentation to be expressed in compose, and it
+      # is; the runtime half of rules 2 and 5 sits under VAL-GATE-QS-001, which
+      # is where the compose header already puts it.
       - { id: "A3", partial: true, note: "the garage tier as a thing that runs" }
-      - { id: "RA-b", partial: true, note: "the runtime half of rules 2 and 5" }
     depends_on:
       - WP-P1-23
       - WP-P1-24
