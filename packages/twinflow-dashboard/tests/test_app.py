@@ -13,6 +13,7 @@ import json
 import pytest
 
 from twinflow.dashboard import COMMAND_PRODUCER, create_app
+from twinflow.schemas import Envelope
 
 from .conftest import Client, StepClock, make_config
 
@@ -22,12 +23,10 @@ def clock() -> StepClock:
     return StepClock(at=1_000_000)
 
 
-def make_client(clock: StepClock, **overrides) -> Client:
-    recorded: list = []
+def make_client(clock: StepClock, **overrides: object) -> Client:
+    recorded: list[Envelope] = []
     app = create_app(make_config(**overrides), clock=clock, sink=recorded.append)
-    client = Client(app)
-    client.recorded = recorded  # type: ignore[attr-defined]
-    return client
+    return Client(app, recorded)
 
 
 @pytest.fixture
@@ -139,7 +138,7 @@ def test_replaying_a_command_id_publishes_nothing_a_second_time(client: Client):
     client.post("/api/command", json_body=command())
     client.post("/api/command", json_body=command())
 
-    assert len(client.recorded) == 1  # type: ignore[attr-defined]
+    assert len(client.recorded) == 1
 
 
 def test_a_replayed_command_leaves_a_log_the_invariants_accept(client: Client):
@@ -155,7 +154,7 @@ def test_a_replayed_command_leaves_a_log_the_invariants_accept(client: Client):
         client.post("/api/command", json_body=command(command_id=f"c-{index:04d}"))
     client.post("/api/command", json_body=command(command_id="c-0002"))
 
-    assert check_log_invariants(client.recorded) == []  # type: ignore[attr-defined]
+    assert check_log_invariants(client.recorded) == []
 
 
 def test_the_recorded_envelope_carries_sim_time_and_no_wall_clock_reading(
@@ -166,7 +165,7 @@ def test_the_recorded_envelope_carries_sim_time_and_no_wall_clock_reading(
     clock.at = 2_000_000
 
     client.post("/api/command", json_body=command())
-    envelope = client.recorded[0]  # type: ignore[attr-defined]
+    envelope = client.recorded[0]
 
     assert envelope.twinflowsimts == "2000000"
     assert envelope.twinflowproducerid == COMMAND_PRODUCER
@@ -183,7 +182,7 @@ def test_two_runs_of_one_command_at_one_instant_produce_one_envelope_id(clock: S
     first.post("/api/command", json_body=command())
     second.post("/api/command", json_body=command())
 
-    assert first.recorded[0].id == second.recorded[0].id  # type: ignore[attr-defined]
+    assert first.recorded[0].id == second.recorded[0].id
 
 
 @pytest.mark.parametrize(
@@ -216,7 +215,7 @@ def test_a_refused_command_is_never_recorded(client: Client):
     with what the operator was told happened."""
     client.post("/api/command", json_body=command(kind="explode"))
 
-    assert client.recorded == []  # type: ignore[attr-defined]
+    assert client.recorded == []
 
 
 def test_a_refused_command_does_not_consume_a_sequence_number(client: Client):

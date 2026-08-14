@@ -178,6 +178,15 @@ class ToolCall:
 
     __slots__ = ("_args", "_args_sha256", "_spec")
 
+    # Declared, not assigned. `__slots__` builds the descriptors and the
+    # constructor fills them through `object.__setattr__`, which leaves a
+    # reader and a type checker with no statement saying what each one holds.
+    # A bare annotation is not a class attribute, so it names the type without
+    # colliding with the slot of the same name.
+    _spec: ToolSpec
+    _args: BaseModel
+    _args_sha256: str
+
     def __init__(self, spec: ToolSpec, raw_args: object) -> None:
         args = spec.args_model.model_validate(raw_args)
         object.__setattr__(self, "_spec", spec)
@@ -226,6 +235,12 @@ class ToolResult:
     """
 
     __slots__ = ("_call", "_value")
+
+    #: `_value` is the instance of the tool's declared `result_model`, which
+    #: varies per tool, so it is as wide here as the `value` property already
+    #: reports.
+    _call: ToolCall
+    _value: Any
 
     def __init__(self, call: ToolCall, raw_result: object) -> None:
         value = call.spec.result_model.model_validate(raw_result)
@@ -560,16 +575,23 @@ def _resolve(selection: MetricSelection, document: Any) -> MetricQueryResult:
         )
 
     return MetricQueryResult(
-        metric=MetricDefinitionEcho(
-            id=str(metric["id"]),
-            title=str(metric["title"]),
-            unit=str(metric["unit"]),
-            grain=grain,
-            direction=str(metric["direction"]),  # type: ignore[arg-type]
-            precision=int(metric["precision"]),
-            owner=str(metric["owner"]),
-            since=str(metric["since"]),
-            status=str(metric.get("status") or "active"),
+        # `model_validate` rather than the constructor: `direction` is a
+        # Literal and the registry hands back a plain string, so the model is
+        # the thing that decides whether the string is one of the three. The
+        # constructor form states the same rule twice, once as a widening
+        # `str()` and once as a suppression comment.
+        metric=MetricDefinitionEcho.model_validate(
+            {
+                "id": str(metric["id"]),
+                "title": str(metric["title"]),
+                "unit": str(metric["unit"]),
+                "grain": grain,
+                "direction": str(metric["direction"]),
+                "precision": int(metric["precision"]),
+                "owner": str(metric["owner"]),
+                "since": str(metric["since"]),
+                "status": str(metric.get("status") or "active"),
+            }
         ),
         status="awaiting_subsystem",
         required_by="E26",

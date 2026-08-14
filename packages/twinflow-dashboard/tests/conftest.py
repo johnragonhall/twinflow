@@ -27,6 +27,7 @@ from urllib.parse import urlencode
 import pytest
 
 from twinflow.dashboard import DashboardConfig, index_html
+from twinflow.schemas import Envelope
 
 #: Elements the HTML specification says have no closing tag. `html.parser` does
 #: not know them, so a page nesting everything after the first `<meta>` inside
@@ -253,8 +254,13 @@ class Client:
     sends, which is how the server-sent-event tests see more than one frame.
     """
 
-    def __init__(self, app: Any) -> None:
+    def __init__(self, app: Any, recorded: list[Envelope] | None = None) -> None:
         self._app = app
+        #: The envelopes the app wrote through its sink, for a caller that
+        #: wired one. Declared here rather than attached from the outside: a
+        #: field a test assigns onto the instance is a field neither a reader
+        #: nor a checker can find from the class.
+        self.recorded: list[Envelope] = [] if recorded is None else recorded
 
     def get(
         self,

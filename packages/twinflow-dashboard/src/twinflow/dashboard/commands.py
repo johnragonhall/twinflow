@@ -121,6 +121,19 @@ def kind_named(name: str) -> CommandKind | None:
     return None
 
 
+def _command_data(payload: Mapping[str, object]) -> dict[str, object]:
+    """The command's own fields, as a mapping this module can hand to the schema.
+
+    `validate_command` refuses a payload whose `data` is not a mapping, so a
+    command that reaches an envelope has already been through that check. The
+    isinstance here is what carries that fact into the type rather than
+    restating it in a comment: `Mapping[str, object]` says a value is `object`,
+    and `dict()` cannot be handed one.
+    """
+    data = payload.get("data")
+    return dict(data) if isinstance(data, Mapping) else {}
+
+
 def validate_command(payload: Mapping[str, object], *, mode: str) -> CommandKind:
     """Check one command against the dispatch table, or refuse it with reasons."""
     reasons: list[str] = []
@@ -251,6 +264,6 @@ class CommandLog:
                 "command_id": accepted.command_id,
                 "kind": accepted.kind,
                 "sim_time": accepted.sim_time,
-                "data": dict(payload.get("data", {})),  # type: ignore[arg-type]
+                "data": _command_data(payload),
             },
         )

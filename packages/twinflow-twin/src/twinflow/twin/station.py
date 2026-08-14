@@ -67,7 +67,7 @@ from collections.abc import Generator
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import StrEnum
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
 import numpy as np
 import simpy
@@ -244,11 +244,19 @@ class DistributionSpec(BaseModel):
         """One draw in seconds, untouched between numpy and the caller."""
         if self.family == "exponential":
             return float(generator.exponential(self.scale_s))
+
+        # Every remaining family carries a shape: `model_post_init` refuses one
+        # that does not, so reading it into a local carries that construction
+        # rule into the sampler rather than asserting it a second time.
+        shape = self.shape
+        if shape is None:  # pragma: no cover - refused at construction
+            raise ValueError(f"the {self.family} family needs a shape parameter")
+
         if self.family == "gamma":
-            return float(generator.gamma(self.shape, self.scale_s))
+            return float(generator.gamma(shape, self.scale_s))
         if self.family == "lognormal":
-            return self.scale_s * float(generator.lognormal(0.0, self.shape))
-        return self.scale_s * float(generator.weibull(self.shape))
+            return self.scale_s * float(generator.lognormal(0.0, shape))
+        return self.scale_s * float(generator.weibull(shape))
 
 
 class PalletArrival(BaseModel):
@@ -644,7 +652,12 @@ class _Line:
             self._refresh(self.receiving)
             self._sample_wip()
 
-    def _putaway_server(self) -> Generator[simpy.Event, None, None]:
+    # The send type is what simpy pushes back into the generator, which is the
+    # value of whichever event was yielded: a pallet id from `staging.get()`
+    # and nothing from `env.timeout`. Declaring it `None` describes only the
+    # timeout, and then the pallet id reads as `None` at the one line that
+    # binds it.
+    def _putaway_server(self) -> Generator[simpy.Event, Any, None]:
         """One putaway server, pulling the staging buffer first in, first out."""
         while True:
             pallet_id = yield self.staging.get()
