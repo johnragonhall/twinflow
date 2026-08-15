@@ -15,9 +15,9 @@ the address.
 
 from __future__ import annotations
 
-import hashlib
-
 import numpy as np
+
+from twinflow.schemas import digest_bytes
 
 #: 12 bytes. The BLAKE2b parameter block fixes personalization at 16, and the
 #: Python standard library zero-pads a shorter value. Any second implementation
@@ -36,9 +36,7 @@ def derive_spawn_key(stream_name: str) -> tuple[int, int, int, int]:
     treats each as one entropy word. A second implementation reads the digest
     the same way or produces a different key for every stream name.
     """
-    digest = hashlib.blake2b(
-        stream_name.encode("utf-8"), digest_size=DIGEST_SIZE, person=PERSON
-    ).digest()
+    digest = digest_bytes(stream_name.encode("utf-8"), person=PERSON, size=DIGEST_SIZE)
     return (
         int.from_bytes(digest[0:4], "little"),
         int.from_bytes(digest[4:8], "little"),

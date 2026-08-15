@@ -62,7 +62,6 @@ an in-process property.
 
 from __future__ import annotations
 
-import hashlib
 from collections.abc import Generator
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -75,7 +74,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from twinflow.kernel import DEFAULT_TICK_HZ, SimClock, SimInstant, TickResolution
 from twinflow.rng import StreamRegistry
-from twinflow.schemas import Envelope, ProducerId
+from twinflow.schemas import Envelope, ProducerId, digest_hex
 
 #: The source URI every event here carries, per envelope section 3.4:
 #: /twinflow/<package>/<component>.
@@ -358,9 +357,7 @@ class StationLineSpec(BaseModel):
         It covers the configuration and not the package version, per 4.1: a
         release that changes no behavior must not invalidate a golden hash.
         """
-        return hashlib.blake2b(
-            self.model_dump_json().encode("utf-8"), digest_size=16, person=b"twinflow-twin"
-        ).hexdigest()
+        return digest_hex(self.model_dump_json().encode("utf-8"), person=b"twinflow-twin", size=16)
 
 
 class SimulationClock(Protocol):

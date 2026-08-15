@@ -29,7 +29,6 @@ serialized once, canonically, and both the hash and the response read it.
 
 from __future__ import annotations
 
-import hashlib
 import json
 from collections.abc import AsyncIterator, Mapping, Sequence
 from typing import Annotated, Any
@@ -58,7 +57,7 @@ from twinflow.api.problems import (
     problem_document,
 )
 from twinflow.kernel import Clock
-from twinflow.schemas import Envelope, canonical_bytes, canonical_json
+from twinflow.schemas import Envelope, canonical_bytes, canonical_json, digest_hex
 from twinflow.storage import Historian
 
 #: The URL major of the REST contract, per the versioning table of section 5.8.
@@ -410,7 +409,7 @@ def _canonical(payload: object) -> bytes:
 
 
 def _etag(body: bytes) -> str:
-    return f'"{hashlib.blake2b(body, digest_size=16, person=b"twinflow-api").hexdigest()}"'
+    return f'"{digest_hex(body, person=b"twinflow-api", size=16)}"'
 
 
 def _serve(request: Request, payload: object) -> Response:
@@ -493,9 +492,7 @@ def _proposal_id(proposal: ConfigProposal, *, at: int) -> str:
         separators=(",", ":"),
         default=str,
     )
-    digest = hashlib.blake2b(
-        canonical.encode("utf-8"), digest_size=16, person=b"twinflow-prop"
-    ).hexdigest()
+    digest = digest_hex(canonical.encode("utf-8"), person=b"twinflow-prop", size=16)
     return f"prop_{digest}"
 
 

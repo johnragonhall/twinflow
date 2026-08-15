@@ -21,8 +21,12 @@ from twinflow.schemas.log_invariants import (
     canonical_json,
     check_log_invariants,
     compare_runs,
+    digest_bytes,
+    digest_hex,
     in_total_order,
     log_hash,
+    new_digest,
+    pretty_json,
 )
 
 #: Read by tool.hatch.version, so this is the only place the version is written.
@@ -44,6 +48,10 @@ __all__ = [
     "check_log_invariants",
     "compare_runs",
     "compare_schemas",
+    "digest_bytes",
+    "digest_hex",
     "in_total_order",
     "log_hash",
+    "new_digest",
+    "pretty_json",
 ]

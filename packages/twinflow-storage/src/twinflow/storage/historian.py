@@ -35,7 +35,6 @@ into the arrival record of every event.
 from __future__ import annotations
 
 import dataclasses
-import hashlib
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -47,6 +46,7 @@ from twinflow.schemas import (
     canonical_bytes,
     canonical_json,
     check_log_invariants,
+    digest_hex,
     in_total_order,
     log_hash,
 )
@@ -156,9 +156,7 @@ class ConfigSnapshot:
         reason log_hash gives: a formatting change is not a change of inputs
         and must not read as one.
         """
-        return hashlib.blake2b(
-            canonical_bytes(self.payload()), digest_size=32, person=b"twinflow-snap"
-        ).hexdigest()
+        return digest_hex(canonical_bytes(self.payload()), person=b"twinflow-snap", size=32)
 
 
 @dataclass(frozen=True)

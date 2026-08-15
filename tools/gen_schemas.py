@@ -18,11 +18,10 @@ looser than it is.
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
-from twinflow.schemas import Envelope
+from twinflow.schemas import Envelope, pretty_json
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMAS_DIR = REPO_ROOT / "schemas"
@@ -79,7 +78,7 @@ def build(subject: str) -> dict:
 
 
 def render(schema: dict) -> str:
-    return json.dumps(schema, indent=2, sort_keys=True) + "\n"
+    return pretty_json(schema)
 
 
 def main() -> int:

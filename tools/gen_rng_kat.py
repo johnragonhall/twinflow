@@ -11,11 +11,11 @@ rather than a reason to edit the document.
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
 from twinflow.rng import generator_for
+from twinflow.schemas import pretty_json
 
 FIXTURE = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "rng_kat.json"
 
@@ -132,7 +132,7 @@ def build() -> dict:
 
 
 def render(corpus: dict) -> str:
-    return json.dumps(corpus, indent=2, sort_keys=True) + "\n"
+    return pretty_json(corpus)
 
 
 def main() -> int:

@@ -118,6 +118,47 @@ def in_total_order(events: Iterable[Envelope]) -> list[Envelope]:
     return sorted(events, key=Envelope.total_order_key)
 
 
+def pretty_json(payload: object) -> str:
+    """The serialization the committed generated files carry.
+
+    Indented and sorted, with the trailing newline a text file ends on, because
+    these are artifacts a reader opens and a diff compares rather than bytes a
+    digest consumes. Two generators spelling it differently would put a
+    spurious diff in front of whoever ran the check.
+    """
+    return json.dumps(payload, indent=2, sort_keys=True) + "\n"
+
+
+def new_digest(*, person: bytes, size: int):
+    """A keyed blake2b, opened for a caller that feeds it in pieces.
+
+    The personalization is what keeps two hashes over the same bytes apart: a
+    log digest and a snapshot digest of identical content are different
+    numbers, so one can never be mistaken for the other in a release note or a
+    compatibility table.
+
+    `size` stays a parameter rather than a constant. The 32-byte digests carry
+    determinism claims and the 16-byte ones are cache keys and identifiers, and
+    collapsing them to one width would either bloat every ETag or weaken every
+    determinism hash.
+    """
+    return hashlib.blake2b(digest_size=size, person=person)
+
+
+def digest_hex(data: bytes, *, person: bytes, size: int) -> str:
+    """A keyed blake2b over `data`, as hex."""
+    digest = new_digest(person=person, size=size)
+    digest.update(data)
+    return digest.hexdigest()
+
+
+def digest_bytes(data: bytes, *, person: bytes, size: int) -> bytes:
+    """A keyed blake2b over `data`, as raw bytes."""
+    digest = new_digest(person=person, size=size)
+    digest.update(data)
+    return digest.digest()
+
+
 def canonical_json(payload: object, *, default: Callable[[Any], Any] | None = None) -> str:
     """The canonical serialization every hash and every cursor in this tree uses.
 
@@ -152,7 +193,7 @@ def log_hash(events: Iterable[Envelope]) -> str:
     keys in a different order are the same run, and a hash that disagreed about
     that would make DET-001 fire on a formatting change.
     """
-    digest = hashlib.blake2b(digest_size=32, person=b"twinflow-log")
+    digest = new_digest(person=b"twinflow-log", size=32)
     for event in in_total_order(events):
         payload = event.model_dump(mode="json", exclude_none=True)
         digest.update(canonical_bytes(payload))
