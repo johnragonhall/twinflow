@@ -58,7 +58,6 @@ computed over canonical JSON with sorted keys, so the value recorded in
 from __future__ import annotations
 
 import hashlib
-import json
 import re
 from collections.abc import Callable
 from decimal import Decimal
@@ -70,6 +69,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 from twinflow.agent.autonomy import AutonomyTier, TierRefused
 from twinflow.config import METRIC_ID, load_metrics, nearest
+from twinflow.schemas import canonical_json
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
@@ -652,7 +652,7 @@ def _canonical_sha256(model: BaseModel) -> str:
     over different bytes than the same value hashes over anywhere else, and one
     system with two canonical forms has none.
     """
-    payload = json.dumps(model.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
+    payload = canonical_json(model.model_dump(mode="json"))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 

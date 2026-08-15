@@ -19,11 +19,11 @@ records when it wants the number rather than the log.
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
 from twinflow.kernel._impl import scenario as scenario_module
+from twinflow.schemas import canonical_json
 from twinflow.schemas.log_invariants import check_log_invariants, in_total_order, log_hash
 
 
@@ -49,7 +49,7 @@ def command_simulate(args: argparse.Namespace) -> int:
         payload = event.model_dump(mode="json", exclude_none=True)
         # sort_keys and the tight separators are what make the bytes a function
         # of the values rather than of the dict's insertion order.
-        print(json.dumps(payload, sort_keys=True, separators=(",", ":")))
+        print(canonical_json(payload))
     return 0
 
 

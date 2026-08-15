@@ -60,6 +60,7 @@ here freely: the hook only ever adds.
 
 ### Changed
 
+- give the canonical serialization one definition
 - hold the log hash and count duplicates in one pass
 - resolve the interpreter once, from the virtualenv
 

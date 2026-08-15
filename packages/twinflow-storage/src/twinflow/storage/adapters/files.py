@@ -42,7 +42,7 @@ from datetime import datetime
 from pathlib import Path
 
 from twinflow.kernel import SimClock, SimInstant
-from twinflow.schemas import Envelope
+from twinflow.schemas import Envelope, canonical_json
 from twinflow.storage.historian import ConfigSnapshot, Historian, SnapshotProvenance
 
 #: The four names inside a run directory. Constants rather than literals at the
@@ -55,16 +55,6 @@ PROVENANCE_FILE = "provenance.json"
 
 class ArchiveError(RuntimeError):
     """A run directory that cannot be trusted to be the run it claims to be."""
-
-
-def _canonical(payload: Mapping[str, object]) -> str:
-    """Sorted keys and tight separators, so the bytes are a function of values.
-
-    The same rule `log_hash` and `snapshot_hash` follow, and the same one
-    `twinflow.kernel.__main__` writes its log with. A formatting change is not
-    a change of inputs and must not read as one.
-    """
-    return json.dumps(payload, sort_keys=True, separators=(",", ":"))
 
 
 def write_run(historian: Historian, provenance: SnapshotProvenance, root: Path) -> Path:
@@ -90,19 +80,20 @@ def write_run(historian: Historian, provenance: SnapshotProvenance, root: Path) 
     directory.mkdir(parents=True, exist_ok=True)
 
     (directory / SNAPSHOT_FILE).write_text(
-        _canonical(historian.snapshot.payload()), encoding="utf-8"
+        canonical_json(historian.snapshot.payload()), encoding="utf-8"
     )
 
     events = historian.events()
     (directory / EVENTS_FILE).write_text(
         "".join(
-            f"{_canonical(event.model_dump(mode='json', exclude_none=True))}\n" for event in events
+            f"{canonical_json(event.model_dump(mode='json', exclude_none=True))}\n"
+            for event in events
         ),
         encoding="utf-8",
     )
     (directory / ARRIVALS_FILE).write_text(
         "".join(
-            f"{_canonical({'id': event.id, 'at': int(historian.received_at(event.id))})}\n"
+            f"{canonical_json({'id': event.id, 'at': int(historian.received_at(event.id))})}\n"
             for event in events
         ),
         encoding="utf-8",
@@ -113,7 +104,7 @@ def write_run(historian: Historian, provenance: SnapshotProvenance, root: Path) 
     for field in ("started_wall_utc", "finished_wall_utc"):
         value = sidecar[field]
         sidecar[field] = value.isoformat() if isinstance(value, datetime) else None
-    (directory / PROVENANCE_FILE).write_text(_canonical(sidecar), encoding="utf-8")
+    (directory / PROVENANCE_FILE).write_text(canonical_json(sidecar), encoding="utf-8")
 
     return directory
 

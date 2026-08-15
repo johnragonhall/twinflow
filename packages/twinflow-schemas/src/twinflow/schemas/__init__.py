@@ -17,6 +17,8 @@ from twinflow.schemas.envelope import (
 )
 from twinflow.schemas.log_invariants import (
     LogViolation,
+    canonical_bytes,
+    canonical_json,
     check_log_invariants,
     compare_runs,
     in_total_order,
@@ -27,16 +29,18 @@ from twinflow.schemas.log_invariants import (
 __version__ = "0.1.0"
 
 __all__ = [
+    "DecimalString",
+    "Envelope",
+    "LogViolation",
     "MAX_ATTRIBUTE_NAME_LENGTH",
     "OPEN_ENUM",
     "OPEN_RANGE",
     "PRODUCER_IDS",
-    "DecimalString",
-    "Envelope",
-    "LogViolation",
     "ProducerId",
     "SourceUri",
     "__version__",
+    "canonical_bytes",
+    "canonical_json",
     "check_log_invariants",
     "compare_runs",
     "compare_schemas",

@@ -36,7 +36,6 @@ from __future__ import annotations
 
 import dataclasses
 import hashlib
-import json
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -45,6 +44,8 @@ from twinflow.kernel import Clock, SimInstant
 from twinflow.schemas import (
     Envelope,
     LogViolation,
+    canonical_bytes,
+    canonical_json,
     check_log_invariants,
     in_total_order,
     log_hash,
@@ -155,9 +156,8 @@ class ConfigSnapshot:
         reason log_hash gives: a formatting change is not a change of inputs
         and must not read as one.
         """
-        canonical = json.dumps(self.payload(), sort_keys=True, separators=(",", ":"))
         return hashlib.blake2b(
-            canonical.encode("utf-8"), digest_size=32, person=b"twinflow-snap"
+            canonical_bytes(self.payload()), digest_size=32, person=b"twinflow-snap"
         ).hexdigest()
 
 
@@ -275,7 +275,7 @@ def _row_for(event: Envelope) -> dict[str, object]:
     row: dict[str, object] = {}
     for column in EVENT_TABLE.columns:
         if column.name == "data":
-            row[column.name] = json.dumps(event.data, sort_keys=True, separators=(",", ":"))
+            row[column.name] = canonical_json(event.data)
         elif column.name in _INTEGER_COLUMNS:
             row[column.name] = int(getattr(event, column.name))
         else:

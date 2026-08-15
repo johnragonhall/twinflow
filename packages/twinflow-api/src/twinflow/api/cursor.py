@@ -20,7 +20,7 @@ import binascii
 import json
 from dataclasses import dataclass
 
-from twinflow.schemas import PRODUCER_IDS, Envelope
+from twinflow.schemas import PRODUCER_IDS, Envelope, canonical_json
 
 
 class CursorError(ValueError):
@@ -78,11 +78,7 @@ def encode_cursor(cursor: Cursor) -> str:
     as a cache key. The padding is stripped because `=` is legal in a query
     string but survives a round trip through too few proxies to be worth it.
     """
-    payload = json.dumps(
-        {"p": cursor.producer_id, "s": cursor.seq, "t": cursor.sim_ts},
-        sort_keys=True,
-        separators=(",", ":"),
-    )
+    payload = canonical_json({"p": cursor.producer_id, "s": cursor.seq, "t": cursor.sim_ts})
     return base64.urlsafe_b64encode(payload.encode("utf-8")).decode("ascii").rstrip("=")
 
 

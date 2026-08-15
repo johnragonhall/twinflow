@@ -25,8 +25,9 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
+from typing import Any
 
 from twinflow.schemas.envelope import Envelope
 
@@ -117,6 +118,32 @@ def in_total_order(events: Iterable[Envelope]) -> list[Envelope]:
     return sorted(events, key=Envelope.total_order_key)
 
 
+def canonical_json(payload: object, *, default: Callable[[Any], Any] | None = None) -> str:
+    """The canonical serialization every hash and every cursor in this tree uses.
+
+    Sorted keys and the tight separators, so the bytes are a function of the
+    values rather than of a dict's insertion order or a formatter's spacing.
+    Doctrine D-05 tier one rests on that: two runs that agree on every value
+    and serialize them differently are the same run, and a hash that disagreed
+    would fire the determinism gate on a formatting change.
+
+    One definition, called from everywhere, because the failure mode of a
+    second one is silent. A caller that spelled the separators differently
+    would produce a hash that never matches the first, and nothing would report
+    it until a golden file did.
+
+    `default` is passed through for the one caller that serializes a value JSON
+    has no encoding for. It changes what is representable, never how a
+    representable value is written.
+    """
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"), default=default)
+
+
+def canonical_bytes(payload: object, *, default: Callable[[Any], Any] | None = None) -> bytes:
+    """`canonical_json` as the UTF-8 bytes a digest consumes."""
+    return canonical_json(payload, default=default).encode("utf-8")
+
+
 def log_hash(events: Iterable[Envelope]) -> str:
     """The tier-one determinism hash of doctrine D-05.
 
@@ -128,7 +155,7 @@ def log_hash(events: Iterable[Envelope]) -> str:
     digest = hashlib.blake2b(digest_size=32, person=b"twinflow-log")
     for event in in_total_order(events):
         payload = event.model_dump(mode="json", exclude_none=True)
-        digest.update(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+        digest.update(canonical_bytes(payload))
         digest.update(b"\x1e")
     return digest.hexdigest()
 

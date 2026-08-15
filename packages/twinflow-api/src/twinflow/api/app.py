@@ -58,7 +58,7 @@ from twinflow.api.problems import (
     problem_document,
 )
 from twinflow.kernel import Clock
-from twinflow.schemas import Envelope
+from twinflow.schemas import Envelope, canonical_bytes, canonical_json
 from twinflow.storage import Historian
 
 #: The URL major of the REST contract, per the versioning table of section 5.8.
@@ -406,7 +406,7 @@ def _canonical(payload: object) -> bytes:
     to hash and once to send, is how an ETag ends up describing a body nobody
     received.
     """
-    return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return canonical_bytes(payload)
 
 
 def _etag(body: bytes) -> str:
@@ -475,7 +475,7 @@ async def _sse_frames(events: Sequence[Envelope]) -> AsyncIterator[bytes]:
         frame = (
             f"id: {encode_cursor(Cursor.from_event(event))}\n"
             f"event: {event.type}\n"
-            f"data: {json.dumps(_event_view(event), sort_keys=True, separators=(',', ':'))}\n\n"
+            f"data: {canonical_json(_event_view(event))}\n\n"
         )
         yield frame.encode("utf-8")
 
