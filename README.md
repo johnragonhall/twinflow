@@ -162,6 +162,10 @@ Gate `VAL-GATE-QS-001` holds the first path to under 300 seconds from a clean co
 
 I deploy IoT tracking fleets in industrial settings and apply Lean Six Sigma to the processes those fleets measure. The gap I keep meeting is that the telemetry, the statistical judgment, and the decision live in three different places, so improvements get argued rather than tested. This is that loop built as one system: fully synthetic, fully public, and honest about what has been measured.
 
+## Product and design docs
+
+The plan, the decisions behind it, and the requirements for the next feature are public. [ROADMAP.md](ROADMAP.md) lists every milestone with its phase and gates, [ARCHITECTURE.md](ARCHITECTURE.md) records the decisions and their rationale, and the [E1 product requirements](docs/prd/e1-hosted-replay-demo.md) describe the hosted replay demo planned for v0.3.0.
+
 ## Documentation
 
 Start with [docs/reading-guide.md](docs/reading-guide.md). It gives three routes through this repository, sized to fifteen minutes, one hour, and a full contributor onboarding, and each step names what it is evidence of.
