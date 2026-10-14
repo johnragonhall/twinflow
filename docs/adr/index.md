@@ -28,16 +28,16 @@ neither goes to the numbered records in this directory.
 
 ## 1. The three registers
 
-| Register                   | Id form           | Lives in                                                                                            | Owns                                                                                            |
-| -------------------------- | ----------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Technology decision record | `D1` to `D16`     | Section 1 of [ARCHITECTURE.md](https://github.com/johnragonhall/twinflow/blob/main/ARCHITECTURE.md) | The choice of a library, protocol, format, or license, with its alternatives                    |
-| Cross-cutting doctrine     | `D-01` to `D-14`  | [DOCTRINE.md](../design/DOCTRINE.md)                                                                | A rule that binds every design section, written because three or more invented their own answer |
-| Numbered decision records  | `ADR-0001` onward | This directory                                                                                      | Any other architecturally significant decision taken after v0.1.0                               |
+| Register                   | Id form           | Lives in                                                                                           | Owns                                                                                            |
+| -------------------------- | ----------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Technology decision record | `D1` to `D16`     | Section 1 of [ARCHITECTURE.md](https://github.com/ragonxdragon/twinflow/blob/main/ARCHITECTURE.md) | The choice of a library, protocol, format, or license, with its alternatives                    |
+| Cross-cutting doctrine     | `D-01` to `D-14`  | [DOCTRINE.md](../design/DOCTRINE.md)                                                               | A rule that binds every design section, written because three or more invented their own answer |
+| Numbered decision records  | `ADR-0001` onward | This directory                                                                                     | Any other architecturally significant decision taken after v0.1.0                               |
 
 The first two are tables and rulings inside larger documents, and they stay
 there. Moving them would break every citation in the fourteen design sections
 and in the roadmap, and it would put a second copy of each decision in the tree,
-which section 6 of [ENGINEERING.md](https://github.com/johnragonhall/twinflow/blob/main/ENGINEERING.md)
+which section 6 of [ENGINEERING.md](https://github.com/ragonxdragon/twinflow/blob/main/ENGINEERING.md)
 forbids.
 
 ## 2. The numbering rule

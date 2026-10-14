@@ -9,7 +9,7 @@ audience: readers evaluating the project, and contributors
 
 This repository draws on four fields that rarely share a reader: discrete-event
 simulation, industrial control, Lean Six Sigma, and applied machine learning. A
-sentence in [ARCHITECTURE.md](https://github.com/johnragonhall/twinflow/blob/main/ARCHITECTURE.md)
+sentence in [ARCHITECTURE.md](https://github.com/ragonxdragon/twinflow/blob/main/ARCHITECTURE.md)
 can carry a term from each. This page is the single place where each one is
 defined.
 

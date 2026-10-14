@@ -11,7 +11,7 @@ The fastest code is the code that never runs. The second fastest is the code
 simple enough that a reader can see what it does.
 
 This page states how performance work is done here. It binds the same way
-[ENGINEERING.md](https://github.com/johnragonhall/twinflow/blob/main/ENGINEERING.md)
+[ENGINEERING.md](https://github.com/ragonxdragon/twinflow/blob/main/ENGINEERING.md)
 binds: a claim about speed is a quantitative claim, and this repository does not
 ship a quantitative claim it has not measured.
 
@@ -109,7 +109,7 @@ A comment claiming a collection stays small describes what its author had in
 mind. The project's own documents are what settle the scale, and they are
 readable.
 
-[ROADMAP.md](https://github.com/johnragonhall/twinflow/blob/main/ROADMAP.md) says
+[ROADMAP.md](https://github.com/ragonxdragon/twinflow/blob/main/ROADMAP.md) says
 which phase a subsystem lands in and what depends on it. The facility profiles
 say what a deployment tier holds, and the tiers differ by more than a constant.
 The garage tier is one laptop. The growth and enterprise tiers are named in the
@@ -227,7 +227,7 @@ v0.4.0, so nothing before that phase has a performance gate to pass.
 
 What exists today is the budget layer. `ci_budget.yaml` carries a per-job time
 budget, the test tiers in
-[CONTRIBUTING.md](https://github.com/johnragonhall/twinflow/blob/main/CONTRIBUTING.md)
+[CONTRIBUTING.md](https://github.com/ragonxdragon/twinflow/blob/main/CONTRIBUTING.md)
 carry their own, and a tier drifting past its budget gets split rather than
 tolerated. A budget is not a measurement of this system, and neither is a
 published figure from somebody else's hardware. Until the harness runs, every

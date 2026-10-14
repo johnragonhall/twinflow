@@ -12,7 +12,7 @@ states what the human looks at, what stops a merge, and where the policy has a
 gap that no process fixes.
 
 The mechanics of opening a change live in
-[CONTRIBUTING.md](https://github.com/johnragonhall/twinflow/blob/main/CONTRIBUTING.md).
+[CONTRIBUTING.md](https://github.com/ragonxdragon/twinflow/blob/main/CONTRIBUTING.md).
 This page is the standard the change is judged against.
 
 ## Contents

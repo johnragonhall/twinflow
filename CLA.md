@@ -22,10 +22,10 @@ contribute after it. The mechanism is in [section 7](#7-how-to-sign).
 ## 1. Definitions
 
 | Term         | Meaning                                                                                                                                         |
-|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | You          | The copyright owner who signs, or the legal entity authorized to sign for that owner.                                                           |
 | Maintainer   | John Ragon Hall, the copyright holder named in [NOTICE](NOTICE).                                                                                |
-| The project  | twinflow, at `https://github.com/johnragonhall/twinflow`.                                                                                       |
+| The project  | twinflow, at `https://github.com/ragonxdragon/twinflow`.                                                                                        |
 | Contribution | Any original work of authorship you submit to the project, including any change to work already in it.                                          |
 | Submit       | Any communication you send to the project or to the maintainer about it, in any form, except material you mark clearly as "Not a Contribution". |
 
@@ -153,7 +153,7 @@ python scripts/checks/cla-gate.py trailers --range main..HEAD
 ```
 
 | Step name           | What passes                                                                                                                     |
-|---------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `Line shape`        | Every list line inside section 8 matches the regular expression above, case sensitive.                                          |
 | `Signature present` | A signatory line names the pull request author's handle, compared without regard to case.                                       |
 | `Trailer present`   | Every commit on your branch that is not on the base branch, and is not a merge, carries a `Signed-off-by` trailer with a value. |
@@ -209,5 +209,5 @@ on the date shown.
 
 This is not legal advice, and the author is not a lawyer. Your organization may
 need a signed paper agreement, or may want its own counsel to read this first.
-Say so in a [discussion](https://github.com/johnragonhall/twinflow/discussions)
+Say so in a [discussion](https://github.com/ragonxdragon/twinflow/discussions)
 before you open a pull request.

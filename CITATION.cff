@@ -17,9 +17,9 @@ type: software
 authors:
   - given-names: John Ragon
     family-names: Hall
-    alias: johnragonhall
-repository-code: "https://github.com/johnragonhall/twinflow"
-url: "https://github.com/johnragonhall/twinflow"
+    alias: ragonxdragon
+repository-code: "https://github.com/ragonxdragon/twinflow"
+url: "https://github.com/ragonxdragon/twinflow"
 license: Apache-2.0
 keywords:
   - digital twin

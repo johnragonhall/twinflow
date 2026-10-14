@@ -9,17 +9,17 @@
 # a single-maintainer repository and pretending otherwise would make the branch
 # protection rule unsatisfiable.
 
-* @johnragonhall
+* @ragonxdragon
 
 # The contracts. These are the files whose change is a change to what a
 # recorded run means, so they are called out separately: a reviewer who sees
 # only "1 file changed" should still see that the file was this one.
-/gates.yaml                @johnragonhall
-/roadmap.yaml              @johnragonhall
-/requirements.yaml         @johnragonhall
-/schemas/                  @johnragonhall
-/ci_budget.yaml            @johnragonhall
-/.github/workflows/        @johnragonhall
-/LICENSE                   @johnragonhall
-/NOTICE                    @johnragonhall
-/LICENSING.md              @johnragonhall
+/gates.yaml                @ragonxdragon
+/roadmap.yaml              @ragonxdragon
+/requirements.yaml         @ragonxdragon
+/schemas/                  @ragonxdragon
+/ci_budget.yaml            @ragonxdragon
+/.github/workflows/        @ragonxdragon
+/LICENSE                   @ragonxdragon
+/NOTICE                    @ragonxdragon
+/LICENSING.md              @ragonxdragon

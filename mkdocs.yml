@@ -2,9 +2,9 @@ site_name: twinflow
 site_description: >-
   A deterministic digital-twin simulation of a manufacturing and distribution
   operation, runnable either as real containers or as one reproducible process.
-site_url: https://johnragonhall.github.io/twinflow/
-repo_url: https://github.com/johnragonhall/twinflow
-repo_name: johnragonhall/twinflow
+site_url: https://ragonxdragon.github.io/twinflow/
+repo_url: https://github.com/ragonxdragon/twinflow
+repo_name: ragonxdragon/twinflow
 edit_uri: edit/main/docs/
 
 # Serve with:  uv run mkdocs serve
@@ -134,7 +134,7 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/johnragonhall/twinflow
+      link: https://github.com/ragonxdragon/twinflow
 
 # No analytics, no tracking, no third-party fonts. A documentation site that
 # phones home is a documentation site nobody can host behind a firewall.
