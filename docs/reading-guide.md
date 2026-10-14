@@ -49,7 +49,7 @@ trusted is in the right place.
 This route answers one question: is the engineering here serious, or is it a
 large plan with nothing underneath it.
 
-1. Read [README.md](https://github.com/johnragonhall/twinflow#readme), and stop
+1. Read [README.md](https://github.com/ragonxdragon/twinflow#readme), and stop
    at the section named "Determinism, and what it does not mean". That section
    states a strong property and then removes the three overclaims it invites.
 2. Read the metric marker comment block near the top of the same file. Every
@@ -63,7 +63,7 @@ large plan with nothing underneath it.
 4. Open [gates.md](gates.md) and read the three-status table at the top. A gate
    must be declared one phase before the subsystem that satisfies it is built.
 5. Skim section 5 of
-   [ROADMAP.md](https://github.com/johnragonhall/twinflow/blob/main/ROADMAP.md),
+   [ROADMAP.md](https://github.com/ragonxdragon/twinflow/blob/main/ROADMAP.md),
    the resequencing record. It logs every change to the build order with the
    clause that forced it. Nothing is ever deleted from the plan.
 
@@ -75,7 +75,7 @@ land, take Route B.
 This route is for an engineer judging depth. Read in this order.
 
 1. Section 1 of
-   [ARCHITECTURE.md](https://github.com/johnragonhall/twinflow/blob/main/ARCHITECTURE.md),
+   [ARCHITECTURE.md](https://github.com/ragonxdragon/twinflow/blob/main/ARCHITECTURE.md),
    the technology decision record. Sixteen decisions, each with its rejected
    alternatives and the reason. Read the D16 note last. It explains why the
    random number generator is not numpy's default, and it is the one decision
@@ -97,33 +97,33 @@ This route is for an engineer judging depth. Read in this order.
 ## 4. Route C: contributing
 
 Read
-[CONTRIBUTING.md](https://github.com/johnragonhall/twinflow/blob/main/CONTRIBUTING.md)
+[CONTRIBUTING.md](https://github.com/ragonxdragon/twinflow/blob/main/CONTRIBUTING.md)
 first, then these six in any order:
 
-| Document                                                                             | Why you need it                                                      |
-| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| [ENGINEERING.md](https://github.com/johnragonhall/twinflow/blob/main/ENGINEERING.md) | The working method, and the rules a change is judged against         |
-| [testing-strategy.md](testing-strategy.md)                                           | Which kind of test a change needs, and what makes a test count       |
-| [testing-policy.md](testing-policy.md)                                               | The rule that a fix ships with the test that catches it              |
-| [performance.md](performance.md)                                                     | What a speed claim owes, and which optimizations determinism forbids |
-| [code-review.md](code-review.md)                                                     | What a reviewer checks, and what blocks a merge                      |
-| [DOCUMENTATION-STANDARD.md](DOCUMENTATION-STANDARD.md)                               | The writing rules, and which of them CI enforces without a human     |
+| Document                                                                            | Why you need it                                                      |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| [ENGINEERING.md](https://github.com/ragonxdragon/twinflow/blob/main/ENGINEERING.md) | The working method, and the rules a change is judged against         |
+| [testing-strategy.md](testing-strategy.md)                                          | Which kind of test a change needs, and what makes a test count       |
+| [testing-policy.md](testing-policy.md)                                              | The rule that a fix ships with the test that catches it              |
+| [performance.md](performance.md)                                                    | What a speed claim owes, and which optimizations determinism forbids |
+| [code-review.md](code-review.md)                                                    | What a reviewer checks, and what blocks a merge                      |
+| [DOCUMENTATION-STANDARD.md](DOCUMENTATION-STANDARD.md)                              | The writing rules, and which of them CI enforces without a human     |
 
 Then run `just check` before you write anything, so you know what green looks
 like on your machine.
 
 ## 5. Go straight to the part you care about
 
-| If your interest is                      | Read                                                                                                              |
-| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Reproducible simulation                  | ARCHITECTURE.md section 2, doctrine D-01 to D-05, and `packages/twinflow-rng/`                                    |
-| Industrial protocols and the plant floor | ARCHITECTURE.md sections 4 to 7, and [iot-fleet.md](design/iot-fleet.md)                                          |
-| Statistics and quality engineering       | [lss-engine.md](design/lss-engine.md), and the validation table in README.md                                      |
-| LLM accuracy and grounding               | [ai-layer.md](design/ai-layer.md), and the seven-layer list in README.md                                          |
-| Repository and release engineering       | [repo-craft.md](design/repo-craft.md), the `justfile`, and `scripts/checks/`                                      |
-| Software licensing in practice           | Decision D14, doctrine D-14, and [LICENSING.md](https://github.com/johnragonhall/twinflow/blob/main/LICENSING.md) |
-| Technical writing under a standard       | [DOCUMENTATION-STANDARD.md](DOCUMENTATION-STANDARD.md) and `scripts/checks/prose-gate.py`                         |
-| Terms you do not recognize               | [glossary.md](glossary.md)                                                                                        |
+| If your interest is                      | Read                                                                                                             |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Reproducible simulation                  | ARCHITECTURE.md section 2, doctrine D-01 to D-05, and `packages/twinflow-rng/`                                   |
+| Industrial protocols and the plant floor | ARCHITECTURE.md sections 4 to 7, and [iot-fleet.md](design/iot-fleet.md)                                         |
+| Statistics and quality engineering       | [lss-engine.md](design/lss-engine.md), and the validation table in README.md                                     |
+| LLM accuracy and grounding               | [ai-layer.md](design/ai-layer.md), and the seven-layer list in README.md                                         |
+| Repository and release engineering       | [repo-craft.md](design/repo-craft.md), the `justfile`, and `scripts/checks/`                                     |
+| Software licensing in practice           | Decision D14, doctrine D-14, and [LICENSING.md](https://github.com/ragonxdragon/twinflow/blob/main/LICENSING.md) |
+| Technical writing under a standard       | [DOCUMENTATION-STANDARD.md](DOCUMENTATION-STANDARD.md) and `scripts/checks/prose-gate.py`                        |
+| Terms you do not recognize               | [glossary.md](glossary.md)                                                                                       |
 
 ## 6. Check the claims yourself
 

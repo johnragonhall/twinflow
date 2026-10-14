@@ -8,7 +8,7 @@ audience: contributors
 # Testing strategy
 
 The tiers and their time budgets live in
-[CONTRIBUTING.md](https://github.com/johnragonhall/twinflow/blob/main/CONTRIBUTING.md).
+[CONTRIBUTING.md](https://github.com/ragonxdragon/twinflow/blob/main/CONTRIBUTING.md).
 This page covers the question that comes before the tier: what kind of test the
 change needs, and what makes it worth keeping.
 

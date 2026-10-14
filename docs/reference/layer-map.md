@@ -13,7 +13,7 @@ latency budget that tier carries. Gate `VAL-GATE-TIER-001` reads the package
 table below. The gate fails on one unfilled cell, or on one package with no
 row.
 
-Section 4 of [ARCHITECTURE.md](https://github.com/johnragonhall/twinflow/blob/main/ARCHITECTURE.md) maps the architecture components. This
+Section 4 of [ARCHITECTURE.md](https://github.com/ragonxdragon/twinflow/blob/main/ARCHITECTURE.md) maps the architecture components. This
 page maps the distributions, which is a different list. A component can span
 several packages. A package can be a library that no component names.
 
@@ -35,7 +35,7 @@ decision, not a quotation.
 ## 2. The compute tiers
 
 Compute placement is an explicit decision, not a consequence of where code was
-easy to run. Section 6 of [ARCHITECTURE.md](https://github.com/johnragonhall/twinflow/blob/main/ARCHITECTURE.md) states four tiers, each with
+easy to run. Section 6 of [ARCHITECTURE.md](https://github.com/ragonxdragon/twinflow/blob/main/ARCHITECTURE.md) states four tiers, each with
 a latency budget.
 
 | Tier | Location               | Physical analog                     | Latency budget                                 |
@@ -53,7 +53,7 @@ makes the decision depend on a network link.
 ## 3. The latency budgets
 
 Each budget below is a declared target for a class of decision. Section 6 of
-[ARCHITECTURE.md](https://github.com/johnragonhall/twinflow/blob/main/ARCHITECTURE.md) is the source, and every row keeps the name that
+[ARCHITECTURE.md](https://github.com/ragonxdragon/twinflow/blob/main/ARCHITECTURE.md) is the source, and every row keeps the name that
 source gives it. Section 5 of this page says what these budgets are not.
 
 | Decision class            | Budget             | Enforced at |
@@ -98,7 +98,7 @@ a budget nobody set.
 the plant. Its software runs at tier 2, beside the historian, because a process
 model needs the full site state.
 
-`twinflow-api` has no row of its own in section 4 of [ARCHITECTURE.md](https://github.com/johnragonhall/twinflow/blob/main/ARCHITECTURE.md).
+`twinflow-api` has no row of its own in section 4 of [ARCHITECTURE.md](https://github.com/ragonxdragon/twinflow/blob/main/ARCHITECTURE.md).
 It is the read path the dashboard goes through, so it takes the dashboard's
 levels and the dashboard's split.
 

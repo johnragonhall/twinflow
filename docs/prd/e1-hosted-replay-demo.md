@@ -30,7 +30,7 @@ a diagram, and unfilled metric markers, and has nothing to watch.
 
 The evidence is in the repository, because the project has no analytics and no users yet.
 
-- [ROADMAP.md](https://github.com/johnragonhall/twinflow/blob/main/ROADMAP.md), "Change 2: E1 moves to the close of P2", records the reasoning: most people who judge the repository will never run Docker, and E1 is what lets them see the system work.
+- [ROADMAP.md](https://github.com/ragonxdragon/twinflow/blob/main/ROADMAP.md), "Change 2: E1 moves to the close of P2", records the reasoning: most people who judge the repository will never run Docker, and E1 is what lets them see the system work.
 - The quickstart in the README is marked planned. Gate `VAL-GATE-QS-001` holds the first path to under 300 seconds, which is still a download, a build, and a terminal.
 - The README states that no replay URL is linked until the URL serves a page. Today that link does not exist.
 

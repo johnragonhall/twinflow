@@ -426,7 +426,7 @@ reads them as one id.
 A refused license fails the run, and so does a license that matches no row.
 
 Anything not in the table needs a decision before the dependency lands. Open a
-[discussion](https://github.com/johnragonhall/twinflow/discussions) naming the
+[discussion](https://github.com/ragonxdragon/twinflow/discussions) naming the
 package, its SPDX id, and whether it links at run time, at build time, or only
 in tests. [LICENSING.md](LICENSING.md) states the policy this table carries out.
 

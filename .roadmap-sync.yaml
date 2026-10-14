@@ -13,7 +13,7 @@
 # applies" rule is what contradicted the release ritual, so the scope is named
 # rather than asserted away.
 
-repo: johnragonhall/twinflow
+repo: ragonxdragon/twinflow
 project_number: 1
 milestone_title_template: "{phase_id} {name} ({release_tag})"
 issue_title_template: "[{phase_id}] {id} {title}"

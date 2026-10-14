@@ -4,11 +4,11 @@ A digital twin of a warehouse operation. A discrete-event model of receiving and
 
 **Status: designed in full, built from the bottom up.** Phase P0 closed at v0.1.0, fixing the determinism, schema, and config contracts. Phase P1, which takes one station end to end, is open and nothing later has started, so read this as a plan with published evidence rules, not as a shipped product. [ROADMAP.md](ROADMAP.md) holds every milestone with its phase and dependencies, and nothing is ever deleted from it: milestones are reordered, never dropped. [ARCHITECTURE.md](ARCHITECTURE.md) holds the decisions and their rationale.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/johnragonhall/twinflow/ci.yml?branch=main&label=CI)](https://github.com/johnragonhall/twinflow/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/ragonxdragon/twinflow/ci.yml?branch=main&label=CI)](https://github.com/ragonxdragon/twinflow/actions)
 [![License](https://img.shields.io/badge/license-Apache--2.0%20or%20commercial-blue)](LICENSING.md)
-[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://github.com/johnragonhall/twinflow)
-[![Docs](https://img.shields.io/badge/docs-live-blue)](https://johnragonhall.github.io/twinflow/)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/johnragonhall/twinflow/badge)](https://scorecard.dev/viewer/?uri=github.com/johnragonhall/twinflow)
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://github.com/ragonxdragon/twinflow)
+[![Docs](https://img.shields.io/badge/docs-live-blue)](https://ragonxdragon.github.io/twinflow/)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/ragonxdragon/twinflow/badge)](https://scorecard.dev/viewer/?uri=github.com/ragonxdragon/twinflow)
 
 Milestone E1 records a simulated shift and ships a static replay viewer to GitHub Pages, so the system can be watched without installing anything. It closes phase P2, at v0.3.0, and no URL is linked here until it serves a page.
 

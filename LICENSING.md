@@ -47,7 +47,7 @@ reasons:
 - You want to relicense derivative work under terms Apache-2.0 does not permit.
 
 Commercial terms are negotiated per engagement. Open a
-[GitHub discussion](https://github.com/johnragonhall/twinflow/discussions)
+[GitHub discussion](https://github.com/ragonxdragon/twinflow/discussions)
 asking for commercial terms, and the maintainer replies with a private route.
 Do not put anything confidential in the discussion itself.
 

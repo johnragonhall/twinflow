@@ -13,15 +13,15 @@ yours and what comes back.
 
 ## Where to ask
 
-| You want to                                                          | Go here                                                                                                         |
-|----------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| Ask how something works, or why it is designed that way              | [Discussions](https://github.com/johnragonhall/twinflow/discussions)                                            |
-| Report something that behaves differently from the docs or the tests | [Open a bug report](https://github.com/johnragonhall/twinflow/issues/new?template=bug_report.yml)               |
-| Propose a capability or a change to an existing module               | [Open a feature request](https://github.com/johnragonhall/twinflow/issues/new?template=feature_request.yml)     |
-| Add or amend a numbered roadmap milestone                            | [Open a roadmap milestone](https://github.com/johnragonhall/twinflow/issues/new?template=roadmap_milestone.yml) |
-| Report a security vulnerability                                      | Do not file it here. Follow [SECURITY.md](SECURITY.md).                                                         |
-| Contribute code                                                      | Read [CONTRIBUTING.md](CONTRIBUTING.md), then sign [CLA.md](CLA.md)                                             |
-| Ask about a commercial license, a warranty, or an indemnity          | Read [LICENSING.md](LICENSING.md), then open a discussion                                                       |
+| You want to                                                          | Go here                                                                                                        |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Ask how something works, or why it is designed that way              | [Discussions](https://github.com/ragonxdragon/twinflow/discussions)                                            |
+| Report something that behaves differently from the docs or the tests | [Open a bug report](https://github.com/ragonxdragon/twinflow/issues/new?template=bug_report.yml)               |
+| Propose a capability or a change to an existing module               | [Open a feature request](https://github.com/ragonxdragon/twinflow/issues/new?template=feature_request.yml)     |
+| Add or amend a numbered roadmap milestone                            | [Open a roadmap milestone](https://github.com/ragonxdragon/twinflow/issues/new?template=roadmap_milestone.yml) |
+| Report a security vulnerability                                      | Do not file it here. Follow [SECURITY.md](SECURITY.md).                                                        |
+| Contribute code                                                      | Read [CONTRIBUTING.md](CONTRIBUTING.md), then sign [CLA.md](CLA.md)                                            |
+| Ask about a commercial license, a warranty, or an indemnity          | Read [LICENSING.md](LICENSING.md), then open a discussion                                                      |
 
 Blank issues are turned off in `.github/ISSUE_TEMPLATE/config.yml`. The forms
 exist for one reason. A report carrying a seed, a config fragment, and a
@@ -71,8 +71,7 @@ most useful line in a bug report.
 - Debugging your own fork, your own model, or your own data pipeline, where
   twinflow is not the thing misbehaving.
 - Commercial support, service-level agreements, and guaranteed response times.
-  Apache-2.0 disclaims warranties in section 7 and limits liability in section
-  8. Section 9 is what lets a separate commercial agreement carry such terms,
+  Apache-2.0 disclaims warranties in section 7 and limits liability in section 8. Section 9 is what lets a separate commercial agreement carry such terms,
   and [LICENSING.md](LICENSING.md) covers that path.
 - Anything needing real, client, employer, or proprietary data. Every dataset
   here is synthetic and stays that way. Do not paste anything confidential into

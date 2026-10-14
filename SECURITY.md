@@ -16,7 +16,7 @@ its own has not taken the subject seriously, so this page states the real one.
 Do not open a public issue for a security finding.
 
 Use GitHub private vulnerability reporting. Open
-<https://github.com/johnragonhall/twinflow/security/advisories> and choose
+<https://github.com/ragonxdragon/twinflow/security/advisories> and choose
 "Report a vulnerability". That channel is private between you and the
 maintainer. It opens a draft advisory, which the maintainer publishes when the
 fix ships, and the published advisory is then the public record.

@@ -62,7 +62,7 @@ event.
 ## Enforcement
 
 Report abusive, harassing, or otherwise unacceptable behavior to the maintainer.
-Open a [discussion](https://github.com/johnragonhall/twinflow/discussions)
+Open a [discussion](https://github.com/ragonxdragon/twinflow/discussions)
 holding only a request for a private channel, with no detail about the
 incident. The maintainer replies with a private route, and the detail goes
 there.
