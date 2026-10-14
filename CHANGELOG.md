@@ -71,6 +71,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- install the kernel mqtt extra in the dev environment
 - claim the replay demo metrics on the work package that measures them
 - satisfy the remaining eight edge-node assertions
 - repair three conformance failures in the session model

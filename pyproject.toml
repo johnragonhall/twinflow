@@ -72,7 +72,7 @@ dev = [
     # without an --all-packages flag nobody remembers.
     "twinflow-schemas",
     "twinflow-rng",
-    "twinflow-kernel",
+    "twinflow-kernel[mqtt]",
     "twinflow-config",
     "twinflow-twin",
     "twinflow-sensors",
