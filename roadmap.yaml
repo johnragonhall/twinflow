@@ -1081,6 +1081,11 @@ work_packages:
     deliverables:
       - "packages/twinflow-replay/src/twinflow/replay/bundle.py"
       - ".github/workflows/pages.yml"
+      - "metric:replay_first_frame_seconds"
+      - "metric:replay_bundle_gz_bytes"
+      - "metric:replay_task_success_rate"
+      - "metric:replay_query_parity_rate"
+      - "metric:replay_ungrounded_numeric_sentences"
     gates:
       - VAL-GATE-E1-001
     brick: null

@@ -71,6 +71,7 @@ here freely: the hook only ever adds.
 
 ### Fixed
 
+- claim the replay demo metrics on the work package that measures them
 - satisfy the remaining eight edge-node assertions
 - repair three conformance failures in the session model
 - assert what the tests assume, so ty can read it
